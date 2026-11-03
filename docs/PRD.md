@@ -11,7 +11,7 @@
 | **Category** | Resurrection |
 | **Bonus targets** | Best Startup Project (TBC, see §19), Best Demo, Bonus Blog, Social Blitz, Best Kiro Crew App (stretch) |
 | **Author / Entrant** | Olajide Adeluwoye (`olajaido`) |
-| **Status** | Draft v1.2, 3 Nov 2026 (changelog: Appendix D) |
+| **Status** | Draft v1.3, 3 Nov 2026 (changelog: Appendix D) |
 | **Submission deadline** | **Fri 4 Dec 2026, 14:00 PT = 22:00 GMT**. Internal target: **Thu 3 Dec, 20:00 GMT** |
 
 ---
@@ -189,16 +189,16 @@ The UI always shows both, e.g. **"Dead** (abandoned)".
 
 | ID | Signal | Source | Notes |
 |---|---|---|---|
-| S1 | **Declared death**: npm `deprecated` on the **latest** version (package-level deprecation); GitHub repo `archived`; PyPI project status *archived* or *deprecated* (PEP 792) where exposed; PyPI classifier `Development Status :: 7 - Inactive` on the latest release | npm registry, GitHub GraphQL, PyPI JSON | 🔍 SPIKE: confirm PyPI status exposure. Deprecating only an *older* version is **not** death (see S1b) |
+| S1 | **Declared death**: npm `deprecated` on the **latest** version (package-level deprecation); GitHub repo `archived`; PyPI project status *archived* or *deprecated* (PEP 792) where exposed; PyPI classifier `Development Status :: 7 - Inactive` on the latest release | deps.dev `isDeprecated`, npm registry, GitHub GraphQL | ✅ Spike (ADR 0001): PyPI exposes **no** status or deprecation signal, so PyPI S1 comes only from GitHub `isArchived`. Deprecating only an *older* version is **not** death (see S1b) |
 | S1b | **Version deprecated**: the resolved version is deprecated but the latest is not | npm registry | Produces the Wounded (upgrade advised) overlay; does not affect mortality |
 | S2 | **Release staleness**: months since the latest release of the package | deps.dev / registry | |
 | S3 | **Commit staleness**: months since the last push to the default branch | GitHub GraphQL `pushedAt` / history | |
 | S4 | **Maintenance activity**: Scorecard `Maintained` check (0–10), which covers 90-day activity | deps.dev `GetProject` (includes Scorecard) or Scorecard API | |
 | S5 | **Bus factor**: distinct committers in the last 12 months | GitHub stats / ecosyste.ms | Cap the API cost; P1 |
-| S6 | **Issue neglect**: open/closed ratio, and median time to first response for issues in the last 12 months | GitHub GraphQL / ecosyste.ms | P1; MVP uses the open-issues ratio |
+| S6 | **Issue neglect**: all-time open and closed issue counts | GitHub GraphQL `issues { totalCount }` | v1 uses the all-time ratio; a 12-month window and response time are planned for v2 (they need the rate-limited search API) |
 | S7 | **Vulnerabilities**: OSV advisories affecting the resolved version; split into *fix available* and *no fix* | OSV.dev `querybatch` | Drives the Wounded and Cursed states |
 | S8 | **Scorecard overall** | deps.dev / Scorecard | Weak signal, low weight |
-| S9 | **Popularity / dependents**: dependent count and downloads | deps.dev, npm downloads API, pypistats | Used for *exposure*, not mortality |
+| S9 | **Popularity**: weekly downloads (deps.dev v3 has no dependents count, confirmed by the spike) | npm downloads API, pypistats | Used for *exposure*, not mortality |
 
 ### 7.2 Normalisation (each signal → risk r ∈ [0,1])
 
@@ -207,8 +207,8 @@ r2 = clamp((months_since_release − 12) / 24, 0, 1)    # grace 12 mo, full risk
 r3 = clamp((months_since_push − 12) / 24, 0, 1)
 r4 = 1 − (maintained_check / 10)                       # missing if absent or −1 (inconclusive)
 r5 = {0 or 1 committers: 1.0, 2: 0.6, 3–4: 0.3, ≥5: 0.0}
-open_ratio = open / (open + closed)                    # issues CREATED in the last 12 months
-r6 = 0 if no issues were created, else clamp(open_ratio − 0.5, 0, 0.5) × 2
+open_ratio = open / (open + closed)                    # all-time counts (v1)
+r6 = 0 if the repo has no issues, else clamp(open_ratio − 0.5, 0, 0.5) × 2
 r8 = 1 − (scorecard_overall / 10)                      # missing if absent or −1
 ```
 
@@ -234,7 +234,7 @@ weights (v1): w2=0.25, w3=0.25, w4=0.20, w5=0.10, w6=0.10, w8=0.10
 |---|---|
 | **Dead** | S1 true, OR mortality ≥ 60 |
 | **Unknown** | mortality is null (no signals) |
-| **Resting** | 30 ≤ mortality < 60 AND no advisories affect the resolved version AND (r6 ≤ 0.2 OR r6 missing) AND dependents is known AND dependents ≥ `resting_min_dependents` (default 500) |
+| **Resting** | 30 ≤ mortality < 60 AND no advisories affect the resolved version AND (r6 ≤ 0.2 OR r6 missing) AND weekly downloads is known AND ≥ `resting_min_weekly_downloads` (default 10,000) |
 | **Ailing** | 30 ≤ mortality < 60 |
 | **Alive** | mortality < 30 |
 | **Cursed** (overlay) | ≥ 1 advisory affecting the resolved version with **no fixed version in any range**, AND (the advisory was published ≥ `cursed_min_age_days` (90) before `as_of`, OR the base state is Dead or Ailing). This stops healthy packages with a fresh CVE being labelled cursed |
@@ -282,12 +282,18 @@ Priority: **P0** = must ship for the demo, **P1** = should, **P2** = stretch.
 
 - **EX-1** WHEN a user submits a public GitHub repo (`owner/name`, optional ref) THE SYSTEM SHALL fetch only supported manifest and lock files via the GitHub Contents/Trees API, without cloning or executing code.
 - **EX-2** THE SYSTEM SHALL support, at P0: `package-lock.json` (v2/v3), `pnpm-lock.yaml`, `requirements.txt` (pinned), `poetry.lock`, `uv.lock`; at P1: `yarn.lock`, `Pipfile.lock`.
-- **EX-3** WHEN a user uploads a file THE SYSTEM SHALL accept CycloneDX 1.5/1.6 JSON or SPDX 2.3 JSON up to 5 MB via a presigned S3 URL, and reject other content types.
+- **EX-3** WHEN a user uploads a file THE SYSTEM SHALL accept CycloneDX 1.5–1.7 JSON or SPDX 2.3 JSON up to 5 MB via a presigned S3 URL, and reject other content types.
 - **EX-4** THE SYSTEM SHALL normalise all inputs to an internal CycloneDX-based graph keyed by purl, recording for each node: direct/transitive, scope (runtime/dev), and the manifest path it came from (to support monorepos).
 - **EX-5** IF a repo is not found, private, or has no supported files THEN THE SYSTEM SHALL show a specific, friendly error and suggest the SBOM upload route.
 - **EX-6** WHEN a monorepo contains several manifests THE SYSTEM SHALL treat each manifest directory as a "service" for exposure purposes.
 - **EX-7** THE SYSTEM SHALL dedupe packages by `purl@version` across services and reuse cached autopsies (§10.4).
-- 🔍 **SPIKE EX-S1:** Lockfile → SBOM via **Syft** (pinned version) in a container Lambda, versus our own parsers. Check that Syft's CycloneDX output preserves the dependency relationships for npm and PyPI lockfiles. If it doesn't, use deps.dev `:dependencies` (resolved graph) per direct dependency as the fallback. Decide by Fri 6 Nov.
+- ✅ **EX-S1 resolved (ADR 0001):** use **Syft v1.56.0** (pinned) in a container Lambda. Its CycloneDX output includes the `dependencies` graph, so direct and transitive are distinguishable. Identify the root via the project component's `bom-ref` in `components`, not `metadata.component`.
+- **EX-8** THE SYSTEM SHALL derive each node's scope (runtime/dev) from the lockfile, because Syft does not provide it:
+  - `package-lock.json` `packages[*].dev` / `devOptional`;
+  - `poetry.lock` groups;
+  - `uv.lock` dev groups;
+  - `requirements.txt` entries are treated as runtime.
+- **EX-9** THE SYSTEM SHALL resolve each package's source repository via deps.dev `SOURCE_REPO`, then the registry `repository` field, then PyPI `project_urls`. It SHALL normalise every URL form (`git+https://`, `git://`, `ssh`, `github:owner/repo`, trailing `.git`) to `github.com/<owner>/<repo>`. IF no repository resolves THEN repo-level signals SHALL be marked missing.
 
 ### 8.2 F2 — Autopsy and Mortality Score · P0 · spec: `autopsy`
 
@@ -499,7 +505,7 @@ flowchart LR
 | Orchestration | **Step Functions** (Standard parent, Express child for the Distributed Map) | Visual fan-out that is great to show on video, built-in retries and backoff per source, no queue plumbing |
 | Data | **DynamoDB** single table, on-demand, TTL | Serverless, cheap, TTL gives the autopsy cache for free |
 | Artefacts | **S3** with SSE-KMS, lifecycle rule (7-day expiry for uploads, 30 days for reports) | |
-| LLM | **Amazon Bedrock** (a Claude-family model via an EU cross-region inference profile), **Bedrock Guardrails** | Sponsor-native; Guardrails covers the prompt-attack filter. Model ID in SSM. 🔍 SPIKE: confirm model access in `eu-west-2` |
+| LLM | **Amazon Bedrock** with EU cross-region inference profiles: `eu.anthropic.claude-haiku-5-5` for narrate, `eu.anthropic.claude-sonnet-5-5` for rites; **Bedrock Guardrails** | Sponsor-native; Guardrails covers the prompt-attack filter. Model IDs in SSM. ✅ Profiles confirmed in `eu-west-2` (ADR 0001). Use `eu.` profiles only, never `global.` |
 | SBOM | **Syft** (pinned version, pinned image digest) | Mature lockfile coverage; avoids writing parsers |
 | Codemods | **ast-grep** (JS/TS), **LibCST** (Python) | Deterministic rewrites; the LLM only *chooses* the rule |
 | Auth to GitHub | **GitHub App** (not an OAuth app or PAT) | Fine-grained, per-repo, short-lived installation tokens |
@@ -561,7 +567,9 @@ Timeouts: overall 5 min. Partial-results policy is AU-4.
 |---|---|---|
 | deps.dev API v3 | None | Primary source for versions, links, Scorecard and dependents; cache aggressively |
 | OSV.dev `/v1/querybatch` | None | One batch call per scan of up to 1,000 queries |
-| GitHub GraphQL | GitHub App installation token (5,000 points/hr) | Only for S3, S5 and S6; batch 50 repos per query; skip if deps.dev already has them |
+| GitHub GraphQL | **Graveyard Reader** app installation token (5,000 points/hr), **P0** | The only source for `isArchived`, S3, S5 and S6. One batched query per group of up to 50 repos; cache per repo for 24 h |
+| npm downloads API / pypistats | None | S9 weekly downloads; pypistats is rate-limited, so cache for 7 days |
+| Scorecard API | None | Fallback when deps.dev has no project for a resolved repo |
 | npm registry / downloads API | None | Abbreviated metadata (`application/vnd.npm.install-v1+json`) for speed |
 | PyPI JSON API | None | Per-package JSON |
 | ecosyste.ms | None (polite pool) | P1 for bus factor and issue stats; set a contact `User-Agent` |
@@ -768,7 +776,11 @@ The structure is modelled on the 2025 2nd-place entry, with the sections this ye
 - `api`: `dynamodb:GetItem/Query/PutItem` on the table and GSI ARNs; `states:StartExecution` on the scan state machine; `s3:PutObject` on `uploads/*` for presigning.
 - `fetch`: reader secret; `dynamodb:PutItem` on the table.
 - `autopsy`: reader secret; `dynamodb:GetItem/PutItem` on the table; no S3; no Bedrock.
-- `narrate`: `bedrock:InvokeModel` on the **specific inference-profile ARN**, `bedrock:ApplyGuardrail` on the guardrail ARN, and `dynamodb:UpdateItem` on the table.
+- `narrate`:
+  - `bedrock:InvokeModel` on the **specific EU inference-profile ARN**;
+  - **also** on the underlying foundation-model ARNs it routes to (`arn:aws:bedrock:eu-*::foundation-model/<model>`), with condition `bedrock:InferenceProfileArn` equal to that profile;
+  - `bedrock:ApplyGuardrail` on the guardrail ARN;
+  - `dynamodb:UpdateItem` on the table.
 - `rites`: rites secret only; Bedrock as above; S3 read/write `rites/*`.
 - Remaining roles (syft, graph, classify, finalise, state machine) are derived in the `infra-serverless` spec under the same rules.
 - No `*` resources except where the AWS API requires it (documented inline).
@@ -875,7 +887,13 @@ Record each segment separately, then edit. Keep a **pre-warmed cache** and a **b
 
 A small, real-looking app (`olajaido/haunted-house`) with npm and Python services whose **lockfiles** reference known-dead packages. **It is never installed or executed.**
 
-- **Candidates to verify in Week 0:** `request` (deprecated), `node-uuid` (deprecated → `uuid`), `moment` (maintenance mode; good for showing the Resting/Ailing nuance), native-replaceable utilities from module-replacements, `pycrypto` (unmaintained, with advisories; alternative `pycryptodome`), `nose` (unmaintained).
+- **Confirmed by the spike (ADR 0001):**
+  - **Dead (declared):** `request`, `node-uuid`, and `left-pad`, whose native replacement `String.prototype.padStart` makes it the ideal automated Reincarnate PR.
+  - **Dead + Cursed:** `pycrypto` (no-fix advisories; alternative `pycryptodome`).
+  - **Dead (staleness):** `nose`.
+  - **Not dead, Wounded (upgrade advised):** `express`, which demonstrates that Graveyard doesn't cry wolf over deprecated *old* versions.
+  - **Resting:** `six` (finished, not dead).
+- `moment` turned out Alive, with only old versions deprecated, so it is no longer the Resting example.
 - **Exclude** packages with a history of *malicious* versions (e.g. compromised event-stream releases). Reference those only in narration.
 
 ### 15.3 Kiro Crew App: Gravedigger (P2, separate repo `olajaido/graveyard-gravedigger`)
@@ -1063,6 +1081,13 @@ _Draft opened by Graveyard (mortality model v1). Review before merging._
 | Version | Date | Changes |
 |---|---|---|
 | v1.0 | 2 Nov 2026 | Initial PRD |
+| v1.3 | 3 Nov 2026 | Spike results (ADR 0001):
+- Syft v1.56.0 adopted; CycloneDX 1.7 accepted.
+- New EX-8 (lockfile scope) and EX-9 (repo resolution and normalisation).
+- PyPI S1 comes from GitHub `isArchived` only; the GitHub Reader app is P0.
+- S6 uses all-time issue counts; S9 and the Resting rule use weekly downloads.
+- Bedrock models chosen (EU profiles), with the cross-region IAM fix.
+- Demo package list confirmed. |
 | v1.2 | 3 Nov 2026 | Mortality-model corrections from the steering review:
 - S1 counts only latest-version deprecation; a deprecated older version is now S1b (Wounded).
 - New Unknown state for the all-missing case.
@@ -1078,4 +1103,4 @@ IAM changes: split into Reader and Rites GitHub Apps, a baseline per-role policy
 
 ---
 
-*End of PRD v1.2*
+*End of PRD v1.3*

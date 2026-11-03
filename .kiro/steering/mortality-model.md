@@ -3,7 +3,7 @@ inclusion: fileMatch
 fileMatchPattern: "backend/core/scoring/**"
 ---
 
-# Mortality Model Steering — Graveyard (model v1, PRD §7 v1.2)
+# Mortality Model Steering — Graveyard (model v1, PRD §7 v1.3)
 
 ## Hard rules
 
@@ -20,26 +20,29 @@ model_version: v1
 weights: {s2: 0.25, s3: 0.25, s4: 0.20, s5: 0.10, s6: 0.10, s8: 0.10}
 staleness: {grace_months: 12, span_months: 24}
 thresholds: {dead: 60, ailing: 30}
-resting_min_dependents: 500
+resting_min_weekly_downloads: 10000
 cursed_min_age_days: 90
 ```
 
 ## Inputs (per package version, identified by a purl)
 
+Sources confirmed by the 3 Nov 2026 spike (docs/SPIKES.md).
+
 | ID | Signal | Source | Notes |
 |---|---|---|---|
-| S1 | Declared death: npm `deprecated` set on the **latest** version (package-level); GitHub repo `archived`; PyPI project status archived/deprecated (where exposed); PyPI classifier `Development Status :: 7 - Inactive` on the latest release | npm, GitHub GraphQL, PyPI JSON | Deprecation of only the **resolved** (older) version is NOT S1, see S1b |
-| S1b | Version deprecated: resolved version deprecated but latest is not | npm | Produces overlay Wounded (upgrade advised); does not affect mortality |
-| S2 | Months since latest release | deps.dev / registry | |
+| S1 | Declared death: npm `deprecated` set on the **latest** version (package-level); GitHub repo `isArchived` | deps.dev `isDeprecated` (default version), npm registry fallback; GitHub GraphQL | PyPI exposes no status or deprecation signal, so PyPI S1 comes only from GitHub `isArchived` |
+| S1b | Version deprecated: resolved version deprecated but latest is not | deps.dev / npm | Overlay Wounded (upgrade advised); does not affect mortality |
+| S2 | Months since latest release | deps.dev `publishedAt`; npm `time`; PyPI `upload_time` | Available for all packages |
 | S3 | Months since last push to default branch | GitHub GraphQL `pushedAt` | Repo-level |
-| S4 | Scorecard `Maintained` check (0–10) | deps.dev / Scorecard | −1 (inconclusive) → missing |
-| S5 | Distinct committers, last 12 months | GitHub / ecosyste.ms | Repo-level |
-| S6 | Issues created in last 12 months: open and closed counts | GitHub GraphQL | Repo-level |
-| S7 | OSV advisories affecting the resolved version (with fix ranges, published date) | OSV.dev | Overlays only, never mortality |
-| S8 | Scorecard overall (0–10) | deps.dev / Scorecard | −1 → missing |
-| S9 | Dependents count, downloads | deps.dev, npm, pypistats | Exposure and Resting only |
+| S4 | Scorecard `Maintained` check (0–10) | deps.dev project; Scorecard API fallback | −1 → missing |
+| S5 | Distinct commit authors, last 12 months | GitHub GraphQL default-branch history | Repo-level |
+| S6 | All-time open and closed issue counts | GitHub GraphQL `issues(states:…) { totalCount }` | Repo-level. v1 uses all-time; a 12-month window is planned for v2 |
+| S7 | OSV advisories affecting the resolved version (fix ranges, published date) | OSV.dev querybatch (primary) | Overlays only, never mortality |
+| S8 | Scorecard overall (0–10) | deps.dev project; Scorecard API fallback | −1 → missing |
+| S9 | Weekly downloads | npm downloads API; pypistats | Resting rule only. deps.dev v3 has no dependents count |
 
-Repo-level signals (S3–S6, S8): when the source repo hosts multiple packages (monorepo), set `shared_repo = true` on the evidence. This is a known limitation and is shown in the UI.
+- The repo is resolved via EX-9: deps.dev `SOURCE_REPO` → registry `repository` field → PyPI `project_urls`, normalised to `github.com/<owner>/<repo>`. If no repo resolves, S1 (GitHub part), S3–S6 and S8 are missing.
+- When the source repo hosts multiple packages (monorepo), set `shared_repo = true` on repo-level evidence. This is a known limitation and is shown in the UI.
 
 ## Normalisation (each present signal → risk r ∈ [0, 1])
 
@@ -48,8 +51,8 @@ g = grace_months, s = span_months
 r2 = clamp((months_since_release − g) / s, 0, 1)
 r3 = clamp((months_since_push − g) / s, 0, 1)
 r4 = 1 − maintained / 10                     # missing if absent or −1
-r5 = {0 or 1 committers: 1.0, 2: 0.6, 3–4: 0.3, ≥5: 0.0}
-open_ratio = open / (open + closed)          # issues CREATED in last 12 months
+r5 = {0 or 1 authors: 1.0, 2: 0.6, 3–4: 0.3, ≥5: 0.0}
+open_ratio = open / (open + closed)          # all-time counts (v1)
 r6 = 0 if (open + closed) == 0 else clamp(open_ratio − 0.5, 0, 0.5) × 2
 r8 = 1 − overall / 10                        # missing if absent or −1
 ```
@@ -70,7 +73,7 @@ Low confidence renders as fog in the UI. Unknown renders as heavy fog.
 
 1. **Dead**: S1, OR mortality ≥ thresholds.dead
 2. **Unknown**: mortality is None
-3. **Resting**: thresholds.ailing ≤ mortality < thresholds.dead AND no S7 advisories affect the resolved version AND (r6 ≤ 0.2 OR r6 missing) AND dependents is known AND dependents ≥ resting_min_dependents
+3. **Resting**: thresholds.ailing ≤ mortality < thresholds.dead AND no S7 advisories affect the resolved version AND (r6 ≤ 0.2 OR r6 missing) AND weekly downloads is known AND ≥ resting_min_weekly_downloads
 4. **Ailing**: thresholds.ailing ≤ mortality < thresholds.dead
 5. **Alive**: mortality < thresholds.ailing
 
@@ -89,6 +92,7 @@ services_affected = count of distinct services (tie-breaker only)
 priority          = mortality × (0.5 + 0.5 × exposure) × (cursed ? 1.5 : 1.0)   # ∈ [0, 150]
 ```
 
+- Scope (runtime/dev) comes from the lockfile (EX-8), never from Syft.
 - Unknown nodes have no priority; they sort after all scored nodes, by exposure.
 - Sort: priority desc → services_affected desc → purl asc (deterministic total order).
 
@@ -97,13 +101,23 @@ priority          = mortality × (0.5 + 0.5 × exposure) × (cursed ? 1.5 : 1.0)
 - **I1** mortality is None, or 0 ≤ mortality ≤ 100.
 - **I2** Monotonicity, holding the set of present signals constant:
   - increasing `months_since_release` or `months_since_push` never decreases mortality;
-  - decreasing `maintained`, `overall` or `committers` never decreases mortality.
+  - decreasing `maintained`, `overall` or `authors` never decreases mortality.
 - **I3** S1 ⇒ base state Dead, for any other inputs.
 - **I4** Confidence ∈ [0, 1]; making an additional signal present never decreases confidence; confidence = 1 iff all six are present.
 - **I5** Totality: every input, including all-missing, maps to exactly one base state.
 - **I6** Determinism: identical inputs and `as_of` ⇒ identical output.
 - **I7** priority ≥ 0 for scored nodes; the sort is a strict total order (no ties after tie-breakers).
 - **I8** S1b alone (version-only deprecation) never yields S1 or Dead via declaration.
+
+## Real-data sanity anchors (from the spike; use as example-based tests)
+
+| Package | Expected |
+|---|---|
+| request, node-uuid, left-pad | Dead (S1 declared) |
+| express, uuid, moment | not Dead from deprecation alone (S1b → Wounded: upgrade advised) |
+| pycrypto | Dead (staleness) + Cursed (no-fix advisories, old) |
+| nose | Dead (staleness) |
+| six | Resting (mortality ≈ 59, no advisories, very high downloads) |
 
 ## Evaluation harness
 

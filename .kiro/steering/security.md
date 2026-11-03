@@ -39,7 +39,12 @@ inclusion: always
 - `api`: `dynamodb:GetItem/Query/PutItem` on the table and GSI ARNs; `states:StartExecution` on the scan state machine; `s3:PutObject` on `uploads/*` (presign).
 - `fetch`: reader secret; `dynamodb:PutItem` on the table.
 - `autopsy`: reader secret; `dynamodb:GetItem/PutItem` on the table. No S3, no Bedrock.
-- `narrate`: `bedrock:InvokeModel` on the specific inference-profile ARN; `bedrock:ApplyGuardrail` on the guardrail ARN; `dynamodb:UpdateItem` on the table.
+- `narrate`:
+  - `bedrock:InvokeModel` on the specific EU inference-profile ARN (`arn:aws:bedrock:eu-west-2:<account>:inference-profile/<SSM model id>`);
+  - **also** `bedrock:InvokeModel` on the underlying foundation-model ARNs the profile routes to (`arn:aws:bedrock:eu-*::foundation-model/<model id>`), with condition `bedrock:InferenceProfileArn` equal to that profile ARN;
+  - `bedrock:ApplyGuardrail` on the guardrail ARN;
+  - `dynamodb:UpdateItem` on the table.
+- Use `eu.` inference profiles only, never `global.`, so data stays in the EU. Model IDs come from SSM: `/graveyard/<env>/bedrock/narrate-model` (default `eu.anthropic.claude-haiku-5-5`) and `/graveyard/<env>/bedrock/rites-model` (default `eu.anthropic.claude-sonnet-5-5`).
 - `rites`: rites secret; Bedrock as for `narrate`; `s3:GetObject/PutObject` on `rites/*`.
 - Remaining roles (syft, graph, classify, finalise, state machine) are derived in the `infra-serverless` spec under the same rules.
 - No `*` resources except where the AWS API requires it (document inline).
