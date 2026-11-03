@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Kiro Journal Entry",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "Append an entry to docs/KIRO_JOURNAL.md: date, spec + task, Kiro features used (spec/steering/hook/MCP/PBT/agent), what Kiro got right, what I corrected, anything surprising. Max 8 lines."
+      }
+    }
+  ]
+}
