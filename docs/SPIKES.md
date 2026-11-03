@@ -1,0 +1,72 @@
+# Spike Findings
+
+> Throwaway validation scripts in `spikes/` (PEP 723, `uv run`). Run on 3 Nov 2026.
+> Packages tested — npm: request, node-uuid, moment, express, left-pad, uuid; PyPI: pycrypto, nose, requests, pycryptodome, six.
+> Sources called: deps.dev v3 (package, version, project), OSV `/v1/querybatch`, npm registry, PyPI JSON API. Syft v1.56.0.
+
+## Summary Table
+
+| # | Question | Finding | Evidence | Decision needed |
+|---|----------|---------|----------|------------------|
+| 1 | Signal coverage: which of S1–S9 are obtainable per package, and which source provides each? | S2, S7 obtainable for all 11 packages. S1/S1b obtainable for npm via deps.dev + npm registry (6/6). S4, S6 (partial), S8 obtainable for 9/11 (missing pycrypto, nose — no SOURCE_REPO link). S3, S5 not obtainable from any tested source. S9 dependents count not available anywhere; only stars/forks proxies from deps.dev. | See per-signal table below. | GitHub GraphQL needed for S3 and S5; ecosyste.ms or GitHub stats API for S9 dependents. For PyPI packages without a SOURCE_REPO link in deps.dev (pycrypto, nose), fall back to GitHub repo URL from PyPI `project_urls` to fetch Scorecard directly. |
+| 2 | npm deprecation: is `deprecated` set on the latest version, only on older versions, or neither? | S1 (latest deprecated): request, node-uuid, left-pad. S1b (only older versions): moment (2 broken versions), express (173, 0.x/1.x series), uuid (38, v10 and below). Neither: 0 packages. | deps.dev `isDeprecated` on default version + npm registry `deprecated` field. Both sources agree. | Confirms S1 vs S1b distinction is well-supported by both deps.dev and npm registry. Use deps.dev as primary (already has `isDefault` flag); npm registry as fallback. |
+| 3 | PyPI status: does the JSON API expose project status (PEP 792) or the "Development Status :: 7 - Inactive" classifier? | Neither. No PEP 792 status field exists in the PyPI JSON API response. No package has the "7 - Inactive" classifier — all five report "5 - Production/Stable", including dead packages (pycrypto last released 2014, nose last released 2015). The `yanked` field exists but is false for all. | Full `info` keys enumerated: no key contains "status", "archiv", or "deprecat". Classifiers checked for all 5 packages. | S1 for PyPI cannot come from PyPI itself. Use deps.dev Scorecard Maintained=0 with reason "project is archived" as a proxy (works for packages with a GitHub repo). Alternatively, check the GitHub repo `archived` flag via GraphQL. PyPI death detection must rely on GitHub-side signals + staleness. |
+| 4 | Scorecard via deps.dev: are Maintained and overall scores present? Do any return -1? Does deps.dev give a dependents count? | Maintained and overall scores present for 9/11 packages (all with a SOURCE_REPO link). Missing for pycrypto and nose (no SOURCE_REPO in deps.dev version metadata). Multiple individual checks return -1 (Packaging, Signed-Releases, Branch-Protection, Dangerous-Workflow, Token-Permissions, Pinned-Dependencies). overallScore is never -1 — always a positive float when present. deps.dev v3 has NO dependents endpoint; it provides openIssuesCount, starsCount, forksCount only. | deps.dev `/v3/projects/{id}` (URL-encoded project key). Checks returning -1: express (Packaging, Signed-Releases, Branch-Protection), node-uuid (5 checks), left-pad (5 checks), uuid (Branch-Protection, Signed-Releases), requests (Branch-Protection), pycryptodome (Packaging). | Treat -1 as "inconclusive/missing" per PRD §7.2. For dependents count, use ecosyste.ms or npm downloads API / pypistats as a separate source. Handle packages without SOURCE_REPO by trying the registry's `repository` field or PyPI `project_urls` to construct the project key. Note: SOURCE_REPO URL formats vary (`git+https://github.com/...`, `github:owner/repo`). |
+| 5 | Syft: does CycloneDX JSON include dependency relationships (direct vs transitive)? | Yes. Syft v1.56.0 CycloneDX 1.7 JSON includes a `dependencies` array with `dependsOn` relationships. The fixture/project component appears in both `components` and `dependencies`, listing its direct deps. Transitive deps appear in the `dependsOn` of other components. npm: 114 components, 46 dependency entries (fixture → express, moment, request; express → 32 sub-deps; request → 21). PyPI: 9 components, 2 dependency entries (fixture → nose, requests, six; requests → certifi, charset-normalizer, idna, urllib3). Direct vs transitive IS distinguishable from the SBOM. | `syft dir:{path} -o cyclonedx-json` on npm fixture (express, request, moment) and PyPI fixture (requests, six, nose). Lockfiles: `npm install --package-lock-only --ignore-scripts` and `uv lock`. Raw BOMs saved to `spikes/npm-sbom.cdx.json` and `spikes/py-sbom.cdx.json`. | Syft is viable for lockfile → SBOM (PRD EX-S1). The root component's `bom-ref` in `metadata.component` is a directory hash, NOT the project's purl — match on the fixture's component `bom-ref` in the `components` array instead. Components have no `scope` field; all found by `javascript-lock-cataloger`. No code modification needed vs. custom parsers. |
+
+## Q1 Per-Signal Detail
+
+| Signal | Source | npm coverage | PyPI coverage | Notes |
+|--------|--------|-------------|---------------|-------|
+| **S1** Declared death | deps.dev `version.isDeprecated` + npm registry `deprecated` | 6/6: request ✓, node-uuid ✓, left-pad ✓ (deprecated on latest); moment ✗, express ✗, uuid ✗ | 0/5: PyPI has no deprecation/status field; no "7 - Inactive" classifier | deps.dev `isDeprecated` and npm registry `deprecated` agree. For PyPI, detect via Scorecard Maintained=0 reason "project is archived" or GitHub GraphQL. |
+| **S1b** Version deprecated | deps.dev `isDeprecated` (non-default) + npm registry | 6/6: all have older deprecated versions (request: 125, express: 173, uuid: 38, left-pad: 14, node-uuid: 13, moment: 2) | N/A (PyPI has no deprecation mechanism) | Validated: deprecating only older versions is S1b, not S1. |
+| **S2** Release staleness | deps.dev `publishedAt` + npm registry `time[latest]` + PyPI `releases[latest].upload_time` | 6/6 ✓ | 5/5 ✓ | All sources provide release timestamps. deps.dev and npm registry agree to the second for npm. |
+| **S3** Commit staleness | — | 0/6 (NOT available) | 0/5 (NOT available) | Requires GitHub GraphQL `pushedAt`. None of the 4 tested sources provide this. |
+| **S4** Maintained check | deps.dev `project.scorecard.checks[Maintained]` | 6/6: request=0, node-uuid=0 (archived), moment=10, express=10, left-pad=0 (archived), uuid=9 | 3/5: requests=10, pycryptodome=5, six=0; pycrypto & nose missing (no SOURCE_REPO) | Scorecard Maintained score 0 + reason "project is archived" indirectly signals S1 for archived repos. |
+| **S5** Bus factor | — | 0/6 (NOT available) | 0/5 (NOT available) | Requires GitHub stats or ecosyste.ms. None of the 4 tested sources provide committer counts. |
+| **S6** Issue neglect | deps.dev `openIssuesCount` (partial) | 6/6 (partial): openIssues only; no closed count, no response time | 3/5 (partial): requests=245, pycryptodome=58, six=114; pycrypto & nose missing | Only open issue count available from deps.dev. Full S6 (open/closed ratio, median response time) needs GitHub GraphQL. |
+| **S7** Vulnerabilities | OSV `/v1/querybatch` + deps.dev `advisoryKeys` | 6/6: request@2.88.2 has 1 vuln (fix available); all others 0 | 5/5: pycrypto@2.6.1 has 4 vulns (2 with no fix → Cursed); all others 0 | OSV gives full advisory details (fix ranges). deps.dev `advisoryKeys` gives IDs only; use OSV as primary. One batch query per scan (≤1000 queries) per PRD. |
+| **S8** Scorecard overall | deps.dev `project.scorecard.overallScore` | 6/6: 2.0–8.5 (request=3.4, node-uuid=2.0, moment=6.1, express=8.5, left-pad=3.9, uuid=4.4) | 3/5: 3.7–8.2 (requests=8.2, pycryptodome=5.2, six=3.7); pycrypto & nose missing | Never -1. Missing when no project (no SOURCE_REPO). |
+| **S9** Dependents / popularity | deps.dev: NOT available (no dependents endpoint in v3) | 0/6 dependents; 6/6 stars+forks proxies | 0/5 dependents; 3/5 stars+forks proxies | deps.dev provides `starsCount` and `forksCount` as popularity proxies, not dependents. Use ecosyste.ms or npm downloads API / pypistats for true dependents/download counts. |
+
+## Q2 npm Deprecation Detail
+
+| Package | Latest version | Deprecated on latest? | Older versions deprecated | Count | Verdict |
+|---------|---------------|----------------------|--------------------------|-------|---------|
+| request | 2.88.2 | YES — "request has been deprecated, see https://github.com/request/request/issues/3142" | YES | 125 | **S1** (declared death) |
+| node-uuid | 1.4.8 | YES — "Use uuid module instead" | YES | 13 | **S1** (declared death) |
+| moment | 2.31.0 | NO | YES (broken versions only) | 2 | **S1b** (upgrade advised) |
+| express | 5.3.0 | NO | YES (0.x and 1.x series) | 173 | **S1b** (upgrade advised) |
+| left-pad | 1.3.0 | YES — "use String.prototype.padStart()" | YES | 14 | **S1** (declared death) |
+| uuid | 14.0.3 | NO | YES (uuid@10 and below) | 38 | **S1b** (upgrade advised) |
+
+## Q3 PyPI Status Detail
+
+| Package | PEP 792 status field? | "7 - Inactive" classifier? | Actual classifier | `yanked` | Latest upload |
+|---------|----------------------|---------------------------|------------------|----------|---------------|
+| pycrypto | No | No | 5 - Production/Stable | false | 2014-06-20 |
+| nose | No | No | 5 - Production/Stable | false | 2015-06-02 |
+| requests | No | No | 5 - Production/Stable | false | 2026-05-14 |
+| pycryptodome | No | No | 5 - Production/Stable | false | 2026-11-02 |
+| six | No | No | 5 - Production/Stable | false | 2024-12-04 |
+
+## Q4 Scorecard -1 Checks
+
+| Check | Packages returning -1 | Notes |
+|-------|----------------------|-------|
+| Packaging | express, node-uuid, left-pad, pycryptodome | "packaging workflow not detected" |
+| Signed-Releases | express, node-uuid, left-pad, uuid | "no releases found" |
+| Branch-Protection | express, node-uuid, left-pad, uuid, requests | "internal error" (token permissions) |
+| Dangerous-Workflow | node-uuid, left-pad | (archived repos) |
+| Token-Permissions | node-uuid, left-pad | (archived repos) |
+| Pinned-Dependencies | node-uuid, left-pad | (archived repos) |
+| **overallScore** | **none** | Always a positive float when present; never -1 |
+
+## Q5 Syft Output Detail
+
+| Fixture | Components | Dependency entries | Root → direct deps | Direct deps | Transitive deps | Verdict |
+|---------|-----------|-------------------|-------------------|-------------|----------------|---------|
+| npm (express, request, moment) | 114 | 46 | fixture → express, moment, request | 3 (express, moment, request) | 111 | YES — relationships present |
+| pypi (requests, six, nose) | 9 | 2 | fixture → nose, requests, six | 3 (nose, requests, six) | 6 (certifi, charset-normalizer, idna, urllib3, + 2) | YES — relationships present |
+
+Notes: The fixture/project component appears in both `components` and `dependencies` arrays. Its `dependsOn` lists the direct dependencies. Transitive deps appear in the `dependsOn` of other (non-fixture) components. The `metadata.component.bom-ref` is a directory hash, not the project purl — use the fixture's `bom-ref` from the `components` array to find the root dependency entry. Components have no `scope` field; npm components all share `foundBy: javascript-lock-cataloger`.

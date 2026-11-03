@@ -1,0 +1,154 @@
+[
+  {
+    "name": "request",
+    "latest_version": "2.88.2",
+    "latest_deprecated": "request has been deprecated, see https://github.com/request/request/issues/3142",
+    "latest_deprecated_reason": "request has been deprecated, see https://github.com/request/request/issues/3142",
+    "latest_publish_time": "2020-02-11T16:35:36.122Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 126,
+    "deprecated_count": 126,
+    "older_deprecated_count": 125,
+    "older_deprecated_examples": [
+      {
+        "version": "0.10.0",
+        "reason": "request has been deprecated, see https://github.com/request/request/issues/3142"
+      },
+      {
+        "version": "0.9.5",
+        "reason": "request has been deprecated, see https://github.com/request/request/issues/3142"
+      },
+      {
+        "version": "0.9.0",
+        "reason": "request has been deprecated, see https://github.com/request/request/issues/3142"
+      }
+    ],
+    "verdict": "S1 (deprecated on latest = declared death)"
+  },
+  {
+    "name": "node-uuid",
+    "latest_version": "1.4.8",
+    "latest_deprecated": "Use uuid module instead",
+    "latest_deprecated_reason": "Use uuid module instead",
+    "latest_publish_time": "2017-03-22T00:30:38.543Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 14,
+    "deprecated_count": 14,
+    "older_deprecated_count": 13,
+    "older_deprecated_examples": [
+      {
+        "version": "1.2.0",
+        "reason": "Use uuid module instead"
+      },
+      {
+        "version": "1.3.0",
+        "reason": "Use uuid module instead"
+      },
+      {
+        "version": "1.3.1",
+        "reason": "Use uuid module instead"
+      }
+    ],
+    "verdict": "S1 (deprecated on latest = declared death)"
+  },
+  {
+    "name": "moment",
+    "latest_version": "2.31.0",
+    "latest_deprecated": null,
+    "latest_deprecated_reason": null,
+    "latest_publish_time": "2026-09-15T01:07:26.131Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 77,
+    "deprecated_count": 2,
+    "older_deprecated_count": 2,
+    "older_deprecated_examples": [
+      {
+        "version": "2.10.5",
+        "reason": "Construction from iso format is broken, fix in 2.10.6"
+      },
+      {
+        "version": "2.19.0",
+        "reason": "Webpack/react-app-scripts crash"
+      }
+    ],
+    "verdict": "S1b (older versions deprecated, latest is not = upgrade advised)"
+  },
+  {
+    "name": "express",
+    "latest_version": "5.3.0",
+    "latest_deprecated": null,
+    "latest_deprecated_reason": null,
+    "latest_publish_time": "2026-10-09T12:56:54.505Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 290,
+    "deprecated_count": 173,
+    "older_deprecated_count": 173,
+    "older_deprecated_examples": [
+      {
+        "version": "0.14.1",
+        "reason": "express 0.x series is deprecated"
+      },
+      {
+        "version": "0.14.0",
+        "reason": "express 0.x series is deprecated"
+      },
+      {
+        "version": "1.0.0",
+        "reason": "express 1.x series is deprecated"
+      }
+    ],
+    "verdict": "S1b (older versions deprecated, latest is not = upgrade advised)"
+  },
+  {
+    "name": "left-pad",
+    "latest_version": "1.3.0",
+    "latest_deprecated": "use String.prototype.padStart()",
+    "latest_deprecated_reason": "use String.prototype.padStart()",
+    "latest_publish_time": "2018-04-09T01:10:45.796Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 15,
+    "deprecated_count": 15,
+    "older_deprecated_count": 14,
+    "older_deprecated_examples": [
+      {
+        "version": "0.0.3",
+        "reason": "use String.prototype.padStart()"
+      },
+      {
+        "version": "0.0.9",
+        "reason": "use String.prototype.padStart()"
+      },
+      {
+        "version": "1.0.1",
+        "reason": "use String.prototype.padStart()"
+      }
+    ],
+    "verdict": "S1 (deprecated on latest = declared death)"
+  },
+  {
+    "name": "uuid",
+    "latest_version": "14.0.3",
+    "latest_deprecated": null,
+    "latest_deprecated_reason": null,
+    "latest_publish_time": "2026-10-10T00:30:19.423Z",
+    "S2_release_date_source": "npm registry time[latest]",
+    "total_versions": 56,
+    "deprecated_count": 38,
+    "older_deprecated_count": 38,
+    "older_deprecated_examples": [
+      {
+        "version": "0.0.1",
+        "reason": "uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@lat"
+      },
+      {
+        "version": "0.0.2",
+        "reason": "uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@lat"
+      },
+      {
+        "version": "1.4.0",
+        "reason": "uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@lat"
+      }
+    ],
+    "verdict": "S1b (older versions deprecated, latest is not = upgrade advised)"
+  }
+]
