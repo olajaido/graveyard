@@ -191,8 +191,8 @@ The UI always shows both, e.g. **"Dead** (abandoned)".
 |---|---|---|---|
 | S1 | **Declared death**: npm `deprecated` on the **latest** version (package-level deprecation); GitHub repo `archived`; PyPI project status *archived* or *deprecated* (PEP 792) where exposed; PyPI classifier `Development Status :: 7 - Inactive` on the latest release | deps.dev `isDeprecated`, npm registry, GitHub GraphQL | ✅ Spike (ADR 0001): PyPI exposes **no** status or deprecation signal, so PyPI S1 comes only from GitHub `isArchived`. Deprecating only an *older* version is **not** death (see S1b) |
 | S1b | **Version deprecated**: the resolved version is deprecated but the latest is not | npm registry | Produces the Wounded (upgrade advised) overlay; does not affect mortality |
-| S2 | **Release staleness**: months since the latest release of the package | deps.dev / registry | |
-| S3 | **Commit staleness**: months since the last push to the default branch | GitHub GraphQL `pushedAt` / history | |
+| S2 | **Release staleness**: latest release date; core converts to months via `months_between` | deps.dev / registry | |
+| S3 | **Commit staleness**: last push to default branch date; core converts to months via `months_between` | GitHub GraphQL `pushedAt` / history | |
 | S4 | **Maintenance activity**: Scorecard `Maintained` check (0–10), which covers 90-day activity | deps.dev `GetProject` (includes Scorecard) or Scorecard API | |
 | S5 | **Bus factor**: distinct committers in the last 12 months | GitHub stats / ecosyste.ms | Cap the API cost; P1 |
 | S6 | **Issue neglect**: all-time open and closed issue counts | GitHub GraphQL `issues { totalCount }` | v1 uses the all-time ratio; a 12-month window and response time are planned for v2 (they need the rate-limited search API) |
@@ -203,16 +203,19 @@ The UI always shows both, e.g. **"Dead** (abandoned)".
 ### 7.2 Normalisation (each signal → risk r ∈ [0,1])
 
 ```
-r2 = clamp((months_since_release − 12) / 24, 0, 1)    # grace 12 mo, full risk at 36 mo
-r3 = clamp((months_since_push − 12) / 24, 0, 1)
+months_between(start, as_of) = (as_of − start).days / 30.4375    # pure; non-negative for start ≤ as_of
+g = grace_months, s = span_months                              # from weights.v1.yaml
+r2 = clamp((months_between(s2_latest_release_at, as_of) − g) / s, 0, 1)
+r3 = clamp((months_between(s3_last_push_at, as_of) − g) / s, 0, 1)
 r4 = 1 − (maintained_check / 10)                       # missing if absent or −1 (inconclusive)
-r5 = {0 or 1 committers: 1.0, 2: 0.6, 3–4: 0.3, ≥5: 0.0}
+r5 = R5_BUCKETS[committers] if committers ≤ 4 else 0.0    # constants.py: {0:1.0, 1:1.0, 2:0.6, 3:0.3, 4:0.3}
 open_ratio = open / (open + closed)                    # all-time counts (v1)
-r6 = 0 if the repo has no issues, else clamp(open_ratio − 0.5, 0, 0.5) × 2
+r6 = 0 if (open + closed) == 0, else clamp(open_ratio − R6_MIDPOINT, 0, 0.5) × 2   # R6_MIDPOINT = 0.5 (constants.py)
 r8 = 1 − (scorecard_overall / 10)                      # missing if absent or −1
 ```
 
-- Grace (12) and span (24) months, all weights and all thresholds live in `weights.v1.yaml`. Code contains no model literals.
+- All weights, thresholds, exposure multipliers and the cursed multiplier live in `weights.v1.yaml`. Code contains no model literals. Formula-shape constants (`R5_BUCKETS`, `R6_MIDPOINT`) live in `constants.py` and define the formula structure, not tunable parameters.
+- `Signals` rejects out-of-domain values at construction (`__post_init__` raises `ValueError`): counts must be ≥ 0; s4/s8 must be in [0,10] or exactly −1.
 - Repo-level signals (S3–S6, S8) are marked `shared_repo = true` when the source repo hosts several packages (monorepo). This is a known limitation, surfaced in the UI.
 
 ### 7.3 Score
@@ -220,36 +223,40 @@ r8 = 1 − (scorecard_overall / 10)                      # missing if absent or 
 ```
 mortality = 100 × Σ(wᵢ × rᵢ) / Σ(wᵢ for signals present)
 weights (v1): w2=0.25, w3=0.25, w4=0.20, w5=0.10, w6=0.10, w8=0.10
+contributions = { i: (wᵢ·rᵢ / Σw_present) × 100 }     # per present signal; sums to mortality pre-S1
 ```
 
-- **Declared death (S1)** overrides the score: the state is **Dead (declared)** and the score is set to max(score, 90).
-- **Missing signals** are excluded from the denominator and increase **uncertainty**: `confidence = Σ w(present) / Σ w(all)`. The UI renders low confidence as **fog**.
-- If **no** scored signal is present, `mortality = null` and the base state is **Unknown**, shown as heavy fog. This avoids division by zero and keeps classification total.
+- **Declared death (S1)** overrides the score: `mortality = max(mortality or 0, thresholds.s1_min_score)`, `dead_reason = "declared"`, and the base state is **Dead (declared)**. This applies even when no scored signals are present: `mortality = thresholds.s1_min_score`, `confidence = 0`.
+- **Missing signals** are excluded from the denominator and increase **uncertainty**: `confidence = Σ w(present) / Σ w(all)`. The UI renders low confidence as **fog**. When S1 is True and no scored signals are present, `confidence = 0`.
+- If **no** scored signal is present and S1 is not True, `mortality = null` and the base state is **Unknown**, shown as heavy fog. This avoids division by zero and keeps classification total.
 - The scoring functions take `as_of` as an argument and never read the clock, so they are deterministic.
 - Weights live in a **versioned config file** (`backend/core/scoring/weights.v1.yaml`), not SSM, so that the score is reproducible from git. Every certificate is stamped `model_version`.
+- `ScoringResult` carries `dead_reason` (`"declared"`, `"score"`, or `None`), `contributions` (per-signal breakdown summing to mortality pre-S1), and `exposure_assumed` (bool).
 
 ### 7.4 State classification
 
 | State | Rule (base states evaluated in order; exactly one applies) |
 |---|---|
-| **Dead** | S1 true, OR mortality ≥ 60 |
-| **Unknown** | mortality is null (no signals) |
-| **Resting** | 30 ≤ mortality < 60 AND no advisories affect the resolved version AND (r6 ≤ 0.2 OR r6 missing) AND weekly downloads is known AND ≥ `resting_min_weekly_downloads` (default 10,000) |
-| **Ailing** | 30 ≤ mortality < 60 |
-| **Alive** | mortality < 30 |
-| **Cursed** (overlay) | ≥ 1 advisory affecting the resolved version with **no fixed version in any range**, AND (the advisory was published ≥ `cursed_min_age_days` (90) before `as_of`, OR the base state is Dead or Ailing). This stops healthy packages with a fresh CVE being labelled cursed |
+| **Dead** | S1 true (`dead_reason = "declared"`), OR mortality ≥ thresholds.dead (`dead_reason = "score"`) |
+| **Unknown** | mortality is null (no scored signals and S1 is not true) |
+| **Resting** | thresholds.ailing ≤ mortality < thresholds.dead AND s7_advisories is not None and empty (known + no advisories) AND (r6 ≤ thresholds.resting_r6_max OR r6 missing) AND weekly downloads is known AND ≥ `resting_min_weekly_downloads` |
+| **Ailing** | thresholds.ailing ≤ mortality < thresholds.dead |
+| **Alive** | mortality < thresholds.ailing |
+| **Cursed** (overlay) | ≥ 1 advisory affecting the resolved version with **no fixed version in any range**, AND (the advisory's `published_at` is not None and was published ≥ `cursed_min_age_days` before `as_of`, OR the base state is Dead or Ailing). An advisory with `published_at = None` never satisfies the age condition. This stops healthy packages with a fresh CVE being labelled cursed |
 | **Wounded** (overlay) | Any advisory with a fix available; OR a no-fix advisory that doesn't meet the Cursed rule ("fix pending"); OR S1b ("upgrade advised"). If both overlays apply, the UI shows Cursed |
 
 ### 7.5 Priority (what to fix first)
 
 ```
-path_weight = (runtime ? 1.0 : 0.2) × (direct ? 1.0 : 0.6)         # ∈ [0.12, 1.0]
-exposure    = max(path_weight over all paths to the node)
-priority    = mortality × (0.5 + 0.5 × exposure) × (cursed ? 1.5 : 1.0)  # ∈ [0, 150]
+path_weight = (runtime ? exposure.runtime : exposure.dev) × (direct ? exposure.direct : exposure.transitive)   # from weights.v1.yaml
+exposure    = max(path_weight over all paths to the node)          # 1.0 if paths is None/empty (exposure_assumed = True)
+priority    = mortality × (exposure.base + (1 − exposure.base) × exposure) × (cursed ? cursed_priority_multiplier : 1.0)
 ```
 
-- Sort order is priority desc → services affected desc → purl asc, a deterministic total order.
-- Unknown nodes have no priority and sort after scored nodes, by exposure.
+- Exposure is always computed (including Unknown nodes); defaults to `1.0` when no paths, with `exposure_assumed = True`.
+- `priority` is `None` only when `mortality` is `None`.
+- Purls must be unique in the input list (validated; duplicates raise `ValueError`).
+- Sort: scored nodes by priority desc → services_affected desc → purl asc. Unknown nodes sort after scored, by exposure desc → services_affected desc (None last) → purl asc. A deterministic total order.
 
 ### 7.6 Evaluation harness (credibility, and a strong point for judges)
 
@@ -259,16 +266,20 @@ priority    = mortality × (0.5 + 0.5 × exposure) × (cursed ? 1.5 : 1.0)  # �
 
 ### 7.7 Properties that must always hold (property-based tests, §11.6)
 
+All Hypothesis strategies generate valid-domain signals; a separate test asserts invalid values raise `ValueError`.
+
 - **I1** Mortality is null, or 0 ≤ mortality ≤ 100.
 - **I2 Monotonicity**, holding the set of present signals constant:
-  - increasing months since release or since push never decreases mortality;
-  - decreasing `maintained`, `overall` or committers never decreases mortality.
-- **I3** S1 ⇒ Dead, whatever the other signals are.
-- **I4** Confidence ∈ [0,1]; making an additional signal present never decreases it; it equals 1 iff all six are present.
-- **I5** Totality: every input, including all-missing, maps to exactly one base state.
+  - moving `s2_latest_release_at` earlier (more months since release) never decreases mortality;
+  - moving `s3_last_push_at` earlier never decreases mortality;
+  - decreasing `maintained`, `overall` or committers never decreases mortality;
+  - increasing `open_issues` (closed fixed) never decreases mortality.
+- **I3** S1 ⇒ Dead, `dead_reason = "declared"`, whatever the other signals are — including when no scored signals are present.
+- **I4** Confidence ∈ [0,1]; making an additional signal present never decreases it; it equals 1 iff all six are present; it equals 0 when S1-only with no scored signals.
+- **I5** Totality: every valid input, including all-missing and S1-with-no-signals, maps to exactly one base state.
 - **I6** Determinism: identical inputs and `as_of` ⇒ identical output.
-- **I7** Priority ≥ 0, and the sort is a strict total order.
-- **I8** Version-only deprecation (S1b) never yields S1.
+- **I7** Exposure is always a float in [0, 1]; priority ≥ 0 for scored nodes; the sort is a strict total order (no ties after tie-breakers).
+- **I8** Version-only deprecation (S1b) never yields `dead_reason = "declared"` or Dead via declaration.
 
 ---
 
