@@ -67,6 +67,92 @@
         "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
         "timestamp": 1794171267051
       }
+    ],
+    "T1.1 — Create `weights.v1.yaml` with every key in MM-WGT-2, including the `exposure` block (`runtime`, `dev`, `direct`, `transitive`, `base`) and `cursed_priority_multiplier`. Values are those in the steering file.": [
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171791330
+      },
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171811755
+      }
+    ],
+    "T1.2 — Create `constants.py` with `R5_BUCKETS` and `R6_MIDPOINT`; docstring states they define formula shape, not tunable parameters.": [
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171814230
+      },
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171831836
+      }
+    ],
+    "T1.3 — Write `tests/test_constants.py`: bucket values, `R6_MIDPOINT`, and that `weights.v1.yaml` does not duplicate them.": [
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171834301
+      },
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171858795
+      }
+    ],
+    "T1 — Model parameters and formula constants": [
+      {
+        "executionId": "e1299f72-3778-4f62-b2e8-f77dc9480fa6",
+        "chatSessionId": "sess_a8dddc97-9692-4960-b315-3e11fc7960da",
+        "timestamp": 1794171858856
+      }
+    ],
+    "T2.1 — Implement `BaseState`, `DeadReason`, `Advisory`, `PathInfo`, `Signals` (date fields `s2_latest_release_at` / `s3_last_push_at`; `s7_advisories` and `paths` as `tuple[..., ...] | None`; `__post_init__` validation), `ScoringResult` (`dead_reason`, `contributions`, `exposure_assumed`), `Weights` (`weights` as read-only mapping).": [
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794171998049
+      },
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172030885
+      }
+    ],
+    "T2.2 — Write `tests/test_types.py` unit tests: each valid boundary constructs (0, 10, -1); each invalid value raises `ValueError` (negative counts, 10.1, -2, -0.5).": [
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172033433
+      },
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172216336
+      }
+    ],
+    "T2.3 — Property tests (`@pytest.mark.property`): valid-domain strategy constructs (`test_signals_valid_domain`); invalid-domain strategy raises (`test_signals_invalid_domain_raises`).": [
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172219288
+      },
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172269638
+      }
+    ],
+    "T2 — `types.py` + tests (MM-VAL-1, D5)": [
+      {
+        "executionId": "a5830830-0b98-4c79-832a-788e845ab707",
+        "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
+        "timestamp": 1794172269679
+      }
     ]
   }
 }

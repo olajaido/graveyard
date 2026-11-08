@@ -6,7 +6,7 @@
       "trigger": "PostTaskExec",
       "action": {
         "type": "agent",
-        "prompt": "Only act when a top-level task (e.g. "T1 — …") has just been fully completed; for sub-tasks (T1.1, T1.2…) do nothing. When acting, get today's date by running `date +%F` (never guess) and append one entry to docs/KIRO_JOURNAL.md: date, spec + task, Kiro features used, what Kiro got right, what was corrected, anything surprising. Max 8 lines."
+        "prompt": "This fires after each leaf task. After it completes, check .kiro/specs/<spec>/tasks.md: if every sub-task under the just-completed task's parent (e.g. all T3.x under T3) is now ticked [x], append ONE entry for the parent task to docs/KIRO_JOURNAL.md; otherwise do nothing. Get the date by running `date +%F` (never guess). Entry: date, spec + parent task, Kiro features used, what Kiro got right, what was corrected, anything surprising. Max 8 lines."
       }
     }
   ]

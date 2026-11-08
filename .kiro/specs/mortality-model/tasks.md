@@ -11,15 +11,15 @@
   - [x] T0.4 — Configure ruff and `mypy --strict` for `backend/core`.
   - [x] T0.5 — Smoke check: `uv run pytest`, `uv run ruff check`, `uv run mypy --strict core` all run clean on the empty package.
 
-- [ ] T1 — Model parameters and formula constants
-  - [ ] T1.1 — Create `weights.v1.yaml` with every key in MM-WGT-2, including the `exposure` block (`runtime`, `dev`, `direct`, `transitive`, `base`) and `cursed_priority_multiplier`. Values are those in the steering file.
-  - [ ] T1.2 — Create `constants.py` with `R5_BUCKETS` and `R6_MIDPOINT`; docstring states they define formula shape, not tunable parameters.
-  - [ ] T1.3 — Write `tests/test_constants.py`: bucket values, `R6_MIDPOINT`, and that `weights.v1.yaml` does not duplicate them.
+- [x] T1 — Model parameters and formula constants
+  - [x] T1.1 — Create `weights.v1.yaml` with every key in MM-WGT-2, including the `exposure` block (`runtime`, `dev`, `direct`, `transitive`, `base`) and `cursed_priority_multiplier`. Values are those in the steering file.
+  - [x] T1.2 — Create `constants.py` with `R5_BUCKETS` and `R6_MIDPOINT`; docstring states they define formula shape, not tunable parameters.
+  - [x] T1.3 — Write `tests/test_constants.py`: bucket values, `R6_MIDPOINT`, and that `weights.v1.yaml` does not duplicate them.
 
-- [ ] T2 — `types.py` + tests (MM-VAL-1, D5)
-  - [ ] T2.1 — Implement `BaseState`, `DeadReason`, `Advisory`, `PathInfo`, `Signals` (date fields `s2_latest_release_at` / `s3_last_push_at`; `s7_advisories` and `paths` as `tuple[..., ...] | None`; `__post_init__` validation), `ScoringResult` (`dead_reason`, `contributions`, `exposure_assumed`), `Weights` (`weights` as read-only mapping).
-  - [ ] T2.2 — Write `tests/test_types.py` unit tests: each valid boundary constructs (0, 10, -1); each invalid value raises `ValueError` (negative counts, 10.1, -2, -0.5).
-  - [ ] T2.3 — Property tests (`@pytest.mark.property`): valid-domain strategy constructs (`test_signals_valid_domain`); invalid-domain strategy raises (`test_signals_invalid_domain_raises`).
+- [x] T2 — `types.py` + tests (MM-VAL-1, D5)
+  - [x] T2.1 — Implement `BaseState`, `DeadReason`, `Advisory`, `PathInfo`, `Signals` (date fields `s2_latest_release_at` / `s3_last_push_at`; `s7_advisories` and `paths` as `tuple[..., ...] | None`; `__post_init__` validation), `ScoringResult` (`dead_reason`, `contributions`, `exposure_assumed`), `Weights` (`weights` as read-only mapping).
+  - [x] T2.2 — Write `tests/test_types.py` unit tests: each valid boundary constructs (0, 10, -1); each invalid value raises `ValueError` (negative counts, 10.1, -2, -0.5).
+  - [x] T2.3 — Property tests (`@pytest.mark.property`): valid-domain strategy constructs (`test_signals_valid_domain`); invalid-domain strategy raises (`test_signals_invalid_domain_raises`).
 
 - [ ] T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)
   - [ ] T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.

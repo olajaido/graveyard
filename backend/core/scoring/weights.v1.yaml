@@ -1,0 +1,38 @@
+# Mortality model v1 parameters (PRD §7 v1.4).
+# All model parameters load from here; scoring code holds no numeric literals for them.
+# Formula-shape constants (R5_BUCKETS, R6_MIDPOINT) live in constants.py, not here.
+model_version: v1
+
+# Per-signal weights (S2 release age, S3 push age, S4 Scorecard Maintained,
+# S5 distinct committers, S6 issue open ratio, S8 Scorecard overall).
+weights:
+  s2: 0.25
+  s3: 0.25
+  s4: 0.20
+  s5: 0.10
+  s6: 0.10
+  s8: 0.10
+
+# Staleness normalisation: risk = clamp((months - grace) / span, 0, 1).
+staleness:
+  grace_months: 12
+  span_months: 24
+
+thresholds:
+  dead: 60
+  ailing: 30
+  s1_min_score: 90
+  resting_r6_max: 0.2
+
+resting_min_weekly_downloads: 10000
+cursed_min_age_days: 90
+
+# Exposure multipliers; runtime/dev/direct/transitive in (0, 1], base in [0, 1].
+exposure:
+  runtime: 1.0
+  dev: 0.2
+  direct: 1.0
+  transitive: 0.6
+  base: 0.5
+
+cursed_priority_multiplier: 1.5

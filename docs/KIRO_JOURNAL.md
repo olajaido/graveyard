@@ -140,3 +140,15 @@ Findings to apply before the first task runs:
 - **Kiro got right:** created the empty `core/` package and a placeholder smoke test that proves `ci`=500 / `dev`=200 and the `property` marker; unknown profile fails loudly.
 - **Corrected:** nothing. The task text assumed an "empty package" already existed; the agent had to create it.
 - **Surprise:** mypy flagged `settings.default` as Optional in the smoke test; fixed with an assert. `test_smoke.py` is a placeholder to delete later.
+
+### 8 Nov — Spec `mortality-model`: T1 (weights + constants) *(manual backfill)*
+- **Spec/task:** mortality-model · T1.1 `weights.v1.yaml`, T1.2 `constants.py`, T1.3 `test_constants.py`.
+- **Kiro features:** spec task execution (sub-agent), fileMatch steering (mortality-model).
+- **Kiro got right:** every MM-WGT-2 key; formula-shape constants kept out of YAML; a test asserting the YAML doesn't duplicate them. 5 tests, ruff + mypy --strict clean. 4.2 credits.
+- **Corrected:** the journal hook fired per sub-task and wrote the wrong date; rewrote it to fire once per parent and use `date +%F`.
+
+### 8 Nov — Spec `mortality-model`: T2 (types + validation) *(manual backfill)*
+- **Spec/task:** mortality-model · T2.1 `types.py`, T2.2 61 unit tests, T2.3 property tests + shared `strategies.py`.
+- **Kiro features:** spec task execution, property-based testing (Hypothesis, `ci` profile).
+- **Kiro got right:** boundary + NaN/inf coverage; reusable strategies; 68 tests passing. 6.39 credits.
+- **Corrected:** strategies used a fixed `as_of`, which can't detect a hidden clock read (see T4 prep).
