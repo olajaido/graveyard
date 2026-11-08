@@ -189,6 +189,7 @@ def _load_weights_cached(path: Path) -> Weights:
 - Validates all required keys from MM-WGT-2 are present (raises `ValueError`).
 - Validates constraints from MM-WGT-5: `span_months > 0`, `grace_months >= 0`,
   all weights `>= 0` with positive sum, `0 <= ailing < dead <= s1_min_score <= 100`,
+  `thresholds.resting_r6_max` in `[0, 1]`, `resting_min_weekly_downloads >= 0`, `cursed_min_age_days >= 0`,
   `exposure.runtime/dev/direct/transitive` each in `(0, 1]`, `exposure.base` in `[0, 1]`,
   `cursed_priority_multiplier > 0`.
 - Returns an immutable `Weights`; `weights` is wrapped in `MappingProxyType` so the cached, shared instance cannot be mutated by a caller.

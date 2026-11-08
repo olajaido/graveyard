@@ -21,10 +21,10 @@
   - [x] T2.2 — Write `tests/test_types.py` unit tests: each valid boundary constructs (0, 10, -1); each invalid value raises `ValueError` (negative counts, 10.1, -2, -0.5).
   - [x] T2.3 — Property tests (`@pytest.mark.property`): valid-domain strategy constructs (`test_signals_valid_domain`); invalid-domain strategy raises (`test_signals_invalid_domain_raises`).
 
-- [ ] T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)
-  - [ ] T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.
-  - [ ] T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; weights ≥ 0 with positive sum; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.
-  - [ ] T3.3 — Write `tests/test_weights.py`: shipped YAML loads and stamps `model_version`; each missing key raises; each MM-WGT-5 violation raises (including multiplier `> 1`, multiplier `0`, `base < 0`, `base > 1`); repeated calls and equivalent path spellings return the same cached object; failures are not cached; cached `weights` mapping is read-only; a `cache_clear()` fixture wraps tests that write temporary YAML.
+- [x] T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)
+  - [x] T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.
+  - [x] T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; weights ≥ 0 with positive sum; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `0 ≤ thresholds.resting_r6_max ≤ 1`; `resting_min_weekly_downloads ≥ 0`; `cursed_min_age_days ≥ 0`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.
+  - [x] T3.3 — Write `tests/test_weights.py`: shipped YAML loads and stamps `model_version`; each missing key raises; each MM-WGT-5 violation raises (including multiplier `> 1`, multiplier `0`, `base < 0`, `base > 1`); repeated calls and equivalent path spellings return the same cached object; failures are not cached; cached `weights` mapping is read-only; a `cache_clear()` fixture wraps tests that write temporary YAML.
 
 - [ ] T4 — `normalise.py` + tests (MM-NOR-1…8)
   - [ ] T4.1 — Implement `months_between(start, as_of)` = `(as_of − start).days / 30.4375` and `normalise_signals(signals, w)`. r2/r3 via `months_between`; r5 via `R5_BUCKETS`; r6 via `R6_MIDPOINT`; S4/S8 `-1` → `None`.

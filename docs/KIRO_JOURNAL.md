@@ -151,4 +151,9 @@ Findings to apply before the first task runs:
 - **Spec/task:** mortality-model · T2.1 `types.py`, T2.2 61 unit tests, T2.3 property tests + shared `strategies.py`.
 - **Kiro features:** spec task execution, property-based testing (Hypothesis, `ci` profile).
 - **Kiro got right:** boundary + NaN/inf coverage; reusable strategies; 68 tests passing. 6.39 credits.
-- **Corrected:** strategies used a fixed `as_of`, which can't detect a hidden clock read (see T4 prep).
+- **Corrected:** strategies used a fixed `as_of`, which can't detect a hidden clock read (see T4 prep).### 8 Nov — Spec `mortality-model`: T3 (weights loader)
+- **Spec/task:** mortality-model · T3.1 `load_weights` + `lru_cache`, T3.2 MM-WGT-5 validation, T3.3 `test_weights.py`.
+- **Kiro features:** spec task execution (sub-agent per leaf), fileMatch steering (mortality-model).
+- **Kiro got right:** `yaml.safe_load` only, `MappingProxyType`, path-resolved cache key, validation before return so failures never cache; 136 tests, ruff + mypy --strict clean.
+- **Corrected:** nothing needed. T3.1 already added a few required-key checks that T3.2 then extended.
+- **Surprise:** ruff UP033 wants `functools.cache`; kept `lru_cache(maxsize=None)` per design D4 with a `noqa`. Task IDs in the DAG are the full task text, not `T3`.

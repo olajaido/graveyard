@@ -153,6 +153,49 @@
         "chatSessionId": "sess_f7117925-5851-475e-8b74-7e363e2302b0",
         "timestamp": 1794172269679
       }
+    ],
+    "T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.": [
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794172848307
+      },
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794172928935
+      }
+    ],
+    "T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; weights ≥ 0 with positive sum; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.": [
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794172932329
+      },
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794172988079
+      }
+    ],
+    "T3.3 — Write `tests/test_weights.py`: shipped YAML loads and stamps `model_version`; each missing key raises; each MM-WGT-5 violation raises (including multiplier `> 1`, multiplier `0`, `base < 0`, `base > 1`); repeated calls and equivalent path spellings return the same cached object; failures are not cached; cached `weights` mapping is read-only; a `cache_clear()` fixture wraps tests that write temporary YAML.": [
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794172991022
+      },
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794173049312
+      }
+    ],
+    "T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)": [
+      {
+        "executionId": "e5b225e1-5f82-40e3-bb7b-68ca6e1a7e57",
+        "chatSessionId": "sess_dc000531-0c25-45e9-9c30-e1c6d189c830",
+        "timestamp": 1794173049386
+      }
     ]
   }
 }
