@@ -4,12 +4,12 @@
 > Each implementation task includes its own tests as sub-tasks. Property tests land immediately after the code they exercise (`score.py`, `classify.py`), not at the end.
 > All paths are under `backend/core/scoring/` unless stated. Tests are colocated in `tests/`.
 
-- [ ] T0 — Scaffold `backend/` (D1)
-  - [ ] T0.1 — Create `backend/pyproject.toml` managed by uv: `requires-python = "==3.12.*"`; exact-pinned `pyyaml` and dev group `pytest`, `hypothesis`, `ruff`, `mypy`; commit `uv.lock`. No `latest` or open ranges.
-  - [ ] T0.2 — pytest config: `--strict-markers`, registered `property` marker, `testpaths = ["core"]`.
-  - [ ] T0.3 — Create `backend/conftest.py` registering Hypothesis profiles `ci` (`max_examples=500`) and `dev` (`max_examples=200`), selected by `HYPOTHESIS_PROFILE` (default `dev`; unknown name fails loudly).
-  - [ ] T0.4 — Configure ruff and `mypy --strict` for `backend/core`.
-  - [ ] T0.5 — Smoke check: `uv run pytest`, `uv run ruff check`, `uv run mypy --strict core` all run clean on the empty package.
+- [x] T0 — Scaffold `backend/` (D1)
+  - [x] T0.1 — Create `backend/pyproject.toml` managed by uv: `requires-python = "==3.12.*"`; exact-pinned `pyyaml` and dev group `pytest`, `hypothesis`, `ruff`, `mypy`; commit `uv.lock`. No `latest` or open ranges.
+  - [x] T0.2 — pytest config: `--strict-markers`, registered `property` marker, `testpaths = ["core"]`.
+  - [x] T0.3 — Create `backend/conftest.py` registering Hypothesis profiles `ci` (`max_examples=500`) and `dev` (`max_examples=200`), selected by `HYPOTHESIS_PROFILE` (default `dev`; unknown name fails loudly).
+  - [x] T0.4 — Configure ruff and `mypy --strict` for `backend/core`.
+  - [x] T0.5 — Smoke check: `uv run pytest`, `uv run ruff check`, `uv run mypy --strict core` all run clean on the empty package.
 
 - [ ] T1 — Model parameters and formula constants
   - [ ] T1.1 — Create `weights.v1.yaml` with every key in MM-WGT-2, including the `exposure` block (`runtime`, `dev`, `direct`, `transitive`, `base`) and `cursed_priority_multiplier`. Values are those in the steering file.

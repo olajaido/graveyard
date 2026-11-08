@@ -106,3 +106,37 @@ Findings to apply before the first task runs:
 ---
 
 <!-- Hook-appended entries continue below this line -->
+### 8 Nov — Spec `mortality-model`: T0.1 (pyproject.toml)
+- **Spec/task:** mortality-model · T0.1 scaffold `backend/pyproject.toml` + `uv.lock`.
+- **Kiro features:** spec (tasks DAG), steering (tech.md pinning rules), agent (spec-task-execution subagent).
+- **Kiro got right:** exact `==` pins for pyyaml and the dev group, `requires-python = "==3.12.*"`, lock verified with `uv lock --check` and `uv sync --locked`.
+- **Corrected:** nothing yet (my review: confirm the added `[tool.uv] package = false` is wanted).
+- **Surprise:** task IDs are the full title strings, and the parent id `T0` was rejected by `task_update`; only leaf tasks dispatch.
+
+### 8 Nov — Spec `mortality-model`: T0.2 (pytest config)
+- **Spec/task:** mortality-model · T0.2 pytest `--strict-markers`, `property` marker, `testpaths = ["core"]`.
+- **Kiro features:** spec (tasks DAG), agent (spec-task-execution subagent).
+- **Kiro got right:** appended the section without touching the pins; `uv lock --check` still clean.
+- **Corrected:** nothing.
+- **Surprise:** `uv run pytest` exits 5 because `core/` does not exist yet; expected, resolved by T0.5.
+
+### 8 Nov — Spec `mortality-model`: T0.3 (Hypothesis profiles)
+- **Spec/task:** mortality-model · T0.3 `backend/conftest.py` with `ci`=500 / `dev`=200 profiles.
+- **Kiro features:** spec (tasks DAG), PBT setup, agent (spec-task-execution subagent).
+- **Kiro got right:** unknown `HYPOTHESIS_PROFILE` raises a RuntimeError listing valid names; ruff and mypy --strict clean.
+- **Corrected:** nothing.
+- **Surprise:** the agent checked profiles via `python -c`, not pytest; real pytest pickup is confirmed only at T0.5.
+
+### 8 Nov — Spec `mortality-model`: T0.4 (ruff + mypy config)
+- **Spec/task:** mortality-model · T0.4 ruff (E,F,I,UP,B,SIM) and `mypy --strict` for `core`.
+- **Kiro features:** spec (tasks DAG), agent (spec-task-execution subagent).
+- **Kiro got right:** config appended without disturbing pins or pytest section; ruff and conftest.py mypy clean.
+- **Corrected:** nothing.
+- **Surprise:** `mypy --strict core` fails until `core/` exists; the "empty package" in T0.5 needs creating first.
+
+### 8 Nov — Spec `mortality-model`: T0.5 (smoke check) — T0 complete
+- **Spec/task:** mortality-model · T0.5 `uv run pytest`, `ruff check`, `mypy --strict core` clean.
+- **Kiro features:** spec (tasks DAG, parent auto-complete), PBT profiles, agent (spec-task-execution subagent).
+- **Kiro got right:** created the empty `core/` package and a placeholder smoke test that proves `ci`=500 / `dev`=200 and the `property` marker; unknown profile fails loudly.
+- **Corrected:** nothing. The task text assumed an "empty package" already existed; the agent had to create it.
+- **Surprise:** mypy flagged `settings.default` as Optional in the smoke test; fixed with an assert. `test_smoke.py` is a placeholder to delete later.

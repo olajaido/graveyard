@@ -1,0 +1,72 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "T0.1 — Create `backend/pyproject.toml` managed by uv: `requires-python = \"==3.12.*\"`; exact-pinned `pyyaml` and dev group `pytest`, `hypothesis`, `ruff`, `mypy`; commit `uv.lock`. No `latest` or open ranges.": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794170924469
+      },
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171021806
+      }
+    ],
+    "T0.2 — pytest config: `--strict-markers`, registered `property` marker, `testpaths = [\"core\"]`.": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171089658
+      },
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171112745
+      }
+    ],
+    "T0.3 — Create `backend/conftest.py` registering Hypothesis profiles `ci` (`max_examples=500`) and `dev` (`max_examples=200`), selected by `HYPOTHESIS_PROFILE` (default `dev`; unknown name fails loudly).": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171119925
+      },
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171144864
+      }
+    ],
+    "T0.4 — Configure ruff and `mypy --strict` for `backend/core`.": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171147308
+      },
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171170905
+      }
+    ],
+    "T0.5 — Smoke check: `uv run pytest`, `uv run ruff check`, `uv run mypy --strict core` all run clean on the empty package.": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171173433
+      },
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171266987
+      }
+    ],
+    "T0 — Scaffold `backend/` (D1)": [
+      {
+        "executionId": "ae8915a6-c29d-42fe-b872-9aefe873f231",
+        "chatSessionId": "sess_a340e626-8016-4605-825c-58aa75f844ac",
+        "timestamp": 1794171267051
+      }
+    ]
+  }
+}
