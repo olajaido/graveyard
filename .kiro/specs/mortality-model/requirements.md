@@ -39,10 +39,10 @@ class Signals:
     # --- non-scored signals ---
     s1_declared_death: bool | None            # deprecated on latest / repo archived
     s1b_version_deprecated: bool | None       # resolved version deprecated, latest is not
-    s7_advisories: list[Advisory] | None       # None = unknown; [] = known empty
+    s7_advisories: tuple[Advisory, ...] | None  # None = unknown; () = known empty
     s9_weekly_downloads: int | None           # weekly downloads; ≥ 0
     # --- exposure inputs ---
-    paths: list[PathInfo] | None             # paths through which this package reaches the user
+    paths: tuple[PathInfo, ...] | None       # paths through which this package reaches the user
     services_affected: int | None            # distinct services (tie-breaker); ≥ 0
     # --- provenance ---
     shared_repo: bool                        # repo-level signals shared across packages (monorepo)
@@ -108,7 +108,7 @@ R6_MIDPOINT: float = 0.5
 | MM-WGT-2 | **THE SYSTEM SHALL** read the following required keys: `model_version`, `weights` (mapping of signal-id to weight), `staleness.grace_months`, `staleness.span_months`, `thresholds.dead`, `thresholds.ailing`, `thresholds.s1_min_score`, `thresholds.resting_r6_max`, `resting_min_weekly_downloads`, `cursed_min_age_days`, `exposure.runtime`, `exposure.dev`, `exposure.direct`, `exposure.transitive`, `exposure.base`, `cursed_priority_multiplier`. |
 | MM-WGT-3 | **THE SYSTEM SHALL** stamp every `ScoringResult` with the `model_version` read from `weights.v1.yaml`. |
 | MM-WGT-4 | **WHEN** `weights.v1.yaml` is missing or a required key is absent **THE SYSTEM SHALL** raise an error before computing any score. |
-| MM-WGT-5 | **THE SYSTEM SHALL** validate the following constraints in `weights.v1.yaml` at load time and raise `ValueError` if any is violated: `span_months > 0`; `grace_months ≥ 0`; all values in `weights` are `≥ 0` and their sum is `> 0`; `0 ≤ thresholds.ailing < thresholds.dead ≤ thresholds.s1_min_score ≤ 100`; `exposure.runtime`, `exposure.dev`, `exposure.direct`, `exposure.transitive`, `exposure.base` are all `> 0`; `cursed_priority_multiplier > 0`. |
+| MM-WGT-5 | **THE SYSTEM SHALL** validate the following constraints in `weights.v1.yaml` at load time and raise `ValueError` if any is violated: `span_months > 0`; `grace_months ≥ 0`; all values in `weights` are `≥ 0` and their sum is `> 0`; `0 ≤ thresholds.ailing < thresholds.dead ≤ thresholds.s1_min_score ≤ 100`; `exposure.runtime`, `exposure.dev`, `exposure.direct`, `exposure.transitive` each satisfy `0 < m ≤ 1`; `exposure.base` satisfies `0 ≤ base ≤ 1`; `cursed_priority_multiplier > 0`. |
 
 ---
 
@@ -284,7 +284,7 @@ Each invariant is a requirement verified by Hypothesis property-based tests (`@p
 
 ## Fixture-driven sanity anchors
 
-Anchors are **fixture-driven**, not hardcoded. Fixtures are captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03` and stored as `backend/tests/fixtures/anchors/<package>.json`. Tests read fixtures only (no network).
+Anchors are **fixture-driven**, not hardcoded. Fixtures are captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03` and stored as `backend/core/scoring/tests/fixtures/anchors/<package>.json`. Tests read fixtures only (no network).
 
 | ID | Package | Expected state | Notes |
 |----|---------|---------------|-------|

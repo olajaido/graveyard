@@ -27,7 +27,7 @@ exposure: {runtime: 1.0, dev: 0.2, direct: 1.0, transitive: 0.6, base: 0.5}
 cursed_priority_multiplier: 1.5
 ```
 
-Loader validates: `span_months > 0`, `grace_months ≥ 0`, all weights ≥ 0 with positive sum, `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`, all exposure multipliers > 0, `cursed_priority_multiplier > 0`.
+Loader validates: `span_months > 0`, `grace_months ≥ 0`, all weights ≥ 0 with positive sum, `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`, exposure `runtime`/`dev`/`direct`/`transitive` each in (0, 1], `exposure.base` in [0, 1], `cursed_priority_multiplier > 0`.
 
 ## Inputs (per package version, identified by a purl)
 
@@ -123,7 +123,7 @@ All strategies generate valid-domain signals; a separate test asserts invalid va
 
 ## Real-data sanity anchors (fixture-driven)
 
-Fixtures captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03`; stored as `backend/tests/fixtures/anchors/<package>.json`. Tests read fixtures only (no network).
+Fixtures captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03`; stored as `backend/core/scoring/tests/fixtures/anchors/<package>.json` (colocated; resolved via `Path(__file__).parent`). Each fixture records `as_of` and a source URL per signal. Tests read fixtures only (no network).
 
 | Package | Expected |
 |---|---|

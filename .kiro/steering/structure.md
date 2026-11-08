@@ -16,7 +16,9 @@ graveyard/
 │   └── settings/mcp.json
 ├── powers/graveyard/            # Kiro Power: POWER.md, mcp.json, steering/, hooks
 ├── backend/
+│   ├── pyproject.toml          # uv-managed; Python 3.12; pytest, ruff, mypy config
 │   ├── core/                    # pure logic: purl, versions, scoring, graph (PBT heavy)
+│   │   └── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
 │   ├── sources/                 # osv, depsdev, scorecard, npm, pypi, github clients
 │   ├── workflow/                # Step Functions task handlers
 │   ├── api/                     # handlers + openapi.yaml
@@ -54,6 +56,7 @@ graveyard/
 ## Separation Rules
 
 - `backend/core/` contains only pure logic with no I/O. Every function here is property-testable.
+- Tests for `backend/core/scoring/` are colocated in `backend/core/scoring/tests/`, with fixtures in `backend/core/scoring/tests/fixtures/`. Tests resolve fixture paths via `Path(__file__).parent`, never the working directory. `backend/tests/` remains for cross-package unit, property, and integration tests.
 - `backend/sources/` contains only external API clients and caching. No scoring logic.
 - `backend/workflow/` contains Step Functions task handlers only.
 - `backend/rites/` contains remediation generators and codemod rules. No scoring.

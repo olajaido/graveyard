@@ -3,46 +3,56 @@
 > Implements the requirements in `.kiro/specs/mortality-model/requirements.md`.
 > Source of truth: PRD §7 (v1.4), `.kiro/steering/mortality-model.md`, ADR 0001.
 
+## Project scaffold (D1)
+
+```
+backend/pyproject.toml       # uv-managed
+```
+
+- `requires-python = "==3.12.*"`; dependencies pinned to exact versions: `pyyaml`, and dev group `pytest`, `hypothesis`, `ruff`, `mypy`. Exact versions are resolved at T0 time and recorded in `uv.lock` (commit it).
+- pytest: `addopts = ["--strict-markers"]`, `markers = ["property: Hypothesis property-based tests"]`, `testpaths = ["core"]`.
+- Hypothesis profiles registered in `backend/conftest.py`: `ci` (`max_examples=500`) and `dev` (`max_examples=200`). Selected with `HYPOTHESIS_PROFILE`; defaults to `dev` when unset; an unknown name fails loudly.
+- ruff (lint + format) and `mypy --strict` configured for `backend/core`.
+- No `latest` or open version ranges (tech.md non-negotiable).
+
 ## Module structure
 
 ```
-backend/core/scoring/
-├── __init__.py          # public API: score_package, sort_results
-├── types.py             # Signals, Advisory, PathInfo, ScoringResult, BaseState, DeadReason
-├── constants.py         # R5_BUCKETS, R6_MIDPOINT (formula-shape constants)
-├── weights.py            # load_weights() → Weights dataclass
-├── normalise.py          # months_between(), normalise_signals() → dict[str, float | None]
-├── score.py              # compute_mortality(), compute_contributions(), apply_s1_override(), compute_confidence()
-├── classify.py          # classify_state(), compute_overlays()
-├── priority.py          # compute_exposure(), compute_priority()
-├── sort.py              # sort_results() → list[ScoringResult]
-├── weights.v1.yaml      # the model parameters (committed, not in SSM)
-└── tests/
-    ├── test_constants.py
-    ├── test_types.py           # input validation (MM-VAL-1)
-    ├── test_normalise.py       # includes months_between property tests
-    ├── test_score.py
-    ├── test_classify.py
-    ├── test_priority.py
-    ├── test_sort.py
-    ├── test_weights.py
-    ├── test_invariants.py      # all 8 invariants (Hypothesis, @pytest.mark.property)
-    └── test_anchors.py         # fixture-driven sanity anchors
+backend/
+├── pyproject.toml
+├── conftest.py                       # Hypothesis profiles ci/dev via HYPOTHESIS_PROFILE
+└── core/scoring/
+    ├── __init__.py                   # public API: score_package, sort_results
+    ├── types.py                      # Signals, Advisory, PathInfo, ScoringResult, BaseState, DeadReason
+    ├── constants.py                  # R5_BUCKETS, R6_MIDPOINT (formula-shape constants)
+    ├── weights.py                    # load_weights() → Weights dataclass (lru_cache, yaml.safe_load)
+    ├── normalise.py                  # months_between(), normalise_signals()
+    ├── score.py                      # compute_mortality(), compute_contributions(), apply_s1_override(), compute_confidence()
+    ├── classify.py                   # classify_state(), compute_cursed(), compute_wounded()
+    ├── priority.py                   # compute_exposure(), compute_priority()
+    ├── sort.py                       # sort_results()
+    ├── weights.v1.yaml               # model parameters (committed, not in SSM)
+    └── tests/
+        ├── test_constants.py
+        ├── test_types.py             # MM-VAL-1 unit + property (valid constructs / invalid raises)
+        ├── test_weights.py
+        ├── test_normalise.py         # unit + months_between property tests
+        ├── test_score.py
+        ├── test_properties_score.py  # MM-INV-1, 2, 4 (after score.py)
+        ├── test_classify.py
+        ├── test_properties_classify.py  # MM-INV-3, 5, 8 (after classify.py)
+        ├── test_priority.py
+        ├── test_sort.py              # unit + MM-INV-7 property
+        ├── test_pipeline.py          # score_package end-to-end + MM-INV-6 (determinism)
+        ├── test_anchors.py           # fixture-driven sanity anchors
+        └── fixtures/anchors/         # colocated (D3); resolved via Path(__file__).parent
+            └── <package>.json        # request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six
 
 scripts/
-└── capture_anchors.py          # one-shot script to capture fixture JSON from live APIs
-
-backend/tests/fixtures/anchors/
-├── request.json
-├── node-uuid.json
-├── left-pad.json
-├── express.json
-├── uuid.json
-├── moment.json
-├── pycrypto.json
-├── nose.json
-└── six.json
+└── capture_anchors.py                # MANUAL: captures fixtures from live APIs (D8)
 ```
+
+Fixture JSON records `as_of` (`2026-11-03`), each raw signal value, and the source URL for each signal. The token is never written to a fixture.
 
 ## Data types (`types.py`)
 
@@ -88,10 +98,10 @@ class Signals:
     # non-scored signals
     s1_declared_death: bool | None = None
     s1b_version_deprecated: bool | None = None
-    s7_advisories: list[Advisory] | None = None
+    s7_advisories: tuple[Advisory, ...] | None = None   # None = unknown; () = known empty (D5)
     s9_weekly_downloads: int | None = None    # >= 0
     # exposure
-    paths: list[PathInfo] | None = None
+    paths: tuple[PathInfo, ...] | None = None             # tuple, not list: frozen + hashable (D5)
     services_affected: int | None = None      # >= 0
     shared_repo: bool = False
 
@@ -129,7 +139,7 @@ class ScoringResult:
 @dataclass(frozen=True)
 class Weights:
     model_version: str
-    weights: dict[str, float]     # {"s2": 0.25, ...}
+    weights: Mapping[str, float]  # read-only (MappingProxyType): the instance is shared via lru_cache
     grace_months: float
     span_months: float
     threshold_dead: float
@@ -162,16 +172,26 @@ R6_MIDPOINT: float = 0.5
 ## Weights loader (`weights.py`)
 
 ```python
-def load_weights(path: Path = default_path) -> Weights:
-    """Load and validate weights.v1.yaml. Raise on missing keys or invalid values."""
+DEFAULT_WEIGHTS_PATH = Path(__file__).parent / "weights.v1.yaml"
+
+def load_weights(path: Path | None = None) -> Weights:
+    """Resolve path (default: DEFAULT_WEIGHTS_PATH), then delegate to the cached loader."""
+
+@functools.lru_cache(maxsize=None)
+def _load_weights_cached(path: Path) -> Weights:
+    """yaml.safe_load the file, validate, return an immutable Weights. Keyed by resolved path."""
 ```
 
-- Reads the YAML file (default: `backend/core/scoring/weights.v1.yaml`).
+- Parsing uses `yaml.safe_load` only (never `yaml.load`).
+- `load_weights` resolves the path (`Path.resolve()`) before calling the cached function, so `None`, relative and absolute spellings of the same file share one cache entry.
+- Because the cache is per-process, edits to the YAML are not seen until restart. Tests that write temporary YAML files call `_load_weights_cached.cache_clear()` in a fixture.
+- Failures are not cached (an exception propagates out of `lru_cache` without storing a result).
 - Validates all required keys from MM-WGT-2 are present (raises `ValueError`).
 - Validates constraints from MM-WGT-5: `span_months > 0`, `grace_months >= 0`,
   all weights `>= 0` with positive sum, `0 <= ailing < dead <= s1_min_score <= 100`,
-  all exposure multipliers `> 0`, `cursed_priority_multiplier > 0`.
-- Returns an immutable `Weights` dataclass.
+  `exposure.runtime/dev/direct/transitive` each in `(0, 1]`, `exposure.base` in `[0, 1]`,
+  `cursed_priority_multiplier > 0`.
+- Returns an immutable `Weights`; `weights` is wrapped in `MappingProxyType` so the cached, shared instance cannot be mutated by a caller.
 
 ## Normalisation (`normalise.py`)
 
@@ -222,7 +242,7 @@ def classify_state(
     mortality: float | None,
     s1: bool | None,
     risks: dict[str, float | None],
-    advisories: list[Advisory] | None,
+    advisories: tuple[Advisory, ...] | None,
     weekly_downloads: int | None,
     w: Weights,
 ) -> tuple[BaseState, DeadReason]:
@@ -231,7 +251,7 @@ def classify_state(
     Returns (state, dead_reason)."""
 
 def compute_cursed(
-    advisories: list[Advisory] | None,
+    advisories: tuple[Advisory, ...] | None,
     as_of: date,
     base_state: BaseState,
     w: Weights,
@@ -241,7 +261,7 @@ def compute_cursed(
     published_at = None never satisfies the age condition."""
 
 def compute_wounded(
-    advisories: list[Advisory] | None,
+    advisories: tuple[Advisory, ...] | None,
     cursed: bool,
     s1b: bool | None,
 ) -> bool:
@@ -252,7 +272,7 @@ def compute_wounded(
 
 ```python
 def compute_exposure(
-    paths: list[PathInfo] | None, w: Weights
+    paths: tuple[PathInfo, ...] | None, w: Weights
 ) -> tuple[float, bool]:
     """Returns (exposure, exposure_assumed).
     max(path_weight) when paths present; (1.0, True) when None/empty.
@@ -292,34 +312,48 @@ def sort_results(results: list[ScoringResult]) -> list[ScoringResult]:
 
 ## Test strategy
 
-### Property-based tests (`test_invariants.py`)
+Tests are colocated in `backend/core/scoring/tests/` (D3). Each implementation task ships its own unit tests; property tests land as soon as the code they exercise exists (D2).
 
-Use Hypothesis with custom strategies that generate **valid-domain** signals:
+### Hypothesis configuration (D1)
+
+- Profiles `ci` (`max_examples=500`) and `dev` (`max_examples=200`) are registered in `backend/conftest.py` and selected by `HYPOTHESIS_PROFILE`.
+- Property tests carry `@pytest.mark.property`; `--strict-markers` makes a misspelt marker an error.
+
+### Property-based tests
+
+Strategies generate **valid-domain** signals only; `s7_advisories` and `paths` are generated as tuples (D5):
 
 ```python
 @st.composite
 def signals_strategy(draw) -> Signals:
-    """Generate valid Signals objects with random present/absent fields.
-    All values within valid domains (MM-VAL-1)."""
-    ...
+    """Valid Signals with random present/absent fields (MM-VAL-1 domains)."""
 
 @st.composite
-def invalid_signals_strategy(draw) -> Signals:
-    """Generate Signals with out-of-domain values (negative counts, s4 > 10, etc.).
-    Construction must raise ValueError."""
-    ...
+def invalid_signals_kwargs(draw) -> dict:
+    """Kwargs with at least one out-of-domain value; Signals(**kwargs) must raise ValueError."""
 ```
 
-Each invariant (MM-INV-1 through MM-INV-8) gets its own test function with a targeted strategy. `months_between` has its own property tests (MM-NOR-8).
+| File | Covers | Lands after |
+|---|---|---|
+| `test_types.py` | MM-VAL-1 (valid constructs, invalid raises) | types |
+| `test_normalise.py` | MM-NOR-8 (`months_between` non-negative, monotone in `as_of`) | normalise |
+| `test_properties_score.py` | MM-INV-1, MM-INV-2 (incl. r6 open issues), MM-INV-4, MM-SCO-7 contribution sum | score |
+| `test_properties_classify.py` | MM-INV-3, MM-INV-5, MM-INV-8 | classify |
+| `test_sort.py` | MM-INV-7 (exposure float, priority ≥ 0, strict total order) | priority + sort |
+| `test_pipeline.py` | MM-INV-6 determinism, end-to-end re-checks via `score_package` | pipeline |
+
+Float comparisons (D6): the contribution-sum assertion is `math.isclose(sum(present_contributions), mortality_pre_s1, rel_tol=1e-9)`. Monotonicity and range checks use exact comparisons on values computed by the same pipeline, with no tolerance, so that a genuine regression is not masked.
 
 ### Fixture-driven anchor tests (`test_anchors.py`)
 
-Tests read JSON fixtures from `backend/tests/fixtures/anchors/<package>.json` (no network).
+Fixtures live at `backend/core/scoring/tests/fixtures/anchors/<package>.json` and are resolved relative to the test file (D3). No network.
 
 ```python
+FIXTURES = Path(__file__).parent / "fixtures" / "anchors"
+
 def test_anchor_request():
-    fixture = json.loads(Path("backend/tests/fixtures/anchors/request.json").read_text())
-    signals = signals_from_fixture(fixture)  # maps fixture → Signals
+    fixture = json.loads((FIXTURES / "request.json").read_text())
+    signals = signals_from_fixture(fixture)  # maps fixture → Signals (tuples for s7/paths)
     result = score_package(signals)
     assert result.base_state == BaseState.DEAD
     assert result.dead_reason == "declared"
@@ -327,9 +361,17 @@ def test_anchor_request():
 
 The `six` anchor (MM-ANC-9) asserts the computed state and records `mortality` as a borderline sentinel: Resting expected only if `r6 ≤ w.threshold_resting_r6_max`.
 
+### Fixture capture (`scripts/capture_anchors.py`, manual, D8)
+
+- Manual step run by the maintainer; it is never invoked by CI or by an agent.
+- Reads `GITHUB_TOKEN` from the environment; exits with a clear message if it is unset. The token is never printed, logged, or written to a fixture or exception message.
+- Sets `as_of = 2026-11-03` and records it in each fixture, together with the source URL for every signal (deps.dev, npm/PyPI, GitHub GraphQL, OSV, downloads API).
+- The script uses PEP 723 inline dependencies and runs with `uv run`. It sits outside `backend/core`, so core stays free of I/O.
+- `test_anchors.py` depends on its output: until fixtures are committed, the anchor tests cannot run.
+
 ### Unit tests
 
-Each module gets its own test file covering edge cases: all-None, all-present, S1 override with no scored signals, -1 handling, empty paths → exposure 1.0, s7_advisories None vs [], published_at None, etc.
+Each module's tests cover edge cases: all-None, all-present, S1 override with no scored signals, -1 handling, empty paths → exposure 1.0, `s7_advisories` `None` vs `()`, `published_at` None, and (for the loader) a `cache_clear()` fixture around temporary YAML files.
 
 ## Key design decisions
 
@@ -339,6 +381,9 @@ Each module gets its own test file covering edge cases: all-None, all-present, S
 4. **S1 override takes precedence.** When `s1_declared_death = True` and no scored signals are present, `mortality = s1_min_score`, `confidence = 0`, base state Dead, `dead_reason = "declared"`.
 5. **Formula-shape constants in `constants.py`.** `R5_BUCKETS` and `R6_MIDPOINT` define the structure of the formula and do not change between model versions. All tunable parameters (weights, thresholds, exposure multipliers, cursed multiplier) are in `weights.v1.yaml`.
 6. **Contributions sum to mortality pre-S1.** `contributions` shows each signal's share of the weighted sum, before the S1 override is applied. This powers the per-signal breakdown bar in the Death Certificate.
-7. **Fixture-driven anchors.** Anchor tests read JSON fixtures captured once by `scripts/capture_anchors.py`. No network calls in tests.
+7. **Fixture-driven anchors.** Anchor tests read colocated JSON fixtures captured once, manually, by `scripts/capture_anchors.py`. No network calls in tests.
 8. **Weights are passed, not imported.** `score_package` accepts an optional `Weights` argument; if omitted, it loads from the default path.
 9. **No rounding in computation.** All internal values are full-precision floats. Rounding happens at the API/UI boundary.
+10. **Cached loader (D4).** `load_weights` uses `yaml.safe_load` and an `lru_cache` keyed by resolved path. The cached `Weights` is deeply immutable (`MappingProxyType`), so sharing it is safe.
+11. **Tuples in frozen dataclasses (D5).** `s7_advisories` and `paths` are `tuple[...]`, which keeps `Signals` genuinely immutable and hashable.
+12. **Exposure bounds (D7).** Multipliers are in `(0, 1]` and `exposure.base` in `[0, 1]`, so `exposure` stays in `[0, 1]` and priority stays within `[0, mortality × cursed_priority_multiplier]`.

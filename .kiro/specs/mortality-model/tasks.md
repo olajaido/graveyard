@@ -1,25 +1,76 @@
 # Tasks: mortality-model
 
-> Implements `.kiro/specs/mortality-model/requirements.md` per the design in `.kiro/specs/mortality-model/design.md`.
+> Implements `.kiro/specs/mortality-model/requirements.md` per `.kiro/specs/mortality-model/design.md`.
+> Each implementation task includes its own tests as sub-tasks. Property tests land immediately after the code they exercise (`score.py`, `classify.py`), not at the end.
+> All paths are under `backend/core/scoring/` unless stated. Tests are colocated in `tests/`.
 
-- [ ] T1 — Create `backend/core/scoring/weights.v1.yaml` with all required keys from MM-WGT-2, including `exposure` block and `cursed_priority_multiplier`. Verify against the steering file's required-keys list.
-- [ ] T2 — Create `backend/core/scoring/types.py` with `BaseState` enum, `DeadReason` type, `Advisory`, `PathInfo`, `Signals` (with `__post_init__` validation per MM-VAL-1), `ScoringResult` (with `dead_reason`, `contributions`, `exposure_assumed`), `Weights` dataclass. `Signals` uses dates (`s2_latest_release_at`, `s3_last_push_at`), not months.
-- [ ] T3 — Create `backend/core/scoring/weights.py` with `load_weights(path) -> Weights`. Validate all required keys (MM-WGT-2, MM-WGT-4) and domain constraints (MM-WGT-5: `span_months > 0`, `grace_months >= 0`, weights non-negative with positive sum, `0 <= ailing < dead <= s1_min_score <= 100`, exposure multipliers `> 0`, `cursed_priority_multiplier > 0`).
-- [ ] T4 — Create `backend/core/scoring/constants.py` with `R5_BUCKETS` and `R6_MIDPOINT` constants and docstring stating they define formula shape, not tunable parameters.
-- [ ] T5 — Create `backend/core/scoring/normalise.py` with `months_between(start, as_of) -> float` (days / 30.4375) and `normalise_signals(signals, w) -> dict[str, float|None]`. r2/r3 use `months_between`; r5 uses `R5_BUCKETS`; r6 uses `R6_MIDPOINT`; S4/S8 `-1` → `None`. Implement MM-NOR-1 through MM-NOR-8.
-- [ ] T6 — Create `backend/core/scoring/score.py` with `compute_mortality(risks, w) -> float|None`, `compute_contributions(risks, w) -> dict[str, float|None]`, `apply_s1_override(mortality, s1, w) -> float|None`, `compute_confidence(risks, s1, w) -> float`. Implement MM-SCO-1 through MM-SCO-7. S1 override applies even when mortality is None (no scored signals): mortality = `thresholds.s1_min_score`, confidence = 0.
-- [ ] T7 — Create `backend/core/scoring/classify.py` with `classify_state(...) -> tuple[BaseState, DeadReason]`, `compute_cursed(...)`, `compute_wounded(...)`. Implement MM-STA-1 through MM-STA-5, MM-OVL-1 through MM-OVL-3. Resting requires `s7_advisories` not None AND empty. Cursed: `published_at = None` never satisfies age condition.
-- [ ] T8 — Create `backend/core/scoring/priority.py` with `compute_exposure(paths, w) -> tuple[float, bool]` (returns exposure, exposure_assumed; 1.0 default when paths None/empty) and `compute_priority(mortality, exposure, cursed, w) -> float|None`. Exposure multipliers and cursed multiplier read from `weights.v1.yaml`. Implement MM-PRI-1 through MM-PRI-4.
-- [ ] T9 — Create `backend/core/scoring/sort.py` with `sort_results(results) -> list[ScoringResult]`. Validate unique purls (raise `ValueError`). Scored: priority desc → services_affected desc → purl asc. Unknown: exposure desc → services_affected desc (None last) → purl asc. Implement MM-SRT-1, MM-SRT-2.
-- [ ] T10 — Create `backend/core/scoring/__init__.py` with `score_package(signals, weights=None) -> ScoringResult` and re-export `sort_results`. Wire the full pipeline: normalise → score + contributions → S1 override → classify (state + dead_reason) → overlays → exposure + priority.
-- [ ] T11 — Write `backend/core/scoring/tests/test_types.py` — unit tests for `Signals` validation: valid domains construct, invalid domains (negative counts, s4 > 10, s4 = -2) raise `ValueError`. MM-VAL-1.
-- [ ] T12 — Write `backend/core/scoring/tests/test_weights.py` — unit tests for loading, missing keys, all required keys present, and MM-WGT-5 domain validation (invalid thresholds, negative weights, zero span_months, etc.).
-- [ ] T13 — Write `backend/core/scoring/tests/test_normalise.py` — unit tests for each r2–r8: present value, None, -1 for S4/S8, edge cases. Include `months_between` property tests (non-negative for start ≤ as_of, monotone in as_of). MM-NOR-1 through MM-NOR-8.
-- [ ] T14 — Write `backend/core/scoring/tests/test_score.py` — unit tests: weighted sum with all present, some missing, all missing (None), S1 override with and without scored signals, confidence range and full-set, confidence = 0 when S1-only, contributions sum to mortality pre-S1. MM-SCO-1 through MM-SCO-7.
-- [ ] T15 — Write `backend/core/scoring/tests/test_classify.py` — unit tests: each base state, evaluation order, dead_reason ("declared" vs "score" vs None), Resting (s7 known + empty, r6 threshold, downloads threshold), Cursed (published_at None never satisfies age, Dead/Ailing bypass), Wounded (fix, fix-pending, S1b), both overlays. MM-STA-1 through MM-STA-5, MM-OVL-1 through MM-OVL-3.
-- [ ] T16 — Write `backend/core/scoring/tests/test_priority.py` — unit tests: path_weight from YAML multipliers, exposure max, exposure default 1.0 + exposure_assumed, priority formula with YAML base and multiplier, priority None only when mortality None. MM-PRI-1 through MM-PRI-4.
-- [ ] T17 — Write `backend/core/scoring/tests/test_sort.py` — unit tests: unique purls (duplicate raises), priority desc, services desc, purl asc, Unknown after scored, Unknown sort by exposure desc → services (None last) → purl asc, no ties after tie-breakers. MM-SRT-1, MM-SRT-2.
-- [ ] T18 — Write `backend/core/scoring/tests/test_invariants.py` — all 8 invariants as Hypothesis property tests with `@pytest.mark.property`. Implement `signals_strategy` (valid domains only) and `invalid_signals_strategy` (for MM-VAL-1). One test per invariant per MM-INV-1 through MM-INV-8, including r6 monotonicity and S1-with-no-signals edge cases.
-- [ ] T19 — Create `scripts/capture_anchors.py` — one-shot script to fetch live API data for the 9 anchor packages with `as_of = 2026-11-03` and write `backend/tests/fixtures/anchors/<package>.json`.
-- [ ] T20 — Write `backend/core/scoring/tests/test_anchors.py` — 9 fixture-driven tests matching MM-ANC-1 through MM-ANC-9. Read JSON fixtures only (no network). `six` anchor asserts computed state and records mortality as borderline sentinel (Resting only if `r6 <= thresholds.resting_r6_max`).
-- [ ] T21 — Run full test suite. All property tests and anchor tests must pass. CI gate: `pytest backend/core/scoring/tests/ -m property` and `pytest backend/core/scoring/tests/test_anchors.py`.
+- [ ] T0 — Scaffold `backend/` (D1)
+  - [ ] T0.1 — Create `backend/pyproject.toml` managed by uv: `requires-python = "==3.12.*"`; exact-pinned `pyyaml` and dev group `pytest`, `hypothesis`, `ruff`, `mypy`; commit `uv.lock`. No `latest` or open ranges.
+  - [ ] T0.2 — pytest config: `--strict-markers`, registered `property` marker, `testpaths = ["core"]`.
+  - [ ] T0.3 — Create `backend/conftest.py` registering Hypothesis profiles `ci` (`max_examples=500`) and `dev` (`max_examples=200`), selected by `HYPOTHESIS_PROFILE` (default `dev`; unknown name fails loudly).
+  - [ ] T0.4 — Configure ruff and `mypy --strict` for `backend/core`.
+  - [ ] T0.5 — Smoke check: `uv run pytest`, `uv run ruff check`, `uv run mypy --strict core` all run clean on the empty package.
+
+- [ ] T1 — Model parameters and formula constants
+  - [ ] T1.1 — Create `weights.v1.yaml` with every key in MM-WGT-2, including the `exposure` block (`runtime`, `dev`, `direct`, `transitive`, `base`) and `cursed_priority_multiplier`. Values are those in the steering file.
+  - [ ] T1.2 — Create `constants.py` with `R5_BUCKETS` and `R6_MIDPOINT`; docstring states they define formula shape, not tunable parameters.
+  - [ ] T1.3 — Write `tests/test_constants.py`: bucket values, `R6_MIDPOINT`, and that `weights.v1.yaml` does not duplicate them.
+
+- [ ] T2 — `types.py` + tests (MM-VAL-1, D5)
+  - [ ] T2.1 — Implement `BaseState`, `DeadReason`, `Advisory`, `PathInfo`, `Signals` (date fields `s2_latest_release_at` / `s3_last_push_at`; `s7_advisories` and `paths` as `tuple[..., ...] | None`; `__post_init__` validation), `ScoringResult` (`dead_reason`, `contributions`, `exposure_assumed`), `Weights` (`weights` as read-only mapping).
+  - [ ] T2.2 — Write `tests/test_types.py` unit tests: each valid boundary constructs (0, 10, -1); each invalid value raises `ValueError` (negative counts, 10.1, -2, -0.5).
+  - [ ] T2.3 — Property tests (`@pytest.mark.property`): valid-domain strategy constructs (`test_signals_valid_domain`); invalid-domain strategy raises (`test_signals_invalid_domain_raises`).
+
+- [ ] T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)
+  - [ ] T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.
+  - [ ] T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; weights ≥ 0 with positive sum; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.
+  - [ ] T3.3 — Write `tests/test_weights.py`: shipped YAML loads and stamps `model_version`; each missing key raises; each MM-WGT-5 violation raises (including multiplier `> 1`, multiplier `0`, `base < 0`, `base > 1`); repeated calls and equivalent path spellings return the same cached object; failures are not cached; cached `weights` mapping is read-only; a `cache_clear()` fixture wraps tests that write temporary YAML.
+
+- [ ] T4 — `normalise.py` + tests (MM-NOR-1…8)
+  - [ ] T4.1 — Implement `months_between(start, as_of)` = `(as_of − start).days / 30.4375` and `normalise_signals(signals, w)`. r2/r3 via `months_between`; r5 via `R5_BUCKETS`; r6 via `R6_MIDPOINT`; S4/S8 `-1` → `None`.
+  - [ ] T4.2 — Write `tests/test_normalise.py` unit tests: each of r2–r8 for present, `None`, `-1`; grace/span boundaries; committers 0–5; 0/0 issues; `None` is never coerced to 0.
+  - [ ] T4.3 — Property tests: `months_between` non-negative for `start ≤ as_of` (`test_months_between_nonneg`); monotone in `as_of` (`test_months_between_monotone`); every present `rᵢ` lies in `[0, 1]`.
+
+- [ ] T5 — `score.py` + tests + property tests (MM-SCO-1…7, MM-INV-1, 2, 4)
+  - [ ] T5.1 — Implement `compute_mortality`, `compute_contributions`, `apply_s1_override`, `compute_confidence(risks, s1, w)`. S1 override applies even with no scored signals (mortality = `s1_min_score`, confidence 0).
+  - [ ] T5.2 — Write `tests/test_score.py` unit tests: all/some/none present; S1 override with and without scored signals; confidence range and full set; S1-only confidence 0; `contributions` keys and `None` for absent signals; no rounding.
+  - [ ] T5.3 — Write `tests/test_properties_score.py` (`@pytest.mark.property`), built from `normalise_signals` + score functions:
+    - MM-INV-1 `test_mortality_range`;
+    - MM-INV-2 `test_monotonicity_release`, `_push`, `_maintained`, `_overall`, `_committers`, `_open_issues` (closed fixed);
+    - MM-INV-4 `test_confidence_range`, `_monotone`, `_full`, `_s1_only`;
+    - MM-SCO-7 `test_contributions_sum` using `math.isclose(..., rel_tol=1e-9)` (D6).
+
+- [ ] T6 — `classify.py` + tests + property tests (MM-STA-1…5, MM-OVL-1…3, MM-INV-3, 5, 8)
+  - [ ] T6.1 — Implement `classify_state(...) -> tuple[BaseState, DeadReason]`, `compute_cursed`, `compute_wounded`. Resting requires `s7_advisories` not `None` and empty. A `published_at` of `None` never satisfies the Cursed age condition. `advisories` parameters are `tuple[Advisory, ...] | None`.
+  - [ ] T6.2 — Write `tests/test_classify.py` unit tests: each base state; evaluation order; `dead_reason` (`declared` / `score` / `None`); Resting (known-empty advisories, `None` advisories → Ailing, r6 ceiling, downloads known and ≥ minimum); Cursed (age met, age not met, `published_at None`, Dead/Ailing bypass); Wounded (fix, fix-pending, S1b); both overlays together.
+  - [ ] T6.3 — Write `tests/test_properties_classify.py` (`@pytest.mark.property`): MM-INV-3 `test_s1_implies_dead` (including all-`None` scored signals), MM-INV-5 `test_totality`, MM-INV-8 `test_s1b_not_s1`.
+
+- [ ] T7 — `priority.py` + tests (MM-PRI-1…4)
+  - [ ] T7.1 — Implement `compute_exposure(paths, w) -> tuple[float, bool]` (default `(1.0, True)` for `None`/empty) and `compute_priority(mortality, exposure, cursed, w)`. All multipliers come from `Weights`; `paths` is `tuple[PathInfo, ...] | None`.
+  - [ ] T7.2 — Write `tests/test_priority.py` unit tests: `path_weight` for each runtime/direct combination; max over paths; default exposure and `exposure_assumed`; exposure computed for Unknown; priority formula with YAML base and cursed multiplier; priority `None` only when mortality is `None`.
+
+- [ ] T8 — `sort.py` + tests (MM-SRT-1, 2, MM-INV-7)
+  - [ ] T8.1 — Implement `sort_results(results)`: duplicate purls raise `ValueError`; scored by priority desc → services desc → purl asc; Unknown after scored by exposure desc → services desc (`None` last) → purl asc.
+  - [ ] T8.2 — Write `tests/test_sort.py` unit tests: each tie-breaker; Unknown ordering including `None` services; duplicate purl rejected.
+  - [ ] T8.3 — Property tests: MM-INV-7 `test_exposure_always_float`, `test_priority_nonneg`, `test_sort_strict_total_order`.
+
+- [ ] T9 — `__init__.py` pipeline + tests (MM-WGT-3, MM-SCO-5, MM-INV-6)
+  - [ ] T9.1 — Implement `score_package(signals, weights=None) -> ScoringResult` wiring: normalise → mortality + contributions → S1 override → confidence → classify → overlays → exposure → priority. Re-export `sort_results`.
+  - [ ] T9.2 — Write `tests/test_pipeline.py`: result stamped with `model_version`; every `ScoringResult` field populated as specified; S1-only and all-`None` inputs.
+  - [ ] T9.3 — Property test: MM-INV-6 `test_determinism`; re-run MM-INV-1, 3, 5 end to end through `score_package`.
+
+- [ ] T10 — **MANUAL (maintainer runs this; the agent must not)** — `scripts/capture_anchors.py` (D8)
+  - [ ] T10.1 — Implement the script with PEP 723 inline dependencies, runnable via `uv run`. It reads `GITHUB_TOKEN` from the environment and exits with a clear message if unset. The token is never printed, logged, written to a fixture, or included in an exception message.
+  - [ ] T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = "2026-11-03"`, every raw signal value, and the source URL for each signal.
+  - [ ] T10.3 — Maintainer runs it once and commits the fixtures after reviewing them for secrets.
+
+- [ ] T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output**
+  - [ ] T11.1 — Resolve fixtures via `Path(__file__).parent / "fixtures" / "anchors"`; no network, no working-directory dependence.
+  - [ ] T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package with the expected states from requirements.
+  - [ ] T11.3 — `six`: assert the state computed from the fixture and record its mortality as a "borderline sentinel"; Resting only if `r6 ≤ thresholds.resting_r6_max`.
+
+- [ ] T12 — Final gate
+  - [ ] T12.1 — `uv run ruff check` and `uv run ruff format --check` clean.
+  - [ ] T12.2 — `uv run mypy --strict core` clean.
+  - [ ] T12.3 — `HYPOTHESIS_PROFILE=ci uv run pytest` green (`max_examples=500`), including `-m property` and `test_anchors.py`.
+  - [ ] T12.4 — Confirm 85% line coverage on `backend/core/scoring` (testing.md gate).
