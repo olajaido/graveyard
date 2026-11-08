@@ -40,10 +40,10 @@
     - MM-INV-4 `test_confidence_range`, `_monotone`, `_full`, `_s1_only`;
     - MM-SCO-7 `test_contributions_sum` using `math.isclose(..., rel_tol=1e-9)` (D6).
 
-- [ ] T6 — `classify.py` + tests + property tests (MM-STA-1…5, MM-OVL-1…3, MM-INV-3, 5, 8)
-  - [~] T6.1 — Implement `classify_state(...) -> tuple[BaseState, DeadReason]`, `compute_cursed`, `compute_wounded`. Resting requires `s7_advisories` not `None` and empty. A `published_at` of `None` never satisfies the Cursed age condition. `advisories` parameters are `tuple[Advisory, ...] | None`.
-  - [~] T6.2 — Write `tests/test_classify.py` unit tests: each base state; evaluation order; `dead_reason` (`declared` / `score` / `None`); Resting (known-empty advisories, `None` advisories → Ailing, r6 ceiling, downloads known and ≥ minimum); Cursed (age met, age not met, `published_at None`, Dead/Ailing bypass); Wounded (fix, fix-pending, S1b); both overlays together.
-  - [~] T6.3 — Write `tests/test_properties_classify.py` (`@pytest.mark.property`): MM-INV-3 `test_s1_implies_dead` (including all-`None` scored signals), MM-INV-5 `test_totality`, MM-INV-8 `test_s1b_not_s1`.
+- [x] T6 — `classify.py` + tests + property tests (MM-STA-1…5, MM-OVL-1…3, MM-INV-3, 5, 8)
+  - [x] T6.1 — Implement `classify_state(...) -> tuple[BaseState, DeadReason]`, `compute_cursed`, `compute_wounded`. Resting requires `s7_advisories` not `None` and empty. A `published_at` of `None` never satisfies the Cursed age condition. `advisories` parameters are `tuple[Advisory, ...] | None`.
+  - [x] T6.2 — Write `tests/test_classify.py` unit tests: each base state; evaluation order; `dead_reason` (`declared` / `score` / `None`); Resting (known-empty advisories, `None` advisories → Ailing, r6 ceiling, downloads known and ≥ minimum); Cursed (age met, age not met, `published_at None`, Dead/Ailing bypass); Wounded (fix, fix-pending, S1b); both overlays together.
+  - [x] T6.3 — Write `tests/test_properties_classify.py` (`@pytest.mark.property`): MM-INV-3 `test_s1_implies_dead` (including all-`None` scored signals), MM-INV-5 `test_totality`, MM-INV-8 `test_s1b_not_s1`.
 
 - [ ] T7 — `priority.py` + tests (MM-PRI-1…4)
   - [~] T7.1 — Implement `compute_exposure(paths, w) -> tuple[float, bool]` (default `(1.0, True)` for `None`/empty) and `compute_priority(mortality, exposure, cursed, w)`. All multipliers come from `Weights`; `paths` is `tuple[PathInfo, ...] | None`.

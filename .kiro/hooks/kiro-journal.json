@@ -6,7 +6,7 @@
       "trigger": "PostTaskExec",
       "action": {
         "type": "agent",
-        "prompt": "This fires after each leaf task. After it completes, check .kiro/specs/<spec>/tasks.md: if every sub-task under the just-completed task's parent (e.g. all T3.x under T3) is now ticked [x], append ONE entry for the parent task to docs/KIRO_JOURNAL.md; otherwise do nothing. Get the date by running `date +%F` (never guess). Start the appended text with a blank line. Entry: date, spec + parent task, Kiro features used, what Kiro got right, what was corrected, anything surprising. Max 8 lines."
+        "prompt": "This fires after each leaf task. After it completes, check .kiro/specs/<spec>/tasks.md: if every sub-task under the just-completed task's parent (e.g. all T3.x under T3) is now ticked [x], append ONE entry for the parent task to docs/KIRO_JOURNAL.md; otherwise do nothing. Get the date by running `date +%F` (never guess). Start the appended text with a blank line and use EXACTLY this format (date as e.g. '8 Nov'):\n### <D Mon> — Spec `<spec>`: <Tn> (<short title>)\n- **Spec/task:** <sub-tasks done>\n- **Kiro features:** <features>\n- **Kiro got right:** <…>\n- **Corrected:** <…>\n- **Surprise:** <…>\nMax 8 lines."
       }
     }
   ]

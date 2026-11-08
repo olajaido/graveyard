@@ -172,3 +172,10 @@ Findings to apply before the first task runs:
 - **Kiro got right:** S1 override with no scored signals (mortality = `s1_min_score`, confidence 0); no rounding; contributions sum via `math.isclose`; 250 tests pass, ruff + mypy --strict clean.
 - **Corrected:** `SCORED_SIGNAL_IDS` was missing from `normalise.py`, so it was added there. mypy caught a `round(None)` in a test, fixed with an assert.
 - **Surprise:** the loader allows zero weights, so the agent added a zero-weight-sum guard (mortality `None`, confidence 0). No property found a genuine bug.
+
+### 8 Nov — Spec `mortality-model`: T6 (classify + overlays)
+- **Spec/task:** T6.1 `classify.py`, T6.2 `test_classify.py`, T6.3 property tests (INV-3, INV-5, INV-8 + None-vs-empty advisories).
+- **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests via shared strategies.
+- **Kiro got right:** **found a design bug** — `compute_wounded(advisories, cursed, s1b)` couldn't distinguish a Cursed no-fix advisory from a fix-pending one, so mixed cases returned Wounded=False. Fixed with a shared per-advisory helper; design.md updated. 303 tests, ruff + mypy --strict clean. 7.88 credits.
+- **Corrected:** nothing by me.
+- **Surprise:** the sub-agent flagged the spec gap instead of silently diverging; the three MM-INV properties found no bugs.

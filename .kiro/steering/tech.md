@@ -72,3 +72,8 @@ inclusion: always
 - npm registry: abbreviated metadata for speed; no auth.
 - PyPI JSON API: per-package JSON; no auth.
 - ecosyste.ms: P1 only; set a contact User-Agent.
+
+## Tooling
+
+- Run every Python tool from `backend/` via `uv run`: `uv run pytest -q`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core`. Never call `pytest`, `ruff` or `mypy` bare (they are not on PATH).
+- Property tests under the CI profile: `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q`.

@@ -304,6 +304,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928626
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794175952966
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176000112
       }
     ],
     "T6.2 — Write `tests/test_classify.py` unit tests: each base state; evaluation order; `dead_reason` (`declared` / `score` / `None`); Resting (known-empty advisories, `None` advisories → Ailing, r6 ceiling, downloads known and ≥ minimum); Cursed (age met, age not met, `published_at None`, Dead/Ailing bypass); Wounded (fix, fix-pending, S1b); both overlays together.": [
@@ -311,6 +321,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928657
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176003377
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176083804
       }
     ],
     "T6.3 — Write `tests/test_properties_classify.py` (`@pytest.mark.property`): MM-INV-3 `test_s1_implies_dead` (including all-`None` scored signals), MM-INV-5 `test_totality`, MM-INV-8 `test_s1b_not_s1`.": [
@@ -318,6 +338,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928706
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176086830
+      },
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176133346
       }
     ],
     "T7.1 — Implement `compute_exposure(paths, w) -> tuple[float, bool]` (default `(1.0, True)` for `None`/empty) and `compute_priority(mortality, exposure, cursed, w)`. All multipliers come from `Weights`; `paths` is `tuple[PathInfo, ...] | None`.": [
@@ -458,6 +488,13 @@
         "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
         "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
         "timestamp": 1794175185426
+      }
+    ],
+    "T6 — `classify.py` + tests + property tests (MM-STA-1…5, MM-OVL-1…3, MM-INV-3, 5, 8)": [
+      {
+        "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
+        "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
+        "timestamp": 1794176133435
       }
     ]
   }

@@ -263,10 +263,15 @@ def compute_cursed(
 
 def compute_wounded(
     advisories: tuple[Advisory, ...] | None,
-    cursed: bool,
+    as_of: date,
+    base_state: BaseState,
     s1b: bool | None,
+    w: Weights,
 ) -> bool:
-    """Fix available, fix-pending (no-fix not Cursed), or S1b."""
+    """S1b, OR any advisory has a fix, OR any no-fix advisory that is not
+    individually Cursed (fix pending). Each no-fix advisory is evaluated
+    against the same per-advisory Cursed rule as compute_cursed (shared
+    private helper)."""
 ```
 
 ## Priority (`priority.py`)
