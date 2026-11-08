@@ -125,17 +125,19 @@ All strategies generate valid-domain signals; a separate test asserts invalid va
 
 Fixtures captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03`; stored as `backend/core/scoring/tests/fixtures/anchors/<package>.json` (colocated; resolved via `Path(__file__).parent`). Each fixture records `as_of` and a source URL per signal. Tests read fixtures only (no network).
 
+All anchors: `paths` is null in every fixture, so `exposure == 1.0` and `exposure_assumed == True`.
+
 | Package | Expected |
 |---|---|
-| request | Dead (declared); wounded per fixture advisories |
-| node-uuid | Dead (declared) |
-| left-pad | Dead (declared) |
-| express | Alive + Wounded (S1b) |
-| uuid | Not Dead + Wounded (S1b) |
-| moment | Alive + Wounded (S1b) |
-| pycrypto | Dead (score) + Cursed (no-fix advisories, old) |
-| nose | Dead (score), not Cursed |
-| six | Borderline sentinel: assert computed state; Resting only if r6 ≤ thresholds.resting_r6_max |
+| request | Dead, `dead_reason = "declared"`, cursed, not wounded |
+| node-uuid | Dead, `dead_reason = "declared"`, not cursed, not wounded |
+| left-pad | Dead, `dead_reason = "declared"`, `mortality == thresholds.s1_min_score`, no overlays |
+| express | Alive, wounded (fixable advisories), `s1b = False`, not cursed |
+| moment | Alive, wounded (fixable advisories), not cursed |
+| uuid | Alive, wounded (S1b + fixable advisory), not cursed |
+| pycrypto | Dead, `dead_reason = "score"`, cursed, not wounded, `confidence = 0.25` |
+| nose | Dead, `dead_reason = "score"`, no overlays, `confidence = 0.25` |
+| six | Resting, no overlays, `thresholds.ailing ≤ mortality < thresholds.dead`; borderline sentinel ≈ 43.7 asserted with absolute tolerance 0.5 |
 
 ## Evaluation harness
 

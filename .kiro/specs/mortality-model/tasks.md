@@ -59,15 +59,15 @@
   - [x] T9.2 — Write `tests/test_pipeline.py`: result stamped with `model_version`; every `ScoringResult` field populated as specified; S1-only and all-`None` inputs.
   - [x] T9.3 — Property test: MM-INV-6 `test_determinism`; re-run MM-INV-1, 3, 5 end to end through `score_package`.
 
-- [ ] T10 — **MANUAL (maintainer runs this; the agent must not)** — `scripts/capture_anchors.py` (D8)
+- [x] T10 — **MANUAL (maintainer runs this; the agent must not)** — `scripts/capture_anchors.py` (D8)
   - [x] T10.1 — Implement the script with PEP 723 inline dependencies, runnable via `uv run`. It reads `GITHUB_TOKEN` from the environment and exits with a clear message if unset. The token is never printed, logged, written to a fixture, or included in an exception message.
-  - [~] T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = "2026-11-03"`, every raw signal value, and the source URL for each signal.
-  - [~] T10.3 — Maintainer runs it once and commits the fixtures after reviewing them for secrets.
+  - [x] T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = "2026-11-03"`, every raw signal value, and the source URL for each signal.
+  - [x] T10.3 — Maintainer runs it once and commits the fixtures after reviewing them for secrets.
 
-- [ ] T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output**
+- [ ] T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output (T10 complete: 9 fixtures committed)**
   - [~] T11.1 — Resolve fixtures via `Path(__file__).parent / "fixtures" / "anchors"`; no network, no working-directory dependence.
-  - [~] T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package with the expected states from requirements.
-  - [~] T11.3 — `six`: assert the state computed from the fixture and record its mortality as a "borderline sentinel"; Resting only if `r6 ≤ thresholds.resting_r6_max`.
+  - [~] T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package asserting the expectations in MM-ANC-1…9: `base_state`, `dead_reason`, `cursed`, `wounded`, `confidence` (where stated), `exposure == 1.0` and `exposure_assumed is True` for every anchor (paths are null in all fixtures), and `mortality == thresholds.s1_min_score` for left-pad.
+  - [~] T11.3 — `six`: assert Resting with no overlays and `thresholds.ailing ≤ mortality < thresholds.dead`; record mortality as a "borderline sentinel" of ≈ 43.7, asserted with an absolute tolerance of 0.5.
 
 - [ ] T12 — Final gate
   - [~] T12.1 — `uv run ruff check` and `uv run ruff format --check` clean.

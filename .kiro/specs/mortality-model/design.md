@@ -365,7 +365,7 @@ def test_anchor_request():
     assert result.dead_reason == "declared"
 ```
 
-The `six` anchor (MM-ANC-9) asserts the computed state and records `mortality` as a borderline sentinel: Resting expected only if `r6 ≤ w.threshold_resting_r6_max`.
+The `six` anchor (MM-ANC-9) asserts Resting with no overlays and `w.threshold_ailing ≤ mortality < w.threshold_dead`, and records `mortality` as a borderline sentinel of ≈ 43.7, asserted with an absolute tolerance of 0.5.
 
 ### Fixture capture (`scripts/capture_anchors.py`, manual, D8)
 

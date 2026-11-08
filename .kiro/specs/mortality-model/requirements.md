@@ -284,16 +284,20 @@ Each invariant is a requirement verified by Hypothesis property-based tests (`@p
 
 ## Fixture-driven sanity anchors
 
-Anchors are **fixture-driven**, not hardcoded. Fixtures are captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03` and stored as `backend/core/scoring/tests/fixtures/anchors/<package>.json`. Tests read fixtures only (no network).
+Anchors are **fixture-driven**, not hardcoded. Fixtures were captured once from live APIs by `scripts/capture_anchors.py` with `as_of = 2026-11-03` and are stored as `backend/core/scoring/tests/fixtures/anchors/<package>.json`. Tests read fixtures only (no network). The expectations below were derived by hand from the committed fixtures.
 
-| ID | Package | Expected state | Notes |
-|----|---------|---------------|-------|
-| MM-ANC-1 | request | Dead (`dead_reason = "declared"`). `wounded` per fixture advisories. | S1 deprecated on latest. |
-| MM-ANC-2 | node-uuid | Dead (`dead_reason = "declared"`). | S1 deprecated; repo archived. |
-| MM-ANC-3 | left-pad | Dead (`dead_reason = "declared"`). | S1 deprecated; repo archived. |
-| MM-ANC-4 | express | Alive + `wounded = True` (S1b). | Not Dead from deprecation alone. |
-| MM-ANC-5 | uuid | Not Dead + `wounded = True` (S1b). | Older versions deprecated, latest is not. |
-| MM-ANC-6 | moment | Alive + `wounded = True` (S1b). | 2 broken versions deprecated, latest is not. |
-| MM-ANC-7 | pycrypto | Dead (`dead_reason = "score"`) + `cursed = True`. | No S1; staleness-driven; no-fix advisories published > 90 days ago. |
-| MM-ANC-8 | nose | Dead (`dead_reason = "score"`), not Cursed. | No S1; staleness-driven; no advisories. |
-| MM-ANC-9 | six | Assert the state computed from the fixture and record `mortality` in the test as a "borderline sentinel". Expected Resting only if `r6 ≤ thresholds.resting_r6_max`; otherwise Ailing. | Mortality ≈ 59, no advisories, very high downloads. |
+**All anchors:** `paths` is null in every fixture, so `exposure == 1.0` and `exposure_assumed == True`.
+
+| ID | Package | Expected | Notes |
+|----|---------|----------|-------|
+| MM-ANC-1 | request | Dead, `dead_reason = "declared"`, `cursed = True`, `wounded = False`. | S1 deprecated on latest. One advisory, no fix, published 2023-03-16 (older than `cursed_min_age_days`). |
+| MM-ANC-2 | node-uuid | Dead, `dead_reason = "declared"`, `cursed = False`, `wounded = False`. | S1 deprecated; no advisories. |
+| MM-ANC-3 | left-pad | Dead, `dead_reason = "declared"`, `mortality == thresholds.s1_min_score`, `cursed = False`, `wounded = False`. | S1 deprecated; no advisories; no overlays. |
+| MM-ANC-4 | express | Alive, `wounded = True` (fixable advisories), `s1b_version_deprecated = False`, `cursed = False`. | Resolved version 4.17.1 has two advisories, both with fixes. |
+| MM-ANC-5 | uuid | Alive, `wounded = True` (S1b plus a fixable advisory), `cursed = False`. | Resolved version 3.4.0 is deprecated while the latest is not; one advisory with a fix. |
+| MM-ANC-6 | moment | Alive, `wounded = True` (fixable advisories), `cursed = False`. | Resolved version 2.29.1 has two advisories, both with fixes. |
+| MM-ANC-7 | pycrypto | Dead, `dead_reason = "score"`, `cursed = True`, `wounded = False`, `confidence = 0.25`. | No S1; only `s2` present, so `confidence = weights.s2 / Σ weights` (0.25 with the shipped v1 weights). Four no-fix advisories, all old. |
+| MM-ANC-8 | nose | Dead, `dead_reason = "score"`, `cursed = False`, `wounded = False`, `confidence = 0.25`. | No S1; only `s2` present (same confidence derivation); no advisories. |
+| MM-ANC-9 | six | Resting, `cursed = False`, `wounded = False`, `thresholds.ailing ≤ mortality < thresholds.dead`. Record mortality as a borderline sentinel of ≈ 43.7 and assert it with an absolute tolerance of 0.5. | No advisories (known empty), downloads at or above `resting_min_weekly_downloads`, and `r6 ≤ thresholds.resting_r6_max`. |
+
+Note: the Nov 3 spike treated GHSA-p8p7-x288-28g6 (request SSRF) as fixed; OSV's affected ranges show no fixed version, so the fixture's has_fix=False is authoritative.
