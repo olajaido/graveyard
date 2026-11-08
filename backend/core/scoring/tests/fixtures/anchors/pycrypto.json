@@ -1,0 +1,110 @@
+{
+  "package": "pycrypto",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/pycrypto@2.6.1",
+  "resolved_version": "2.6.1",
+  "latest_version": "2.6.1",
+  "repo": null,
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/pycrypto/json",
+      "fetched_at": "2026-11-08T23:36:23Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2014-06-20",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/pycrypto/versions/2.6.1",
+      "fetched_at": "2026-11-08T23:36:23Z"
+    },
+    "s3_last_push_at": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:23Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s5_committers": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_open_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_closed_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-6528-wvf6-f6qg",
+          "has_fix": false,
+          "published_at": "2018-07-12",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-cq27-v7xp-c356",
+          "has_fix": false,
+          "published_at": "2018-12-14",
+          "fixed_versions": []
+        },
+        {
+          "id": "PYSEC-2017-94",
+          "has_fix": false,
+          "published_at": "2017-02-15",
+          "fixed_versions": []
+        },
+        {
+          "id": "PYSEC-2018-97",
+          "has_fix": false,
+          "published_at": "2018-02-03",
+          "fixed_versions": []
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:24Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-6528-wvf6-f6qg",
+        "https://api.osv.dev/v1/vulns/GHSA-cq27-v7xp-c356",
+        "https://api.osv.dev/v1/vulns/PYSEC-2017-94",
+        "https://api.osv.dev/v1/vulns/PYSEC-2018-97"
+      ],
+      "note": "querybatch for PyPI:pycrypto@2.6.1; 4 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:23Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s9_weekly_downloads": {
+      "value": 2398341,
+      "source": "https://pypistats.org/api/packages/pycrypto/recent",
+      "fetched_at": "2026-11-08T23:36:29Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

@@ -1,0 +1,77 @@
+{
+  "package": "six",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/six@1.17.0",
+  "resolved_version": "1.17.0",
+  "latest_version": "1.17.0",
+  "repo": "github.com/benjaminp/six",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/six/json",
+      "fetched_at": "2026-11-08T23:36:31Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-12-04",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/six/versions/1.17.0",
+      "fetched_at": "2026-11-08T23:36:31Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-02-23",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for benjaminp/six"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbenjaminp%2Fsix",
+      "fetched_at": "2026-11-08T23:36:32Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for benjaminp/six"
+    },
+    "s6_open_issues": {
+      "value": 90,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for benjaminp/six"
+    },
+    "s6_closed_issues": {
+      "value": 190,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for benjaminp/six"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:32Z",
+      "note": "querybatch for PyPI:six@1.17.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbenjaminp%2Fsix",
+      "fetched_at": "2026-11-08T23:36:32Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 241750664,
+      "source": "https://pypistats.org/api/packages/six/recent",
+      "fetched_at": "2026-11-08T23:36:34Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

@@ -1,0 +1,97 @@
+{
+  "package": "uuid",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/uuid@3.4.0",
+  "resolved_version": "3.4.0",
+  "latest_version": "14.0.3",
+  "repo": "github.com/uuidjs/uuid",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uuid/versions/14.0.3",
+      "fetched_at": "2026-11-08T23:36:16Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uuid/versions/3.4.0",
+      "fetched_at": "2026-11-08T23:36:15Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/uuid/versions/14.0.3"
+      ],
+      "note": "resolved 3.4.0: True; latest 14.0.3: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-10",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uuid/versions/14.0.3",
+      "fetched_at": "2026-11-08T23:36:16Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-01",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for uuidjs/uuid"
+    },
+    "s4_maintained": {
+      "value": 9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fuuidjs%2Fuuid",
+      "fetched_at": "2026-11-08T23:36:17Z"
+    },
+    "s5_committers": {
+      "value": 16,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for uuidjs/uuid"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for uuidjs/uuid"
+    },
+    "s6_closed_issues": {
+      "value": 445,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for uuidjs/uuid"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-w5hq-g745-h8pq",
+          "has_fix": true,
+          "published_at": "2026-04-22",
+          "fixed_versions": [
+            "11.1.1",
+            "12.0.1",
+            "13.0.1"
+          ]
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:17Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-w5hq-g745-h8pq"
+      ],
+      "note": "querybatch for npm:uuid@3.4.0; 1 advisories"
+    },
+    "s8_overall": {
+      "value": 4.4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fuuidjs%2Fuuid",
+      "fetched_at": "2026-11-08T23:36:17Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 395684977,
+      "source": "https://api.npmjs.org/downloads/point/last-week/uuid",
+      "fetched_at": "2026-11-08T23:36:18Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

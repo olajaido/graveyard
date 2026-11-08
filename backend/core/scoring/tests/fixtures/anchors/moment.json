@@ -1,0 +1,104 @@
+{
+  "package": "moment",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/moment@2.29.1",
+  "resolved_version": "2.29.1",
+  "latest_version": "2.31.0",
+  "repo": "github.com/moment/moment",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/moment/versions/2.31.0",
+      "fetched_at": "2026-11-08T23:36:19Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/moment/versions/2.29.1",
+      "fetched_at": "2026-11-08T23:36:18Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/moment/versions/2.31.0"
+      ],
+      "note": "resolved 2.29.1: False; latest 2.31.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-09-15",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/moment/versions/2.31.0",
+      "fetched_at": "2026-11-08T23:36:19Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-10-08",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for moment/moment"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmoment%2Fmoment",
+      "fetched_at": "2026-11-08T23:36:20Z"
+    },
+    "s5_committers": {
+      "value": 21,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for moment/moment"
+    },
+    "s6_open_issues": {
+      "value": 42,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for moment/moment"
+    },
+    "s6_closed_issues": {
+      "value": 4124,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for moment/moment"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-8hfj-j24r-96c4",
+          "has_fix": true,
+          "published_at": "2022-04-04",
+          "fixed_versions": [
+            "2.29.2"
+          ]
+        },
+        {
+          "id": "GHSA-wc69-rhjr-hc9g",
+          "has_fix": true,
+          "published_at": "2022-07-06",
+          "fixed_versions": [
+            "2.29.4"
+          ]
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:21Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-8hfj-j24r-96c4",
+        "https://api.osv.dev/v1/vulns/GHSA-wc69-rhjr-hc9g"
+      ],
+      "note": "querybatch for npm:moment@2.29.1; 2 advisories"
+    },
+    "s8_overall": {
+      "value": 6.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmoment%2Fmoment",
+      "fetched_at": "2026-11-08T23:36:20Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 50867713,
+      "source": "https://api.npmjs.org/downloads/point/last-week/moment",
+      "fetched_at": "2026-11-08T23:36:23Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

@@ -1,0 +1,83 @@
+{
+  "package": "left-pad",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/left-pad@1.3.0",
+  "resolved_version": "1.3.0",
+  "latest_version": "1.3.0",
+  "repo": "github.com/stevemao/left-pad",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/left-pad/versions/1.3.0",
+      "fetched_at": "2026-11-08T23:36:09Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/left-pad/versions/1.3.0",
+      "fetched_at": "2026-11-08T23:36:09Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/left-pad/versions/1.3.0"
+      ],
+      "note": "resolved 1.3.0: True; latest 1.3.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-04-09",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/left-pad/versions/1.3.0",
+      "fetched_at": "2026-11-08T23:36:09Z"
+    },
+    "s3_last_push_at": {
+      "value": "2019-04-19",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for stevemao/left-pad"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fstevemao%2Fleft-pad",
+      "fetched_at": "2026-11-08T23:36:10Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for stevemao/left-pad"
+    },
+    "s6_open_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for stevemao/left-pad"
+    },
+    "s6_closed_issues": {
+      "value": 22,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for stevemao/left-pad"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:10Z",
+      "note": "querybatch for npm:left-pad@1.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fstevemao%2Fleft-pad",
+      "fetched_at": "2026-11-08T23:36:10Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2148771,
+      "source": "https://api.npmjs.org/downloads/point/last-week/left-pad",
+      "fetched_at": "2026-11-08T23:36:10Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

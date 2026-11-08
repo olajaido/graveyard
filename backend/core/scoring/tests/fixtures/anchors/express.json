@@ -1,0 +1,106 @@
+{
+  "package": "express",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/express@4.17.1",
+  "resolved_version": "4.17.1",
+  "latest_version": "5.3.0",
+  "repo": "github.com/expressjs/express",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/express/versions/5.3.0",
+      "fetched_at": "2026-11-08T23:36:12Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/express/versions/4.17.1",
+      "fetched_at": "2026-11-08T23:36:11Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/express/versions/5.3.0"
+      ],
+      "note": "resolved 4.17.1: False; latest 5.3.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-09",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/express/versions/5.3.0",
+      "fetched_at": "2026-11-08T23:36:12Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for expressjs/express"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fexpressjs%2Fexpress",
+      "fetched_at": "2026-11-08T23:36:13Z"
+    },
+    "s5_committers": {
+      "value": 44,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for expressjs/express"
+    },
+    "s6_open_issues": {
+      "value": 113,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for expressjs/express"
+    },
+    "s6_closed_issues": {
+      "value": 3975,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for expressjs/express"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-qw6h-vgh9-j6wx",
+          "has_fix": true,
+          "published_at": "2024-09-10",
+          "fixed_versions": [
+            "4.20.0",
+            "5.0.0"
+          ]
+        },
+        {
+          "id": "GHSA-rv95-896h-c2vc",
+          "has_fix": true,
+          "published_at": "2024-03-25",
+          "fixed_versions": [
+            "4.19.2",
+            "5.0.0-beta.3"
+          ]
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:13Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-qw6h-vgh9-j6wx",
+        "https://api.osv.dev/v1/vulns/GHSA-rv95-896h-c2vc"
+      ],
+      "note": "querybatch for npm:express@4.17.1; 2 advisories"
+    },
+    "s8_overall": {
+      "value": 8.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fexpressjs%2Fexpress",
+      "fetched_at": "2026-11-08T23:36:13Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 197299983,
+      "source": "https://api.npmjs.org/downloads/point/last-week/express",
+      "fetched_at": "2026-11-08T23:36:15Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

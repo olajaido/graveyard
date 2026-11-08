@@ -1,0 +1,79 @@
+{
+  "package": "nose",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/nose@1.3.7",
+  "resolved_version": "1.3.7",
+  "latest_version": "1.3.7",
+  "repo": null,
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/nose/json",
+      "fetched_at": "2026-11-08T23:36:29Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2015-06-02",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/nose/versions/1.3.7",
+      "fetched_at": "2026-11-08T23:36:29Z"
+    },
+    "s3_last_push_at": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:29Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s5_committers": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_open_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_closed_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:29Z",
+      "note": "querybatch for PyPI:nose@1.3.7; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-08T23:36:29Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s9_weekly_downloads": {
+      "value": 1272428,
+      "source": "https://pypistats.org/api/packages/nose/recent",
+      "fetched_at": "2026-11-08T23:36:31Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

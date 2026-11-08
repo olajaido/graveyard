@@ -440,6 +440,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928964
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179412884
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179446434
       }
     ],
     "T9.2 — Write `tests/test_pipeline.py`: result stamped with `model_version`; every `ScoringResult` field populated as specified; S1-only and all-`None` inputs.": [
@@ -447,6 +457,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929015
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179449534
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179508950
       }
     ],
     "T9.3 — Property test: MM-INV-6 `test_determinism`; re-run MM-INV-1, 3, 5 end to end through `score_package`.": [
@@ -454,6 +474,26 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929052
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179511712
+      },
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179644946
+      },
+      {
+        "executionId": "7ba8820d-3466-4d69-aa75-4c15a4250da6",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794180358321
+      },
+      {
+        "executionId": "7ba8820d-3466-4d69-aa75-4c15a4250da6",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794180422452
       }
     ],
     "T10.1 — Implement the script with PEP 723 inline dependencies, runnable via `uv run`. It reads `GITHUB_TOKEN` from the environment and exits with a clear message if unset. The token is never printed, logged, written to a fixture, or included in an exception message.": [
@@ -461,6 +501,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929095
+      },
+      {
+        "executionId": "7ba8820d-3466-4d69-aa75-4c15a4250da6",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179944601
+      },
+      {
+        "executionId": "7ba8820d-3466-4d69-aa75-4c15a4250da6",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794180350160
       }
     ],
     "T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = \"2026-11-03\"`, every raw signal value, and the source URL for each signal.": [
@@ -559,6 +609,13 @@
         "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
         "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
         "timestamp": 1794177132679
+      }
+    ],
+    "T9 — `__init__.py` pipeline + tests (MM-WGT-3, MM-SCO-5, MM-INV-6)": [
+      {
+        "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
+        "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
+        "timestamp": 1794179645033
       }
     ]
   }

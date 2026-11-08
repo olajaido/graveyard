@@ -54,13 +54,13 @@
   - [x] T8.2 — Write `tests/test_sort.py` unit tests: each tie-breaker; Unknown ordering including `None` services; duplicate purl rejected.
   - [x] T8.3 — Property tests: MM-INV-7 `test_exposure_always_float`, `test_priority_nonneg`, `test_sort_strict_total_order`.
 
-- [ ] T9 — `__init__.py` pipeline + tests (MM-WGT-3, MM-SCO-5, MM-INV-6)
-  - [~] T9.1 — Implement `score_package(signals, weights=None) -> ScoringResult` wiring: normalise → mortality + contributions → S1 override → confidence → classify → overlays → exposure → priority. Re-export `sort_results`.
-  - [~] T9.2 — Write `tests/test_pipeline.py`: result stamped with `model_version`; every `ScoringResult` field populated as specified; S1-only and all-`None` inputs.
-  - [~] T9.3 — Property test: MM-INV-6 `test_determinism`; re-run MM-INV-1, 3, 5 end to end through `score_package`.
+- [x] T9 — `__init__.py` pipeline + tests (MM-WGT-3, MM-SCO-5, MM-INV-6)
+  - [x] T9.1 — Implement `score_package(signals, weights=None) -> ScoringResult` wiring: normalise → mortality + contributions → S1 override → confidence → classify → overlays → exposure → priority. Re-export `sort_results`.
+  - [x] T9.2 — Write `tests/test_pipeline.py`: result stamped with `model_version`; every `ScoringResult` field populated as specified; S1-only and all-`None` inputs.
+  - [x] T9.3 — Property test: MM-INV-6 `test_determinism`; re-run MM-INV-1, 3, 5 end to end through `score_package`.
 
 - [ ] T10 — **MANUAL (maintainer runs this; the agent must not)** — `scripts/capture_anchors.py` (D8)
-  - [~] T10.1 — Implement the script with PEP 723 inline dependencies, runnable via `uv run`. It reads `GITHUB_TOKEN` from the environment and exits with a clear message if unset. The token is never printed, logged, written to a fixture, or included in an exception message.
+  - [x] T10.1 — Implement the script with PEP 723 inline dependencies, runnable via `uv run`. It reads `GITHUB_TOKEN` from the environment and exits with a clear message if unset. The token is never printed, logged, written to a fixture, or included in an exception message.
   - [~] T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = "2026-11-03"`, every raw signal value, and the source URL for each signal.
   - [~] T10.3 — Maintainer runs it once and commits the fixtures after reviewing them for secrets.
 

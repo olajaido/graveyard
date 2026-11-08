@@ -1,0 +1,83 @@
+{
+  "package": "node-uuid",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/node-uuid@1.4.8",
+  "resolved_version": "1.4.8",
+  "latest_version": "1.4.8",
+  "repo": "github.com/broofa/node-uuid",
+  "as_of": "2026-11-03",
+  "captured_at": "2026-11-08T23:36:36Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/node-uuid/versions/1.4.8",
+      "fetched_at": "2026-11-08T23:36:07Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/node-uuid/versions/1.4.8",
+      "fetched_at": "2026-11-08T23:36:07Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/node-uuid/versions/1.4.8"
+      ],
+      "note": "resolved 1.4.8: True; latest 1.4.8: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-03-22",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/node-uuid/versions/1.4.8",
+      "fetched_at": "2026-11-08T23:36:07Z"
+    },
+    "s3_last_push_at": {
+      "value": "2020-01-16",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "pushedAt for broofa/node-uuid"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbroofa%2Fnode-uuid",
+      "fetched_at": "2026-11-08T23:36:08Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "distinct commit authors 2025-11-03..2026-11-03 for broofa/node-uuid"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time open issues for broofa/node-uuid"
+    },
+    "s6_closed_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-08T23:36:36Z",
+      "note": "all-time closed issues for broofa/node-uuid"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-08T23:36:08Z",
+      "note": "querybatch for npm:node-uuid@1.4.8; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbroofa%2Fnode-uuid",
+      "fetched_at": "2026-11-08T23:36:08Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 979402,
+      "source": "https://api.npmjs.org/downloads/point/last-week/node-uuid",
+      "fetched_at": "2026-11-08T23:36:08Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false
+}

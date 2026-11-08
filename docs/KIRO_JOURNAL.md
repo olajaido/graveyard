@@ -193,3 +193,10 @@ Findings to apply before the first task runs:
 - **Kiro got right:** scored/Unknown split with `None` services sorted last; duplicate purls rejected; strict-total-order property also checks permutation and shuffle-invariance. 336 tests, ruff + mypy --strict clean.
 - **Corrected:** nothing by me.
 - **Surprise:** `__init__.py` re-exported `sort_results` already at T8.1; the properties found no bugs.
+
+### 8 Nov — Spec `mortality-model`: T9 (score_package pipeline)
+- **Spec/task:** T9.1 `score_package` wiring in `__init__.py`, T9.2 `test_pipeline.py` (7 unit tests), T9.3 end-to-end property tests (MM-INV-1, 3, 5, 6).
+- **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests, mortality-model steering.
+- **Kiro got right:** contributions computed pre-S1 while classify gets post-override mortality; `model_version` stamped from Weights; no model parameters hardcoded in tests.
+- **Corrected:** nothing by me.
+- **Surprise:** the T9.3 sub-agent put the property tests in a sibling `test_properties_pipeline.py`, not `test_pipeline.py`. It also couldn't confirm the full-suite counts included its new file.
