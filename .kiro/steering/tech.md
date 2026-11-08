@@ -77,3 +77,4 @@ inclusion: always
 
 - Run every Python tool from `backend/` via `uv run`: `uv run pytest -q`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core`. Never call `pytest`, `ruff` or `mypy` bare (they are not on PATH).
 - Property tests under the CI profile: `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q`.
+- Before implementing a spec task, read the requirement IDs it references in .kiro/specs/<spec>/requirements.md; requirements win over steering if they ever differ.

@@ -355,6 +355,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928748
+      },
+      {
+        "executionId": "143c06af-1566-4214-80ac-61f106db5644",
+        "chatSessionId": "sess_1a407c37-c382-4bbb-ad6b-012612163386",
+        "timestamp": 1794176714431
+      },
+      {
+        "executionId": "143c06af-1566-4214-80ac-61f106db5644",
+        "chatSessionId": "sess_1a407c37-c382-4bbb-ad6b-012612163386",
+        "timestamp": 1794176737425
       }
     ],
     "T7.2 — Write `tests/test_priority.py` unit tests: `path_weight` for each runtime/direct combination; max over paths; default exposure and `exposure_assumed`; exposure computed for Unknown; priority formula with YAML base and cursed multiplier; priority `None` only when mortality is `None`.": [
@@ -362,6 +372,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928797
+      },
+      {
+        "executionId": "143c06af-1566-4214-80ac-61f106db5644",
+        "chatSessionId": "sess_1a407c37-c382-4bbb-ad6b-012612163386",
+        "timestamp": 1794176740727
+      },
+      {
+        "executionId": "143c06af-1566-4214-80ac-61f106db5644",
+        "chatSessionId": "sess_1a407c37-c382-4bbb-ad6b-012612163386",
+        "timestamp": 1794176783734
       }
     ],
     "T8.1 — Implement `sort_results(results)`: duplicate purls raise `ValueError`; scored by priority desc → services desc → purl asc; Unknown after scored by exposure desc → services desc (`None` last) → purl asc.": [
@@ -369,6 +389,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928837
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177001706
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177035845
       }
     ],
     "T8.2 — Write `tests/test_sort.py` unit tests: each tie-breaker; Unknown ordering including `None` services; duplicate purl rejected.": [
@@ -376,6 +406,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928888
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177038196
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177072274
       }
     ],
     "T8.3 — Property tests: MM-INV-7 `test_exposure_always_float`, `test_priority_nonneg`, `test_sort_strict_total_order`.": [
@@ -383,6 +423,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928924
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177074801
+      },
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177132604
       }
     ],
     "T9.1 — Implement `score_package(signals, weights=None) -> ScoringResult` wiring: normalise → mortality + contributions → S1 override → confidence → classify → overlays → exposure → priority. Re-export `sort_results`.": [
@@ -495,6 +545,20 @@
         "executionId": "74438577-d0cd-4713-9841-eed4ae8a47df",
         "chatSessionId": "sess_811035b6-da07-4d09-9dab-a1c9c9a7f8ee",
         "timestamp": 1794176133435
+      }
+    ],
+    "T7 — `priority.py` + tests (MM-PRI-1…4)": [
+      {
+        "executionId": "143c06af-1566-4214-80ac-61f106db5644",
+        "chatSessionId": "sess_1a407c37-c382-4bbb-ad6b-012612163386",
+        "timestamp": 1794176783803
+      }
+    ],
+    "T8 — `sort.py` + tests (MM-SRT-1, 2, MM-INV-7)": [
+      {
+        "executionId": "caffb335-8e37-40fc-b741-979f7b8b9e1a",
+        "chatSessionId": "sess_16791749-f540-4935-ae49-b25109cf8875",
+        "timestamp": 1794177132679
       }
     ]
   }

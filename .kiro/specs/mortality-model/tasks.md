@@ -45,14 +45,14 @@
   - [x] T6.2 — Write `tests/test_classify.py` unit tests: each base state; evaluation order; `dead_reason` (`declared` / `score` / `None`); Resting (known-empty advisories, `None` advisories → Ailing, r6 ceiling, downloads known and ≥ minimum); Cursed (age met, age not met, `published_at None`, Dead/Ailing bypass); Wounded (fix, fix-pending, S1b); both overlays together.
   - [x] T6.3 — Write `tests/test_properties_classify.py` (`@pytest.mark.property`): MM-INV-3 `test_s1_implies_dead` (including all-`None` scored signals), MM-INV-5 `test_totality`, MM-INV-8 `test_s1b_not_s1`.
 
-- [ ] T7 — `priority.py` + tests (MM-PRI-1…4)
-  - [~] T7.1 — Implement `compute_exposure(paths, w) -> tuple[float, bool]` (default `(1.0, True)` for `None`/empty) and `compute_priority(mortality, exposure, cursed, w)`. All multipliers come from `Weights`; `paths` is `tuple[PathInfo, ...] | None`.
-  - [~] T7.2 — Write `tests/test_priority.py` unit tests: `path_weight` for each runtime/direct combination; max over paths; default exposure and `exposure_assumed`; exposure computed for Unknown; priority formula with YAML base and cursed multiplier; priority `None` only when mortality is `None`.
+- [x] T7 — `priority.py` + tests (MM-PRI-1…4)
+  - [x] T7.1 — Implement `compute_exposure(paths, w) -> tuple[float, bool]` (default `(1.0, True)` for `None`/empty) and `compute_priority(mortality, exposure, cursed, w)`. All multipliers come from `Weights`; `paths` is `tuple[PathInfo, ...] | None`.
+  - [x] T7.2 — Write `tests/test_priority.py` unit tests: `path_weight` for each runtime/direct combination; max over paths; default exposure and `exposure_assumed`; exposure computed for Unknown; priority formula with YAML base and cursed multiplier; priority `None` only when mortality is `None`.
 
-- [ ] T8 — `sort.py` + tests (MM-SRT-1, 2, MM-INV-7)
-  - [~] T8.1 — Implement `sort_results(results)`: duplicate purls raise `ValueError`; scored by priority desc → services desc → purl asc; Unknown after scored by exposure desc → services desc (`None` last) → purl asc.
-  - [~] T8.2 — Write `tests/test_sort.py` unit tests: each tie-breaker; Unknown ordering including `None` services; duplicate purl rejected.
-  - [~] T8.3 — Property tests: MM-INV-7 `test_exposure_always_float`, `test_priority_nonneg`, `test_sort_strict_total_order`.
+- [x] T8 — `sort.py` + tests (MM-SRT-1, 2, MM-INV-7)
+  - [x] T8.1 — Implement `sort_results(results)`: duplicate purls raise `ValueError`; scored by priority desc → services desc → purl asc; Unknown after scored by exposure desc → services desc (`None` last) → purl asc.
+  - [x] T8.2 — Write `tests/test_sort.py` unit tests: each tie-breaker; Unknown ordering including `None` services; duplicate purl rejected.
+  - [x] T8.3 — Property tests: MM-INV-7 `test_exposure_always_float`, `test_priority_nonneg`, `test_sort_strict_total_order`.
 
 - [ ] T9 — `__init__.py` pipeline + tests (MM-WGT-3, MM-SCO-5, MM-INV-6)
   - [~] T9.1 — Implement `score_package(signals, weights=None) -> ScoringResult` wiring: normalise → mortality + contributions → S1 override → confidence → classify → overlays → exposure → priority. Re-export `sort_results`.

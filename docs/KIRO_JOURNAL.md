@@ -179,3 +179,17 @@ Findings to apply before the first task runs:
 - **Kiro got right:** **found a design bug** — `compute_wounded(advisories, cursed, s1b)` couldn't distinguish a Cursed no-fix advisory from a fix-pending one, so mixed cases returned Wounded=False. Fixed with a shared per-advisory helper; design.md updated. 303 tests, ruff + mypy --strict clean. 7.88 credits.
 - **Corrected:** nothing by me.
 - **Surprise:** the sub-agent flagged the spec gap instead of silently diverging; the three MM-INV properties found no bugs.
+
+### 8 Nov — Spec `mortality-model`: T7 (exposure + priority)
+- **Spec/task:** T7.1 `priority.py` (`compute_exposure`, `compute_priority`), T7.2 `test_priority.py` (18 unit tests).
+- **Kiro features:** spec task orchestration, sub-agent per leaf task, mortality-model steering.
+- **Kiro got right:** all multipliers read from `Weights`; `(1.0, True)` default for None/empty paths; priority None only when mortality is None; ruff + mypy --strict clean, tests pass.
+- **Corrected:** the T7.1 sub-agent worked from the steering formulas and had not read MM-PRI in requirements.md; the formulas matched on review.
+- **Surprise:** `_path_weight` is private, so tests check it through single-path exposure. No spec gaps this time.
+
+### 8 Nov — Spec `mortality-model`: T8 (deterministic sort)
+- **Spec/task:** T8.1 `sort.py` (`sort_results`), T8.2 `test_sort.py` (12 unit tests), T8.3 MM-INV-7 property tests.
+- **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests, mortality-model steering.
+- **Kiro got right:** scored/Unknown split with `None` services sorted last; duplicate purls rejected; strict-total-order property also checks permutation and shuffle-invariance. 336 tests, ruff + mypy --strict clean.
+- **Corrected:** nothing by me.
+- **Surprise:** `__init__.py` re-exported `sort_results` already at T8.1; the properties found no bugs.
