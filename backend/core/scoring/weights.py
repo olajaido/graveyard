@@ -61,11 +61,11 @@ def _validate(w: Weights) -> None:
         raise ValueError(f"staleness.span_months must be > 0, got {w.span_months}")
     if w.grace_months < 0:
         raise ValueError(f"staleness.grace_months must be >= 0, got {w.grace_months}")
-    negative = [k for k, v in w.weights.items() if v < 0]
-    if negative:
-        raise ValueError(f"weights must be >= 0: {', '.join(sorted(negative))}")
-    if sum(w.weights.values()) <= 0:
-        raise ValueError("weights must have a positive sum")
+    # Strictly positive: a zero weight would let confidence reach 1 without every
+    # scored signal present, breaking MM-INV-4 ("confidence == 1 iff all six present").
+    non_positive = [k for k, v in w.weights.items() if v <= 0]
+    if non_positive:
+        raise ValueError(f"weights must be > 0: {', '.join(sorted(non_positive))}")
     if not (0 <= w.threshold_ailing < w.threshold_dead <= w.threshold_s1_min_score <= 100):
         raise ValueError(
             "thresholds must satisfy 0 <= ailing < dead <= s1_min_score <= 100, got "

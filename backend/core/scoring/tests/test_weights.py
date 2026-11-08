@@ -152,7 +152,8 @@ VIOLATIONS: dict[str, dict[Path_, Any]] = {
     "span_negative": {("staleness", "span_months"): -1},
     "grace_negative": {("staleness", "grace_months"): -1},
     "weight_negative": {("weights", "s2"): -0.1},
-    "weight_sum_zero": ZERO_WEIGHTS,
+    "weight_all_zero": ZERO_WEIGHTS,
+    **{f"weight_{key}_zero": {("weights", key): 0} for key in WEIGHT_KEYS},
     "ailing_equals_dead": {("thresholds", "ailing"): 60},
     "ailing_above_dead": {("thresholds", "ailing"): 70},
     "dead_above_s1_min": {("thresholds", "dead"): 95},
@@ -182,7 +183,7 @@ def test_constraint_violation_raises(tmp_path: Path, overrides: dict[Path_, Any]
 
 VALID_BOUNDARIES: dict[str, dict[Path_, Any]] = {
     "grace_zero": {("staleness", "grace_months"): 0},
-    "one_weight_positive": {**ZERO_WEIGHTS, ("weights", "s2"): 1},
+    "weight_tiny_positive": {("weights", "s2"): 1e-9},
     "ailing_zero": {("thresholds", "ailing"): 0},
     "dead_equals_s1_min": {("thresholds", "dead"): 90},
     "s1_min_100": {("thresholds", "s1_min_score"): 100},

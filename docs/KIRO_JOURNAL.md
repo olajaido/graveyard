@@ -166,3 +166,9 @@ Findings to apply before the first task runs:
 - **Kiro got right:** `months_between` plus r2–r8 exactly per MM-NOR; tests derive boundaries from `load_weights()`, no hardcoded 12/24; 202 tests pass, ruff + mypy --strict clean.
 - **Corrected:** nothing needed. Property tests found no bugs; the agent added an all-None risks property beyond the task text.
 - **Surprise:** the T2 note about a fixed `as_of` in strategies was already handled by the shared `as_of_dates` strategy.
+### 8 Nov — Spec `mortality-model`: T5 (score)
+- **Spec/task:** mortality-model · T5.1 `score.py`, T5.2 35 unit tests, T5.3 12 property tests (INV-1, 2, 4, SCO-7).
+- **Kiro features:** spec task execution (sub-agent per leaf), fileMatch steering (mortality-model), Hypothesis `ci` profile.
+- **Kiro got right:** S1 override with no scored signals (mortality = `s1_min_score`, confidence 0); no rounding; contributions sum via `math.isclose`; 250 tests pass, ruff + mypy --strict clean.
+- **Corrected:** `SCORED_SIGNAL_IDS` was missing from `normalise.py`, so it was added there. mypy caught a `round(None)` in a test, fixed with an assert.
+- **Surprise:** the loader allows zero weights, so the agent added a zero-weight-sum guard (mortality `None`, confidence 0). No property found a genuine bug.

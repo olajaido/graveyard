@@ -13,6 +13,9 @@ from core.scoring.types import Signals, Weights
 
 DAYS_PER_MONTH: float = 30.4375
 
+# Risk ids map to weights keys by swapping the prefix: r2 -> "s2", ..., r8 -> "s8".
+SCORED_SIGNAL_IDS = ("r2", "r3", "r4", "r5", "r6", "r8")
+
 
 def months_between(start: date, as_of: date) -> float:
     """Months from ``start`` to ``as_of`` as ``(as_of - start).days / 30.4375``."""

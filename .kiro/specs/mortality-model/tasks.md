@@ -23,7 +23,7 @@
 
 - [x] T3 — `weights.py` + tests (MM-WGT-1…5, D4, D7)
   - [x] T3.1 — Implement `load_weights(path=None)` resolving the path then delegating to `_load_weights_cached` (`functools.lru_cache`, keyed by resolved path). Use `yaml.safe_load` only. Wrap `weights` in `MappingProxyType`.
-  - [x] T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; weights ≥ 0 with positive sum; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `0 ≤ thresholds.resting_r6_max ≤ 1`; `resting_min_weekly_downloads ≥ 0`; `cursed_min_age_days ≥ 0`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.
+  - [x] T3.2 — Validate MM-WGT-2 required keys (missing → `ValueError`) and MM-WGT-5 constraints: `span_months > 0`; `grace_months ≥ 0`; every weight > 0; `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`; `0 ≤ thresholds.resting_r6_max ≤ 1`; `resting_min_weekly_downloads ≥ 0`; `cursed_min_age_days ≥ 0`; `exposure.runtime/dev/direct/transitive` each in `(0, 1]`; `exposure.base` in `[0, 1]`; `cursed_priority_multiplier > 0`.
   - [x] T3.3 — Write `tests/test_weights.py`: shipped YAML loads and stamps `model_version`; each missing key raises; each MM-WGT-5 violation raises (including multiplier `> 1`, multiplier `0`, `base < 0`, `base > 1`); repeated calls and equivalent path spellings return the same cached object; failures are not cached; cached `weights` mapping is read-only; a `cache_clear()` fixture wraps tests that write temporary YAML.
 
 - [x] T4 — `normalise.py` + tests (MM-NOR-1…8)
@@ -31,10 +31,10 @@
   - [x] T4.2 — Write `tests/test_normalise.py` unit tests: each of r2–r8 for present, `None`, `-1`; grace/span boundaries; committers 0–5; 0/0 issues; `None` is never coerced to 0.
   - [x] T4.3 — Property tests: `months_between` non-negative for `start ≤ as_of` (`test_months_between_nonneg`); monotone in `as_of` (`test_months_between_monotone`); every present `rᵢ` lies in `[0, 1]`.
 
-- [ ] T5 — `score.py` + tests + property tests (MM-SCO-1…7, MM-INV-1, 2, 4)
-  - [~] T5.1 — Implement `compute_mortality`, `compute_contributions`, `apply_s1_override`, `compute_confidence(risks, s1, w)`. S1 override applies even with no scored signals (mortality = `s1_min_score`, confidence 0).
-  - [~] T5.2 — Write `tests/test_score.py` unit tests: all/some/none present; S1 override with and without scored signals; confidence range and full set; S1-only confidence 0; `contributions` keys and `None` for absent signals; no rounding.
-  - [~] T5.3 — Write `tests/test_properties_score.py` (`@pytest.mark.property`), built from `normalise_signals` + score functions:
+- [x] T5 — `score.py` + tests + property tests (MM-SCO-1…7, MM-INV-1, 2, 4)
+  - [x] T5.1 — Implement `compute_mortality`, `compute_contributions`, `apply_s1_override`, `compute_confidence(risks, s1, w)`. S1 override applies even with no scored signals (mortality = `s1_min_score`, confidence 0).
+  - [x] T5.2 — Write `tests/test_score.py` unit tests: all/some/none present; S1 override with and without scored signals; confidence range and full set; S1-only confidence 0; `contributions` keys and `None` for absent signals; no rounding.
+  - [x] T5.3 — Write `tests/test_properties_score.py` (`@pytest.mark.property`), built from `normalise_signals` + score functions:
     - MM-INV-1 `test_mortality_range`;
     - MM-INV-2 `test_monotonicity_release`, `_push`, `_maintained`, `_overall`, `_committers`, `_open_issues` (closed fixed);
     - MM-INV-4 `test_confidence_range`, `_monotone`, `_full`, `_s1_only`;

@@ -253,6 +253,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928512
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175010928
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175049952
       }
     ],
     "T5.2 — Write `tests/test_score.py` unit tests: all/some/none present; S1 override with and without scored signals; confidence range and full set; S1-only confidence 0; `contributions` keys and `None` for absent signals; no rounding.": [
@@ -260,6 +270,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928553
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175052944
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175095961
       }
     ],
     "T5.3 — Write `tests/test_properties_score.py` (`@pytest.mark.property`), built from `normalise_signals` + score functions:": [
@@ -267,6 +287,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173928590
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175098511
+      },
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175185316
       }
     ],
     "T6.1 — Implement `classify_state(...) -> tuple[BaseState, DeadReason]`, `compute_cursed`, `compute_wounded`. Resting requires `s7_advisories` not `None` and empty. A `published_at` of `None` never satisfies the Cursed age condition. `advisories` parameters are `tuple[Advisory, ...] | None`.": [
@@ -421,6 +451,13 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794174062088
+      }
+    ],
+    "T5 — `score.py` + tests + property tests (MM-SCO-1…7, MM-INV-1, 2, 4)": [
+      {
+        "executionId": "890106b8-87da-4c12-8e66-de982617a33c",
+        "chatSessionId": "sess_a142fc9c-99cd-4f64-8423-7a5ca75c2291",
+        "timestamp": 1794175185426
       }
     ]
   }

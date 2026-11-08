@@ -27,7 +27,7 @@ exposure: {runtime: 1.0, dev: 0.2, direct: 1.0, transitive: 0.6, base: 0.5}
 cursed_priority_multiplier: 1.5
 ```
 
-Loader validates: `span_months > 0`, `grace_months ≥ 0`, all weights ≥ 0 with positive sum, `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`, `thresholds.resting_r6_max` in [0, 1], `resting_min_weekly_downloads ≥ 0`, `cursed_min_age_days ≥ 0`, exposure `runtime`/`dev`/`direct`/`transitive` each in (0, 1], `exposure.base` in [0, 1], `cursed_priority_multiplier > 0`.
+Loader validates: `span_months > 0`, `grace_months ≥ 0`, every weight > 0, `0 ≤ ailing < dead ≤ s1_min_score ≤ 100`, `thresholds.resting_r6_max` in [0, 1], `resting_min_weekly_downloads ≥ 0`, `cursed_min_age_days ≥ 0`, exposure `runtime`/`dev`/`direct`/`transitive` each in (0, 1], `exposure.base` in [0, 1], `cursed_priority_multiplier > 0`.
 
 ## Inputs (per package version, identified by a purl)
 
