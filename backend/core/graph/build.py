@@ -4,9 +4,8 @@
 order, resolves the scope of every direct dependency (D8, D11), runs the
 per-service analysis and merges the results into ``GraphNode`` values.
 
-Example paths and witnesses are selected by ``select_paths``; it returns empty
-tuples until T8 supplies the selection. Pure; no I/O; no diagnostics other than
-the returned ``GraphWarning`` values (D14).
+Example paths and witnesses are selected by ``select_paths``. Pure; no I/O; no diagnostics
+other than the returned ``GraphWarning`` values (D14).
 """
 
 from __future__ import annotations
@@ -33,6 +32,7 @@ from core.graph.model import (
     ServiceInput,
     path_info_sort_key,
 )
+from core.graph.traverse import back_paths
 from core.scoring.types import PathInfo
 
 
@@ -92,6 +92,42 @@ def effective_scopes(
     return out, tuple(sorted(assumed))
 
 
+def select_example_paths(
+    key: str,
+    services: Sequence[str],
+    analyses: Mapping[str, ServiceAnalysis],
+    *,
+    k_paths: int,
+    max_path_nodes: int,
+) -> tuple[tuple[ExamplePath, ...], int]:
+    """Choose up to ``k_paths`` shortest example paths (design §5.4 step 3).
+
+    The minimum distance is taken over all services (DG-PATH-3). Services are
+    visited in order and each contributes minimum-length paths from
+    ``back_paths`` until the budget is spent. When the minimum exceeds
+    ``max_path_nodes`` nothing is returned and the second element counts the
+    paths that would have been returned (DG-PATH-6). A node with no path gives
+    ``((), 0)`` (DG-PATH-5).
+    """
+    levels = {s: analyses[s].dist[key] for s in services if key in analyses[s].dist}
+    if not levels or k_paths == 0:
+        return (), 0
+    minimum = min(levels.values())
+    omit = minimum > max_path_nodes
+    found: list[ExamplePath] = []
+    count = 0
+    for s in services:
+        if levels.get(s) != minimum:
+            continue
+        for nodes in back_paths(analyses[s].dag, key, k_paths - count):
+            count += 1
+            if not omit:
+                found.append(ExamplePath(service=s, nodes=nodes))
+        if count >= k_paths:
+            break
+    return (() if omit else tuple(found)), (count if omit else 0)
+
+
 def select_paths(
     key: str,
     services: Sequence[str],
@@ -101,12 +137,35 @@ def select_paths(
     k_paths: int,
     max_path_nodes: int,
 ) -> tuple[tuple[ExamplePath, ...], tuple[PathWitness, ...], int]:
-    """Choose example paths and witnesses for one node (filled in by T8).
+    """Choose example paths and witnesses for one node.
 
     Returns ``(example_paths, path_witnesses, omitted_count)``. ``omitted_count``
-    is the number of paths dropped by ``max_path_nodes`` (DG-PATH-6).
+    is the number of paths (example paths and witnesses) dropped by
+    ``max_path_nodes`` (DG-PATH-6).
     """
-    return (), (), 0
+    examples, omitted = select_example_paths(
+        key, services, analyses, k_paths=k_paths, max_path_nodes=max_path_nodes
+    )
+    witnesses: list[PathWitness] = []
+    for info in path_infos:  # already sorted (DG-WIT-1)
+        best: tuple[int, str] | None = None
+        for s in services:  # service order breaks ties (DG-WIT-3)
+            length = analyses[s].witness_len(key, info)
+            if length is not None and (best is None or length < best[0]):
+                best = (length, s)
+        if best is None:
+            continue
+        length, s = best
+        if length > max_path_nodes:
+            omitted += 1
+            continue
+        witnesses.append(
+            PathWitness(
+                path_info=info,
+                path=ExamplePath(service=s, nodes=analyses[s].witness_path(key, info)),
+            )
+        )
+    return examples, tuple(witnesses), omitted
 
 
 def exposure_inputs(node: GraphNode) -> tuple[tuple[PathInfo, ...], int]:

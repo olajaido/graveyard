@@ -423,6 +423,7 @@ Tests for real fixtures recompute every expected figure from the file itself wit
 | DG-PATH-1…6, DG-WIT-1…4 | `test_traverse.py`, `test_build.py` (DG-EX-15…17); DG-INV-3, 8 |
 | DG-OUT-1…5, DG-NFR-1 | DG-INV-1, 5; `test_serialise.py`; `test_scale.py` |
 | DG-NFR-2 | T10 coverage gate |
+| DG-NFR-4, DG-NFR-5 | tasks.md structure (tests per task); T10 gate commands |
 
 ---
 

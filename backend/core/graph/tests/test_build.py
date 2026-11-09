@@ -9,7 +9,10 @@ import pytest
 from core.graph.build import build_graph, exposure_inputs
 from core.graph.model import (
     DependencyGraph,
+    ExamplePath,
+    GraphNode,
     GraphWarning,
+    PathWitness,
     Scope,
     ScopeResult,
     ServiceInput,
@@ -46,7 +49,14 @@ def test_basic_paths_and_assumed_scope() -> None:
     assert exposure_inputs(b) == ((PathInfo(True, False),), 1)
     assert [w.code for w in g.warnings] == ["SCOPE_ASSUMED"]
     assert g.warnings[0].subjects == ("pypi/a@1",)
-    assert a.example_paths == () and a.path_witnesses == ()
+    assert [p.nodes for p in a.example_paths] == [("pypi/a@1",)]
+    assert [p.nodes for p in b.example_paths] == [("pypi/a@1", "pypi/b@1")]
+    assert [(w.path_info, w.path.nodes) for w in a.path_witnesses] == [
+        (PathInfo(True, True), ("pypi/a@1",))
+    ]
+    assert [(w.path_info, w.path.nodes) for w in b.path_witnesses] == [
+        (PathInfo(True, False), ("pypi/a@1", "pypi/b@1"))
+    ]
 
 
 def test_scopes_and_stamped_warnings() -> None:
@@ -196,7 +206,7 @@ def test_dg_ex_7_edges_are_per_service() -> None:
     assert y.services_affected == 1
     assert y.path_infos == (RT_T,)
     assert x.services_affected == 2
-    # T8: assert y.example_paths == (ExamplePath("A", ("pypi/x@1", "pypi/y@1")),)
+    assert y.example_paths == (ExamplePath("A", ("pypi/x@1", "pypi/y@1")),)
 
 
 def test_dg_ex_8_scope_reaches_paths() -> None:
@@ -318,3 +328,107 @@ def test_non_string_service_path_rejected() -> None:
     bom = _pbom([], {})
     with pytest.raises(ValueError):
         build_graph([ServiceInput(cast(Any, None), bom)])
+
+
+# --- T8.4: example paths and witnesses (DG-EX-15, 16, 17) ---------------------
+
+
+def _paths(node: GraphNode | None) -> tuple[tuple[str, ...], ...]:
+    assert node is not None
+    return tuple(p.nodes for p in node.example_paths)
+
+
+def _wit(node: GraphNode | None) -> dict[PathInfo, tuple[str, ...]]:
+    assert node is not None
+    return {w.path_info: w.path.nodes for w in node.path_witnesses}
+
+
+def _diamond() -> dict[str, Any]:
+    edges = {"a@1": ["c@1", "x@1"], "b@1": ["c@1"], "x@1": ["c@1"]}
+    return _pbom(["a@1", "b@1"], edges)
+
+
+@pytest.mark.parametrize(
+    ("k", "expected"),
+    [
+        (0, ()),
+        (1, (("pypi/a@1", "pypi/c@1"),)),
+        (3, (("pypi/a@1", "pypi/c@1"), ("pypi/b@1", "pypi/c@1"))),
+    ],
+)
+def test_dg_ex_15_diamond_example_paths(k: int, expected: tuple[tuple[str, ...], ...]) -> None:
+    """DG-EX-15: the longer path through ``x`` is never an example path."""
+    g = build_graph([ServiceInput("s", _diamond())], k_paths=k)
+    assert _paths(g.node("pypi/c@1")) == expected
+
+
+def test_dg_ex_15_second_service_reaching_directly() -> None:
+    """DG-EX-15: a one-node path in another service beats the diamond's two-node paths."""
+    direct = _pbom(["c@1"], {})
+    g = build_graph([ServiceInput("A", _diamond()), ServiceInput("B", direct)])
+    c = g.node("pypi/c@1")
+    assert c is not None
+    assert c.example_paths == (ExamplePath("B", ("pypi/c@1",)),)
+
+
+def test_dg_ex_16_witnesses_with_k_zero() -> None:
+    """DG-EX-16: witnesses do not depend on K; ``t`` has one per path_infos member."""
+    bom = _pbom(["d@1", "r@1"], {"r@1": ["t@1"], "d@1": ["t@1"]})
+    g = build_graph([ServiceInput("s", bom, _scopes({"d@1": "dev", "r@1": "runtime"}))], k_paths=0)
+    t = g.node("pypi/t@1")
+    assert t is not None
+    assert t.example_paths == ()
+    assert t.path_witnesses == (
+        PathWitness(RT_T, ExamplePath("s", ("pypi/r@1", "pypi/t@1"))),
+        PathWitness(DEV_T, ExamplePath("s", ("pypi/d@1", "pypi/t@1"))),
+    )
+
+
+def test_dg_ex_16_dev_direct_and_runtime_transitive_pair() -> None:
+    """DG-EX-16: both witnesses present although the K shortest paths are one node."""
+    bom = _pbom(["d@1", "r@1"], {"r@1": ["d@1"]})
+    scopes = _scopes({"d@1": "dev", "r@1": "runtime"})
+    for k in (0, 1, 3):
+        g = build_graph([ServiceInput("s", bom, scopes)], k_paths=k)
+        d = g.node("pypi/d@1")
+        assert d is not None and d.path_infos == (RT_T, DEV_D)
+        assert _wit(d) == {DEV_D: ("pypi/d@1",), RT_T: ("pypi/r@1", "pypi/d@1")}
+        assert [w.path_info for w in d.path_witnesses] == [RT_T, DEV_D]
+    g1 = build_graph([ServiceInput("s", bom, scopes)], k_paths=1)
+    assert _paths(g1.node("pypi/d@1")) == (("pypi/d@1",),)
+
+
+def test_dg_ex_16_dev_witness_present_when_examples_are_all_runtime() -> None:
+    """DG-EX-16: K=1 gives a runtime example path; the longer dev witness is kept."""
+    bom = _pbom(["d@1", "r@1"], {"r@1": ["t@1"], "d@1": ["m@1"], "m@1": ["t@1"]})
+    scopes = _scopes({"d@1": "dev", "r@1": "runtime"})
+    g = build_graph([ServiceInput("s", bom, scopes)], k_paths=1)
+    t = g.node("pypi/t@1")
+    assert _paths(t) == (("pypi/r@1", "pypi/t@1"),)
+    assert _wit(t) == {
+        RT_T: ("pypi/r@1", "pypi/t@1"),
+        DEV_T: ("pypi/d@1", "pypi/m@1", "pypi/t@1"),
+    }
+
+
+def test_dg_ex_17_depth_cap() -> None:
+    """DG-EX-17: a 70-node chain with max_path_nodes=64 omits the six deepest nodes' paths."""
+    names = [f"n{i}@1" for i in range(70)]
+    bom = _pbom([names[0]], {names[i]: [names[i + 1]] for i in range(69)})
+    g = build_graph([ServiceInput("s", bom)], max_path_nodes=64)
+    assert len(g.nodes) == 70
+    for i, name in enumerate(names):
+        node = g.node(f"pypi/{name}")
+        assert node is not None
+        assert node.path_infos == ((RT_D,) if i == 0 else (RT_T,))
+        assert node.services_affected == 1
+        if i < 64:
+            expected = tuple(f"pypi/{n}" for n in names[: i + 1])
+            assert _paths(node) == (expected,)
+            assert _wit(node) == {node.path_infos[0]: expected}
+        else:
+            assert node.example_paths == () and node.path_witnesses == ()
+    omitted = [w for w in g.warnings if w.code == "PATHS_OMITTED"]
+    assert len(omitted) == 1
+    assert omitted[0].service is None
+    assert omitted[0].subjects == tuple(f"pypi/{n}" for n in sorted(names[64:]))

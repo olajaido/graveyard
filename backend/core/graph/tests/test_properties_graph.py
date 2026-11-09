@@ -10,7 +10,9 @@ package keys (T1.5). Later tasks add their properties below.
 
 from __future__ import annotations
 
+import copy
 import json
+import random
 from dataclasses import asdict, replace
 from datetime import timedelta
 from urllib.parse import quote
@@ -19,7 +21,7 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from core.graph.build import build_graph
+from core.graph.build import build_graph, exposure_inputs
 from core.graph.diagnostics import finalise_warnings, make_warning
 from core.graph.keys import npm_key, pypi_key
 from core.graph.model import (
@@ -29,9 +31,12 @@ from core.graph.model import (
     WARNING_CODES,
     DependencyGraph,
     GraphWarning,
+    ScopeResult,
     ServiceInput,
     path_info_sort_key,
+    scope_map,
 )
+from core.graph.serialise import graph_to_dict
 from core.graph.tests import oracle
 from core.graph.tests.strategies import (
     AbstractService,
@@ -40,6 +45,7 @@ from core.graph.tests.strategies import (
     RenderFlags,
     _repair_unreferenced,
     abstract_services,
+    mutated,
     render,
     render_flags,
     shuffled,
@@ -300,6 +306,8 @@ def test_deterministic_under_reordering(
     second = _build(shuffled(rendered, seed_b))
     assert first.nodes == second.nodes
     assert first.warnings == second.warnings
+    assert [n.example_paths for n in first.nodes] == [n.example_paths for n in second.nodes]
+    assert [n.path_witnesses for n in first.nodes] == [n.path_witnesses for n in second.nodes]
     assert first == second
     assert _dump(first) == _dump(second)
     assert first == _build(rendered)
@@ -490,3 +498,367 @@ def test_monotone_in_edges_and_scope(
         else:
             assert set(old.path_infos) <= set(new.path_infos), old.key
             assert new.services_affected >= old.services_affected, old.key
+
+
+# --------------------------------------------------------------------------
+# Example paths and witnesses (DG-INV-3, DG-INV-8)
+# --------------------------------------------------------------------------
+
+K_VALUES = st.sampled_from((0, 1, 2, 3, 5))
+
+
+def _service_facts(
+    abstract: AbstractServices, scope_mode: str
+) -> dict[str, tuple[set[tuple[str, str]], dict[str, str]]]:
+    """Per service path: edges as key pairs, and the effective scope of each direct key."""
+    facts: dict[str, tuple[set[tuple[str, str]], dict[str, str]]] = {}
+    for svc in abstract.services:
+        edges = {(abstract.packages[u].key, abstract.packages[v].key) for u, v in svc.edges}
+        scopes = {
+            abstract.packages[d].key: scope
+            for d, scope in oracle.effective_scopes(svc, scope_mode).items()
+        }
+        facts[svc.path] = (edges, scopes)
+    return facts
+
+
+@settings(deadline=DEADLINE)
+@given(abstract=abstract_services(), flags=render_flags(), k=K_VALUES)
+def test_example_and_witness_paths_are_real(
+    abstract: AbstractServices, flags: RenderFlags, k: int
+) -> None:
+    """Every example and witness path runs from a direct dependency to its node along real edges.
+
+    **Validates: Requirements DG-INV-3**
+    """
+    graph = build_graph(_inputs(render(abstract, flags)), k_paths=k)
+    facts = _service_facts(abstract, flags.scope_mode)
+    for node in graph.nodes:
+        assert len(node.example_paths) <= k, node.key
+        paths = list(node.example_paths) + [w.path for w in node.path_witnesses]
+        for p in paths:
+            edges, scopes = facts[p.service]
+            assert p.nodes, node.key
+            assert p.nodes[0] in scopes, (node.key, p)
+            assert p.nodes[-1] == node.key
+            assert len(set(p.nodes)) == len(p.nodes)
+            for a, b in zip(p.nodes, p.nodes[1:], strict=False):
+                assert (a, b) in edges, (node.key, p)
+        assert len(set(node.example_paths)) == len(node.example_paths)
+        order = [(p.service, tuple(reversed(p.nodes))) for p in node.example_paths]
+        assert order == sorted(order), node.key
+        for w in node.path_witnesses:
+            _, scopes = facts[w.path.service]
+            assert w.path_info.direct == (len(w.path.nodes) == 1)
+            assert w.path_info.runtime == (scopes[w.path.nodes[0]] == "runtime")
+
+
+@settings(deadline=DEADLINE)
+@given(abstract=abstract_services(), flags=render_flags(), k=K_VALUES)
+def test_example_paths_are_shortest_and_ordered(
+    abstract: AbstractServices, flags: RenderFlags, k: int
+) -> None:
+    """Example paths are the first ``min(K, count)`` oracle minimum-length paths, in order.
+
+    **Validates: Requirements DG-INV-8**
+    """
+    graph = build_graph(_inputs(render(abstract, flags)), k_paths=k)
+    want = oracle.min_paths_in_order(abstract, flags.scope_mode)
+    for node in graph.nodes:
+        got = [(p.service, p.nodes) for p in node.example_paths]
+        assert got == list(want[node.key][:k]), node.key
+
+
+@settings(deadline=DEADLINE)
+@given(abstract=abstract_services(), flags=render_flags(), k=K_VALUES)
+def test_witnesses_cover_every_member_and_are_minimal(
+    abstract: AbstractServices, flags: RenderFlags, k: int
+) -> None:
+    """One witness per ``path_infos`` member, of minimum length; direct members get one node.
+
+    **Validates: Requirements DG-INV-8**
+    """
+    graph = build_graph(_inputs(render(abstract, flags)), k_paths=k)
+    want = oracle.min_len_per_info(abstract, flags.scope_mode)
+    for node in graph.nodes:
+        assert [w.path_info for w in node.path_witnesses] == list(node.path_infos), node.key
+        for w in node.path_witnesses:
+            pair = (w.path_info.runtime, w.path_info.direct)
+            assert len(w.path.nodes) == want[node.key][pair], (node.key, pair)
+            if w.path_info.direct:
+                assert w.path.nodes == (node.key,)
+
+
+# --------------------------------------------------------------------------
+# Serialised determinism, warnings, purity (DG-INV-1, DG-INV-12, DG-PURE-2)
+# --------------------------------------------------------------------------
+
+_EXTRA_ROOT_REF = "pkg:npm/extra-root@9.9.9?package-id=00000000deadbeef"
+
+
+def _dump_dict(graph: DependencyGraph) -> str:
+    """The canonical serialisation, without ``sort_keys``, so key order is part of the bytes."""
+    return json.dumps(graph_to_dict(graph))
+
+
+def _with_parser_warnings(
+    rendered: tuple[RenderedService, ...], count: int
+) -> tuple[RenderedService, ...]:
+    """Give every service that has lockfile scopes ``count`` long, many-subject parser warnings."""
+    warnings = tuple(
+        GraphWarning(
+            "LOCKFILE_ENTRY_SKIPPED",
+            f"item-{i} " + "x" * (150 * (i % 3)),
+            None,
+            tuple(f"s{j:02d}" for j in range(MAX_SUBJECTS + 5)),
+        )
+        for i in range(count)
+    )
+    out: list[RenderedService] = []
+    for r in rendered:
+        if r.scopes is None:
+            out.append(r)
+        else:
+            scopes = ScopeResult(r.scopes.package_scopes, r.scopes.direct_scopes, warnings)
+            out.append(replace(r, scopes=scopes))
+    return tuple(out)
+
+
+@settings(deadline=DEADLINE)
+@given(
+    abstract=abstract_services(),
+    flags=render_flags(),
+    seed_a=SEEDS,
+    seed_b=SEEDS,
+    n_warn=st.integers(0, 60),
+)
+def test_graph_to_dict_byte_stable_under_reordering(
+    abstract: AbstractServices, flags: RenderFlags, seed_a: int, seed_b: int, n_warn: int
+) -> None:
+    """``json.dumps(graph_to_dict(g))`` is byte-identical under shuffled inputs.
+
+    Services, lists, object keys and the ``ScopeResult`` maps and warnings are all shuffled.
+
+    **Validates: Requirements DG-INV-1**
+    """
+    rendered = _with_parser_warnings(render(abstract, flags), n_warn)
+    base = _dump_dict(_build(rendered))
+    first = _dump_dict(_build(shuffled(rendered, seed_a)))
+    second = _dump_dict(_build(shuffled(rendered, seed_b)))
+    assert first == second == base
+    assert json.loads(base) == graph_to_dict(_build(rendered))
+
+
+def _tweak_scopes(
+    rendered: tuple[RenderedService, ...], drop_seed: int
+) -> tuple[RenderedService, ...]:
+    """Drop random keys from both scope maps, so some directs have no scope data."""
+    rng = random.Random(drop_seed)
+    out: list[RenderedService] = []
+    for r in rendered:
+        if r.scopes is None:
+            out.append(r)
+            continue
+        package = dict(r.scopes.package_scopes)
+        declared = dict(r.scopes.direct_scopes)
+        for key in sorted(set(package) | set(declared)):
+            if rng.random() < 0.4:
+                package.pop(key, None)
+                declared.pop(key, None)
+        scopes = ScopeResult(scope_map(package), scope_map(declared), r.scopes.warnings)
+        out.append(replace(r, scopes=scopes))
+    return tuple(out)
+
+
+def _add_extra_roots(rendered: tuple[RenderedService, ...]) -> tuple[RenderedService, ...]:
+    """Add a second root to each service that has one.
+
+    The extra root depends on a package the real root already lists, so the direct
+    dependencies stay the same and only the number of root candidates changes.
+    """
+    out: list[RenderedService] = []
+    for r in rendered:
+        bom = copy.deepcopy(r.bom)
+        first = next(
+            (e for e in bom["dependencies"] if e["ref"].startswith("pkg:npm/graveyard-gen-root@")),
+            None,
+        )
+        if first is None or not first.get("dependsOn"):
+            out.append(r)
+            continue
+        bom["components"].append(
+            {
+                "bom-ref": _EXTRA_ROOT_REF,
+                "type": "library",
+                "name": "extra-root",
+                "version": "9.9.9",
+                "purl": "pkg:npm/extra-root@9.9.9",
+            }
+        )
+        bom["dependencies"].append({"ref": _EXTRA_ROOT_REF, "dependsOn": [first["dependsOn"][0]]})
+        out.append(replace(r, bom=bom))
+    return tuple(out)
+
+
+def _root_candidates(bom: dict[str, object]) -> set[str]:
+    """Root entries read straight off the BOM (DG-ROOT-1), independent of ingest.
+
+    A ``dependencies`` ref is a candidate when no entry lists it as a child and it either
+    is the ``metadata.component`` or is a component that has children.
+    """
+    components = bom["components"]
+    deps = bom["dependencies"]
+    assert isinstance(components, list)
+    assert isinstance(deps, list)
+    component_refs = {c["bom-ref"] for c in components}
+    metadata = bom["metadata"]
+    assert isinstance(metadata, dict)
+    meta_ref = metadata.get("component", {}).get("bom-ref")
+    children: set[str] = set()
+    has_children: dict[str, bool] = {}
+    for entry in deps:
+        targets = entry.get("dependsOn", [])
+        children |= set(targets)
+        has_children[entry["ref"]] = has_children.get(entry["ref"], False) or bool(targets)
+    return {
+        ref
+        for ref, any_children in has_children.items()
+        if ref not in children and (ref == meta_ref or (ref in component_refs and any_children))
+    }
+
+
+def _check_well_formed(graph: DependencyGraph) -> None:
+    """Closed codes, sorted, unique, capped, bounded subjects and text (DG-WARN-2, 4, 5)."""
+    ws = graph.warnings
+    sort_keys = [(w.service or "", w.code, w.detail, w.subjects) for w in ws]
+    assert sort_keys == sorted(sort_keys)
+    assert len(set(ws)) == len(ws)
+    groups: dict[tuple[str | None, str], int] = {}
+    for w in ws:
+        assert w.code in WARNING_CODES
+        assert len(w.detail) <= MAX_TEXT
+        assert len(w.subjects) <= MAX_SUBJECTS
+        assert list(w.subjects) == sorted(set(w.subjects))
+        assert all(len(s) <= MAX_TEXT for s in w.subjects)
+        groups[(w.service, w.code)] = groups.get((w.service, w.code), 0) + 1
+    assert all(n <= MAX_WARNINGS_PER_CODE for n in groups.values())
+
+
+@settings(deadline=DEADLINE)
+@given(
+    abstract=abstract_services(),
+    flags=render_flags(),
+    extra_roots=st.booleans(),
+    drop_seed=SEEDS,
+    n_warn=st.integers(0, 2 * MAX_WARNINGS_PER_CODE + 20),
+)
+def test_warnings_well_formed(
+    abstract: AbstractServices,
+    flags: RenderFlags,
+    extra_roots: bool,
+    drop_seed: int,
+    n_warn: int,
+) -> None:
+    """Warnings are well-formed; roots and assumed scopes match what the input says.
+
+    **Validates: Requirements DG-INV-12**
+    """
+    rendered = render(abstract, flags)
+    if extra_roots:
+        rendered = _add_extra_roots(rendered)
+    rendered = _tweak_scopes(_with_parser_warnings(rendered, n_warn), drop_seed)
+    graph = _build(rendered)
+    _check_well_formed(graph)
+
+    by_path = {r.path: r for r in rendered}
+    for svc in abstract.services:
+        r = by_path[svc.path]
+        here = [w for w in graph.warnings if w.service == svc.path]
+
+        candidates = _root_candidates(r.bom)
+        multiple = [w for w in here if w.code == "MULTIPLE_ROOTS"]
+        if len(candidates) > 1:
+            assert [w.subjects for w in multiple] == [tuple(sorted(candidates))]
+        else:
+            assert multiple == []
+
+        directs = {abstract.packages[d].key for d in svc.directs}
+        if r.scopes is None:
+            assumed = directs
+        else:
+            known = set(r.scopes.direct_scopes) | set(r.scopes.package_scopes)
+            assumed = directs - known
+        found = [w for w in here if w.code == "SCOPE_ASSUMED"]
+        if assumed:
+            assert len(found) == 1
+            expected = tuple(sorted(assumed))
+            if len(expected) <= MAX_SUBJECTS:
+                assert found[0].subjects == expected
+            else:
+                assert len(found[0].subjects) == MAX_SUBJECTS
+                assert set(found[0].subjects) <= assumed
+        else:
+            assert found == []
+
+        if r.scopes is not None:
+            skipped = [w for w in here if w.code == "LOCKFILE_ENTRY_SKIPPED"]
+            assert len(skipped) == min(n_warn, MAX_WARNINGS_PER_CODE)
+            notices = [w for w in here if w.code == "WARNINGS_TRUNCATED"]
+            assert len(notices) == (1 if n_warn > MAX_WARNINGS_PER_CODE else 0)
+
+
+@settings(deadline=DEADLINE)
+@given(data=st.data(), abstract=abstract_services(), flags=render_flags())
+def test_warnings_well_formed_on_mutated_inputs(
+    data: st.DataObject, abstract: AbstractServices, flags: RenderFlags
+) -> None:
+    """Mutated BOMs give a ``ValueError`` or a graph whose warnings are well-formed.
+
+    **Validates: Requirements DG-INV-12**
+    """
+    rendered = render(abstract, flags)
+    bom = data.draw(mutated(rendered[0].bom))
+    services = [ServiceInput(rendered[0].path, bom, rendered[0].scopes)]
+    services += _inputs(rendered[1:])
+    try:
+        graph = build_graph(services)
+    except ValueError:
+        return
+    _check_well_formed(graph)
+
+
+def _scopes_snapshot(
+    scopes: ScopeResult | None,
+) -> tuple[dict[str, str], dict[str, str], tuple[GraphWarning, ...]] | None:
+    """Plain-dict snapshot; the ``mappingproxy`` maps cannot be deep-copied."""
+    if scopes is None:
+        return None
+    return dict(scopes.package_scopes), dict(scopes.direct_scopes), scopes.warnings
+
+
+@settings(deadline=DEADLINE)
+@given(abstract=abstract_services(), flags=render_flags(), k=K_VALUES, n_warn=st.integers(0, 5))
+def test_inputs_not_mutated(
+    abstract: AbstractServices, flags: RenderFlags, k: int, n_warn: int
+) -> None:
+    """``build_graph``, ``exposure_inputs`` and ``graph_to_dict`` leave their inputs unchanged.
+
+    **Validates: Requirements DG-PURE-2**
+    """
+    rendered = _with_parser_warnings(render(abstract, flags), n_warn)
+    services = _inputs(rendered)
+    boms = copy.deepcopy([s.bom for s in services])
+    scopes = [_scopes_snapshot(s.scopes) for s in services]
+    paths = [s.path for s in services]
+
+    graph = build_graph(services, k_paths=k)
+
+    assert [s.path for s in services] == paths
+    assert [s.bom for s in services] == boms
+    assert [_scopes_snapshot(s.scopes) for s in services] == scopes
+
+    graph_before = copy.deepcopy(graph)
+    for node in graph.nodes:
+        exposure_inputs(node)
+    graph_to_dict(graph)
+    assert graph == graph_before

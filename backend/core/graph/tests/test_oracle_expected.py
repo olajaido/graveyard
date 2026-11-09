@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from types import MappingProxyType
 
-from core.graph.tests.oracle import expected, naive_path_infos
+from core.graph.tests.oracle import (
+    expected,
+    min_len_per_info,
+    min_paths_in_order,
+    naive_path_infos,
+)
 from core.graph.tests.strategies import (
     AbstractPackage,
     AbstractService,
@@ -71,3 +76,22 @@ def test_absent_scope_makes_every_direct_runtime() -> None:
     assert expected(abstract)[_k("b")].infos == {(DEV, TRANS)}
     assert expected(abstract, "absent")[_k("b")].infos == {(RT, TRANS)}
     assert expected(abstract, "absent")[_k("a")].infos == {(RT, DIRECT)}
+
+
+def test_min_paths_in_order_across_services() -> None:
+    first = _abstract("abc", {"a": "runtime", "b": "dev"}, [("a", "c"), ("b", "c")], path="s2")
+    second = _abstract("abc", {"a": "runtime"}, [("a", "c")], path="s1")
+    both = AbstractServices(
+        packages=first.packages, services=(first.services[0], second.services[0])
+    )
+    a, b, c = _k("a"), _k("b"), _k("c")
+    assert min_paths_in_order(both)[c] == (("s1", (a, c)), ("s2", (a, c)), ("s2", (b, c)))
+    assert min_paths_in_order(both)[a] == (("s1", (a,)), ("s2", (a,)))
+    assert min_len_per_info(both)[c] == {(RT, TRANS): 2, (DEV, TRANS): 2}
+
+
+def test_min_paths_skip_longer_and_unreachable() -> None:
+    abstract = _abstract("abc", {"a": "runtime"}, [("a", "b"), ("b", "c"), ("a", "c")])
+    assert min_paths_in_order(abstract)[_k("c")] == (("svc", (_k("a"), _k("c"))),)
+    unreachable = _abstract("ab", {"a": "runtime"}, [])
+    assert min_paths_in_order(unreachable)[_k("b")] == ()

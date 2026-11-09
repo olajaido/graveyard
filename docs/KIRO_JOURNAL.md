@@ -367,3 +367,25 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Two-origin BFS matched the brute-force oracle first time; 565 tests pass in `core/graph`; ruff and mypy --strict clean. Scale budgets met by wide margins (complete 200-node digraph 0.03 s, 50×200 services 0.19 s).
 - **Corrected:** The plain two-source 2-cycle gives the same answer from naive reachability and the oracle, so the sanity test needed a split-scope 2-cycle (runtime `a`, dev `b`) to show the D5 difference.
 - **Surprise:** Hypothesis found no counterexamples. `GraphNode` does not enforce one witness per `PathInfo` (DG-WIT-1), so T8 has to test it explicitly.
+
+### 9 Nov — Spec `dependency-graph`: T8 (Example paths, witnesses, depth cap)
+- **Spec/task:** T8.1–T8.5: `select_example_paths`, witness selection with one `PATHS_OMITTED` warning, oracle `min_len_per_info`/`min_paths_in_order`, DG-EX-15/16/17 and DG-OUT-5 unit tests, 3 path property tests plus reordering check.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** Witness lengths and example-path order matched the oracle first time; 1215 tests pass, 56 property tests pass at the CI profile; ruff and mypy --strict clean.
+- **Corrected:** A diamond test expected 3 example paths at layer 1, which only has 2 (`min(3, 2**i)`). The test was wrong, not the code.
+- **Surprise:** No counterexamples from Hypothesis. T7 had warned that `GraphNode` does not enforce one witness per `PathInfo`, so T8.5 tests it explicitly.
+
+### 9 Nov — Spec `dependency-graph`: T9 (serialise, public API, purity, warnings)
+- **Spec/task:** T9.1–T9.4: `graph_to_dict`, `core.graph` re-exports with `__all__`, serialise/public-API/purity unit tests, 3 property tests (byte-stable serialisation, well-formed warnings, no mutation).
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** The `ast` purity check found no violations; Hypothesis found no code bugs; ruff and mypy --strict clean, 614 tests pass, 60 property tests pass at the CI profile.
+- **Corrected:** The package docstring said `SCOPE_DISAGREEMENT` fires whenever the two lockfile maps disagree; it fires only for declared runtime and per-package dev. A test helper picked the wrong root with aliased identities.
+- **Surprise:** `ScopeResult` holds `mappingproxy` maps that `copy.deepcopy` rejects, so no-mutation tests snapshot them as dicts.
+
+### 9 Nov — Spec `dependency-graph`: T10 (final gate and counterexample review)
+- **Spec/task:** T10.1–T10.9: lint, types, full and CI-profile tests, coverage, dependency diff, timings, traceability, this entry.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Gate results:** ruff check and format clean; mypy --strict clean, no `type: ignore` in `core/graph`; 1251 tests green; 120 property tests green under `HYPOTHESIS_PROFILE=ci`; coverage on `core/graph` 99.54%; `pyproject.toml` and `uv.lock` unchanged. `test_scale.py`: chain and ring of 5,000 nodes took about 2.1–2.4 s call time including setup against the 2 s budget, which passes only because the assertion carries the x4 margin; the other scale tests ran well inside budget.
+- **Hypothesis counterexamples T2–T9:** one recorded. T6: `test_requirements_round_trip` expected one `REQUIREMENT_SKIPPED` warning per skipped line, and Hypothesis found `flask>=1.0` generated twice, which dedupes to one warning. The test was wrong, so the test was fixed and the parser was left alone. The journals for T2, T3, T4, T5, T7, T8 and T9 say Hypothesis found no counterexamples, and T1 says the properties found no bugs. I did not invent any others. Two fixes came from other checks, not recorded Hypothesis failures: T1's `finalise_warnings` idempotence fix (the entry does not say Hypothesis found it) and T2's wrong diamond example test.
+- **Where the spec stopped a mistake:** design §5.5 (D5). Plain reachability marks a direct dependency on a cycle (`root -> a`, `a <-> b`, `a` direct) as also transitive, because `b` leads back to `a`. The design required a foreign-origin label instead, and `tests/test_oracle_sanity.py` asserts that naive reachability differs from the oracle while `build_graph` equals it. In T7 the plain two-source 2-cycle did not show the difference, so the test uses a split-scope 2-cycle.
+- **Surprise:** T10.8 found DG-NFR-4 and DG-NFR-5 were not in design §7.4. They are process rules, so I added a row pointing at the tasks structure and the T10 gate commands.

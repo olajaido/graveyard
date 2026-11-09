@@ -161,12 +161,17 @@ class Expected:
     ``min_len``: fewest nodes on any simple path from a direct dependency
     (any scope) to the package, over all services; ``None`` if there is none.
     ``min_len_per_info``: the same minimum per ``(runtime, direct)`` pair.
+    ``min_paths``: every minimum-length path (length ``min_len``) over all
+    services as ``(service path, nodes)``, nodes in forward order, sorted by
+    ``(service, nodes read from the node backwards)`` (DG-PATH-3). Empty when
+    ``min_len`` is ``None``.
     """
 
     infos: frozenset[InfoPair]
     services: frozenset[str]
     min_len: int | None
     min_len_per_info: Mapping[InfoPair, int]
+    min_paths: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
 
 def effective_scopes(svc: _Service, scope_mode: str = "declared") -> dict[int, str]:
@@ -202,6 +207,7 @@ def expected(abstract: _Abstract, scope_mode: str = "declared") -> dict[str, Exp
     svcs: dict[str, set[str]] = {}
     best: dict[str, int] = {}
     per_info: dict[str, dict[InfoPair, int]] = {}
+    min_paths: dict[str, set[tuple[str, tuple[str, ...]]]] = {}
     for svc in abstract.services:
         adj = _service_adj(abstract, svc)
         for key in adj:
@@ -219,6 +225,9 @@ def expected(abstract: _Abstract, scope_mode: str = "declared") -> dict[str, Exp
                 svcs[end].add(svc.path)
                 if end not in best or len(path) < best[end]:
                     best[end] = len(path)
+                    min_paths[end] = set()
+                if len(path) == best[end]:
+                    min_paths[end].add((svc.path, path))
                 if pair not in per_info[end] or len(path) < per_info[end][pair]:
                     per_info[end][pair] = len(path)
     return {
@@ -227,9 +236,34 @@ def expected(abstract: _Abstract, scope_mode: str = "declared") -> dict[str, Exp
             services=frozenset(svcs[key]),
             min_len=best.get(key),
             min_len_per_info=dict(per_info[key]),
+            min_paths=tuple(
+                sorted(min_paths.get(key, ()), key=lambda sp: (sp[0], tuple(reversed(sp[1]))))
+            ),
         )
         for key in infos
     }
+
+
+def min_len_per_info(
+    abstract: _Abstract, scope_mode: str = "declared"
+) -> dict[str, Mapping[InfoPair, int]]:
+    """Per package key: fewest nodes on a simple path for each ``(runtime, direct)`` pair.
+
+    The inner keys equal ``expected(...)[key].infos`` (DG-WIT-3).
+    """
+    return {k: e.min_len_per_info for k, e in expected(abstract, scope_mode).items()}
+
+
+def min_paths_in_order(
+    abstract: _Abstract, scope_mode: str = "declared"
+) -> dict[str, tuple[tuple[str, tuple[str, ...]], ...]]:
+    """Per package key: all minimum-length paths in the DG-PATH-3 order.
+
+    Each item is ``(service path, nodes)``, sorted by
+    ``(service, nodes read from the node backwards)``. ``example_paths`` must
+    equal the first ``k_paths`` items.
+    """
+    return {k: e.min_paths for k, e in expected(abstract, scope_mode).items()}
 
 
 def naive_path_infos(

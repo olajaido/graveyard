@@ -11,7 +11,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from core.graph.build import build_graph
-from core.graph.model import DependencyGraph, ServiceInput
+from core.graph.model import DependencyGraph, ExamplePath, ServiceInput
 from core.scoring.types import PathInfo
 
 MARGIN = 4
@@ -67,7 +67,18 @@ def test_diamond_40_layers_2_wide() -> None:
     for i in range(1, layers):
         for j in range(2):
             assert _infos(graph, f"l{i}x{j}") == {TRANSITIVE}
-    # T8: example/witness path assertions (k shortest paths through the diamond).
+    edge_set = {
+        (f"l{i}x{a}", f"l{i + 1}x{b}") for i in range(layers - 1) for a in (0, 1) for b in (0, 1)
+    }
+    for i in (0, 1, 2, 39):
+        node = graph.node(_key(f"l{i}x1"))
+        assert node is not None
+        assert len(node.example_paths) == min(3, 2**i)
+        assert len({p.nodes for p in node.example_paths}) == len(node.example_paths)
+        for p in node.example_paths:
+            short = [k.removeprefix("pypi/").removesuffix("@1") for k in p.nodes]
+            assert len(short) == i + 1 and short[-1] == f"l{i}x1"
+            assert all((a, b) in edge_set for a, b in zip(short, short[1:], strict=False))
 
 
 def test_complete_digraph_200_nodes() -> None:
@@ -96,7 +107,20 @@ def test_chain_5000() -> None:
         set(node.path_infos) == ({DIRECT} if node.key == _key(names[0]) else {TRANSITIVE})
         for node in graph.nodes
     )
-    # T8: paths deeper than max_path_nodes are omitted with a PATHS_OMITTED warning (D15).
+    # Paths deeper than max_path_nodes (64) are omitted with one PATHS_OMITTED warning (D15).
+    for i in (0, 1, 62, 63):
+        node = graph.node(_key(names[i]))
+        assert node is not None
+        expected = ExamplePath("svc", tuple(_key(m) for m in names[: i + 1]))
+        assert node.example_paths == (expected,)
+        assert [w.path for w in node.path_witnesses] == [expected]
+    for i in (64, 65, 2500, n - 1):
+        node = graph.node(_key(names[i]))
+        assert node is not None
+        assert node.example_paths == () and node.path_witnesses == ()
+    omitted = [w for w in graph.warnings if w.code == "PATHS_OMITTED"]
+    assert len(omitted) == 1 and omitted[0].service is None
+    assert len(omitted[0].subjects) <= 20
 
 
 def test_ring_5000() -> None:
@@ -111,7 +135,13 @@ def test_ring_5000() -> None:
     for node in graph.nodes:
         if node.key != _key(names[0]):
             assert set(node.path_infos) == {TRANSITIVE}
-    # T8: example/witness path assertions for the ring.
+    for i in (0, 1, 5, 63):
+        on_ring = graph.node(_key(names[i]))
+        assert on_ring is not None
+        expected = ExamplePath("svc", tuple(_key(m) for m in names[: i + 1]))
+        assert on_ring.example_paths == (expected,)
+    far = graph.node(_key(names[n - 1]))
+    assert far is not None and far.example_paths == ()
 
 
 def test_star_5000() -> None:
@@ -126,7 +156,13 @@ def test_star_5000() -> None:
     for node in graph.nodes:
         if node.key != _key("hub"):
             assert set(node.path_infos) == {TRANSITIVE}
-    # T8: example/witness path assertions for the star.
+    hub = graph.node(_key("hub"))
+    leaf = graph.node(_key("s17"))
+    assert hub is not None and leaf is not None
+    assert hub.example_paths == (ExamplePath("svc", (_key("hub"),)),)
+    assert leaf.example_paths == (ExamplePath("svc", (_key("hub"), _key("s17"))),)
+    assert [w.path for w in leaf.path_witnesses] == list(leaf.example_paths)
+    assert not [w for w in graph.warnings if w.code == "PATHS_OMITTED"]
 
 
 def _layered_bom(prefix: str, count: int) -> dict[str, Any]:

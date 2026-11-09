@@ -15,7 +15,7 @@ from typing import Any
 from urllib.parse import unquote
 
 from core.graph.build import build_graph
-from core.graph.model import DependencyGraph, ServiceInput
+from core.graph.model import DependencyGraph, ExamplePath, ServiceInput
 from core.graph.scopes_npm import parse_package_lock
 from core.graph.scopes_uv import parse_uv_lock
 from core.scoring.types import PathInfo
@@ -129,8 +129,11 @@ def test_dg_ex_1_syft_py_fixture() -> None:
     assert g.warnings[0].subjects == PY_DIRECT
     assert g.warnings[0].service == "py"
     assert "ROOT_NOT_FOUND" not in _codes(g)
-    # T8: urllib3.example_paths == (ExamplePath("py", ("pypi/requests@2.34.2",
-    # T8: "pypi/urllib3@2.8.0")),) and its (runtime, transitive) witness is the same path.
+    urllib3 = g.node("pypi/urllib3@2.8.0")
+    assert urllib3 is not None
+    path = ExamplePath("py", ("pypi/requests@2.34.2", "pypi/urllib3@2.8.0"))
+    assert urllib3.example_paths == (path,)
+    assert [(w.path_info, w.path) for w in urllib3.path_witnesses] == [(RT_T, path)]
 
 
 # --- DG-EX-2 -------------------------------------------------------------------
