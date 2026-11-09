@@ -17,12 +17,13 @@ fileMatchPattern: "**/tests/**"
 | Target | Properties |
 |---|---|
 | purl parse/format | Round-trip `format(parse(s)) == normalise(s)`; parse never raises on valid grammar; rejects invalid |
-| Semver/PEP 440 range matching | Ordering is total and transitive; `v in range` agrees with reference impl; boundary versions |
 | Mortality score | Bounds [0,100]; monotonicity (increasing staleness never decreases mortality); declared-dead override; total classification |
 | Graph builder | Every path starts at root and ends at node; no cycles in output paths; dedupe is idempotent |
 | CycloneDX ingest | Ingest → export → ingest is a fixed point |
 | Codemods | Rewritten file parses; applying twice = applying once (idempotence) |
 | check-install parser | Every generated `npm/pnpm/yarn/pip/uv` command variant yields the correct package set |
+
+Semver/PEP 440 range matching has no required properties: OSV `querybatch` matches versions server-side, so there is no in-house matcher (`.kiro/specs/purl-and-versions/requirements.md`, D1).
 
 ### Mortality Invariants (§7.7, always hold)
 

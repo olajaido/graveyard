@@ -685,14 +685,15 @@ Hypothesis (Python) and fast-check (TypeScript). Tag tests `@pytest.mark.propert
 | Target | Properties |
 |---|---|
 | purl parse/format | Round-trip `format(parse(s)) == normalise(s)`; parse never raises on valid grammar; rejects invalid |
-| Semver/PEP 440 range matching (OSV affected ranges) | Ordering is total and transitive; `v in range` agrees with an independent reference implementation; boundary versions |
 | Mortality score | Bounds, monotonicity, declared-dead override, total classification (§7.7) |
 | Graph builder | Every reported path starts at a root and ends at the node; no cycles in output paths; dedupe is idempotent |
 | CycloneDX ingest | Ingest → export → ingest is a fixed point |
 | Codemods | The rewritten file parses; applying it twice equals applying it once (idempotence) |
 | check-install parser | Every generated `npm/pnpm/yarn/pip/uv` command variant yields the correct package set |
 
-**Capture any bug PBT found** (likely candidates: pre-release semver ordering, PEP 440 epochs, scoped npm names `@scope/pkg` in purls). That becomes your write-up and blog headline.
+Semver and PEP 440 range matching is not a target: OSV `querybatch` matches versions server-side, so Graveyard has no range matcher (spec `purl-and-versions`, decision D1).
+
+**Capture any bug PBT found** (likely candidates: scoped npm names `@scope/pkg` in purls, PEP 503 name normalisation, repo-URL normalisation). That becomes your write-up and blog headline.
 
 ### 11.7 MCP servers (`.kiro/settings/mcp.json`, no secrets committed; use environment references)
 
