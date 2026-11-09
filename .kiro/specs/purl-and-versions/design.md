@@ -50,7 +50,7 @@ Before writing this design I ran probes against 0.17.6 in a throwaway environmen
 | `from_string("pkg:npm/x@@1")`, `"pkg:npm/x@1@2"` | names `x@`, `x@1` | We reject `@` in npm names (PV-PURL-11). |
 | `from_string("pkg:npm/%zz@1")` | name `%zz`, formats as `%25zz` | Malformed escapes are kept literally; we reject them (PV-PURL-11). |
 | `from_string("pkg:npm/ x @1")` | name `x` | Spaces are silently stripped; we reject raw whitespace (PV-PURL-11). |
-| `from_string("pkg:npm/\ud800@1")` | `UnicodeEncodeError` | Already a `ValueError` subclass, but the wrapper still catches broadly (PV-PURL-13). |
+| `from_string("pkg:npm/\ud800@1")` | accepted (name `\ud800`); only `quote` and `to_string` raise `UnicodeEncodeError` (0.17.6) | `from_string` does not reject unpaired surrogates, so `parse_purl` rejects any input that cannot be encoded as UTF-8 before the library call, and `format_purl` wraps `UnicodeEncodeError` as `ValueError` (PV-PURL-13). |
 | `from_string("PKG:npm/x@1")` | `ValueError` | The scheme must be lower-case; we keep that behaviour (PV-PURL-2). |
 | `from_string("pkg://npm/x@1")` | accepted | Kept (PV-PURL-2). |
 | `from_string("pkg:npm/a@1?B=2&a=&c=x#sub/../p")` | qualifiers `{'b':'2','c':'x'}`, subpath `sub/p` | Canonicalisation we adopt as-is (PV-PURL-8). |
@@ -125,6 +125,7 @@ Because a `Purl` can only exist in canonical form, `format_purl` never has to re
 1. **Guards (no library call yet).**
    - `if not isinstance(s, str)`: raise `ValueError`.
    - `len(s) > MAX_INPUT_LEN` → raise `ValueError` (PV-PURL-12).
+   - `s.encode("utf-8")` raises `UnicodeEncodeError` (unpaired surrogate) → raise `ValueError` from it (PV-PURL-13). The library accepts these on parse, so this guard is required.
    - `WS_OR_CTRL.search(s)` → raise `ValueError`; `BAD_ESCAPE.search(s)` → raise `ValueError` (PV-PURL-11).
    - Split the raw string the way the purl spec does: `head, _, subpath_raw = s.partition("#")`, then `head, _, quals_raw = head.partition("?")`. If `head.endswith("@")`, raise `ValueError` (empty version, PV-PURL-7). If `quals_raw` has a repeated key after `strip().lower()`, raise `ValueError` (PV-PURL-8).
 2. **Library parse.** `norm = PackageURL.from_string(s)` and `raw = PackageURL.from_string(s, normalize_purl=False)`. Both run inside one `try`, where any `Exception` becomes `raise ValueError(...) from exc` (PV-PURL-13).
@@ -150,7 +151,7 @@ if p.qualifiers: out += "?" + normalize_qualifiers(dict(p.qualifiers), encode=Tr
 if p.subpath: out += "#" + normalize_subpath(p.subpath, encode=True)
 ```
 
-This uses the library's encoders but not `to_string()`, which would lower-case npm names. `normalise_purl(s) = format_purl(parse_purl(s))`. That makes PV-INV-1's first property structural; the oracle and value round-trip properties are the ones that can actually fail.
+`format_purl` wraps any `UnicodeEncodeError` from the library encoders as `ValueError` (PV-PURL-13). This uses the library's encoders but not `to_string()`, which would lower-case npm names. `normalise_purl(s) = format_purl(parse_purl(s))`. That makes PV-INV-1's first property structural; the oracle and value round-trip properties are the ones that can actually fail.
 
 ### 4.4 Derived keys
 
@@ -246,7 +247,7 @@ The output alphabet is ASCII, so `str.lower()` is exact, and the function is tri
 | `purls()` | valid `Purl` values (pypi names passed through `normalise_pypi_name`) | PV-INV-1, 6, 7, 8, 14 |
 | `ascii_case_flip(purl)` | a copy of an npm `Purl` with a random per-character ASCII case flip on namespace and name; non-ASCII characters untouched | PV-INV-14 |
 | `purl_strings()` | `(s, expected)`: renders a `purls()` value non-canonically (upper-case type, `pkg://`, raw `@scope`, unordered or upper-case qualifier keys, `%XX` for unreserved characters, a pre-PEP 503 pypi name). `expected` is built with `urllib.parse.quote(…, safe="/:")` and a test-local PEP 503, never with `core.purl`. | PV-INV-1, 2, 3, 7 |
-| `invalid_purl_strings()` | arbitrary `text()` (including surrogates and >2,048 chars), mutations of `purl_strings()`, and disallowed types | PV-INV-4 |
+| `invalid_purl_strings()` | arbitrary text with surrogate code points generated explicitly (`st.characters(codec=None)` / category `Cs`; `st.text()` excludes them by default) and >2,048 chars, mutations of `purl_strings()`, and disallowed types | PV-INV-4 |
 | `repo_urls()` | `(url, owner, repo)` across all accepted forms with random-case scheme and host and random PV-REPO-3/4 suffixes | PV-INV-9, 10, 12, 13 |
 | `adversarial_repo_urls()` | the host, userinfo, traversal, port and control-character families from PV-INV-11 | PV-INV-10, 11 |
 

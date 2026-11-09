@@ -1,0 +1,107 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "T0.1 — From `backend/`, run `uv add \"packageurl-python==<latest>\"` where `<latest>` is the newest release on PyPI at execution time (0.17.6 when the spec was written). If the latest differs from 0.17.6, note it in the task result: the design's probes were made against 0.17.6, and T2 will show whether any pinned behaviour changed.": [
+      {
+        "executionId": "80a2d347-b750-4787-b283-7808b1b7d4aa",
+        "chatSessionId": "sess_c77a600c-8e44-469e-bcb5-0b8b5c4ab53e",
+        "timestamp": 1794214575914
+      }
+    ],
+    "T1.1 — Prerequisites: the pinned Syft at `~/.local/bin/syft` (`syft --version` prints 1.56.0) and network access to the npm registry. If either is missing, stop and ask; do not substitute another Syft version.": [
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214790659
+      },
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214926380
+      }
+    ],
+    "T1.2 — Add `JSONStream` to the npm spike fixture's `package.json` in `spikes/fixtures/npm` and regenerate `package-lock.json` with `npm install --package-lock-only --ignore-scripts`. Nothing is installed or executed. Review the lockfile diff: it should add `JSONStream` and its dependencies only; if existing pinned entries change unexpectedly, keep the old entries.": [
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214927531
+      }
+    ],
+    "T1.3 — Run `syft dir:spikes/fixtures/npm -o cyclonedx-json` and find the component for `JSONStream`. Record, in a new \"Q6 — npm purl case in Syft output\" entry in `docs/SPIKES.md`: Syft version, the exact command, the exact `purl` and `bom-ref` emitted, and the observed case (`JSONStream` or `jsonstream`). Keep the entry short and factual, in the style of the existing rows.": [
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214928877
+      }
+    ],
+    "T1.4 — Save the `JSONStream` component (or a minimal excerpt with at least `name`, `version`, `purl`, `bom-ref`) as `tests/fixtures/syft_jsonstream.json`. Check that it contains no secrets or absolute local paths.": [
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214929862
+      }
+    ],
+    "T1 — Syft check: how does Syft v1.56.0 spell an upper-case npm name? (PV-SYFT-1, 2)": [
+      {
+        "executionId": "f343d0cf-bcc7-4a7f-924b-8b8074fe3f3c",
+        "chatSessionId": "sess_e3d811ce-43cc-4425-9dec-12bc8ca8e1d1",
+        "timestamp": 1794214929898
+      }
+    ],
+    "T2.1 — Create `core/purl/__init__.py` (module docstring only for now) and `tests/__init__.py`, matching `core/scoring/tests/__init__.py`.": [
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215024621
+      },
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215047679
+      }
+    ],
+    "T2.2 — Write `tests/test_packageurl_contract.py`. Each test asserts a behaviour from design §2 that the wrapper compensates for, against the pinned library:": [
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215051145
+      },
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215095507
+      }
+    ],
+    "T2.3 — Add the Syft assertions (PV-SYFT-3), reading `tests/fixtures/syft_jsonstream.json`: the emitted purl is quoted in the test as a literal taken from the fixture. Assertions that hold whatever Syft emitted: `PackageURL.from_string` accepts it; `registry_name`-equivalent name is `JSONStream` (taken from the component's `name`); the lower-cased spelling of the emitted purl gives the same dedupe identity. The assertions on `parse_purl`, `package_key` and `registry_name` are added in T4.4 and T5.2 once those functions exist; leave a `# TODO(T4.4, T5.2)` marker only if it is removed in those tasks.": [
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215099573
+      },
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215129048
+      }
+    ],
+    "T2.4 — `uv run pytest core/purl -q` passes. A failing contract test after a future library upgrade is the intended signal to simplify the wrapper; add that note to the module docstring.": [
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215131797
+      },
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215156135
+      }
+    ],
+    "T2 — Package skeleton and library contract test (D3, D4; PV-PURL-5, 7, 8, 11; PV-SYFT-3)": [
+      {
+        "executionId": "0927cdb2-304c-4bc9-82ae-0f0c5685eddb",
+        "chatSessionId": "sess_a525e10d-1575-4aec-aef3-fa4e9727e5b5",
+        "timestamp": 1794215156165
+      }
+    ]
+  }
+}

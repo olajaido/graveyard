@@ -95,7 +95,7 @@ def repo_key(repo: str) -> str: ...
 | PV-PURL-10 | **THE SYSTEM SHALL** provide `format_purl(p)`, which returns the canonical purl string for `p`, and `normalise_purl(s)`, which returns the canonical purl string for the purl denoted by `s`. |
 | PV-PURL-11 | **THE SYSTEM SHALL** raise `ValueError` for input that the library accepts but that would not round-trip or is ambiguous: <br>• any raw whitespace or ASCII control character in `s` (the library silently strips spaces around segments); <br>• a `%` not followed by two hex digits (the library keeps it literally); <br>• a decoded npm or pypi name containing `/` (the library decodes `x%2Fy` to `x/y`, which formats as namespace `x`, name `y`); <br>• a decoded npm name containing `@`, or a pypi name that does not match the PEP 508 name pattern `^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]*[A-Za-z0-9])$`; <br>• a decoded namespace, name or version containing whitespace or control characters; <br>• a decoded qualifier value or subpath segment with leading or trailing whitespace (the library strips or drops these inconsistently). |
 | PV-PURL-12 | **IF** `s` is longer than 2,048 characters **THEN** `parse_purl` and `normalise_purl` SHALL raise `ValueError` without invoking `packageurl-python`. (Purls arrive through `GET /packages/{purl}/autopsy`, which is untrusted input.) |
-| PV-PURL-13 | **THE SYSTEM SHALL** raise only `ValueError` from `parse_purl` and `normalise_purl` for any `str` input. Any other exception raised inside the wrapper or the library SHALL be caught and re-raised as `ValueError` with the original chained (`raise … from exc`). |
+| PV-PURL-13 | **THE SYSTEM SHALL** raise only `ValueError` from `parse_purl` and `normalise_purl` for any `str` input. `parse_purl` SHALL reject any input that cannot be encoded as UTF-8 (unpaired surrogates) with `ValueError` before calling the library, because `packageurl-python` 0.17.6 accepts them in `from_string`. `format_purl` SHALL wrap any `UnicodeEncodeError` as `ValueError`. Any other exception raised inside the wrapper or the library SHALL be caught and re-raised as `ValueError` with the original chained (`raise … from exc`). |
 
 ---
 
@@ -258,7 +258,7 @@ Each invariant is verified by Hypothesis tests tagged `@pytest.mark.property` an
 **Requirement:** For any `str`, `parse_purl` either returns a `Purl` or raises `ValueError`. It never raises any other exception type.
 
 - Strategies:
-  - arbitrary `text()`, including surrogates, control characters, and strings over 2,048 characters;
+  - arbitrary text, including surrogates, control characters, and strings over 2,048 characters. Surrogate code points must be generated explicitly (`st.characters(codec=None)` / category `Cs`), since `st.text()` excludes them by default;
   - mutations of valid purls: deleted, duplicated or swapped characters, a stray `%`, truncated percent-escapes, a removed `pkg:`, duplicated qualifier keys, an empty version after `@`, encoded `/` in the name;
   - valid purls with types outside the allow-list (`maven`, `github`, `golang`, `cargo`, random).
 - Properties:

@@ -1,25 +1,32 @@
-# Tasks: purl-and-versions
+# Implementation Plan: purl-and-versions
 
-> Implements `.kiro/specs/purl-and-versions/requirements.md` per `.kiro/specs/purl-and-versions/design.md`.
-> Each implementation task includes its own unit and property tests as sub-tasks (PV-NFR-5). Tests land immediately after the code they exercise, not at the end.
-> All paths are under `backend/core/purl/` unless stated. Tests are colocated in `tests/` and resolve fixtures via `Path(__file__).parent`.
-> Run every Python tool from `backend/` via `uv run`. Never call `pytest`, `ruff` or `mypy` bare.
-> Already done while writing this spec: the semver / PEP 440 row was removed from PRD §11.6 and from `.kiro/steering/testing.md` (D1).
+## Overview
 
-- [ ] T0 — Add and pin `packageurl-python` (PV-DEP-1, 2, 3)
-  - [ ] T0.1 — From `backend/`, run `uv add "packageurl-python==<latest>"` where `<latest>` is the newest release on PyPI at execution time (0.17.6 when the spec was written). If the latest differs from 0.17.6, note it in the task result: the design's probes were made against 0.17.6, and T2 will show whether any pinned behaviour changed.
-  - [ ] T0.2 — Confirm `[project].dependencies` in `pyproject.toml` contains `packageurl-python==<version>` (exact `==`, no `>=`, `~=` or `latest`) next to `pyyaml`, and that `uv.lock` changed in the same change. No other dependency (runtime or dev) is added.
-  - [ ] T0.3 — Smoke check: `uv run python -c "from packageurl import PackageURL, quote, unquote, normalize_qualifiers, normalize_subpath"` succeeds, and `uv run mypy --strict core` stays clean with no `type: ignore` (the package ships `py.typed`).
+Implements `.kiro/specs/purl-and-versions/requirements.md` per `.kiro/specs/purl-and-versions/design.md`: purl parsing and formatting, package and repo keys, and GitHub repo URL normalisation in `backend/core/purl/`. Each implementation task includes its own unit and property tests as sub-tasks (PV-NFR-5).
 
-- [ ] T1 — Syft check: how does Syft v1.56.0 spell an upper-case npm name? (PV-SYFT-1, 2)
-  - [ ] T1.1 — Prerequisites: the pinned Syft at `~/.local/bin/syft` (`syft --version` prints 1.56.0) and network access to the npm registry. If either is missing, stop and ask; do not substitute another Syft version.
-  - [ ] T1.2 — Add `JSONStream` to the npm spike fixture's `package.json` in `spikes/fixtures/npm` and regenerate `package-lock.json` with `npm install --package-lock-only --ignore-scripts`. Nothing is installed or executed. Review the lockfile diff: it should add `JSONStream` and its dependencies only; if existing pinned entries change unexpectedly, keep the old entries.
-  - [ ] T1.3 — Run `syft dir:spikes/fixtures/npm -o cyclonedx-json` and find the component for `JSONStream`. Record, in a new "Q6 — npm purl case in Syft output" entry in `docs/SPIKES.md`: Syft version, the exact command, the exact `purl` and `bom-ref` emitted, and the observed case (`JSONStream` or `jsonstream`). Keep the entry short and factual, in the style of the existing rows.
-  - [ ] T1.4 — Save the `JSONStream` component (or a minimal excerpt with at least `name`, `version`, `purl`, `bom-ref`) as `tests/fixtures/syft_jsonstream.json`. Check that it contains no secrets or absolute local paths.
+## Task Dependency Graph
 
-- [ ] T2 — Package skeleton and library contract test (D3, D4; PV-PURL-5, 7, 8, 11; PV-SYFT-3)
-  - [ ] T2.1 — Create `core/purl/__init__.py` (module docstring only for now) and `tests/__init__.py`, matching `core/scoring/tests/__init__.py`.
-  - [ ] T2.2 — Write `tests/test_packageurl_contract.py`. Each test asserts a behaviour from design §2 that the wrapper compensates for, against the pinned library:
+```mermaid
+graph LR
+  T0 --> T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7 --> T8 --> T9
+```
+
+## Tasks
+
+- [x] T0 — Add and pin `packageurl-python` (PV-DEP-1, 2, 3)
+  - [x] T0.1 — From `backend/`, run `uv add "packageurl-python==<latest>"` where `<latest>` is the newest release on PyPI at execution time (0.17.6 when the spec was written). If the latest differs from 0.17.6, note it in the task result: the design's probes were made against 0.17.6, and T2 will show whether any pinned behaviour changed.
+  - [x] T0.2 — Confirm `[project].dependencies` in `pyproject.toml` contains `packageurl-python==<version>` (exact `==`, no `>=`, `~=` or `latest`) next to `pyyaml`, and that `uv.lock` changed in the same change. No other dependency (runtime or dev) is added.
+  - [x] T0.3 — Smoke check: `uv run python -c "from packageurl import PackageURL, quote, unquote, normalize_qualifiers, normalize_subpath"` succeeds, and `uv run mypy --strict core` stays clean with no `type: ignore` (the package ships `py.typed`).
+
+- [x] T1 — Syft check: how does Syft v1.56.0 spell an upper-case npm name? (PV-SYFT-1, 2)
+  - [x] T1.1 — Prerequisites: the pinned Syft at `~/.local/bin/syft` (`syft --version` prints 1.56.0) and network access to the npm registry. If either is missing, stop and ask; do not substitute another Syft version.
+  - [x] T1.2 — Add `JSONStream` to the npm spike fixture's `package.json` in `spikes/fixtures/npm` and regenerate `package-lock.json` with `npm install --package-lock-only --ignore-scripts`. Nothing is installed or executed. Review the lockfile diff: it should add `JSONStream` and its dependencies only; if existing pinned entries change unexpectedly, keep the old entries.
+  - [x] T1.3 — Run `syft dir:spikes/fixtures/npm -o cyclonedx-json` and find the component for `JSONStream`. Record, in a new "Q6 — npm purl case in Syft output" entry in `docs/SPIKES.md`: Syft version, the exact command, the exact `purl` and `bom-ref` emitted, and the observed case (`JSONStream` or `jsonstream`). Keep the entry short and factual, in the style of the existing rows.
+  - [x] T1.4 — Save the `JSONStream` component (or a minimal excerpt with at least `name`, `version`, `purl`, `bom-ref`) as `tests/fixtures/syft_jsonstream.json`. Check that it contains no secrets or absolute local paths.
+
+- [x] T2 — Package skeleton and library contract test (D3, D4; PV-PURL-5, 7, 8, 11; PV-SYFT-3)
+  - [x] T2.1 — Create `core/purl/__init__.py` (module docstring only for now) and `tests/__init__.py`, matching `core/scoring/tests/__init__.py`.
+  - [x] T2.2 — Write `tests/test_packageurl_contract.py`. Each test asserts a behaviour from design §2 that the wrapper compensates for, against the pinned library:
     - `from_string` and `to_string` lower-case the npm name (`JSONStream` → `jsonstream`); `normalize_purl=False` keeps it;
     - PyPI `.` is not normalised (`zope.interface` stays), and runs of `_` become `--`;
     - `pkg:npm/left-pad@` gives `version=None`;
@@ -28,9 +35,9 @@
     - `%zz` is kept literally; spaces around segments are stripped; `x@@1` parses with name `x@`;
     - `PKG:` (upper-case scheme) raises `ValueError`; `pkg://npm/x@1` is accepted;
     - `quote` leaves `/` and `:` unencoded and encodes `@`, `+`, `?`, `#`, `%` and non-ASCII;
-    - an unpaired surrogate raises a `ValueError` subclass (`UnicodeEncodeError`).
-  - [ ] T2.3 — Add the Syft assertions (PV-SYFT-3), reading `tests/fixtures/syft_jsonstream.json`: the emitted purl is quoted in the test as a literal taken from the fixture. Assertions that hold whatever Syft emitted: `PackageURL.from_string` accepts it; `registry_name`-equivalent name is `JSONStream` (taken from the component's `name`); the lower-cased spelling of the emitted purl gives the same dedupe identity. The assertions on `parse_purl`, `package_key` and `registry_name` are added in T4.4 and T5.2 once those functions exist; leave a `# TODO(T4.4, T5.2)` marker only if it is removed in those tasks.
-  - [ ] T2.4 — `uv run pytest core/purl -q` passes. A failing contract test after a future library upgrade is the intended signal to simplify the wrapper; add that note to the module docstring.
+    - an unpaired surrogate is accepted by `from_string` (0.17.6); `quote` and `to_string` raise a `ValueError` subclass (`UnicodeEncodeError`).
+  - [x] T2.3 — Add the Syft assertions (PV-SYFT-3), reading `tests/fixtures/syft_jsonstream.json`: the emitted purl is quoted in the test as a literal taken from the fixture. Assertions that hold whatever Syft emitted: `PackageURL.from_string` accepts it; `registry_name`-equivalent name is `JSONStream` (taken from the component's `name`); the lower-cased spelling of the emitted purl gives the same dedupe identity. The assertions on `parse_purl`, `package_key` and `registry_name` are added in T4.4 and T5.2 once those functions exist; leave a `# TODO(T4.4, T5.2)` marker only if it is removed in those tasks.
+  - [x] T2.4 — `uv run pytest core/purl -q` passes. A failing contract test after a future library upgrade is the intended signal to simplify the wrapper; add that note to the module docstring.
 
 - [ ] T3 — `model.py`: `Purl`, constants, validation + strategies + tests (PV-PURL-2, 3, 5, 7, 8, 9, 11; PV-NFR-1)
   - [ ] T3.1 — Implement `model.py` with `Ecosystem`, the frozen `Purl` dataclass, the constants from design §3 (`MAX_INPUT_LEN`, `SUPPORTED`, the compiled regexes), `normalise_pypi_name`, and `_ascii_lower`. `Purl.__post_init__` implements the validation table in design §4.1 and raises `ValueError` with a message that names the rule and quotes the offending value via `repr()` truncated to 100 characters. No I/O, clock or environment access.
@@ -39,15 +46,16 @@
   - [ ] T3.4 — Property tests (`@pytest.mark.property`) in `tests/test_model_properties.py`: every `purls()` value constructs and is a fixed point of validation (`test_purl_values_valid`); mutated field values (flip one field to an invalid value) raise `ValueError` and nothing else (`test_purl_invalid_fields_raise_value_error`); `test_pep503_idempotent` and `test_pep503_variants_collapse` (PV-INV-5, name part only).
 
 - [ ] T4 — `purl.py`: `parse_purl`, `format_purl`, `normalise_purl` + tests (PV-PURL-1…13; PV-INV-1…6)
-  - [ ] T4.1 — Implement `parse_purl` per design §4.2: input guards (type, length, whitespace and control characters, malformed `%`, empty version after `@`, duplicate qualifier keys) before any library call; library parse in one `try` (normalised and raw); ecosystem allow-list; npm case recovered from the raw parse; PEP 503 for pypi; construct `Purl`. Only `ValueError` escapes; other exceptions are chained with `raise … from exc`. Implement `format_purl` per design §4.3 (library `quote`, `normalize_qualifiers`, `normalize_subpath`; never `to_string()`) and `normalise_purl`.
-  - [ ] T4.2 — Extend `tests/strategies.py` with `purl_strings()` (non-canonical renderings plus an expected canonical string built independently with `urllib.parse.quote(…, safe="/:")` and a test-local PEP 503) and `invalid_purl_strings()` (arbitrary `text()` including surrogates and >2,048 characters; mutations of valid purls; disallowed types).
-  - [ ] T4.3 — Write `tests/test_purl.py` unit tests from the requirements' purl table (`normalise_purl` column) and the `ValueError` list, plus: npm case preserved; scope written `%40scope`; `pkg://` accepted; qualifiers and subpath canonicalised; 2,048-character boundary (2,048 accepted if otherwise valid, 2,049 rejected) and that the library is not called above the cap (patch `PackageURL.from_string` to fail if called); a non-`str` argument raises `ValueError`; library exceptions are wrapped and chained (patch the library to raise `RuntimeError`).
+  - [ ] T4.1 — Implement `parse_purl` per design §4.2: input guards (type, length, whitespace and control characters, malformed `%`, empty version after `@`, duplicate qualifier keys) before any library call; library parse in one `try` (normalised and raw); ecosystem allow-list; npm case recovered from the raw parse; PEP 503 for pypi; construct `Purl`. Reject input that cannot be encoded as UTF-8 (unpaired surrogates) with `ValueError` before the library call (PV-PURL-13). Only `ValueError` escapes; other exceptions are chained with `raise … from exc`. Implement `format_purl` per design §4.3 (library `quote`, `normalize_qualifiers`, `normalize_subpath`; never `to_string()`; any `UnicodeEncodeError` wrapped as `ValueError`) and `normalise_purl`.
+  - [ ] T4.2 — Extend `tests/strategies.py` with `purl_strings()` (non-canonical renderings plus an expected canonical string built independently with `urllib.parse.quote(…, safe="/:")` and a test-local PEP 503) and `invalid_purl_strings()` (arbitrary text that explicitly includes surrogate code points (`st.text(st.characters(codec=None))` or `st.characters(categories=["Cs"])` mixed in, since `st.text()` excludes category Cs by default) and >2,048 characters; mutations of valid purls; disallowed types).
+  - [ ] T4.3 — Write `tests/test_purl.py` unit tests from the requirements' purl table (`normalise_purl` column) and the `ValueError` list, plus: npm case preserved; scope written `%40scope`; `pkg://` accepted; qualifiers and subpath canonicalised; 2,048-character boundary (2,048 accepted if otherwise valid, 2,049 rejected) and that the library is not called above the cap (patch `PackageURL.from_string` to fail if called); a non-`str` argument raises `ValueError`; library exceptions are wrapped and chained (patch the library to raise `RuntimeError`). Add a lone-surrogate unit test: `parse_purl("pkg:npm/\ud800@1")` and a surrogate inside a name, version, qualifier value and subpath raise `ValueError` without calling the library (patch `PackageURL.from_string` to fail if called); `format_purl` on a surrogate-bearing value raises `ValueError`, not `UnicodeEncodeError` (PV-PURL-13).
   - [ ] T4.4 — Add the `parse_purl` side of the Syft assertions to `tests/test_packageurl_contract.py` (PV-SYFT-3): the emitted `JSONStream` purl parses, keeps its case in `name`, and `normalise_purl` of it equals `normalise_purl` of the same purl rewritten with the `%40`/case variants the test can derive. Remove the T2.3 marker if one was added.
   - [ ] T4.5 — Property tests (`@pytest.mark.property`) in `tests/test_purl_properties.py`:
     - PV-INV-1 `test_purl_round_trip`, `test_purl_matches_oracle`, `test_purl_value_round_trip`;
     - PV-INV-2 `test_normalise_purl_idempotent`;
     - PV-INV-3 `test_parse_valid_never_raises`;
     - PV-INV-4 `test_parse_only_raises_value_error`, `test_parse_rejects_other_ecosystems`;
+      the `test_parse_only_raises_value_error` strategy must include surrogate code points explicitly (`st.characters(codec=None)` / category `Cs`), because `st.text()` excludes them by default; also add `@example("pkg:npm/\ud800@1")`;
     - PV-INV-6 `test_npm_case_preserved`.
     If a property fails, fix the code (or the oracle, when the oracle is wrong), and record the counterexample in `docs/KIRO_JOURNAL.md`. This is the "bug PBT found" for the write-up.
 
@@ -88,3 +96,10 @@
   - [ ] T9.5 — Coverage: `uv run pytest core/purl --cov=core/purl --cov-report=term-missing --cov-fail-under=85` passes. Report the actual percentage. The `except Exception` fallbacks in `normalise_repo_url` and `parse_purl` may legitimately show as uncovered unless a test forces them (T4.3 forces the parse one).
   - [ ] T9.6 — Dependency check: `git diff --stat backend/pyproject.toml backend/uv.lock` shows only the `packageurl-python==<version>` addition (plus its lock entry); no other runtime dependency was added (PV-DEP-3).
   - [ ] T9.7 — Traceability check: confirm every PV-INV-1…14 test name in the requirements exists in `tests/`, and every PV-* requirement ID appears in at least one test docstring or the design's traceability table. Report any gap instead of closing silently.
+
+## Notes
+
+- Each implementation task includes its own unit and property tests as sub-tasks (PV-NFR-5). Tests land immediately after the code they exercise, not at the end.
+- All paths are under `backend/core/purl/` unless stated. Tests are colocated in `tests/` and resolve fixtures via `Path(__file__).parent`.
+- Run every Python tool from `backend/` via `uv run`. Never call `pytest`, `ruff` or `mypy` bare.
+- Already done while writing this spec: the semver / PEP 440 row was removed from PRD §11.6 and from `.kiro/steering/testing.md` (D1).

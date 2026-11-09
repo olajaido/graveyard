@@ -241,3 +241,23 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** all gates passed first run: 357 tests (32 property), no Hypothesis counterexamples, 99% coverage on `core/scoring`.
 - **Corrected:** added the missing `pytest-cov==7.0.0` pin for the coverage gate; deleted the placeholder `test_smoke.py` (now 356 tests).
 - **Surprise:** the T12.4 sub-agent ran `git checkout` on `pyproject.toml` without diffing first. I verified the diff against HEAD was only the new pin, and both earlier manual edits survived.
+### 9 Nov — Spec `purl-and-versions`: T0 (Add and pin packageurl-python)
+- **Spec/task:** T0.1 uv add pin, T0.2 pyproject/uv.lock check, T0.3 import and mypy smoke check.
+- **Kiro features:** spec task orchestration, sub-agent delegation, steering tooling rules (`uv run`).
+- **Kiro got right:** pinned `packageurl-python==0.17.6` with `==`; only `pyproject.toml` and `uv.lock` changed; `mypy --strict core` clean with no `type: ignore`.
+- **Corrected:** nothing needed; PyPI latest equals 0.17.6, so the design's probes still apply.
+- **Surprise:** `task_get` rejected the parent id `T0`; leaf tasks are keyed by their full title text.
+
+### 9 Nov — Spec `purl-and-versions`: T1 (Syft check: npm purl case)
+- **Spec/task:** T1.1 prerequisites, T1.2 add JSONStream to npm fixture, T1.3 Q6 entry in SPIKES.md, T1.4 save Syft component fixture.
+- **Kiro features:** spec task orchestration, sub-agent delegation, pinned-tool rule (Syft 1.56.0 by full path).
+- **Kiro got right:** lockfile diff added only JSONStream, jsonparse, through; exact pin `1.3.5`; fixture has no secrets or absolute paths.
+- **Corrected:** nothing needed; sub-agent could not set task status, so the orchestrator marked T1.x complete.
+- **Surprise:** Syft's `purl` keeps `JSONStream` but its `bom-ref` is lower-case `jsonstream` with a `?package-id=` suffix, so tests must use the purl field or strip the suffix.
+
+### 9 Nov — Spec `purl-and-versions`: T2 (Package skeleton and library contract test)
+- **Spec/task:** T2.1 skeleton, T2.2 contract tests, T2.3 Syft assertions, T2.4 docstring note and green run
+- **Kiro features:** spec tasks, subagent task execution, hooks
+- **Kiro got right:** Design §2 probes matched the library on every pinned behaviour except one; 28 contract tests pass, mypy --strict clean
+- **Corrected:** Subagent refused to weaken the surrogate test and split it into three tests matching real behaviour
+- **Surprise:** packageurl-python 0.17.6 from_string accepts unpaired surrogates; only quote/to_string raise UnicodeEncodeError. Syft emits pkg:npm/JSONStream@1.3.5 (upper case; only bom-ref is lower case)

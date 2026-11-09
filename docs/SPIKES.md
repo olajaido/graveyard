@@ -70,3 +70,11 @@
 | pypi (requests, six, nose) | 9 | 2 | fixture → nose, requests, six | 3 (nose, requests, six) | 6 (certifi, charset-normalizer, idna, urllib3, + 2) | YES — relationships present |
 
 Notes: The fixture/project component appears in both `components` and `dependencies` arrays. Its `dependsOn` lists the direct dependencies. Transitive deps appear in the `dependsOn` of other (non-fixture) components. The `metadata.component.bom-ref` is a directory hash, not the project purl — use the fixture's `bom-ref` from the `components` array to find the root dependency entry. Components have no `scope` field; npm components all share `foundBy: javascript-lock-cataloger`.
+
+## Q6 — npm purl case in Syft output
+
+| Syft version | Command | Component | `purl` emitted | `bom-ref` emitted | Observed case |
+|---|---|---|---|---|---|
+| 1.56.0 | `syft dir:spikes/fixtures/npm -o cyclonedx-json` | `JSONStream` 1.3.5 (fixture pins `"JSONStream": "1.3.5"`; found by `javascript-lock-cataloger`) | `pkg:npm/JSONStream@1.3.5` | `pkg:npm/jsonstream@1.3.5?package-id=32a65e0552e1b113` | `purl` keeps `JSONStream`; `bom-ref` is lower-case `jsonstream` |
+
+Notes: `name` is `JSONStream`. The `purl` and the `bom-ref` spell the same package with different case, so dedupe on either one needs ASCII case folding for npm (`package_key`). The `package-id` suffix is a Syft hash and not part of the purl. Component saved as `backend/core/purl/tests/fixtures/syft_jsonstream.json`.
