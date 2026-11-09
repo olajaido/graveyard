@@ -20,6 +20,8 @@ from typing import Any, cast
 import pytest
 from packageurl import PackageURL, quote
 
+from core.purl.purl import normalise_purl, parse_purl
+
 FIXTURES = Path(__file__).parent / "fixtures"
 
 # The purl Syft v1.56.0 emitted for the npm package `JSONStream` (copied from
@@ -136,7 +138,7 @@ class TestSyftJsonStream:
     The assertions below hold whichever case Syft emits.
     """
 
-    # TODO(T4.4, T5.2): add parse_purl, package_key and registry_name assertions.
+    # package_key / registry_name assertions live in test_key.py (PV-SYFT-3).
 
     def test_fixture_purl_matches_literal(self) -> None:
         assert _load_syft_component()["purl"] == SYFT_JSONSTREAM_PURL
@@ -159,3 +161,26 @@ class TestSyftJsonStream:
             lowered.name,
             lowered.version,
         )
+
+    def test_parse_purl_accepts_emitted_purl_and_keeps_name_case(self) -> None:
+        parsed = parse_purl(SYFT_JSONSTREAM_PURL)
+        assert parsed.ecosystem == "npm"
+        assert parsed.name == _load_syft_component()["name"] == "JSONStream"
+        assert parsed.version == _load_syft_component()["version"]
+
+    @pytest.mark.parametrize(
+        "rewrite",
+        [
+            lambda p: p.replace("pkg:npm", "pkg:NPM", 1),
+            lambda p: p.replace("pkg:", "pkg://", 1),
+            lambda p: p.replace("JSON", "%4A%53%4f%4e", 1),
+            lambda p: p.replace("Stream", "%53tream", 1),
+            lambda p: p.replace("pkg:npm", "pkg://NPM", 1),
+        ],
+        ids=["upper-type", "double-slash", "mixed-hex-escapes", "escaped-S", "combined"],
+    )
+    def test_normalise_purl_equal_for_derived_variants(self, rewrite: Any) -> None:
+        variant = rewrite(SYFT_JSONSTREAM_PURL)
+        assert variant != SYFT_JSONSTREAM_PURL
+        assert normalise_purl(variant) == normalise_purl(SYFT_JSONSTREAM_PURL)
+        assert normalise_purl(SYFT_JSONSTREAM_PURL) == SYFT_JSONSTREAM_PURL

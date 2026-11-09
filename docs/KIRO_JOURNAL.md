@@ -261,3 +261,24 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Design §2 probes matched the library on every pinned behaviour except one; 28 contract tests pass, mypy --strict clean
 - **Corrected:** Subagent refused to weaken the surrogate test and split it into three tests matching real behaviour
 - **Surprise:** packageurl-python 0.17.6 from_string accepts unpaired surrogates; only quote/to_string raise UnicodeEncodeError. Syft emits pkg:npm/JSONStream@1.3.5 (upper case; only bom-ref is lower case)
+
+### 9 Nov — Spec `purl-and-versions`: T3 (model.py, strategies, tests)
+- **Spec/task:** T3.1 Purl model and validation, T3.2 Hypothesis strategies, T3.3 unit tests, T3.4 property tests
+- **Kiro features:** spec tasks, subagent task execution, hooks
+- **Kiro got right:** All four sub-tasks passed first run; 74 tests green, ruff and mypy --strict clean; ci profile property run passed
+- **Corrected:** Nothing needed in model.py; orchestrator marked T3.4 complete because the subagent could not find the task ID
+- **Surprise:** Generators for qualifier values and subpaths needed Unicode separators (Zs/Zl/Zp) excluded, not just ASCII whitespace, to avoid padded values
+
+### 9 Nov — Spec `purl-and-versions`: T4 (parse_purl, format_purl, normalise_purl)
+- **Spec/task:** T4.1 implementation, T4.2 string strategies, T4.3 unit tests, T4.4 Syft parse assertions, T4.5 property tests
+- **Kiro features:** spec tasks, subagent task execution, hooks
+- **Kiro got right:** Independent urllib oracle agreed with the code on 2,000 examples per strategy; 135 tests green, 12 property tests pass on the ci profile
+- **Corrected:** Removed a `type: ignore` from test_purl.py (cast to Any instead) so the T9.2 grep stays clean
+- **Surprise:** No property failed, so PBT found no bug in T4. Lone surrogates needed an explicit UTF-8 guard before the library call
+
+### 9 Nov — Spec `purl-and-versions`: T5 (package_key, registry_name)
+- **Spec/task:** T5.1 implementation, T5.2 table and Syft unit tests, T5.3 property tests (PV-INV-7, 8, 14)
+- **Kiro features:** spec tasks, subagent task execution, hooks
+- **Kiro got right:** ASCII-only folding via translate; 182 tests green, 53 property tests pass on the ci profile; reversibility oracle built independently of package_key
+- **Corrected:** Nothing needed in the code; replaced the TODO(T5.2) marker in the contract test with a pointer to test_key.py
+- **Surprise:** No property failed, so PBT found no bug in T5. Syft keeps `JSONStream` case, so the key fold matters only for spec-strict generators
