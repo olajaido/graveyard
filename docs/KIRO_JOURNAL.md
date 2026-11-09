@@ -311,3 +311,31 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Everything passed first time: 637 tests (281 purl, 356 scoring), 60 property tests at 500 examples, 97.84% coverage.
 - **Corrected:** Nothing needed fixing. The only dependency change is `packageurl-python==0.17.6`.
 - **Surprise:** The traceability check found PV-NFR-2 and PV-NFR-5 absent from design §6.4. They are process rules, not testable behaviour.
+
+### 9 Nov — Spec `dependency-graph`: T0 (Re-record npm SBOM, fixtures, scaffold)
+- **Spec/task:** T0.1–T0.8: Syft 1.56.0 re-record, path scrub, four fixtures, SPIKES Q5 addendum, package scaffold, fixture-integrity tests.
+- **Kiro features:** Spec task orchestration with one sub-agent for the parent task; PostTaskExec hook for this journal.
+- **Kiro got right:** Root children were the expected four; 116 library components, 47 dependency entries, all 115 packages reachable; 20 tests, mypy and ruff clean.
+- **Corrected:** Syft was given a relative path, so the scrub changed `spikes/fixtures/npm` to `fixtures/npm`, not a `/Users/` path.
+- **Surprise:** Syft writes compact JSON, so the spike diff is 1 line against 6020 deleted. Spec hashes (`79a003f4…`, `8fb02136…`) are now stale.
+
+### 9 Nov — Spec `dependency-graph`: T1 (model, diagnostics, keys + tests)
+- **Spec/task:** T1.1–T1.5: `model.py`, `diagnostics.py`, `keys.py`, unit tests, and six property tests (warnings, path-info order, keys).
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** 115 tests pass in `core/graph`, 6 property tests pass at the CI profile; ruff and mypy --strict clean, no `type: ignore`. Properties found no bugs.
+- **Corrected:** `finalise_warnings` shrinks `detail` to fit the "(N in total)" suffix, so a second pass cannot cut it off; without this it is not idempotent. One wrong row in the derived-property test table was fixed.
+- **Surprise:** `task_get` and `task_update` take the full sub-task title as the ID, not `T1.1`.
+
+### 9 Nov — Spec `dependency-graph`: T2 (traverse.py, oracle, strategies + tests)
+- **Spec/task:** T2.1–T2.4: `traverse.py` (BFS, two-origin labels, `back_paths`), brute-force `oracle.py`, `abstract_graph` strategy, 45 example tests, 6 property tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** The design's two-origin BFS matched the simple-path oracle on the first run; the D5 condition holds on cyclic graphs. 178 tests in `core/graph`, 14 property tests pass at the CI profile in 9.6 s; ruff and mypy --strict clean.
+- **Corrected:** One example test wrongly asserted no diamond node has a foreign-origin label; `b`, `c` and `d` do (origin `a`). The test was fixed, not the code.
+- **Surprise:** Hypothesis found no counterexamples. A 5,000-node chain and ring run with no `RecursionError`.
+
+### 9 Nov — Spec `dependency-graph`: T3 (cyclonedx.py ingest + tests)
+- **Spec/task:** T3.1–T3.4: `parse_service` and `ParsedService`, CycloneDX strategies (render, shuffled, with_duplicates, mutated, json_like), 110 unit tests, 5 property tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** 299 tests pass in `core/graph`, 25 property tests pass at the CI profile; ruff and mypy --strict clean. Ingest matched the independent abstract model on the first run; both Syft fixtures parse with no warnings.
+- **Corrected:** The strategies needed an `alias_identities` flag so one identity appears under several bom-refs; without it DG-DUP-1 was barely exercised. The generator also adds a self-loop to unreferenced packages so they are not read as second roots.
+- **Surprise:** Hypothesis found no counterexamples. An edge back to the root removes its root status under DG-ROOT-1, so the "edges into the root" guard is defensive and unreachable.

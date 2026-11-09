@@ -34,8 +34,8 @@ The lockfile parsers are independent of `build_graph`. They produce a `ScopeResu
 
 | Fact | Evidence | Consequence |
 |---|---|---|
-| The root is a `components` entry with a purl (e.g. `pkg:npm/graveyard-spike-npm-fixture@0.0.1?package-id=79a003f4bd8db3e1`), and it is the only `dependencies` ref that no `dependsOn` lists. | Both fixtures: one unreferenced ref, equal to a component bom-ref. | Root rule DG-ROOT-1(b). |
-| `metadata.component.bom-ref` (`8fb02136c12967a7`, `d77b2f1eba698105`) is in neither `components` nor `dependencies`. | Both fixtures. | `metadata.component` is not the primary root source (DG-ROOT-2). |
+| The root is a `components` entry with a purl (e.g. `pkg:npm/graveyard-spike-npm-fixture@0.0.1?package-id=3491eba9e54c1ca3`), and it is the only `dependencies` ref that no `dependsOn` lists. | Both fixtures: one unreferenced ref, equal to a component bom-ref. | Root rule DG-ROOT-1(b). |
+| `metadata.component.bom-ref` (npm `6fb2060e44576377`, py `d77b2f1eba698105`) is in neither `components` nor `dependencies`. | Both fixtures. | `metadata.component` is not the primary root source (DG-ROOT-2). |
 | `bom-ref` = `purl + "?package-id=<16 hex>"`; every `dependsOn` entry equals some component's `bom-ref` exactly. | Both fixtures: no dangling refs. | Exact-match resolution (DG-ING-6); the suffix is never parsed. |
 | npm `purl` keeps `JSONStream`; the bom-ref is lower-case. | `SPIKES.md` Q6. | Resolve through the component's `purl`, then `package_key` (D1). |
 | One non-library component: `type: file`, name `/package-lock.json` or `/uv.lock`, no purl. | Both fixtures. | Skipped silently (DG-ING-5). |
@@ -43,7 +43,7 @@ The lockfile parsers are independent of `build_graph`. They produce a `ScopeResu
 | `package-lock.json` root entry: `packages[""]` with `dependencies: {express, JSONStream, moment, request}`; the npm fixture lockfile has 116 entries and no `dev`/`devOptional` flag. | `spikes/fixtures/npm/package-lock.json`. | Declared scope is available (D11); a real dev/optional lockfile is generated with npm (§7.2a). |
 | `backend/uv.lock` has a project package (`source = { virtual = "." }`) with 2 runtime `dependencies` and a `[package.dev-dependencies]` table with a 6-package `dev` group; its other 20 packages are all transitive dev packages (the two runtime dependencies have no dependencies of their own). | `backend/uv.lock` at commit `0fbf989`. | A real dev group exists for `parse_uv_lock`; it has no optional-dependencies, cycles, two-version names or dangling references, so those need a synthetic file (§7.2). |
 | `uv.lock` project package: `source = { virtual = "." }`, `dependencies = [{ name = "nose" }, …]`. | `spikes/fixtures/py/uv.lock`. | Project detection by `source` key; `direct_scopes` read from it. |
-| The committed npm SBOM predates `JSONStream` (114 components vs 116 lockfile entries). | Count check. | Re-record task (T0). |
+| The earlier npm SBOM predated `JSONStream` (114 components vs 116 lockfile entries); it was re-recorded in T0 (`docs/SPIKES.md`). | Count check. | The fixture is the re-recorded BOM. |
 
 Python 3.12's `tomllib` reads both TOML formats; `json` reads the rest. No dependency is added (D10).
 
@@ -152,7 +152,7 @@ Steps (all iterative; every validation failure raises `ValueError("<path>: <fiel
    - else if `e.ref` resolves to a kept key `u`: for each target `v` that resolves to a kept key and `v ≠ u` and `v` is not a root → add `(u, v)`; unresolved → `DANGLING_REF`;
    - else if `e.ref` is unknown (not a component, not `metadata.component.bom-ref`) → `DANGLING_REF` once for the ref;
    - edges to a root's bom-ref are dropped (DG-ING-10).
-   `adj` is built from a `set` of pairs, then sorted per source. If the pair count exceeds `max_edges`, raise.
+   `adj` is built from a `set` of `(source key, target key)` pairs, then sorted per source. If the number of distinct pairs exceeds `max_edges`, raise (DG-ING-8). Only non-root edges are counted: root edges go to `directs`, not to the pair set, and there are at most as many of them as distinct components, which `max_components` already bounds.
 6. **Root outcome.** One root: no warning. Several: `MULTIPLE_ROOTS` (`subjects` = the root bom-refs, sorted). None: `ROOT_NOT_FOUND`.
 
 `directs` is the union of the resolved children of all roots.

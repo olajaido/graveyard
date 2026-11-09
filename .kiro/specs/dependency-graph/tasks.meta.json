@@ -1,0 +1,250 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "T0 — Re-record the npm SBOM, add fixtures, scaffold the package (Fixtures table; DG-NFR-3, DG-NFR-6)": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794223834301
+      },
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225148995
+      }
+    ],
+    "T0.1 — Prerequisites. `~/.local/bin/syft --version` must print `1.56.0`, and `spikes/fixtures/npm/package-lock.json` must list `JSONStream` (it has 116 entries; no `npm install` is needed). **If Syft is missing or has another version, stop and ask. Do not substitute another version.**": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225160536
+      }
+    ],
+    "T0.2 — From the repo root run `SYFT_CHECK_FOR_APP_UPDATE=false ~/.local/bin/syft dir:spikes/fixtures/npm -o cyclonedx-json=spikes/npm-sbom.cdx.json`. Syft only reads files; nothing is installed or executed. Review `git diff --stat spikes/npm-sbom.cdx.json`: expect new `JSONStream`, `jsonparse` and `through` components and their dependency entries, a new `serialNumber` and `timestamp`, and nothing else. If unrelated components changed, stop and report.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225164799
+      }
+    ],
+    "T0.3 — Scrub the one absolute path: replace `metadata.component.name` (`/Users/…/spikes/fixtures/npm`) with `\"fixtures/npm\"` using a single exact-string replacement in `spikes/npm-sbom.cdx.json`. Do not re-serialise the file. `grep -c \"/Users/\" spikes/npm-sbom.cdx.json` must print `0`. Leave `spikes/py-sbom.cdx.json` and the other spikes unchanged.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225168372
+      }
+    ],
+    "T0.4 — Create `backend/core/graph/tests/fixtures/` with: `syft_npm.cdx.json` (copy of the scrubbed spike file), `syft_py.cdx.json` (copy of `spikes/py-sbom.cdx.json` with `metadata.component.name` replaced by `\"fixtures/py\"`, same method), `lock_npm.json` (copy of `spikes/fixtures/npm/package-lock.json`), `lock_uv.toml` (copy of `spikes/fixtures/py/uv.lock`).": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225171263
+      }
+    ],
+    "T0.5 — Measure the re-recorded npm BOM with a throwaway `uv run python -` script (not committed): `library` components, the project component, the `file` component, `dependencies` entries, root bom-ref and root children (expected `express`, `JSONStream`, `moment`, `request`), distinct `(source key, target key)` edges using `core.purl.package_key`, and the count of nodes reachable from the root. If the root children differ from the expected four, stop and report. Write the figures in `docs/SPIKES.md` as a short \"Q5 addendum, re-recorded 9 Nov 2026\" note (Syft version, command, counts), and in `tests/fixtures/README.md` (provenance table: file, source, command, tool version, date, recorded or synthetic). The synthetic fixtures added in T4–T6 append rows to the same README.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225175916
+      }
+    ],
+    "T0.6 — Create `backend/core/graph/__init__.py` (module docstring only: purpose, D1 identity, D4/D5 semantics, D14 warnings) and `tests/__init__.py`, matching `core/scoring/tests/__init__.py`.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225178965
+      }
+    ],
+    "T0.7 — Write `tests/test_fixtures.py` (fixture integrity): both BOMs have `specVersion == \"1.7\"`; no fixture contains `/Users/`, `/home/` or a drive-letter path (DG-NFR-6); every `dependsOn` ref and `dependencies[].ref` is a component bom-ref; exactly one dependencies ref is unreferenced and it is a component bom-ref; `metadata.component.bom-ref` is in neither `components` nor `dependencies` (DG-ROOT-2); the `JSONStream` component has `purl == \"pkg:npm/JSONStream@1.3.5\"` and a bom-ref starting `pkg:npm/jsonstream@1.3.5?package-id=` (SPIKES Q6); the npm root has the four expected children; the pinned counts from T0.5 equal values recomputed in the test; `lock_npm.json` parses and has the same four names in `packages[\"\"].dependencies`; `lock_uv.toml` parses with `tomllib` and has one package with `source.virtual`.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225182445
+      }
+    ],
+    "T0.8 — `uv run pytest -q core/graph` is green and `uv run mypy --strict core` is clean.": [
+      {
+        "executionId": "beb7fc1c-c49e-41c0-996e-a8b56dffffd4",
+        "chatSessionId": "sess_82e86e63-6017-4f55-b927-d7dd33a1577b",
+        "timestamp": 1794225185071
+      }
+    ],
+    "T1.1 — Implement `model.py` per design §3 and §4: `Scope`, `ScopeMap`, `GraphWarning`, `ScopeResult`, `ServiceInput`, `ExamplePath`, `PathWitness`, `GraphNode` (with the `__post_init__` invariants of DG-OUT-3 and the `direct`, `transitive`, `scope` properties), `DependencyGraph` (with `node(key)` via `bisect`), the constants table, `WARNING_CODES`, `path_info_sort_key`, and `scope_map(dict)` (sorted, `MappingProxyType`). Import `PathInfo` from `core.scoring.types`. No I/O.": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225271616
+      },
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225342218
+      }
+    ],
+    "T1.2 — Implement `diagnostics.py`: `make_warning` and `finalise_warnings` per design §5.6 (truncate text, sort and cap subjects, de-duplicate, sort, cap per `(service, code)`, one `WARNINGS_TRUNCATED` per truncated group). `make_warning` rejects a code outside `WARNING_CODES` with `ValueError`.": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225345915
+      },
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225415644
+      }
+    ],
+    "T1.3 — Implement `keys.py`: `npm_key(name, version)` (splits `@scope/name`) and `pypi_key(name, version)` (PEP 503 name), each building a `Purl` and returning `package_key`; the `Purl` constructor's `ValueError` propagates.": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225419759
+      },
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225461631
+      }
+    ],
+    "T1.4 — Unit tests. `tests/test_model.py`: every dataclass is frozen; `GraphNode` accepts valid shapes and rejects unsorted, duplicated or more-than-four `path_infos`, a `services_affected` that disagrees with `path_infos`, and witnesses outside `path_infos`; the derived-property table (`direct`/`transitive`/`scope` for the empty set, each single member, and mixed sets); `DependencyGraph.node` hit and miss; `scope_map` is read-only and sorted. `tests/test_diagnostics.py`: truncation to 200 characters, subject cap with the total in `detail`, de-duplication, sort order, the 50-per-code cap with its `WARNINGS_TRUNCATED` entry, unknown code raises. `tests/test_keys.py`: `JSONStream` → `npm/jsonstream@1.3.5`, `@Babel/Core` → `npm/%40babel/core@7.24.0`, `Flask_SQLAlchemy` → `pypi/flask-sqlalchemy@3.1.1`, invalid names raise `ValueError`.": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225465706
+      },
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225566063
+      }
+    ],
+    "T1.5 — Property tests (`@pytest.mark.property`) in `tests/test_properties_graph.py`: `test_finalise_warnings_idempotent`, `test_finalise_warnings_order_independent`, `test_finalise_warnings_respects_caps` (DG-WARN-4); `test_path_info_sort_key_is_total_order` (DG-EXP-5); `test_keys_match_package_key` (generated names and versions agree with `package_key(parse_purl(<independently rendered purl>))`).": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225569643
+      },
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225708329
+      }
+    ],
+    "T1 — `model.py`, `diagnostics.py`, `keys.py` + tests (DG-WARN-1…5, DG-OUT-2, DG-OUT-3, DG-EXP-5, DG-EXP-6)": [
+      {
+        "executionId": "52e8a33f-061b-434a-9987-566a8a488382",
+        "chatSessionId": "sess_e10e5234-8226-43fa-b77a-e83916d609f5",
+        "timestamp": 1794225708414
+      }
+    ],
+    "T2.1 — Implement `traverse.py`: `Label`, `bfs_levels`, `reverse_adjacency`, `nearest_two_origins`, `follow_chain`, `dag_preds`, `back_paths`. Iterative only; successor lists and sources are expected sorted and the functions rely on that. No import from `core.purl` or `core.scoring`.": [
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794225800760
+      },
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794225866192
+      }
+    ],
+    "T2.2 — Create `tests/oracle.py` with `simple_paths(adj, starts)` (recursive DFS with an on-path set; it must not import `core.graph`) and helpers `min_simple_path_len(adj, origin)` and `reaching_origins(adj, sources)`. Create `tests/strategies.py` with `abstract_graph(max_nodes=8)`: a node count, a directed edge set that may contain self-loops, 2-cycles and longer cycles, density drawn from sparse, medium and dense, and a sorted source subset.": [
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794225869566
+      },
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794225983599
+      }
+    ],
+    "T2.3 — Unit tests in `tests/test_traverse.py`: chain, diamond, ring, star; the D5 trap (`a → b → a`: `a` has no foreign-origin label); two sources with one cycle; empty sources; unreachable nodes get no labels; a node reached by two different origins keeps both; `back_paths` yields minimum-length paths in the DG-PATH-3 order and honours `limit` (0, 1, more than exist); `follow_chain` returns a forward path; a 5,000-node chain and ring run without `RecursionError`.": [
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794225987100
+      },
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794226118085
+      }
+    ],
+    "T2.4 — Property tests in `tests/test_properties_traverse.py`: `test_bfs_levels_match_oracle`; `test_two_origin_labels_match_oracle` (the number of labels is `min(2, |reaching origins|)`, origins are distinct, distances equal the oracle's per-origin minimum simple-path lengths and are the two smallest); `test_foreign_origin_iff_other_source_reaches` (a node has a label with `origin ≠ node` exactly when some other source reaches it by at least one edge, the D5 condition); `test_chain_is_simple_path_in_graph` (real edges, no repeated node, starts at the label's origin); `test_back_paths_equal_oracle_min_paths_in_order`; `test_traversals_terminate_on_cycles` (strongly connected graphs and the complete digraph on 8 nodes, explicit deadline).": [
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794226121597
+      },
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794226306577
+      }
+    ],
+    "T2 — `traverse.py` + tests; start `tests/oracle.py` and `tests/strategies.py` (design §5.3; DG-EXP-2, DG-EXP-3, DG-PURE-3, DG-PATH-3, DG-PATH-4)": [
+      {
+        "executionId": "7650f6be-a4cb-4509-b4c5-4a66b984144b",
+        "chatSessionId": "sess_ad5141e2-1fef-43b1-b01d-fa7a2600f426",
+        "timestamp": 1794226306657
+      }
+    ],
+    "T3.1 — Implement `ParsedService` and `parse_service(path, bom, limits)` per design §5.1: envelope validation, iterative flattening, component mapping through `parse_purl` and `package_key`, smallest-display-purl choice, `ref_to_key` with the DG-ING-7 conflict check, root detection (DG-ROOT-1…4, including the orphan rule), edge building with `DANGLING_REF`, the `max_components` and `max_edges` limits, and the `MULTIPLE_ROOTS` / `ROOT_NOT_FOUND` warnings. Raise `ValueError(\"<service>: <field>: <rule>\")` for structural errors. Never parse the `?package-id=` suffix.": [
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794226559621
+      },
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794226939082
+      }
+    ],
+    "T3.2 — Extend `tests/strategies.py` with `abstract_services()`, `render(abstract, flags)` (specVersion 1.5/1.6/1.7, `?package-id=` suffixes, mixed-case npm names so `purl` and `bom-ref` differ in case, a `file` component, a `metadata.component` with a directory-hash bom-ref, scope given as declared / per-package only / absent), `shuffled(bom, seed)`, `with_duplicates(bom)`, `mutated(bom)` and `json_like()`.": [
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794226942725
+      },
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227197454
+      }
+    ],
+    "T3.3 — Unit tests in `tests/test_cyclonedx.py`: DG-EX-4 (key equals `package_key(parse_purl(purl))`, suffix never matters), DG-EX-5 (case fold using `syft_npm.cdx.json` and a modified copy), DG-EX-11 (warnings), DG-EX-12 (rejections, including `max_components` and `max_edges`), DG-EX-13 (spec-conformant upload with the root in `metadata`), DG-EX-14 (multiple roots, orphan entry, no root); nested components; specVersion 1.5, 1.6, 1.7 accepted; each DG-ING-3 type error raises; self-edges and edges into the root are dropped.": [
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227202268
+      },
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227442715
+      }
+    ],
+    "T3.4 — Property tests in `tests/test_properties_ingest.py`: `test_parse_service_order_independent` (DG-ROOT-5), `test_parse_service_duplicates_idempotent` (DG-DUP-2), `test_one_package_per_identity` (DG-DUP-1, D1), `test_display_purl_independent_of_order` (DG-DUP-3), `test_build_inputs_robust` (DG-INV-11: `json_like()` and `mutated()` give a result or `ValueError`, nothing else).": [
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227446129
+      },
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227958657
+      }
+    ],
+    "T3 — `cyclonedx.py` ingest + tests (DG-ING-1…10, DG-ROOT-1…5, DG-DUP-1…5; DG-INV-2, DG-INV-11)": [
+      {
+        "executionId": "34d923e0-472e-4b6a-8cda-8e3777cca806",
+        "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
+        "timestamp": 1794227958716
+      }
+    ]
+  }
+}

@@ -71,6 +71,27 @@
 
 Notes: The fixture/project component appears in both `components` and `dependencies` arrays. Its `dependsOn` lists the direct dependencies. Transitive deps appear in the `dependsOn` of other (non-fixture) components. The `metadata.component.bom-ref` is a directory hash, not the project purl — use the fixture's `bom-ref` from the `components` array to find the root dependency entry. Components have no `scope` field; npm components all share `foundBy: javascript-lock-cataloger`.
 
+### Q5 addendum, re-recorded 9 Nov 2026
+
+The npm row above predates `JSONStream` (114 components, 3 root children). `spikes/npm-sbom.cdx.json` was re-recorded against the current `spikes/fixtures/npm` (116 lockfile entries, `JSONStream` pinned at 1.3.5). The `py` row is unchanged.
+
+- Syft 1.56.0, run from the repo root: `SYFT_CHECK_FOR_APP_UPDATE=false ~/.local/bin/syft dir:spikes/fixtures/npm -o cyclonedx-json=spikes/npm-sbom.cdx.json`. Syft only reads files. Output is Syft's own compact JSON (one line), not the `indent=2` form `05_syft.py` writes.
+- Then one exact-string edit: `metadata.component.name` `spikes/fixtures/npm` → `fixtures/npm` (DG-NFR-6). Nothing else was edited.
+
+| Figure | Value |
+|---|---|
+| `library` components | 116 (115 packages + the project component) |
+| `file` components | 1 (`/package-lock.json`) |
+| `dependencies` entries | 47 |
+| Root `bom-ref` | `pkg:npm/graveyard-spike-npm-fixture@0.0.1?package-id=3491eba9e54c1ca3` |
+| `metadata.component.bom-ref` | `6fb2060e44576377` (in neither `components` nor `dependencies`) |
+| Root children | 4: `express`, `JSONStream`, `moment`, `request` |
+| Distinct `(source key, target key)` edges, root excluded | 193 |
+| Root edges | 4 |
+| Nodes reachable from the root | 115 (all packages) |
+
+Versus the old BOM: new components `JSONStream`, `jsonparse`, `through`; 47 dependency entries instead of 46 (`JSONStream`); the project component's `package-id` and the `metadata.component.bom-ref` changed (Syft derives them from content); the `/package-lock.json` file hashes changed; new `serialNumber` and `timestamp`. No other component changed. The `package-id` values quoted in the requirements (`79a003f4bd8db3e1`, `8fb02136c12967a7`) describe the superseded recording.
+
 ## Q6 — npm purl case in Syft output
 
 | Syft version | Command | Component | `purl` emitted | `bom-ref` emitted | Observed case |
