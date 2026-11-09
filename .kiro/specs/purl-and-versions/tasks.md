@@ -84,18 +84,18 @@ graph LR
   - [x] T7.2 — Add unit tests to `tests/test_repo_url.py`: the synthetic table's `repo_key` column; `repo_key("https://github.com/o/r")` and `repo_key("github.com/o")` raise `ValueError`; a non-`str` argument raises `ValueError`.
   - [x] T7.3 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`: PV-INV-13 `test_repo_key_idempotent`, `test_repo_key_case_insensitive` (including the lower-case output pattern and equal keys for URLs differing only in owner or repo case).
 
-- [ ] T8 — Public API in `__init__.py` + API tests (PV-KEY-2; design §1, §3)
-  - [ ] T8.1 — Re-export from `core.purl`: `Ecosystem`, `Purl`, `parse_purl`, `format_purl`, `normalise_purl`, `normalise_pypi_name`, `package_key`, `registry_name`, `normalise_repo_url`, `repo_key`, with an explicit `__all__`. The module docstring explains `package_key` (EX-7, AU-5) versus `registry_name` versus `format_purl`, and `repo_key` versus the display form.
-  - [ ] T8.2 — Write `tests/test_public_api.py`: `__all__` equals the expected set; every name is importable from `core.purl`; `core.purl` does not import `core.scoring` and has no I/O imports (`socket`, `urllib.request`, `http`, `subprocess`, `os.environ`/`os.getenv` use) — check by inspecting the modules' imports with `ast` (PV-NFR-1).
+- [x] T8 — Public API in `__init__.py` + API tests (PV-KEY-2; design §1, §3)
+  - [x] T8.1 — Re-export from `core.purl`: `Ecosystem`, `Purl`, `parse_purl`, `format_purl`, `normalise_purl`, `normalise_pypi_name`, `package_key`, `registry_name`, `normalise_repo_url`, `repo_key`, with an explicit `__all__`. The module docstring explains `package_key` (EX-7, AU-5) versus `registry_name` versus `format_purl`, and `repo_key` versus the display form.
+  - [x] T8.2 — Write `tests/test_public_api.py`: `__all__` equals the expected set; every name is importable from `core.purl`; `core.purl` does not import `core.scoring` and has no I/O imports (`socket`, `urllib.request`, `http`, `subprocess`, `os.environ`/`os.getenv` use) — check by inspecting the modules' imports with `ast` (PV-NFR-1).
 
-- [ ] T9 — Final gate (PV-DEP-1…3, PV-NFR-1…5). Run from `backend/`; fix and re-run until all pass.
-  - [ ] T9.1 — `uv run ruff check` and `uv run ruff format --check` are clean.
-  - [ ] T9.2 — `uv run mypy --strict core` is clean, and `grep -rn "type: ignore" core/purl` finds nothing.
-  - [ ] T9.3 — `uv run pytest -q` is green, including the contract tests and the existing `core/scoring` tests.
-  - [ ] T9.4 — `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q` is green (`max_examples=500`).
-  - [ ] T9.5 — Coverage: `uv run pytest core/purl --cov=core/purl --cov-report=term-missing --cov-fail-under=85` passes. Report the actual percentage. The `except Exception` fallbacks in `normalise_repo_url` and `parse_purl` may legitimately show as uncovered unless a test forces them (T4.3 forces the parse one).
-  - [ ] T9.6 — Dependency check: `git diff --stat backend/pyproject.toml backend/uv.lock` shows only the `packageurl-python==<version>` addition (plus its lock entry); no other runtime dependency was added (PV-DEP-3).
-  - [ ] T9.7 — Traceability check: confirm every PV-INV-1…14 test name in the requirements exists in `tests/`, and every PV-* requirement ID appears in at least one test docstring or the design's traceability table. Report any gap instead of closing silently.
+- [x] T9 — Final gate (PV-DEP-1…3, PV-NFR-1…5). Run from `backend/`; fix and re-run until all pass.
+  - [x] T9.1 — `uv run ruff check` and `uv run ruff format --check` are clean.
+  - [x] T9.2 — `uv run mypy --strict core` is clean, and `grep -rn "type: ignore" core/purl` finds nothing.
+  - [x] T9.3 — `uv run pytest -q` is green, including the contract tests and the existing `core/scoring` tests.
+  - [x] T9.4 — `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q` is green (`max_examples=500`).
+  - [x] T9.5 — Coverage: `uv run pytest core/purl --cov=core/purl --cov-report=term-missing --cov-fail-under=85` passes. Report the actual percentage. The `except Exception` fallbacks in `normalise_repo_url` and `parse_purl` may legitimately show as uncovered unless a test forces them (T4.3 forces the parse one).
+  - [x] T9.6 — Dependency check: `git diff --stat backend/pyproject.toml backend/uv.lock` shows only the `packageurl-python==<version>` addition (plus its lock entry); no other runtime dependency was added (PV-DEP-3).
+  - [x] T9.7 — Traceability check: confirm every PV-INV-1…14 test name in the requirements exists in `tests/`, and every PV-* requirement ID appears in at least one test docstring or the design's traceability table. Report any gap instead of closing silently.
 
 ## Notes
 

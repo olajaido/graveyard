@@ -274,7 +274,10 @@ The same file reads `fixtures/syft_jsonstream.json` and asserts what Syft v1.56.
 | PV-REPO-1–12 | `test_repo_url.py`, PV-INV-9–12 |
 | PV-RKEY-1–2 | `test_repo_url.py`, PV-INV-13 |
 | PV-DEP-1–3 | `uv.lock` diff, `mypy --strict`, `test_packageurl_contract.py` |
+| PV-NFR-1 | `test_public_api.py` (AST import check: no I/O modules, no `core.scoring` import) |
+| PV-NFR-2 | The `core/purl/tests/` layout in §3 (colocated tests and fixtures, per `structure.md`) |
 | PV-NFR-3–4 | CI commands; `uv run pytest --cov=core/purl` |
+| PV-NFR-5 | `tasks.md`: each implementation task has its unit and property test sub-tasks (T3–T7) |
 
 ---
 

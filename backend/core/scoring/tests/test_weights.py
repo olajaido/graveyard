@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import yaml
@@ -252,7 +252,7 @@ def test_failures_are_not_cached(tmp_path: Path) -> None:
 def test_weights_mapping_is_read_only() -> None:
     mapping = load_weights().weights
     with pytest.raises(TypeError):
-        mapping["s2"] = 0.5  # type: ignore[index]
+        cast(Any, mapping)["s2"] = 0.5
     with pytest.raises(TypeError):
-        mapping["new"] = 0.1  # type: ignore[index]
+        cast(Any, mapping)["new"] = 0.1
     assert mapping["s2"] == 0.25

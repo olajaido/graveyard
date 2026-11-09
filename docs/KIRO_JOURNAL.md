@@ -241,6 +241,7 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** all gates passed first run: 357 tests (32 property), no Hypothesis counterexamples, 99% coverage on `core/scoring`.
 - **Corrected:** added the missing `pytest-cov==7.0.0` pin for the coverage gate; deleted the placeholder `test_smoke.py` (now 356 tests).
 - **Surprise:** the T12.4 sub-agent ran `git checkout` on `pyproject.toml` without diffing first. I verified the diff against HEAD was only the new pin, and both earlier manual edits survived.
+
 ### 9 Nov — Spec `purl-and-versions`: T0 (Add and pin packageurl-python)
 - **Spec/task:** T0.1 uv add pin, T0.2 pyproject/uv.lock check, T0.3 import and mypy smoke check.
 - **Kiro features:** spec task orchestration, sub-agent delegation, steering tooling rules (`uv run`).
@@ -296,3 +297,17 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** `repo_key` matched design §5.3 first time; property tests pass under the ci profile (60 property tests).
 - **Corrected:** Nothing needed.
 - **Surprise:** No counterexample found; the ASCII-only output alphabet makes `str.lower()` exact.
+
+### 9 Nov — Spec `purl-and-versions`: T8 (Public API and API tests)
+- **Spec/task:** T8.1 re-exports and `__all__` in `core/purl/__init__.py`; T8.2 `test_public_api.py`.
+- **Kiro features:** Spec task orchestration with a sub-agent per leaf task; PostTaskExec hook for this journal.
+- **Kiro got right:** Docstring separates `package_key`, `registry_name` and `format_purl`; the `ast` purity checks also catch `from urllib import request`.
+- **Corrected:** One ruff SIM102 finding in the new test was fixed before closing.
+- **Surprise:** The purity tests found no violations, so no source changes were needed (281 tests pass).
+
+### 9 Nov — Spec `purl-and-versions`: T9 (Final gate)
+- **Spec/task:** T9.1–T9.7 ran ruff, mypy --strict, pytest, CI-profile property tests, coverage, dependency diff and traceability.
+- **Kiro features:** Spec task orchestration with a sub-agent per gate; PostTaskExec hook for this journal.
+- **Kiro got right:** Everything passed first time: 637 tests (281 purl, 356 scoring), 60 property tests at 500 examples, 97.84% coverage.
+- **Corrected:** Nothing needed fixing. The only dependency change is `packageurl-python==0.17.6`.
+- **Surprise:** The traceability check found PV-NFR-2 and PV-NFR-5 absent from design §6.4. They are process rules, not testable behaviour.
