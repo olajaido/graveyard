@@ -28,6 +28,7 @@ from core.graph.tests.strategies import AbstractGraph, abstract_graph
 from core.graph.traverse import (
     back_paths,
     bfs_levels,
+    capped_path_counts,
     dag_preds,
     follow_chain,
     nearest_two_origins,
@@ -38,6 +39,7 @@ pytestmark = pytest.mark.property
 
 DEADLINE = timedelta(seconds=5)
 LIMITS: tuple[int, ...] = (0, 1, 3, 10**6)
+CAPS: tuple[int, ...] = (1, 2, 3, 7)
 
 
 def _is_real_path(adj: Mapping[str, Sequence[str]], path: Sequence[str]) -> bool:
@@ -162,6 +164,23 @@ def test_back_paths_equal_oracle_min_paths_in_order(g: AbstractGraph) -> None:
         )
         for limit in LIMITS:
             assert list(back_paths(dag, node, limit)) == expected[:limit]
+
+
+@settings(deadline=DEADLINE)
+@given(g=abstract_graph(), cap=st.sampled_from(CAPS))
+def test_capped_path_counts_match_back_paths(g: AbstractGraph, cap: int) -> None:
+    """**Validates: Requirements DG-PATH-3, DG-PATH-6, DG-NFR-1**
+
+    ``capped_path_counts`` counts the paths ``back_paths`` would yield, up to
+    ``cap``, without walking them. ``build_graph`` relies on this to report
+    omitted paths in O(1) per node (D15).
+    """
+    dist = bfs_levels(g.adj, g.sources)
+    dag = dag_preds(reverse_adjacency(g.adj), dist)
+    counts = capped_path_counts(dag, cap)
+    assert set(counts) == set(dag)
+    for node in dag:
+        assert counts[node] == len(list(back_paths(dag, node, cap)))
 
 
 # --------------------------------------------------------------------------

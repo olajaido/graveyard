@@ -108,24 +108,34 @@ def select_example_paths(
     ``max_path_nodes`` nothing is returned and the second element counts the
     paths that would have been returned (DG-PATH-6). A node with no path gives
     ``((), 0)`` (DG-PATH-5).
+
+    The omitted case is decided from BFS distances and counted with capped
+    path counts, so no path is walked or built. Otherwise every path has at
+    most ``max_path_nodes`` nodes, which bounds the extraction work.
     """
     levels = {s: analyses[s].dist[key] for s in services if key in analyses[s].dist}
     if not levels or k_paths == 0:
         return (), 0
     minimum = min(levels.values())
-    omit = minimum > max_path_nodes
-    found: list[ExamplePath] = []
     count = 0
+    if minimum > max_path_nodes:
+        for s in services:
+            if levels.get(s) != minimum:
+                continue
+            count += min(k_paths - count, analyses[s].shortest_path_count(key, k_paths))
+            if count >= k_paths:
+                break
+        return (), count
+    found: list[ExamplePath] = []
     for s in services:
         if levels.get(s) != minimum:
             continue
         for nodes in back_paths(analyses[s].dag, key, k_paths - count):
             count += 1
-            if not omit:
-                found.append(ExamplePath(service=s, nodes=nodes))
+            found.append(ExamplePath(service=s, nodes=nodes))
         if count >= k_paths:
             break
-    return (() if omit else tuple(found)), (count if omit else 0)
+    return tuple(found), 0
 
 
 def select_paths(

@@ -144,6 +144,40 @@ def test_ring_5000() -> None:
     assert far is not None and far.example_paths == ()
 
 
+def _chain_bom(n: int, *, ring: bool = False) -> dict[str, Any]:
+    names = [f"n{i}" for i in range(n)]
+    last = n if ring else n - 1
+    edges = {names[i]: [names[(i + 1) % n]] for i in range(last)}
+    return _bom([names[0]], edges, names)
+
+
+def test_chain_5000_build_graph_time() -> None:
+    """Nodes whose paths are omitted cost O(1), so build_graph alone stays linear (D15)."""
+    bom = _chain_bom(5000)  # built outside the timed region
+    graph, elapsed = _timed([ServiceInput("svc", bom)])
+    assert elapsed <= 0.125 * MARGIN, elapsed
+    assert len(graph.nodes) == 5000
+
+
+def test_ring_5000_build_graph_time() -> None:
+    bom = _chain_bom(5000, ring=True)
+    graph, elapsed = _timed([ServiceInput("svc", bom)])
+    assert elapsed <= 0.125 * MARGIN, elapsed
+    assert len(graph.nodes) == 5000
+
+
+def test_chain_20000_build_graph_time() -> None:
+    """A 20,000-package chain at the component cap (plus the root component)."""
+    bom = _chain_bom(20_000)
+    start = time.perf_counter()
+    graph = build_graph([ServiceInput("svc", bom)], max_components=20_001)
+    elapsed = time.perf_counter() - start
+    assert elapsed <= 0.5 * MARGIN, elapsed
+    assert len(graph.nodes) == 20_000
+    omitted = [w for w in graph.warnings if w.code == "PATHS_OMITTED"]
+    assert len(omitted) == 1 and omitted[0].detail.startswith("39872 paths longer than 64")
+
+
 def test_star_5000() -> None:
     n = 5000
     leaves = [f"s{i}" for i in range(n - 1)]

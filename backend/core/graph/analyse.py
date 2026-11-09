@@ -8,12 +8,13 @@ has and how long their witness paths are. Pure and iterative; no I/O.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from core.graph.model import Scope
 from core.graph.traverse import (
     Label,
     bfs_levels,
+    capped_path_counts,
     dag_preds,
     follow_chain,
     nearest_two_origins,
@@ -38,6 +39,16 @@ class ServiceAnalysis:
     dag: dict[str, tuple[str, ...]]  # dag_preds over ``dist``
     labels: dict[Scope, dict[str, list[Label]]]  # per scope that has sources
     sources: dict[Scope, frozenset[str]]
+    _path_counts: dict[int, dict[str, int]] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )  # cap -> capped_path_counts(dag, cap), filled on first use
+
+    def shortest_path_count(self, n: str, cap: int) -> int:
+        """Return ``min(cap, number of minimum-length paths to n)``; 0 if unreachable."""
+        counts = self._path_counts.get(cap)
+        if counts is None:
+            counts = self._path_counts[cap] = capped_path_counts(self.dag, cap)
+        return counts.get(n, 0)
 
     def infos(self, n: str) -> set[PathInfo]:
         """Return the ``PathInfo`` members node ``n`` has in this service."""

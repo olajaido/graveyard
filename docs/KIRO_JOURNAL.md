@@ -8,16 +8,16 @@
 
 | Metric | Value (as of 9 Nov) |
 |---|---|
-| Specs | 1 complete (`mortality-model`) |
-| Spec iterations | 3 (draft → reviewed revision → design/tasks v2) |
-| Tasks | T0–T12, all complete (paired tests per task) |
+| Specs | 3 complete (`mortality-model`, `purl-and-versions`, `dependency-graph`) |
+| Spec iterations | mortality-model 3 · purl-and-versions 3 · dependency-graph 4 |
 | Steering files | 9 (4 always · 4 fileMatch · 1 manual) |
 | Hooks | 1 (`kiro-journal`, post-task; iterated 3× — cadence, date source, format) |
-| Defects caught before code | 9 (steering) · 12 (spec) · 9 (design/tasks) |
-| Defects caught during build | Kiro found the `compute_wounded` design gap. Human review found: the zero-weight I4 break; a determinism test that couldn't catch a clock read; 3 unvalidated config keys |
-| Tests | 356 (32 property, Hypothesis `ci` = 500 examples), 99% coverage on `core/scoring` |
+| Kiro agents used | Spec, Default (vibe), Bug Fix |
+| Defects caught before code | 9 (steering) · 12 (spec) · 9 (design/tasks) · plus design gaps found while specifying purl and graph (library quirks, self-cycle trap) |
+| Defects caught during build | Kiro found the `compute_wounded` design gap; human review found the zero-weight I4 break, a determinism test that couldn't catch a clock read, and 3 unvalidated config keys; mutation testing exposed a property that ignored edges; **quadratic path walk, a DoS on deep SBOM chains (20k nodes: 41.4 s → 0.47 s), found by profiling a scale budget** |
+| Tests | ≈ 1,255 (≈ 120 property, Hypothesis `ci` = 500 examples); coverage 99% scoring · 97.8% purl · 99.5% graph |
 | Real-world anchors | 9/9 pass (request, node-uuid, left-pad, pycrypto, nose, six, express, moment, uuid) |
-| Credits used | ≈ 48 (free tier) + ≈ 119 / 4,000 (Kiroween) |
+| Credits used | ≈ 48 (free tier) + 567.83 / 4,000 (Kiroween; see app.kiro.dev → Account & plan) |
 
 ---
 
@@ -389,3 +389,12 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Hypothesis counterexamples T2–T9:** one recorded. T6: `test_requirements_round_trip` expected one `REQUIREMENT_SKIPPED` warning per skipped line, and Hypothesis found `flask>=1.0` generated twice, which dedupes to one warning. The test was wrong, so the test was fixed and the parser was left alone. The journals for T2, T3, T4, T5, T7, T8 and T9 say Hypothesis found no counterexamples, and T1 says the properties found no bugs. I did not invent any others. Two fixes came from other checks, not recorded Hypothesis failures: T1's `finalise_warnings` idempotence fix (the entry does not say Hypothesis found it) and T2's wrong diamond example test.
 - **Where the spec stopped a mistake:** design §5.5 (D5). Plain reachability marks a direct dependency on a cycle (`root -> a`, `a <-> b`, `a` direct) as also transitive, because `b` leads back to `a`. The design required a foreign-origin label instead, and `tests/test_oracle_sanity.py` asserts that naive reachability differs from the oracle while `build_graph` equals it. In T7 the plain two-source 2-cycle did not show the difference, so the test uses a split-scope 2-cycle.
 - **Surprise:** T10.8 found DG-NFR-4 and DG-NFR-5 were not in design §7.4. They are process rules, so I added a row pointing at the tasks structure and the T10 gate commands.
+
+### 9 Nov — Spec `dependency-graph`: fix quadratic `build_graph` on deep chains (DG-NFR, D15)
+- **Spec/task:** Bug fix after T10. `build_graph` alone took 1.8 s on a 5,000-node chain or ring (about 0.10 s in T7, before T8 added example paths) and 41 s on a 20,000-node chain, a DoS risk on untrusted SBOMs at `max_components=20,000`.
+- **Kiro features:** `cProfile` on `build_graph` only (BOM built outside the timed region); the T10 gate commands to confirm nothing else changed.
+- **Hot spot:** `traverse.back_paths`, 10.8 of 11.2 profiled seconds, about 100 M function calls. `select_example_paths` called it for every node, including nodes whose minimum path length exceeds `max_path_nodes`. It walked the full chain back to the root only to count the omitted paths for the `PATHS_OMITTED` warning text, which is O(n·depth) overall. The witness side was already safe: it compares `witness_len` with `max_path_nodes` before `witness_path` follows any chain.
+- **Fix:** For an omitted node the decision comes from the BFS distance alone. The count is now `min(k_paths, number of shortest paths)` from `traverse.capped_path_counts`, a DP over the BFS DAG that costs O(V+E) once per service (cached on `ServiceAnalysis.shortest_path_count`). Paths are only extracted when the minimum is within `max_path_nodes`, so extraction is bounded by 64 nodes per path. Warning text and subjects are unchanged (9872 and 39872 omitted paths for the 5,000 and 20,000 chains).
+- **Result:** chain 5,000 1.80 s to 0.11 s; ring 5,000 1.83 s to 0.11 s; chain 20,000 41.4 s to 0.47 s. 617 tests in `core/graph` pass unchanged, 120 property tests pass under `HYPOTHESIS_PROFILE=ci`, ruff and `mypy --strict` clean. A throwaway check of `capped_path_counts` against `len(list(back_paths(...)))` on 400 random graphs and four caps found no mismatches.
+- **Added:** three build-only timing tests in `test_scale.py`: chain and ring of 5,000 at 0.5 s, and a 20,000-package chain at 2 s (each 4x margin). The 20,000 case passes `max_components=20_001` because the root application component also counts toward the cap.
+- **Surprise:** T8 checked correctness against the oracle but its scale tests passed on the x4 margin alone (T10 noted 2.1–2.4 s against a 2 s budget). A margin that loose hid a 17x regression, so the new tests use the tighter, build-only budgets.

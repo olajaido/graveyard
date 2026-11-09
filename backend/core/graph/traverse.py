@@ -119,6 +119,20 @@ def dag_preds(
     return dag
 
 
+def capped_path_counts(dag: Mapping[str, Sequence[str]], cap: int) -> dict[str, int]:
+    """Return ``min(cap, number of minimum-length paths)`` for every node in ``dag``.
+
+    This is how many paths ``back_paths(dag, node, cap)`` would yield, found
+    without walking any path. ``dag`` must list every predecessor before the
+    nodes it precedes, which holds for ``dag_preds`` output because it follows
+    BFS visit order. Cost is O(V + E) for the whole mapping.
+    """
+    counts: dict[str, int] = {}
+    for v, preds in dag.items():
+        counts[v] = min(cap, sum(counts[p] for p in preds)) if preds else min(cap, 1)
+    return counts
+
+
 def back_paths(
     dag: Mapping[str, Sequence[str]], node: str, limit: int
 ) -> Iterator[tuple[str, ...]]:
