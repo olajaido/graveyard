@@ -349,3 +349,347 @@ def invalid_purl_strings(draw: st.DrawFn) -> str:
     base = draw(purl_strings())
     s = draw(_mutation(draw(st.sampled_from(base))))
     return s
+
+
+# ---------------------------------------------------------------------------
+# Repository-URL strategies (PV-INV-9 to 13). Built constructively and without
+# ``core.purl``: the expected values are computed here, not by the code under test.
+# ---------------------------------------------------------------------------
+
+_REPO_CHARS = string.ascii_letters + string.digits + "_.-"
+_REPO_ALNUM = string.ascii_letters + string.digits
+_URL_SCHEME_CHOICES = ("https", "http", "git+https", "git", "git+ssh", "ssh")
+_SSH_SCHEMES = ("git+ssh", "ssh")
+
+
+def _owner_names() -> st.SearchStrategy[str]:
+    """Non-empty ``[A-Za-z0-9_.-]`` owners, never ``.`` or ``..``."""
+    return st.text(_REPO_CHARS, min_size=1, max_size=12).map(
+        lambda s: "o" + s if s in (".", "..") else s
+    )
+
+
+def _repo_names() -> st.SearchStrategy[str]:
+    """Non-empty ``[A-Za-z0-9_.-]`` repos that ``.git`` stripping leaves unchanged.
+
+    Never ``.``, ``..`` or anything ending in ``.git`` (so the expected value is
+    the post-strip value).
+    """
+
+    def fix(s: str) -> str:
+        if s in (".", ".."):
+            s = "r" + s
+        return s + "x" if s.endswith(".git") else s
+
+    return st.text(_REPO_CHARS, min_size=1, max_size=12).map(fix)
+
+
+def _path_segments() -> st.SearchStrategy[str]:
+    """Extra path segment: never empty, ``.`` or ``..``; no ``%`` or whitespace."""
+    return st.builds(
+        lambda head, tail: head + tail,
+        st.sampled_from(_REPO_ALNUM),
+        st.text(_REPO_CHARS, max_size=8),
+    )
+
+
+def _tail_text() -> st.SearchStrategy[str]:
+    """Query or fragment body: no ``%``, whitespace, control characters or backslash."""
+    return st.text(st.sampled_from(_REPO_ALNUM + "=&-_.~/@:+,;"), max_size=12)
+
+
+@st.composite
+def _github_host(draw: st.DrawFn, *, allow_www: bool) -> str:
+    host = draw(st.sampled_from(["github.com", "www.github.com"] if allow_www else ["github.com"]))
+    return _random_case(draw, host)
+
+
+@st.composite
+def repo_urls(draw: st.DrawFn) -> tuple[str, str, str]:
+    """``(url, owner, repo)``: an accepted form with random PV-REPO-3/4 suffixes.
+
+    ``repo`` is the expected post-``.git``-strip value; the normaliser's result is
+    ``f"github.com/{owner}/{repo}"``.
+    """
+    owner = draw(_owner_names())
+    repo = draw(_repo_names())
+    form = draw(
+        st.sampled_from(["url", "url", "scp", "shorthand", "schemeless"])
+    )  # weight URL forms
+    path = f"{owner}/{repo}" + ".git" * draw(st.integers(0, 3))
+
+    if form == "url":
+        scheme = draw(st.sampled_from(_URL_SCHEME_CHOICES))
+        userinfo = "git@" if scheme in _SSH_SCHEMES or draw(st.booleans()) else ""
+        if scheme not in _SSH_SCHEMES and scheme != "git":
+            userinfo = ""
+        head = f"{_random_case(draw, scheme)}://{userinfo}{draw(_github_host(allow_www=True))}/"
+    elif form == "scp":
+        head = f"git@{draw(_github_host(allow_www=False))}:"
+    elif form == "shorthand":
+        head = _random_case(draw, "github") + ":"
+    else:
+        head = draw(_github_host(allow_www=False)) + "/"
+
+    url = head + path
+    if draw(st.booleans()):  # trailing slash
+        url += "/"
+    extras = draw(st.lists(_path_segments(), max_size=3))
+    if extras:
+        url += ("" if url.endswith("/") else "/") + "/".join(extras)
+        if draw(st.booleans()):
+            url += "/"
+    if draw(st.booleans()):
+        url += "?" + draw(_tail_text())
+    if draw(st.booleans()):
+        url += "#" + draw(_tail_text())
+    return url, owner, repo
+
+
+_BAD_TOKENS = (
+    "%2e",
+    "%2E",
+    "%2f",
+    "%2F",
+    "%5c",
+    "%5C",
+    "\\",
+    " ",
+    "\t",
+    "\n",
+    "\r",
+    "\x0b",
+    "\x0c",
+    "\x00",
+    "\x07",
+    "\x1b",
+    "\x7f",
+    "\x85",
+    "\xa0",
+    "\u2003",
+    "\u2028",
+)
+
+
+@st.composite
+def _poisoned_valid_url(draw: st.DrawFn) -> str:
+    """A valid URL with a backslash, encoded ``.``/``/``/``\\`` or whitespace/control inserted."""
+    url = draw(repo_urls())[0]
+    i = draw(st.integers(1, len(url) - 1))  # interior: never stripped away
+    return url[:i] + draw(st.sampled_from(_BAD_TOKENS)) + url[i:]
+
+
+def _label() -> st.SearchStrategy[str]:
+    """Lower-case ASCII label starting with a letter that is not ``w`` or ``g``-only risky."""
+    return st.text(string.ascii_lowercase + string.digits, min_size=1, max_size=8).map(
+        lambda s: "a" + s
+    )
+
+
+_LOOKALIKE_SUBS = (
+    ("i", "\u0456"),
+    ("i", "\u0131"),
+    ("t", "\u0163"),
+    ("h", "\u04bb"),
+    ("o", "\u043e"),
+    ("c", "\u0441"),
+    ("g", "\u0261"),
+    (".", "\u3002"),
+    (".", "\uff0e"),
+    ("b", "\u0185"),
+)
+
+
+@st.composite
+def _evil_hosts(draw: st.DrawFn) -> str:
+    """Hosts that are not exactly ``github.com`` / ``www.github.com`` and carry no port."""
+    kind = draw(st.integers(0, 9))
+    label = draw(_label())
+    tld = draw(st.sampled_from(["org", "net", "io", "dev", "co.uk"]))
+    if kind == 0:
+        return f"{label}.{tld}"
+    if kind == 1:
+        return f"github.com.{label}.{tld}"
+    if kind == 2:
+        return f"{label}github.com"
+    if kind == 3:
+        return f"{label}.github.com"
+    if kind == 4:
+        return "github.com."
+    if kind == 5:
+        octets = draw(st.lists(st.integers(0, 255), min_size=4, max_size=4))
+        return ".".join(map(str, octets))
+    if kind == 6:
+        return draw(st.sampled_from(["[::1]", "[2001:db8::1]", "[::ffff:140.82.112.3]"]))
+    if kind == 7:
+        old, new = draw(st.sampled_from(_LOOKALIKE_SUBS))
+        return "github.com".replace(old, new, 1)
+    if kind == 8:
+        return draw(
+            st.sampled_from(
+                [
+                    "gist.github.com",
+                    "api.github.com",
+                    "raw.githubusercontent.com",
+                    "gitlab.com",
+                    "bitbucket.org",
+                    "github.io",
+                    "evilgithub.com",
+                    "www.github.com.",
+                    "www2.github.com",
+                    "github.com\u200b",
+                ]
+            )
+        )
+    return "github.com" + draw(st.sampled_from(["\u212a", "\u0435", "\u00e9", "\u2024com"]))
+
+
+@st.composite
+def _userinfo_hosts(draw: st.DrawFn) -> str:
+    """Authorities using userinfo or fragment/query tricks (no valid ``git@`` plus GitHub)."""
+    evil = draw(_evil_hosts())
+    user = draw(_label())
+    kind = draw(st.integers(0, 7))
+    if kind == 0:
+        return f"github.com@{evil}"
+    if kind == 1:
+        return f"{user}:{draw(_label())}@github.com"
+    if kind == 2:
+        return f"{evil}#@github.com"
+    if kind == 3:
+        return f"{evil}?@github.com"
+    if kind == 4:
+        return f"{user}@github.com"
+    if kind == 5:
+        return f"git@{evil}"
+    if kind == 6:
+        return draw(st.sampled_from(["Git", "GIT", "git:x", "git@git", "@"])) + "@github.com"
+    return f"git@github.com@{evil}"
+
+
+@st.composite
+def _ported_hosts(draw: st.DrawFn) -> str:
+    host = draw(_github_host(allow_www=True))
+    userinfo = draw(st.sampled_from(["", "git@"]))
+    port = draw(st.sampled_from(["", "22", "80", "443", "8443", "0", "99999"]))
+    return f"{userinfo}{host}:{port}"
+
+
+@st.composite
+def _traversal_path(draw: st.DrawFn) -> str:
+    """Valid owner/repo plus extra segments with at least one ``.``/``..`` segment."""
+    segs = [draw(_owner_names()), draw(_repo_names())]
+    segs += draw(st.lists(_path_segments(), max_size=2))
+    dots = draw(st.lists(st.sampled_from([".", ".."]), min_size=1, max_size=2))
+    for dot in dots:
+        segs.insert(draw(st.integers(0, len(segs))), dot)
+    return "/".join(segs) + draw(st.sampled_from(["", "/"]))
+
+
+@st.composite
+def _bad_segment_path(draw: st.DrawFn) -> str:
+    """Paths whose owner or repo is empty, dot-only, or has an illegal character."""
+    owner, repo = draw(_owner_names()), draw(_repo_names())
+    kind = draw(st.integers(0, 7))
+    if kind == 0:
+        return owner  # no repo
+    if kind == 1:
+        return owner + "/"
+    if kind == 2:
+        return "/" + repo  # empty owner
+    if kind == 3:
+        return f"{owner}/.git" + ".git" * draw(st.integers(0, 2))  # repo strips to empty
+    if kind == 4:
+        return ""
+    bad = draw(st.sampled_from("!$&'()*+,;=:@~[]{}|<>\"^`\u00e9\u0456\u4e2d"))
+    if kind == 5:
+        return f"{owner}{bad}/{repo}"
+    if kind == 6:
+        return f"{owner}/{repo}{bad}"
+    return f"{owner}/{bad}{repo}"
+
+
+@st.composite
+def adversarial_repo_urls(draw: st.DrawFn) -> str:
+    """URLs that must normalise to ``None`` (PV-INV-11).
+
+    Families: other hosts, userinfo tricks, ports, traversal, encoded ``%2e``/``%2f``/
+    ``%5c``, backslash, whitespace/control characters, other schemes and shorthands,
+    malformed owner/repo, bare ``owner/repo``, over-long input.
+    """
+    family = draw(st.integers(0, 10))
+    owner, repo = draw(_owner_names()), draw(_repo_names())
+    good = f"{owner}/{repo}" + draw(st.sampled_from(["", ".git", "/", "/tree/main"]))
+    scheme = _random_case(draw, draw(st.sampled_from(_URL_SCHEME_CHOICES)))
+
+    if family == 0:  # other hosts
+        return f"{scheme}://{draw(_evil_hosts())}/{good}"
+    if family == 1:  # other hosts, scheme-less and scp-like
+        host = draw(_evil_hosts())
+        return f"{host}/{good}" if draw(st.booleans()) else f"git@{host}:{good}"
+    if family == 2:  # userinfo tricks
+        auth = draw(_userinfo_hosts())
+        return (f"{scheme}://{auth}/{good}") if draw(st.booleans()) else f"{auth}/{good}"
+    if family == 3:  # explicit ports
+        auth = draw(_ported_hosts())
+        if draw(st.booleans()):
+            return f"{scheme}://{auth}/{good}"
+        return f"{auth.removeprefix('git@')}/{good}"  # "git@host:22/o/r" would be scp-like
+    if family == 4:  # traversal
+        path = draw(_traversal_path())
+        return draw(st.sampled_from([f"{scheme}://github.com/", "github.com/", "github:"])) + path
+    if family == 5:  # encoded . / \, backslash, whitespace, control characters
+        return draw(_poisoned_valid_url())
+    if family == 6:  # other schemes and shorthands
+        prefix = draw(
+            st.sampled_from(
+                [
+                    "ftp://github.com/",
+                    "file:///github.com/",
+                    "svn://github.com/",
+                    "git+file://github.com/",
+                    "git+http://github.com/",
+                    "javascript://github.com/",
+                    "gitlab:",
+                    "bitbucket:",
+                    "gist:",
+                    "file:",
+                    "https:/github.com/",
+                    "https:github.com/",
+                    "//github.com/",
+                    "http//github.com/",
+                    "git@www.github.com:",
+                    "git@github.com/",
+                    "https://",
+                    "ssh://git@evil.com:",
+                ]
+            )
+        )
+        return prefix + good
+    if family == 7:  # malformed owner or repo
+        path = draw(_bad_segment_path())
+        head = draw(
+            st.sampled_from(
+                [f"{scheme}://github.com/", "github.com/", "github:", "git@github.com:"]
+            )
+        )
+        return head + path
+    if family == 8:  # bare owner/repo, no host
+        return f"{owner.replace('.', 'o')}/{repo}"
+    if family == 9:  # empty, whitespace-only, host only
+        return draw(
+            st.sampled_from(
+                [
+                    "",
+                    " ",
+                    "\t\n",
+                    "github.com",
+                    "https://github.com",
+                    "https://github.com/",
+                    "github:",
+                ]
+            )
+        )
+    # longer than the 2,048-character cap
+    pad = "a" * draw(st.integers(2049, 3000))
+    return f"https://github.com/{owner}/{pad}"

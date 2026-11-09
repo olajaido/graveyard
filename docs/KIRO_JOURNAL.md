@@ -282,3 +282,17 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** ASCII-only folding via translate; 182 tests green, 53 property tests pass on the ci profile; reversibility oracle built independently of package_key
 - **Corrected:** Nothing needed in the code; replaced the TODO(T5.2) marker in the contract test with a pointer to test_key.py
 - **Surprise:** No property failed, so PBT found no bug in T5. Syft keeps `JSONStream` case, so the key fold matters only for spec-strict generators
+
+### 9 Nov — Spec `purl-and-versions`: T6 (normalise_repo_url)
+- **Spec/task:** T6.1 normaliser, T6.2 real-URL fixture, T6.3 unit tests, T6.4 repo strategies, T6.5 property tests (PV-INV-9 to 12)
+- **Kiro features:** spec tasks, subagent task execution, hooks
+- **Kiro got right:** Hand-written parser with no urllib; 245 tests green, 27 property tests pass on the ci profile, adversarial strategy clean at 3,000 examples
+- **Corrected:** One mypy typing error in the property test file; nothing needed in repo_url.py
+- **Surprise:** No property failed, so PBT found no bug in T6. Only four of six real fixtures match an anchor repo, so the cross-check asserts at least four
+
+### 9 Nov — Spec `purl-and-versions`: T7 (repo_key + tests)
+- **Spec/task:** T7.1 `repo_key`, T7.2 unit tests, T7.3 PV-INV-13 property tests.
+- **Kiro features:** Spec task orchestration, subagent delegation, steering (uv run tooling, PBT profiles).
+- **Kiro got right:** `repo_key` matched design §5.3 first time; property tests pass under the ci profile (60 property tests).
+- **Corrected:** Nothing needed.
+- **Surprise:** No counterexample found; the ASCII-only output alphabet makes `str.lower()` exact.

@@ -67,22 +67,22 @@ graph LR
     - PV-INV-8 `test_registry_name_round_trip`, `test_registry_name_npm_shape`;
     - PV-INV-14 `test_package_key_npm_case_insensitive`, `test_package_key_npm_version_and_non_ascii_not_folded`, `test_package_key_keeps_case_in_other_outputs`, `test_package_key_pypi_unchanged`.
 
-- [ ] T6 — `repo_url.py`: `normalise_repo_url` + fixtures + tests (PV-REPO-1…12; PV-INV-9…12)
-  - [ ] T6.1 — Implement `normalise_repo_url` per design §5.2 without `urllib.parse`: guards (type, whitespace-strip, length, whitespace and control characters, backslash, `%2e`/`%2f`/`%5c`), fragment then query cut, form detection (URL schemes, scp-like `git@host:`, `github:`, scheme-less), authority checks (userinfo exactly `git`, no port, ASCII host in `{github.com, www.github.com}`), segment checks, repeated `.git` strip, charset check. Return `None` on any doubt; wrap the body in `try/except Exception` returning `None`. `git@www.github.com:…` is rejected.
-  - [ ] T6.2 — Create `tests/fixtures/real_repo_urls.json` with the six real inputs from the requirements (`input`, `expected`, `source`). Take the `PyPI` and `deps.dev` values from `spikes/out_pypi.json` and `spikes/out_depsdev.json`; label the two npm `repository` values `registry repository field` as in the requirements.
-  - [ ] T6.3 — Write `tests/test_repo_url.py`: parametrised over the real fixture file and the synthetic table; each accepted-form row; `www.github.com`; `git@www.github.com:o/r` is `None`; repeated `.git`; scheme and `github:` prefix case-insensitive; owner and repo case preserved; non-`str` input returns `None`; 2,048/2,049-character boundary; and a cross-check that the `request`, `node-uuid` and `six` entries agree with the `repo` field in `core/scoring/tests/fixtures/anchors/*.json`.
-  - [ ] T6.4 — Extend `tests/strategies.py` with `repo_urls()` (returns `(url, owner, repo)`) and `adversarial_repo_urls()` covering every family in PV-INV-11.
-  - [ ] T6.5 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`:
+- [x] T6 — `repo_url.py`: `normalise_repo_url` + fixtures + tests (PV-REPO-1…12; PV-INV-9…12)
+  - [x] T6.1 — Implement `normalise_repo_url` per design §5.2 without `urllib.parse`: guards (type, whitespace-strip, length, whitespace and control characters, backslash, `%2e`/`%2f`/`%5c`), fragment then query cut, form detection (URL schemes, scp-like `git@host:`, `github:`, scheme-less), authority checks (userinfo exactly `git`, no port, ASCII host in `{github.com, www.github.com}`), segment checks, repeated `.git` strip, charset check. Return `None` on any doubt; wrap the body in `try/except Exception` returning `None`. `git@www.github.com:…` is rejected.
+  - [x] T6.2 — Create `tests/fixtures/real_repo_urls.json` with the six real inputs from the requirements (`input`, `expected`, `source`). Take the `PyPI` and `deps.dev` values from `spikes/out_pypi.json` and `spikes/out_depsdev.json`; label the two npm `repository` values `registry repository field` as in the requirements.
+  - [x] T6.3 — Write `tests/test_repo_url.py`: parametrised over the real fixture file and the synthetic table; each accepted-form row; `www.github.com`; `git@www.github.com:o/r` is `None`; repeated `.git`; scheme and `github:` prefix case-insensitive; owner and repo case preserved; non-`str` input returns `None`; 2,048/2,049-character boundary; and a cross-check that the `request`, `node-uuid` and `six` entries agree with the `repo` field in `core/scoring/tests/fixtures/anchors/*.json`.
+  - [x] T6.4 — Extend `tests/strategies.py` with `repo_urls()` (returns `(url, owner, repo)`) and `adversarial_repo_urls()` covering every family in PV-INV-11.
+  - [x] T6.5 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`:
     - PV-INV-9 `test_repo_normaliser_idempotent`;
     - PV-INV-10 `test_repo_output_shape`, `test_repo_never_raises`;
     - PV-INV-11 `test_repo_adversarial_never_github`;
     - PV-INV-12 `test_repo_accepted_forms_exact`.
     Run the adversarial test at least once with `HYPOTHESIS_PROFILE=ci` before closing the task; record any counterexample in `docs/KIRO_JOURNAL.md`.
 
-- [ ] T7 — `repo_key` + tests (PV-RKEY-1, 2; PV-INV-13)
-  - [ ] T7.1 — Implement `repo_key` in `repo_url.py` per design §5.3: `ValueError` unless `REPO_OUT.fullmatch(repo)`, else `repo.lower()`.
-  - [ ] T7.2 — Add unit tests to `tests/test_repo_url.py`: the synthetic table's `repo_key` column; `repo_key("https://github.com/o/r")` and `repo_key("github.com/o")` raise `ValueError`; a non-`str` argument raises `ValueError`.
-  - [ ] T7.3 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`: PV-INV-13 `test_repo_key_idempotent`, `test_repo_key_case_insensitive` (including the lower-case output pattern and equal keys for URLs differing only in owner or repo case).
+- [x] T7 — `repo_key` + tests (PV-RKEY-1, 2; PV-INV-13)
+  - [x] T7.1 — Implement `repo_key` in `repo_url.py` per design §5.3: `ValueError` unless `REPO_OUT.fullmatch(repo)`, else `repo.lower()`.
+  - [x] T7.2 — Add unit tests to `tests/test_repo_url.py`: the synthetic table's `repo_key` column; `repo_key("https://github.com/o/r")` and `repo_key("github.com/o")` raise `ValueError`; a non-`str` argument raises `ValueError`.
+  - [x] T7.3 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`: PV-INV-13 `test_repo_key_idempotent`, `test_repo_key_case_insensitive` (including the lower-case output pattern and equal keys for URLs differing only in owner or repo case).
 
 - [ ] T8 — Public API in `__init__.py` + API tests (PV-KEY-2; design §1, §3)
   - [ ] T8.1 — Re-export from `core.purl`: `Ecosystem`, `Purl`, `parse_purl`, `format_purl`, `normalise_purl`, `normalise_pypi_name`, `package_key`, `registry_name`, `normalise_repo_url`, `repo_key`, with an explicit `__all__`. The module docstring explains `package_key` (EX-7, AU-5) versus `registry_name` versus `format_purl`, and `repo_key` versus the display form.

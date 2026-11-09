@@ -267,6 +267,116 @@
         "chatSessionId": "sess_4bcc0e8c-ae6a-4c46-90f9-fc4250ad47d8",
         "timestamp": 1794217197424
       }
+    ],
+    "T6.1 — Implement `normalise_repo_url` per design §5.2 without `urllib.parse`: guards (type, whitespace-strip, length, whitespace and control characters, backslash, `%2e`/`%2f`/`%5c`), fragment then query cut, form detection (URL schemes, scp-like `git@host:`, `github:`, scheme-less), authority checks (userinfo exactly `git`, no port, ASCII host in `{github.com, www.github.com}`), segment checks, repeated `.git` strip, charset check. Return `None` on any doubt; wrap the body in `try/except Exception` returning `None`. `git@www.github.com:…` is rejected.": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217610686
+      },
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217656114
+      }
+    ],
+    "T6.2 — Create `tests/fixtures/real_repo_urls.json` with the six real inputs from the requirements (`input`, `expected`, `source`). Take the `PyPI` and `deps.dev` values from `spikes/out_pypi.json` and `spikes/out_depsdev.json`; label the two npm `repository` values `registry repository field` as in the requirements.": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217660957
+      },
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217790682
+      }
+    ],
+    "T6.3 — Write `tests/test_repo_url.py`: parametrised over the real fixture file and the synthetic table; each accepted-form row; `www.github.com`; `git@www.github.com:o/r` is `None`; repeated `.git`; scheme and `github:` prefix case-insensitive; owner and repo case preserved; non-`str` input returns `None`; 2,048/2,049-character boundary; and a cross-check that the `request`, `node-uuid` and `six` entries agree with the `repo` field in `core/scoring/tests/fixtures/anchors/*.json`.": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217794223
+      },
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217853298
+      }
+    ],
+    "T6.4 — Extend `tests/strategies.py` with `repo_urls()` (returns `(url, owner, repo)`) and `adversarial_repo_urls()` covering every family in PV-INV-11.": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794217856907
+      },
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794218187225
+      }
+    ],
+    "T6.5 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`:": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794218189541
+      },
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794218318344
+      }
+    ],
+    "T6 — `repo_url.py`: `normalise_repo_url` + fixtures + tests (PV-REPO-1…12; PV-INV-9…12)": [
+      {
+        "executionId": "2f366d54-5960-4f49-908e-6da629e82b0b",
+        "chatSessionId": "sess_844ee27d-88fa-4acf-8c4e-6de07af34db6",
+        "timestamp": 1794218318416
+      }
+    ],
+    "T7.1 — Implement `repo_key` in `repo_url.py` per design §5.3: `ValueError` unless `REPO_OUT.fullmatch(repo)`, else `repo.lower()`.": [
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218413611
+      },
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218459330
+      }
+    ],
+    "T7.2 — Add unit tests to `tests/test_repo_url.py`: the synthetic table's `repo_key` column; `repo_key(\"https://github.com/o/r\")` and `repo_key(\"github.com/o\")` raise `ValueError`; a non-`str` argument raises `ValueError`.": [
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218460361
+      },
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218531231
+      }
+    ],
+    "T7.3 — Property tests (`@pytest.mark.property`) in `tests/test_repo_url_properties.py`: PV-INV-13 `test_repo_key_idempotent`, `test_repo_key_case_insensitive` (including the lower-case output pattern and equal keys for URLs differing only in owner or repo case).": [
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218534011
+      },
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218649937
+      }
+    ],
+    "T7 — `repo_key` + tests (PV-RKEY-1, 2; PV-INV-13)": [
+      {
+        "executionId": "8baae1e2-dbaa-4bd5-b59d-ae0cadd76b63",
+        "chatSessionId": "sess_c88bc720-a719-4e6e-a436-71f6b2b2ba13",
+        "timestamp": 1794218650004
+      }
     ]
   }
 }

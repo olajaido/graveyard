@@ -1,0 +1,32 @@
+[
+  {
+    "input": "git+https://github.com/request/request.git",
+    "expected": "github.com/request/request",
+    "source": "npm registry repository field for request"
+  },
+  {
+    "input": "github:broofa/node-uuid",
+    "expected": "github.com/broofa/node-uuid",
+    "source": "npm registry repository field for node-uuid (shorthand)"
+  },
+  {
+    "input": "https://github.com/benjaminp/six",
+    "expected": "github.com/benjaminp/six",
+    "source": "PyPI project_urls for six (spikes/out_pypi.json)"
+  },
+  {
+    "input": "https://github.com/psf/requests",
+    "expected": "github.com/psf/requests",
+    "source": "PyPI project_urls for requests (spikes/out_pypi.json)"
+  },
+  {
+    "input": "https://requests.readthedocs.io",
+    "expected": null,
+    "source": "PyPI project_urls for requests: a docs URL in the same list (spikes/out_pypi.json)"
+  },
+  {
+    "input": "github.com/request/request",
+    "expected": "github.com/request/request",
+    "source": "deps.dev SOURCE_REPO projectKey.id for npm:request (spikes/out_depsdev.json)"
+  }
+]
