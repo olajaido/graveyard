@@ -687,7 +687,7 @@ Hypothesis (Python) and fast-check (TypeScript). Tag tests `@pytest.mark.propert
 | purl parse/format | Round-trip `format(parse(s)) == normalise(s)`; parse never raises on valid grammar; rejects invalid |
 | Mortality score | Bounds, monotonicity, declared-dead override, total classification (§7.7) |
 | Graph builder | Every reported path starts at a root and ends at the node; no cycles in output paths; dedupe is idempotent |
-| CycloneDX ingest | Ingest → export → ingest is a fixed point |
+| CycloneDX ingest | Output independent of input order; dedupe is idempotent (`dependency-graph`). The "ingest → export → ingest is a fixed point" property belongs to `coroners-report`, which owns export |
 | Codemods | The rewritten file parses; applying it twice equals applying it once (idempotence) |
 | check-install parser | Every generated `npm/pnpm/yarn/pip/uv` command variant yields the correct package set |
 
