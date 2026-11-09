@@ -339,3 +339,31 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** 299 tests pass in `core/graph`, 25 property tests pass at the CI profile; ruff and mypy --strict clean. Ingest matched the independent abstract model on the first run; both Syft fixtures parse with no warnings.
 - **Corrected:** The strategies needed an `alias_identities` flag so one identity appears under several bom-refs; without it DG-DUP-1 was barely exercised. The generator also adds a self-loop to unreferenced packages so they are not read as second roots.
 - **Surprise:** Hypothesis found no counterexamples. An edge back to the root removes its root status under DG-ROOT-1, so the "edges into the root" guard is defensive and unreachable.
+
+### 9 Nov — Spec `dependency-graph`: T4 (scopes_common.py and scopes_npm.py + tests)
+- **Spec/task:** T4.1–T4.6: real npm lockfile fixture, synthetic edge fixture, `scopes_common.py`, `parse_package_lock`, 48 unit tests, 8 property tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** `npm install --package-lock-only` worked first time (lockfileVersion 3, all three root groups), so no hand-written lockfile. Parser matched the README expectations for both fixtures; 363 tests pass in `core/graph`, 34 property tests pass at the CI profile; ruff and mypy --strict clean.
+- **Corrected:** Nothing in code. The `build_graph` assertion in T4.5 is skipped via `importorskip` until T7 creates `build.py`; it has never run.
+- **Surprise:** Hypothesis found no counterexamples. Package keys are `npm/%40types/estree@1.0.5`, so the README shorthand cannot be used as expected values.
+
+### 9 Nov — Spec `dependency-graph`: T5 (scopes_poetry.py and scopes_uv.py + tests)
+- **Spec/task:** T5.1–T5.7: real uv and Poetry fixtures, synthetic edge fixtures, `parse_poetry_lock`, `parse_uv_lock`, about 115 unit tests, 7 property tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** `uvx poetry lock` (Poetry 2.5.1) ran first time and wrote `groups` markers, as DG-SCP-6 expects. Both parsers matched the README expectations for all five fixtures; 485 tests pass in `core/graph`, 41 property tests pass at the CI profile; ruff and mypy --strict clean.
+- **Corrected:** `lock_uv.toml` contains the virtual project package, so "every Syft-py node key present" had to exclude the root. The fixtures README said `/Users/` in prose and failed the no-local-path test; reworded. The first `uv_locks` strategy produced dev-only packages in about 4% of cases; a dev-heavy mode roughly doubled that.
+- **Surprise:** Hypothesis found no counterexamples. Eight hand-made parser mutations were each caught by at least one new test.
+
+### 9 Nov — Spec `dependency-graph`: T6 (scopes_requirements.py + tests)
+- **Spec/task:** T6.1–T6.4: `parse_requirements_txt`, hand-written BOM+CRLF fixture, 7 unit tests, 4 property tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** Single-pass parser with one anchored regex; 496 tests pass in `core/graph`, 45 property tests pass at the CI profile; ruff and mypy --strict clean.
+- **Corrected:** `test_requirements_round_trip` expected one warning per skipped line; Hypothesis found `flask>=1.0` twice, which dedupes to one. The test was wrong, not the parser. DG-SCP-8 says "never raises" but DG-SCP-0 raises on oversize text; DG-SCP-0 wins.
+- **Surprise:** DG-NFR-1 has no budget for this parser, so the 100,000-character test borrows the 2 s figure with the x4 margin.
+
+### 9 Nov — Spec `dependency-graph`: T7 (analyse.py and build.py: graph, exposure inputs, dedupe)
+- **Spec/task:** T7.1–T7.7: `analyse_service`, `build_graph` + `exposure_inputs` (with a `select_paths` stub for T8), oracle `expected`/`naive_path_infos`, DG-EX unit and Syft-fixture tests, oracle sanity, 8 graph property tests, 7 scale tests.
+- **Kiro features:** Spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** Two-origin BFS matched the brute-force oracle first time; 565 tests pass in `core/graph`; ruff and mypy --strict clean. Scale budgets met by wide margins (complete 200-node digraph 0.03 s, 50×200 services 0.19 s).
+- **Corrected:** The plain two-source 2-cycle gives the same answer from naive reachability and the oracle, so the sanity test needed a split-scope 2-cycle (runtime `a`, dev `b`) to show the D5 difference.
+- **Surprise:** Hypothesis found no counterexamples. `GraphNode` does not enforce one witness per `PathInfo` (DG-WIT-1), so T8 has to test it explicitly.

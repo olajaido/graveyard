@@ -20,6 +20,8 @@ Conventions, shared with ``core.graph.traverse`` but restated here on purpose:
 from __future__ import annotations
 
 from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Protocol
 
 
 def simple_paths(
@@ -112,3 +114,152 @@ def origin_distances(
         for node, length in min_simple_path_len(adj, origin).items():
             out.setdefault(node, {})[origin] = length
     return out
+
+
+# --------------------------------------------------------------------------
+# Whole-graph expectations over an abstract multi-service model
+# --------------------------------------------------------------------------
+#
+# ``PathInfo`` lives in ``core.scoring`` and the test for DG-NFR-3 forbids any
+# ``core`` import here, so a path info is spelled ``(runtime, direct)``, a plain
+# pair of booleans in the field order of ``PathInfo``.
+
+InfoPair = tuple[bool, bool]
+
+
+class _Package(Protocol):
+    @property
+    def key(self) -> str: ...
+
+
+class _Service(Protocol):
+    @property
+    def path(self) -> str: ...
+    @property
+    def members(self) -> tuple[int, ...]: ...
+    @property
+    def directs(self) -> tuple[int, ...]: ...
+    @property
+    def scopes(self) -> Mapping[int, str]: ...
+    @property
+    def edges(self) -> tuple[tuple[int, int], ...]: ...
+
+
+class _Abstract(Protocol):
+    @property
+    def packages(self) -> Sequence[_Package]: ...
+    @property
+    def services(self) -> Sequence[_Service]: ...
+
+
+@dataclass(frozen=True)
+class Expected:
+    """Oracle answer for one package key.
+
+    ``infos``: the ``(runtime, direct)`` pairs over all services.
+    ``services``: paths of the services in which the package has a path.
+    ``min_len``: fewest nodes on any simple path from a direct dependency
+    (any scope) to the package, over all services; ``None`` if there is none.
+    ``min_len_per_info``: the same minimum per ``(runtime, direct)`` pair.
+    """
+
+    infos: frozenset[InfoPair]
+    services: frozenset[str]
+    min_len: int | None
+    min_len_per_info: Mapping[InfoPair, int]
+
+
+def effective_scopes(svc: _Service, scope_mode: str = "declared") -> dict[int, str]:
+    """Scope of each direct as ``build_graph`` must resolve it (DG-SCP-9).
+
+    With a declared or per-package ``ScopeResult`` the scope is the member's
+    abstract scope (both maps carry it). With no ``ScopeResult`` every direct
+    is runtime.
+    """
+    if scope_mode == "absent":
+        return {d: "runtime" for d in svc.directs}
+    return {d: svc.scopes[d] for d in svc.directs}
+
+
+def _service_adj(abstract: _Abstract, svc: _Service) -> dict[str, list[str]]:
+    adj: dict[str, list[str]] = {abstract.packages[m].key: [] for m in svc.members}
+    for u, v in svc.edges:
+        adj[abstract.packages[u].key].append(abstract.packages[v].key)
+    return adj
+
+
+def expected(abstract: _Abstract, scope_mode: str = "declared") -> dict[str, Expected]:
+    """Brute-force expectations per package key, with simple-path semantics.
+
+    For a service and a scope ``s`` with direct set ``S_s`` (effective
+    scopes): ``(s, direct)`` if the node is in ``S_s``; ``(s, transitive)`` if
+    a simple path of at least two nodes runs from some other member of
+    ``S_s`` to it. ``runtime`` is true when the scope is ``"runtime"``.
+    Every member of every service has an entry, with empty ``infos`` when no
+    direct reaches it.
+    """
+    infos: dict[str, set[InfoPair]] = {}
+    svcs: dict[str, set[str]] = {}
+    best: dict[str, int] = {}
+    per_info: dict[str, dict[InfoPair, int]] = {}
+    for svc in abstract.services:
+        adj = _service_adj(abstract, svc)
+        for key in adj:
+            infos.setdefault(key, set())
+            svcs.setdefault(key, set())
+            per_info.setdefault(key, {})
+        scopes = effective_scopes(svc, scope_mode)
+        for scope in sorted(set(scopes.values())):
+            runtime = scope == "runtime"
+            sources = [abstract.packages[d].key for d in svc.directs if scopes[d] == scope]
+            for path in simple_paths(adj, sources):
+                end = path[-1]
+                pair = (runtime, len(path) == 1)
+                infos[end].add(pair)
+                svcs[end].add(svc.path)
+                if end not in best or len(path) < best[end]:
+                    best[end] = len(path)
+                if pair not in per_info[end] or len(path) < per_info[end][pair]:
+                    per_info[end][pair] = len(path)
+    return {
+        key: Expected(
+            infos=frozenset(infos[key]),
+            services=frozenset(svcs[key]),
+            min_len=best.get(key),
+            min_len_per_info=dict(per_info[key]),
+        )
+        for key in infos
+    }
+
+
+def naive_path_infos(
+    abstract: _Abstract, scope_mode: str = "declared"
+) -> dict[str, frozenset[InfoPair]]:
+    """Plain reachability: wrong on purpose (the D5 trap).
+
+    Any walk counts, so a source on a cycle is "reached from another source"
+    through its own cycle and wrongly gains a transitive member. Used only to
+    show that the real oracle tells the two apart.
+    """
+    result: dict[str, set[InfoPair]] = {}
+    for svc in abstract.services:
+        adj = _service_adj(abstract, svc)
+        for key in adj:
+            result.setdefault(key, set())
+        scopes = effective_scopes(svc, scope_mode)
+        for scope in sorted(set(scopes.values())):
+            runtime = scope == "runtime"
+            sources = [abstract.packages[d].key for d in svc.directs if scopes[d] == scope]
+            for source in sources:
+                result[source].add((runtime, True))
+            seen: set[str] = set()
+            stack = [succ for source in sources for succ in adj[source]]
+            while stack:
+                node = stack.pop()
+                if node in seen:
+                    continue
+                seen.add(node)
+                stack.extend(adj[node])
+            for node in seen:
+                result[node].add((runtime, False))
+    return {key: frozenset(value) for key, value in result.items()}

@@ -1,0 +1,61 @@
+# Synthetic edge-case fixture for parse_poetry_lock (hand-written; no tool produced it).
+# Package names and versions are real. It mixes the Poetry < 2.0 `category` field and
+# the Poetry >= 2.0 `groups` field in one file, which a single Poetry release never writes.
+# `files` lists and the metadata content-hash are omitted on purpose (no hashes were fabricated).
+
+[[package]]
+name = "certifi"
+version = "2023.11.17"
+description = "Python package for providing Mozilla's CA Bundle."
+optional = false
+python-versions = ">=3.6"
+groups = ["main", "dev"]
+files = []
+
+[[package]]
+name = "coverage"
+version = "7.4.0"
+description = "Code coverage measurement for Python"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev", "test"]
+files = []
+
+[[package]]
+name = "Flask_SQLAlchemy"
+version = "3.1.1"
+description = "Add SQLAlchemy support to your Flask application."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = []
+
+[[package]]
+name = "idna"
+version = "3.6"
+description = "Internationalized Domain Names in Applications (IDNA)"
+optional = false
+python-versions = ">=3.5"
+files = []
+
+[[package]]
+name = "pytest"
+version = "7.4.4"
+description = "pytest: simple powerful testing with Python"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = []
+
+[[package]]
+name = "requests"
+version = "2.31.0"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = []
+
+[metadata]
+lock-version = "2.1"
+python-versions = ">=3.8"

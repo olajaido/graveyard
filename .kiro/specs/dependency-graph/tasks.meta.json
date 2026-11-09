@@ -245,6 +245,568 @@
         "chatSessionId": "sess_0f15c267-21d3-466c-b755-280a54686735",
         "timestamp": 1794227958716
       }
+    ],
+    "T4.1 — Real npm fixture. Work in a scratch directory outside the repo (`mktemp -d`; pass `--cache <scratch>/npm-cache` so the user cache is untouched). Write a `package.json` with `name` `graveyard-npm-fixture`, `version` `0.0.1`, `private: true`, `dependencies: {\"left-pad\": \"1.3.0\"}`, `devDependencies: {\"is-number\": \"7.0.0\"}`, `optionalDependencies: {\"uuid\": \"3.4.0\"}`. Run `npm install --package-lock-only --ignore-scripts` there. It resolves against the registry and writes `package-lock.json`; nothing is installed or executed. **If the command fails for any reason, stop and ask; do not hand-write the file instead.** Copy the result to `tests/fixtures/lock_npm_dev.json`. Record in `fixtures/README.md`: `npm --version`, `node --version`, the command, the `package.json`, the date, the `lockfileVersion`, and which flags the file contains. Delete the scratch directory. Check there is no local path in the file. **If `lockfileVersion` is not 2 or 3, or `packages[\"\"]` lacks the three dependency groups, stop and report; the requirement changes, the fixture does not.**": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697027
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255707521
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255970906
+      }
+    ],
+    "T4.2 — Synthetic edge fixture `tests/fixtures/lock_npm_edge.json` (≤ 15 packages, real names and versions), only for what npm will not produce from a small project: `devOptional: true`, `peer: true`, a nested scoped path (`node_modules/a/node_modules/@s/b`), an alias with `name`, a `link: true` entry, a duplicated package (dev copy and runtime copy), a devDependency that production also requires (must produce no warning), a runtime declaration whose entry says `dev: true` (must produce exactly one `SCOPE_DISAGREEMENT`), a declared name with no entry, and a name in both `dependencies` and `devDependencies`. Add a \"synthetic\" row to `fixtures/README.md`. The v1-shaped document for the rejection test is built inline in the test, not a fixture.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697137
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255975079
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256056290
+      }
+    ],
+    "T4.3 — Implement `scopes_common.py` (`check_size`, `load_json`, `load_toml`, `cross_check`, `result`) per design §6; `RecursionError` and decoder errors become `ValueError`. `cross_check(direct_scopes, package_scopes)` returns one `SCOPE_DISAGREEMENT` per key declared `runtime` whose per-package scope is `dev`, and nothing for any other combination (DG-SCP-5).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697173
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256060370
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256120907
+      }
+    ],
+    "T4.4 — Implement `parse_package_lock` per design §6.1, written against the real file from T4.1: v1 rejection, per-package scope (`devOptional`, `optional`, `peer` are runtime), name from `name` or the last `node_modules/` segment, any-wins for duplicates, skipped `link` and workspace entries, declared scopes from `packages[\"\"]` (`dependencies`, `optionalDependencies`, `peerDependencies` runtime; `devDependencies`-only dev), `DIRECT_UNRESOLVED`, and the one-directional `cross_check` (declared runtime, flagged dev only).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697218
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256124225
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256380372
+      }
+    ],
+    "T4.5 — Unit tests in `tests/test_scopes_npm.py` (DG-EX-18, DG-EX-19). Real fixtures, with expectations recomputed from the file by independent `json` code: `lock_npm.json` is all runtime and every Syft-npm node key and Syft root child is present; `lock_npm_dev.json` gives `is-number` dev, `left-pad` and `uuid` runtime, `direct_scopes` of `left-pad` and `uuid` runtime and `is-number` dev, no warnings. Synthetic `lock_npm_edge.json`: each listed case, including the silent devDependency, the single `SCOPE_DISAGREEMENT` for declared runtime and flagged dev, and `build_graph` giving the silent devDependency `(dev, direct)` plus `(runtime, transitive)`. Also: v1 rejection, invalid JSON, oversize text, 100,000 nested `[`, entries whose names cannot form a purl give `LOCKFILE_ENTRY_SKIPPED`, empty `packages`.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697301
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256388800
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256573323
+      }
+    ],
+    "T4.6 — Property tests in `tests/test_properties_scopes.py`: `test_package_lock_round_trip` (rendered lockfile → expected maps built independently), `test_package_lock_any_wins`, `test_dev_optional_is_runtime`, `test_optional_dependency_is_runtime`, `test_disagreement_iff_declared_runtime_and_package_dev` (exactly one warning in that case; none for a package declared `dev`; none otherwise), `test_package_lock_total` (any `str` gives a `ScopeResult` or `ValueError`), `test_package_lock_order_independent`, `test_package_lock_key_parity` (upper-case npm names fold, scoped names encode as `%40`).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697385
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794256577377
+      },
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794257098318
+      }
+    ],
+    "T5.1 — Real uv fixture. Copy `backend/uv.lock` to `tests/fixtures/lock_uv_backend.toml` (a frozen snapshot, byte-identical). Record in `fixtures/README.md`: the source path, the last commit that touched it (`git log -1 --format=%h -- backend/uv.lock`), and its SHA-256. Confirm with `tomllib` that it has a project package (`source.virtual`), a `[package.dev-dependencies]` table with a `dev` group, and no `/Users/` path. Later changes to `backend/uv.lock` must not alter the fixture.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697443
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794257320181
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794257959008
+      }
+    ],
+    "T5.2 — Real Poetry fixture. Work in a scratch directory outside the repo (`mktemp -d`; set `POETRY_CACHE_DIR` inside it, `POETRY_VIRTUALENVS_CREATE=false` and `POETRY_NO_INTERACTION=1`). Look up the newest Poetry release (`https://pypi.org/pypi/poetry/json`, `info.version`) and use it as `<latest>`. Write a tiny `pyproject.toml`: `[project]` with `name = \"graveyard-poetry-fixture\"`, `version = \"0.0.1\"`, `requires-python = \">=3.10\"`, `dependencies = [\"six==1.17.0\"]`; `[tool.poetry] package-mode = false`; `[tool.poetry.group.dev.dependencies]` with `iniconfig = \"2.3.1\"` (one main and one dev dependency, neither has dependencies). Run `uvx --from poetry==<latest> poetry lock` there. It resolves and writes `poetry.lock` and installs nothing. **If the command fails for any reason, stop and ask; do not hand-write the file instead.** Copy the result to `tests/fixtures/lock_poetry.toml`, record in the README the exact Poetry version, command, the `pyproject.toml`, the date, and which scope markers the file contains (`groups`, `category`, other), then delete the scratch directory. Check that the file has no local path. **If the markers do not match what DG-SCP-6 handles (`groups` containing `\"main\"`, or legacy `category`), stop and report; the requirement changes, the fixture does not.**": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697516
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794257964590
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258172072
+      }
+    ],
+    "T5.3 — Synthetic edge fixtures, only for what no small real project produces, each ≤ 15 packages with real names and versions and a \"synthetic\" row in the README. `lock_uv_edge.toml`: a package reachable from both a runtime and a dev seed; an optional-dependencies target; a cycle among dev packages; one name with two versions; a reference that resolves to nothing; a package reachable from no seed. `lock_poetry_edge.toml`: legacy `category = \"main\"` and `\"dev\"` entries; `groups = [\"main\", \"dev\"]` and `[\"dev\", \"test\"]`; an entry with neither field; a mixed-case name with underscores.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697581
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258175746
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258362860
+      }
+    ],
+    "T5.4 — Implement `parse_poetry_lock` per design §6.2 (`groups`, legacy `category`, neither ⇒ runtime, runtime wins on duplicate keys, empty `direct_scopes`), written against the real file from T5.2.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697703
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258366737
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258412681
+      }
+    ],
+    "T5.5 — Implement `parse_uv_lock` per design §6.3: project packages by `source.virtual` / `source.editable`, reference resolution by normalised name and optional `version`, runtime and dev closures (iterative, cycle-safe, through project packages), `direct_scopes`, `DIRECT_UNRESOLVED`, orphan ⇒ runtime, and a `cross_check` call that cannot fire.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697735
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794258419355
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794259528231
+      }
+    ],
+    "T5.6 — Unit tests in `tests/test_scopes_poetry.py` and `tests/test_scopes_uv.py` (DG-EX-20, DG-EX-21). For each real fixture, recompute the expected figures from the file with independent `tomllib` code: `lock_uv_backend.toml` has 20 non-project keys (2 runtime, 18 dev), `direct_scopes` of 2 runtime and 6 dev names as listed in DG-EX-21, no warnings, the project package absent; `lock_uv.toml` is all runtime with `direct_scopes == {nose, requests, six}` and every Syft-py node key present; `lock_poetry.toml` yields `runtime` for the main package and `dev` for the dev package according to the markers the tool wrote, an empty `direct_scopes` and no warnings. For the synthetic files, each listed case. Invalid TOML, oversize text and deep nesting raise `ValueError`.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697783
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794259532111
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794259771663
+      }
+    ],
+    "T5.7 — Property tests in `tests/test_properties_scopes.py`: `test_poetry_round_trip` (rendered `groups` and legacy `category` shapes), `test_uv_closure_matches_independent_closure` (expected map computed by a plain-Python closure in the test), `test_uv_adding_runtime_seed_never_demotes`, `test_uv_never_disagrees` (`cross_check` is silent for every generated `uv.lock`), `test_poetry_uv_total`, `test_poetry_uv_order_independent` (shuffled `[[package]]` tables), `test_poetry_uv_key_parity` (PEP 503 names).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697828
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794259775358
+      },
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794261015178
+      }
+    ],
+    "T6.1 — Implement `parse_requirements_txt` per design §6.4: BOM and CRLF handling, `\\` continuations, comment and option cutting, the anchored pin regex, `REQUIREMENT_SKIPPED` for unpinned, ranged, URL and path lines, silent skip for options, comments and blanks. It never raises.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697928
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261119053
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261211890
+      }
+    ],
+    "T6.2 — Hand-write `tests/fixtures/requirements.txt` with every form in DG-EX-22 (add a row to `fixtures/README.md`).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255697965
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261215294
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261316711
+      }
+    ],
+    "T6.3 — Unit tests in `tests/test_scopes_requirements.py`: DG-EX-22; `name === version`; spaces around `==`; extras plus marker plus hashes plus trailing comment in one line; `flask==1.*` skipped with a warning; `-r other.txt` skipped silently; empty text.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698010
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261319510
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261438166
+      }
+    ],
+    "T6.4 — Property tests in `tests/test_properties_scopes.py`: `test_requirements_round_trip` (rendered lines with random extras, markers, comments and hashes), `test_requirements_never_raises` (any `str`, including surrogates), `test_requirements_line_ending_and_order_independent`, `test_requirements_linear_time` (a 100,000-character pathological line parses within the DG-NFR-1 budget).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698066
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261441258
+      },
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261675610
+      }
+    ],
+    "T7.1 — Implement `analyse.py`: `ServiceAnalysis` with `bfs_levels` from all directs, `nearest_two_origins` per scope that has sources, and `infos(n)` per design §5.4.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698141
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794261959466
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262007909
+      }
+    ],
+    "T7.2 — Implement `build.py`: parameter validation (`k_paths` an `int ≥ 0` and not a `bool`; `max_path_nodes` an `int ≥ 1`; limits positive ints; service path rules of DG-ING-8), per-service `parse_service`, effective scope resolution and `SCOPE_ASSUMED` (design §5.2), stamping of `ScopeResult.warnings`, merge into `GraphNode`s (`manifests`, union `path_infos`, `services_affected`, smallest display purl), and `finalise_warnings`. `example_paths` and `path_witnesses` are empty tuples until T8. Implement `exposure_inputs`.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698180
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262013126
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262110028
+      }
+    ],
+    "T7.3 — Extend `tests/oracle.py` with `expected(abstract)` (per node: `PathInfo` set, services with a path, minimum length) and `naive_path_infos(abstract)` (plain reachability). Extend `tests/strategies.py` so `render` produces the `ScopeResult` variants and the oracle sees the same effective scopes.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698226
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262114170
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262253626
+      }
+    ],
+    "T7.4 — Unit tests. `tests/test_build.py`: DG-EX-6 (two services, shared packages), DG-EX-7 (per-service edges), DG-EX-8 (scope reaches paths), DG-EX-9 (a–e cycles), DG-EX-10 (unreachable), DG-EX-24 (parser warnings stamped with the service), parameter validation. `tests/test_syft_fixtures.py`: DG-EX-1 (nodes, `path_infos`, `services_affected`, `SCOPE_ASSUMED`; the path assertions wait for T8), DG-EX-2, DG-EX-3, DG-EX-23 (real lockfiles give no `SCOPE_ASSUMED`).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698286
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262259370
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262433700
+      }
+    ],
+    "T7.5 — `tests/test_oracle_sanity.py`: on the D5 trap and a 2-cycle, `naive_path_infos` differs from the oracle and `build_graph` equals the oracle.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698349
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262437629
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262507347
+      }
+    ],
+    "T7.6 — Property tests in `tests/test_properties_graph.py`: `test_deterministic_under_reordering` (DG-INV-1, covering warnings and the maps in `ScopeResult`), `test_dedupe_idempotent` and `test_dedupe_one_node_per_identity` (DG-INV-2), `test_path_infos_match_oracle` (DG-INV-4, `deadline=timedelta(seconds=5)`), `test_termination_on_cyclic_graphs` (DG-INV-5), `test_unreachable_has_no_exposure` (DG-INV-6), `test_services_affected_and_manifests` (DG-INV-7), `test_monotone_in_edges_and_scope` (DG-INV-9).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698389
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262512366
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262689572
+      }
+    ],
+    "T7.7 — `tests/test_scale.py` (timings use a ×4 margin): the 40-layer diamond (DG-EXP-2); the complete digraph on 200 nodes within 1 s (DG-INV-5, DG-NFR-1); a 5,000-node chain, ring and star with correct `path_infos` and no `RecursionError` (DG-OUT-5, path assertions wait for T8); 1,000 packages in one service and 50 services of 200 (DG-NFR-1).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698445
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262694368
+      },
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262770365
+      }
+    ],
+    "T8.1 — Implement example-path selection in `build.py` per design §5.4 step 3: global minimum distance over services, services in order, `back_paths` with the remaining budget, omission when the minimum exceeds `max_path_nodes`.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698512
+      }
+    ],
+    "T8.2 — Implement witness selection per design §5.4 step 4: direct members get `(n,)` from the first service where the node is a direct dependency of that scope; transitive members take the minimum label `dist` over services (ties by service order) and build one path with `follow_chain`; omit above `max_path_nodes`. Emit one graph-level `PATHS_OMITTED` warning (subjects capped, count in `detail`) when anything was omitted.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698583
+      }
+    ],
+    "T8.3 — Extend `tests/oracle.py` with `min_len_per_info` and `min_paths_in_order` (ordered by `(service, nodes read from the node backwards)`).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698649
+      }
+    ],
+    "T8.4 — Unit tests: DG-EX-15 (diamond with a longer path; K=0, 1, 3; second service reaching directly), DG-EX-16 (witnesses with K=0, mixed scopes, the `(dev, direct)` and `(runtime, transitive)` pair), DG-EX-17 (70-node chain, `max_path_nodes=64`, one `PATHS_OMITTED`), the path assertions of DG-EX-1 on the py fixture, and the chain case of DG-OUT-5.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698732
+      }
+    ],
+    "T8.5 — Property tests in `tests/test_properties_graph.py`: `test_example_and_witness_paths_are_real` (DG-INV-3; K ∈ {0, 1, 2, 3, 5}), `test_example_paths_are_shortest_and_ordered` and `test_witnesses_cover_every_member_and_are_minimal` (DG-INV-8). Extend `test_deterministic_under_reordering` to compare `example_paths` and `path_witnesses`.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698777
+      }
+    ],
+    "T9.1 — Implement `graph_to_dict` (design §1, DG-OUT-2): canonical key order, JSON-compatible values only.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698824
+      }
+    ],
+    "T9.2 — Re-export from `core.graph`: `build_graph`, `parse_package_lock`, `parse_poetry_lock`, `parse_uv_lock`, `parse_requirements_txt`, `exposure_inputs`, `graph_to_dict`, `ServiceInput`, `ScopeResult`, `GraphWarning`, `GraphNode`, `ExamplePath`, `PathWitness`, `DependencyGraph`, `WARNING_CODES`, with an explicit `__all__`. Finish the module docstring (key versus purl, scope precedence, warnings, what is not computed: exposure weights and priority).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698868
+      }
+    ],
+    "T9.3 — Unit tests. `tests/test_serialise.py`: shape, key order, `json.dumps` round trip, a fixed small graph against an expected literal. `tests/test_public_api.py`: `__all__` equals the expected set and every name imports. `tests/test_purity.py`: the `ast` check of DG-PURE-1 over every module in `core/graph/` outside `tests/`; the deep-copy no-mutation check of DG-PURE-2 for `build_graph` and each parser. A non-Hypothesis wrapper test over a fixed sample uses `capsys` and `caplog` to assert nothing is printed or logged (DG-INV-12).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255698925
+      }
+    ],
+    "T9.4 — Property tests in `tests/test_properties_graph.py`: `test_graph_to_dict_byte_stable_under_reordering` (DG-INV-1 serialised), `test_warnings_well_formed` (DG-INV-12: closed code set, sorted, unique, capped, subjects sorted and bounded, text bounded, `MULTIPLE_ROOTS` equals the oracle's root candidates, `SCOPE_ASSUMED` iff a direct dependency had no scope), `test_inputs_not_mutated` (DG-PURE-2).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699000
+      }
+    ],
+    "T10.1 — `uv run ruff check` and `uv run ruff format --check` are clean.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699083
+      }
+    ],
+    "T10.2 — `uv run mypy --strict core` is clean, and `grep -rn \"type: ignore\" core/graph` finds nothing.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699160
+      }
+    ],
+    "T10.3 — `uv run pytest -q` is green, including the existing `core/purl` and `core/scoring` suites.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699234
+      }
+    ],
+    "T10.4 — `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q` is green (`max_examples=500`). `grep -rn \"deadline=None\" core/graph` finds nothing (DG-NFR-7).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699282
+      }
+    ],
+    "T10.5 — Coverage: `uv run pytest core/graph --cov=core/graph --cov-report=term-missing --cov-fail-under=85` passes. Report the actual percentage and any uncovered branch that is not a defensive guard.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699335
+      }
+    ],
+    "T10.6 — Dependency check: `git diff --stat backend/pyproject.toml backend/uv.lock` shows no change (DG-DEP-1).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699382
+      }
+    ],
+    "T10.7 — Timings: run `test_scale.py` three times and report the measured durations against DG-NFR-1.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699424
+      }
+    ],
+    "T10.8 — Traceability check: every DG-INV-1…12 test name above exists in `tests/`, every DG-EX-1…24 is covered by a named test, and every DG-* requirement ID appears in a test docstring or in design §7.4. Report any gap instead of closing silently.": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699475
+      }
+    ],
+    "T10.9 — Journal: add an entry to `docs/KIRO_JOURNAL.md` with every counterexample Hypothesis found during T2–T9 and what changed, plus one example where the spec stopped a mistake (candidate: the D5 trap, where plain reachability would have marked a self-cyclic direct dependency as transitive).": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794255699518
+      }
+    ],
+    "T4 — `scopes_common.py` and `scopes_npm.py` + tests (DG-SCP-0…5, DG-SCP-9 inputs; DG-INV-10)": [
+      {
+        "executionId": "adc469f2-2c28-44a9-9cf9-257f3fc2b294",
+        "chatSessionId": "sess_e8e5d8ef-801b-414c-baf0-48c75d74faa3",
+        "timestamp": 1794257098416
+      }
+    ],
+    "T5 — `scopes_poetry.py` and `scopes_uv.py` + tests (DG-SCP-6, DG-SCP-7; DG-INV-10)": [
+      {
+        "executionId": "1ce0ef5b-f25f-4fb0-a1da-816b8ff807fd",
+        "chatSessionId": "sess_aa94a737-37b5-45d5-87c5-58d3974d26c6",
+        "timestamp": 1794261015288
+      }
+    ],
+    "T6 — `scopes_requirements.py` + tests (DG-SCP-8; DG-INV-10)": [
+      {
+        "executionId": "1aee6881-8bc7-4590-8a8f-c93efce2bf2f",
+        "chatSessionId": "sess_f544d4a2-c5ee-4dfd-9b52-37d8c08abc06",
+        "timestamp": 1794261675761
+      }
+    ],
+    "T7 — `analyse.py` and `build.py`: graph, exposure inputs, dedupe (DG-EXP-1…7, DG-SVC-1/2, DG-DUP, DG-SCP-9, DG-WARN-3; DG-INV-1, 2, 4, 5, 6, 7, 9)": [
+      {
+        "executionId": "5c61d0e0-5a60-45d6-90e4-a7c10f2e5fd5",
+        "chatSessionId": "sess_ffc419d6-cf41-4ae5-8ed0-777738ef4556",
+        "timestamp": 1794262770440
+      }
     ]
   }
 }

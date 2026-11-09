@@ -1,0 +1,16 @@
+﻿# Hand-written requirements.txt covering every DG-EX-22 form
+-r other.txt
+-e .
+
+requests==2.31.0
+flask[async]==3.0.0
+numpy == 1.26.4 ; python_version < "3.9"
+urllib3==2.2.1  # trailing comment
+six===1.16.0
+certifi==2024.2.2 \
+    --hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 \
+    --hash=sha256:2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae
+git+https://github.com/psf/requests.git@main#egg=requests
+requests>=2
+flask==1.*
+./local

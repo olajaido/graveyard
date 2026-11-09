@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import copy
 import random
+import re
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from types import MappingProxyType
@@ -644,3 +645,784 @@ def json_like() -> st.SearchStrategy[Any]:
         ),
         max_leaves=20,
     )
+
+
+# --------------------------------------------------------------------------
+# package-lock.json renderings (DG-INV-10, T4.6)
+# --------------------------------------------------------------------------
+#
+# ``package_locks()`` draws an ``AbstractLock``: installed entries (top-level, nested,
+# aliased, linked, plus one workspace-member source) and the dependency groups of the root
+# entry. ``lock_document`` renders it as a lockfile v3 dict, ``expected_package_lock``
+# computes the maps and warnings a correct parser must return, by plain Python written
+# here. Nothing in this section imports ``core.graph.scopes_*`` or ``core.graph.keys``;
+# the expected key is spelled out by ``npm_expected_key``, not computed by ``core.purl``.
+# T5 (``poetry.lock``, ``uv.lock``) and T6 add their own sections below this one.
+
+LOCK_NODE_MODULES = "node_modules/"
+LOCK_NAMES: tuple[str, ...] = (
+    "JSONStream",
+    "Moment",
+    "@Babel/Core",
+    "left-pad",
+    "@types/node",
+    "ExpressJS",
+)
+LOCK_VERSIONS: tuple[str, ...] = ("1.0.0", "2.3.1")
+LOCK_GHOSTS: tuple[str, ...] = ("ghost-one", "@ghost/two")  # declared, never installed
+LOCK_RUNTIME_GROUPS: tuple[str, ...] = ("dependencies", "optionalDependencies", "peerDependencies")
+LOCK_DEV_GROUP = "devDependencies"
+LOCK_GROUPS: tuple[str, ...] = (*LOCK_RUNTIME_GROUPS, LOCK_DEV_GROUP)
+
+
+def npm_expected_key(name: str, version: str) -> str:
+    """The expected ``package_key`` of an npm package: lower-cased, ``@`` encoded as ``%40``."""
+    lowered = name.lower()
+    encoded = "%40" + lowered[1:] if lowered.startswith("@") else lowered
+    return f"npm/{encoded}@{version}"
+
+
+def npm_expected_purl(name: str, version: str) -> str:
+    """The purl of an npm package with the name's case kept and a scope's ``@`` encoded."""
+    encoded = "%40" + name[1:] if name.startswith("@") else name
+    return f"pkg:npm/{encoded}@{version}"
+
+
+@dataclass(frozen=True)
+class LockEntry:
+    """One ``packages`` entry. ``name`` is the entry's own ``name`` field (an npm alias).
+
+    ``dev`` is ``None`` when the field is absent. ``link`` entries have no version.
+    """
+
+    path: str
+    version: str | None = None
+    name: str | None = None
+    link: bool = False
+    dev: bool | None = None
+    dev_optional: bool = False
+    optional: bool = False
+    peer: bool = False
+
+    @property
+    def installed(self) -> bool:
+        """True when the entry is an installed package: ``node_modules/`` in the path, no link."""
+        return self.path != "" and LOCK_NODE_MODULES in self.path and not self.link
+
+    @property
+    def is_dev(self) -> bool:
+        return self.dev is True
+
+    @property
+    def package_name(self) -> str:
+        """The own ``name`` if set, else the segment after the last ``node_modules/``."""
+        return self.name or self.path.rsplit(LOCK_NODE_MODULES, 1)[-1]
+
+    @property
+    def key(self) -> str:
+        assert self.version is not None
+        return npm_expected_key(self.package_name, self.version)
+
+    def to_json(self) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        if self.link:
+            out["resolved"] = "../linked"
+            out["link"] = True
+        if self.name is not None:
+            out["name"] = self.name
+        if self.version is not None:
+            out["version"] = self.version
+        if self.dev is not None:
+            out["dev"] = self.dev
+        if self.dev_optional:
+            out["devOptional"] = True
+        if self.optional:
+            out["optional"] = True
+        if self.peer:
+            out["peer"] = True
+        return out
+
+
+@dataclass(frozen=True)
+class AbstractLock:
+    """Entries plus the root entry's dependency groups (``None``: no ``packages[""]``)."""
+
+    entries: tuple[LockEntry, ...]
+    root: Mapping[str, tuple[str, ...]] | None
+
+
+@dataclass(frozen=True)
+class ExpectedLock:
+    """What a correct ``parse_package_lock`` returns for an :class:`AbstractLock`."""
+
+    package_scopes: dict[str, ScopeName]
+    direct_scopes: dict[str, ScopeName]
+    unresolved: tuple[str, ...]  # declared names with no usable entry, sorted
+    disagreements: tuple[str, ...]  # keys declared runtime but dev per package, sorted
+
+
+def expected_package_lock(lock: AbstractLock) -> ExpectedLock:
+    """Compute the expected maps from the abstract lock (DG-SCP-1…5), without any parser."""
+    flags: dict[str, list[bool]] = {}
+    for entry in lock.entries:
+        if entry.installed:
+            flags.setdefault(entry.key, []).append(entry.is_dev)
+    package_scopes: dict[str, ScopeName] = {
+        key: ("runtime" if not all(devs) else "dev") for key, devs in flags.items()
+    }
+
+    direct_scopes: dict[str, ScopeName] = {}
+    unresolved: list[str] = []
+    if lock.root is not None:
+        runtime_names = {n for g in LOCK_RUNTIME_GROUPS for n in lock.root.get(g, ())}
+        dev_names = set(lock.root.get(LOCK_DEV_GROUP, ()))
+        by_path = {e.path: e for e in lock.entries}
+        for name in sorted(runtime_names | dev_names):
+            found = by_path.get(LOCK_NODE_MODULES + name)
+            if found is None or found.link or found.version is None:
+                unresolved.append(name)
+                continue
+            declared: ScopeName = "runtime" if name in runtime_names else "dev"
+            if declared == "runtime" or direct_scopes.get(found.key) == "runtime":
+                direct_scopes[found.key] = "runtime"
+            else:
+                direct_scopes[found.key] = "dev"
+    disagreements = sorted(
+        key
+        for key, scope in direct_scopes.items()
+        if scope == "runtime" and package_scopes.get(key) == "dev"
+    )
+    return ExpectedLock(package_scopes, direct_scopes, tuple(unresolved), tuple(disagreements))
+
+
+def lock_document(lock: AbstractLock) -> dict[str, Any]:
+    """Render the lock as a ``lockfileVersion: 3`` dict. The root entry comes first."""
+    packages: dict[str, Any] = {}
+    if lock.root is not None:
+        root: dict[str, Any] = {"name": "graveyard-gen-lock", "version": "1.0.0"}
+        for group, names in lock.root.items():
+            root[group] = {n: "*" for n in names}
+        packages[""] = root
+    for entry in lock.entries:
+        packages[entry.path] = entry.to_json()
+    return {
+        "name": "graveyard-gen-lock",
+        "version": "1.0.0",
+        "lockfileVersion": 3,
+        "requires": True,
+        "packages": packages,
+    }
+
+
+def _spell(name: str, mode: str) -> str:
+    if mode == "lower":
+        return name.lower()
+    if mode == "swap":
+        return name.swapcase()
+    return name
+
+
+def spelled_names() -> st.SearchStrategy[str]:
+    """Pool npm names, in their canonical, lower-case or swapped-case spelling."""
+    return st.builds(
+        _spell, st.sampled_from(LOCK_NAMES), st.sampled_from(("keep", "lower", "swap"))
+    )
+
+
+@st.composite
+def package_locks(draw: st.DrawFn, max_top: int = 6, max_nested: int = 5) -> AbstractLock:
+    """Draw an :class:`AbstractLock`.
+
+    Top-level entries are plain, aliased (``name`` differs from the path) or links. Nested
+    entries sit under any non-link entry, so one identity can appear several times, also
+    under another case. A workspace-member source (no ``node_modules/``) is added at random.
+    The root declares names from the top-level paths plus never-installed ghosts, in any of
+    the four groups, so a name can sit in several groups.
+    """
+    top = draw(st.lists(spelled_names(), unique=True, max_size=max_top))
+    entries: dict[str, LockEntry] = {}
+    top_names: list[str] = []
+
+    def flags() -> dict[str, Any]:
+        return {
+            "dev": draw(st.sampled_from((True, False, None))),
+            "dev_optional": draw(st.booleans()),
+            "optional": draw(st.booleans()),
+            "peer": draw(st.booleans()),
+        }
+
+    for i, name in enumerate(top):
+        kind = draw(st.sampled_from(("plain", "plain", "plain", "alias", "link")))
+        segment = f"alias-{i}" if kind == "alias" else name
+        path = LOCK_NODE_MODULES + segment
+        top_names.append(segment)
+        if kind == "link":
+            entries[path] = LockEntry(path, link=True)
+            continue
+        version = draw(st.sampled_from(LOCK_VERSIONS))
+        entries[path] = LockEntry(path, version, name=name if kind == "alias" else None, **flags())
+    for _ in range(draw(st.integers(min_value=0, max_value=max_nested))):
+        hosts = sorted(p for p, e in entries.items() if not e.link)
+        if not hosts:
+            break
+        host = draw(st.sampled_from(hosts))
+        child = draw(spelled_names())
+        path = f"{host}/{LOCK_NODE_MODULES}{child}"
+        if path not in entries:
+            entries[path] = LockEntry(path, draw(st.sampled_from(LOCK_VERSIONS)), **flags())
+    if draw(st.booleans()):
+        entries["packages/app"] = LockEntry("packages/app", "1.0.0", dev=draw(st.booleans()))
+
+    root: dict[str, tuple[str, ...]] | None = None
+    if draw(st.sampled_from((True, True, True, True, False))):
+        declarable = [*top_names, *LOCK_GHOSTS]
+        groups = draw(st.lists(st.sampled_from(LOCK_GROUPS), unique=True))
+        root = {
+            g: tuple(draw(st.lists(st.sampled_from(declarable), unique=True, max_size=4)))
+            for g in groups
+        }
+    return AbstractLock(tuple(entries.values()), root)
+
+
+# --------------------------------------------------------------------------
+# poetry.lock and uv.lock (T5.7, DG-INV-10)
+# --------------------------------------------------------------------------
+# A minimal TOML renderer, then ``poetry.lock`` and ``uv.lock`` as abstract lists of
+# packages (``PoetryEntry``, ``UvPackage``) that render to TOML text. The expected maps
+# are computed here by plain Python: a rule per entry for Poetry, a fixed point (not the
+# parser's queue walk) for uv. Nothing in this section imports ``core.graph.scopes_*``
+# or ``core.graph.keys``; PEP 503 names are folded by a local regex and the key is spelled
+# out as ``pypi/<name>@<version>``, not computed by ``core.purl``.
+
+_TOML_BARE_KEY = re.compile(r"[A-Za-z0-9_-]+")
+_PEP503_RUN = re.compile(r"[-_.]+")
+
+
+def toml_string(value: str) -> str:
+    """A TOML basic string: ``"`` and ``\\`` escaped, control characters as ``\\uXXXX``.
+
+    Every other character is written as is, so the text can hold any non-surrogate code point.
+    """
+    out = ['"']
+    for ch in value:
+        if ch == '"':
+            out.append('\\"')
+        elif ch == "\\":
+            out.append("\\\\")
+        elif ord(ch) < 0x20 or ord(ch) == 0x7F:
+            out.append(f"\\u{ord(ch):04x}")
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+
+def toml_key(key: str) -> str:
+    """A bare key when the characters allow it, a quoted key otherwise."""
+    return key if _TOML_BARE_KEY.fullmatch(key) else toml_string(key)
+
+
+def toml_value(value: Any) -> str:
+    """An inline TOML value: bool, int, str, list or dict (an inline table)."""
+    if isinstance(value, bool):  # before int: bool is an int
+        return "true" if value else "false"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, str):
+        return toml_string(value)
+    if isinstance(value, Mapping):
+        if not value:
+            return "{}"
+        return "{ " + ", ".join(f"{toml_key(k)} = {toml_value(v)}" for k, v in value.items()) + " }"
+    if isinstance(value, Sequence):
+        return "[" + ", ".join(toml_value(v) for v in value) + "]"
+    raise TypeError(f"cannot render {type(value).__name__} as TOML")
+
+
+def render_toml(doc: Mapping[str, Any]) -> str:
+    """Render a document. A non-empty ``package`` list of tables becomes ``[[package]]``
+    sections, with each table-valued field as a ``[package.<field>]`` sub-table, the shape
+    ``poetry.lock`` and ``uv.lock`` use. Every other value is written inline.
+    """
+    tables = doc.get("package")
+    as_sections = (
+        isinstance(tables, list) and bool(tables) and all(isinstance(t, Mapping) for t in tables)
+    )
+    lines = [
+        f"{toml_key(k)} = {toml_value(v)}"
+        for k, v in doc.items()
+        if not (k == "package" and as_sections)
+    ]
+    if as_sections:
+        assert isinstance(tables, list)
+        for table in tables:
+            lines += ["", "[[package]]"]
+            subtables = [(k, v) for k, v in table.items() if isinstance(v, Mapping)]
+            lines += [
+                f"{toml_key(k)} = {toml_value(v)}"
+                for k, v in table.items()
+                if not isinstance(v, Mapping)
+            ]
+            for k, v in subtables:
+                lines.append(f"[package.{toml_key(k)}]")
+                lines += [f"{toml_key(kk)} = {toml_value(vv)}" for kk, vv in v.items()]
+    return "\n".join(lines) + "\n"
+
+
+def pypi_expected_norm(name: str) -> str:
+    """PEP 503: runs of ``-``, ``_`` and ``.`` become one ``-``; lower-case."""
+    return _PEP503_RUN.sub("-", name).lower()
+
+
+def pypi_expected_key(name: str, version: str) -> str:
+    """The expected ``package_key`` of a PyPI package."""
+    return f"pypi/{pypi_expected_norm(name)}@{version}"
+
+
+def pypi_expected_purl(name: str, version: str) -> str:
+    """A PyPI purl written with the PEP 503 name (the name here is already safe to embed)."""
+    return f"pkg:pypi/{pypi_expected_norm(name)}@{version}"
+
+
+PYPI_LOCK_VERSIONS: tuple[str, ...] = ("1.0", "2.0.1", "0.9.0rc1")
+# Several spellings fold to one name on purpose (Requests/requests, ...).
+PYPI_LOCK_NAMES: tuple[str, ...] = (
+    "requests",
+    "Requests",
+    "flask-sqlalchemy",
+    "Flask_SQLAlchemy",
+    "zope.interface",
+    "Zope__Interface",
+    "six",
+    "urllib3",
+    "idna",
+    "Typing.Extensions",
+)
+PYPI_WORDS: tuple[str, ...] = ("Flask", "sql", "Alchemy", "zope", "A", "b2", "Typing", "9x")
+PYPI_SEPARATORS: tuple[str, ...] = ("-", "_", ".", "--", "__", "..", "-_.", "._-", "_-_")
+
+
+@st.composite
+def pypi_names(draw: st.DrawFn) -> str:
+    """A PEP 508 name: one to three words joined by runs of ``-``, ``_`` and ``.``."""
+    words = draw(st.lists(st.sampled_from(PYPI_WORDS), min_size=1, max_size=3))
+    out = words[0]
+    for word in words[1:]:
+        out += draw(st.sampled_from(PYPI_SEPARATORS)) + word
+    return out
+
+
+# ---- poetry.lock ----------------------------------------------------------
+
+_POETRY_SHAPES: tuple[tuple[tuple[str, ...] | None, str | None], ...] = (
+    # (groups, category): ``None`` means the field is absent.
+    (("main",), None),
+    (("main", "dev"), None),
+    (("dev", "main"), None),
+    (("dev",), None),
+    (("dev", "test"), None),
+    ((), None),
+    (None, "main"),
+    (None, "dev"),
+    (None, None),
+    (("dev",), "main"),  # ``groups`` decides when both are present
+    (("main",), "dev"),
+)
+
+
+@dataclass(frozen=True)
+class PoetryEntry:
+    """One ``[[package]]`` of a ``poetry.lock``: Poetry >= 2.0 ``groups``, legacy ``category``,
+    both or neither. ``extra`` holds fields the parser ignores.
+    """
+
+    name: str
+    version: str
+    groups: tuple[str, ...] | None = None
+    category: str | None = None
+    extra: Mapping[str, Any] = field(default_factory=dict)
+
+    @property
+    def runtime(self) -> bool:
+        """DG-SCP-6 written out: ``groups`` decides if present, else ``category``, else runtime."""
+        if self.groups is not None:
+            return "main" in self.groups
+        if self.category is not None:
+            return self.category == "main"
+        return True
+
+    @property
+    def key(self) -> str:
+        return pypi_expected_key(self.name, self.version)
+
+    def to_toml(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"name": self.name, "version": self.version}
+        if self.groups is not None:
+            out["groups"] = list(self.groups)
+        if self.category is not None:
+            out["category"] = self.category
+        out.update(self.extra)
+        return out
+
+
+def expected_poetry_lock(entries: Sequence[PoetryEntry]) -> dict[str, ScopeName]:
+    """The expected ``package_scopes``: one scope per key, ``runtime`` if any entry is."""
+    runtime: dict[str, bool] = {}
+    for entry in entries:
+        runtime[entry.key] = runtime.get(entry.key, False) or entry.runtime
+    return {key: ("runtime" if r else "dev") for key, r in runtime.items()}
+
+
+def poetry_document(entries: Sequence[PoetryEntry]) -> dict[str, Any]:
+    """The lockfile as a dict for :func:`render_toml`, with the ``[metadata]`` table last."""
+    return {
+        "package": [e.to_toml() for e in entries],
+        "metadata": {"lock-version": "2.1", "python-versions": ">=3.10", "content-hash": "ab12"},
+    }
+
+
+@st.composite
+def poetry_locks(draw: st.DrawFn, max_entries: int = 8) -> tuple[PoetryEntry, ...]:
+    """Entries over the shared name pool, so a key can repeat under another spelling."""
+    entries: list[PoetryEntry] = []
+    for _ in range(draw(st.integers(min_value=0, max_value=max_entries))):
+        groups, category = draw(st.sampled_from(_POETRY_SHAPES))
+        extra: dict[str, Any] = {}
+        if draw(st.booleans()):
+            extra = {
+                "description": 'A "quoted" \\ description',
+                "optional": draw(st.booleans()),
+                "python-versions": ">=3.8",
+                "files": [],
+            }
+            if draw(st.booleans()):
+                extra["dependencies"] = {"six": ">=1.0", "idna": {"version": "*", "optional": True}}
+        entries.append(
+            PoetryEntry(
+                draw(st.sampled_from(PYPI_LOCK_NAMES)),
+                draw(st.sampled_from(PYPI_LOCK_VERSIONS)),
+                groups,
+                category,
+                extra,
+            )
+        )
+    return tuple(entries)
+
+
+def shuffled_poetry(entries: Sequence[PoetryEntry], seed: int) -> tuple[PoetryEntry, ...]:
+    """The same entries in another order."""
+    out = list(entries)
+    random.Random(seed).shuffle(out)
+    return tuple(out)
+
+
+# ---- uv.lock --------------------------------------------------------------
+
+UvRef = tuple[str, str | None]  # a dependency reference: ``{ name, version? }``
+UvGroups = tuple[tuple[str, tuple[UvRef, ...]], ...]  # group name -> references
+
+UV_PROJECT_NAMES: tuple[str, ...] = ("graveyard-app", "Graveyard_Lib")
+UV_GHOST_NAMES: tuple[str, ...] = ("ghost-pkg", "Ghost.Two")  # referenced, never locked
+UV_REF_VERSIONS: tuple[str | None, ...] = (None, None, "1.0", "2.0.1", "9.9")  # "9.9" never matches
+UV_PACKAGE_VERSIONS: tuple[str, ...] = ("1.0", "2.0.1")
+UV_GROUP_NAMES: tuple[str, ...] = ("dev", "test", "docs")
+
+
+def _ref_toml(ref: UvRef) -> dict[str, Any]:
+    name, version = ref
+    return {"name": name} if version is None else {"name": name, "version": version}
+
+
+@dataclass(frozen=True)
+class UvPackage:
+    """One ``[[package]]`` of a ``uv.lock``. ``project`` is ``"virtual"`` / ``"editable"`` for the
+    project's own packages (no registry source) and ``None`` for a locked dependency.
+    """
+
+    name: str
+    version: str | None
+    project: str | None = None
+    dependencies: tuple[UvRef, ...] = ()
+    optional: UvGroups = ()
+    dev: UvGroups = ()  # only meaningful on a project package
+
+    @property
+    def edges(self) -> tuple[UvRef, ...]:
+        """The references the closures follow: ``dependencies`` and every optional group."""
+        return self.dependencies + tuple(r for _, refs in self.optional for r in refs)
+
+    def to_toml(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"name": self.name}
+        if self.version is not None:
+            out["version"] = self.version
+        out["source"] = (
+            {self.project: "."} if self.project else {"registry": "https://pypi.org/simple"}
+        )
+        if self.dependencies:
+            out["dependencies"] = [_ref_toml(r) for r in self.dependencies]
+        if self.optional:
+            out["optional-dependencies"] = {
+                g: [_ref_toml(r) for r in refs] for g, refs in self.optional
+            }
+        if self.dev:
+            out["dev-dependencies"] = {g: [_ref_toml(r) for r in refs] for g, refs in self.dev}
+        return out
+
+
+@dataclass(frozen=True)
+class ExpectedUv:
+    """What a correct ``parse_uv_lock`` returns for a list of :class:`UvPackage`."""
+
+    package_scopes: dict[str, ScopeName]
+    direct_scopes: dict[str, ScopeName]
+    unresolved: frozenset[str]  # seed reference names (as written) that match no package
+
+
+def uv_ref_matches(ref: UvRef, package: UvPackage) -> bool:
+    """DG-SCP-7: same PEP 503 name, and the same version when the reference gives one."""
+    return pypi_expected_norm(package.name) == pypi_expected_norm(ref[0]) and (
+        ref[1] is None or package.version == ref[1]
+    )
+
+
+def expected_uv_lock(packages: Sequence[UvPackage]) -> ExpectedUv:
+    """Compute the expected maps (DG-SCP-7) with a fixed point, without any parser.
+
+    A scope set grows until one more pass over every member's edges adds nothing. Project
+    packages are members like any other, so the sets pass through them; they are not listed.
+    """
+
+    def resolve(ref: UvRef) -> set[int]:
+        return {i for i, p in enumerate(packages) if uv_ref_matches(ref, p)}
+
+    def grow(members: set[int]) -> set[int]:
+        grown = set(members)
+        changed = True
+        while changed:
+            changed = False
+            for i in sorted(grown):
+                reached = {t for ref in packages[i].edges for t in resolve(ref)}
+                if not reached <= grown:
+                    grown |= reached
+                    changed = True
+        return grown
+
+    runtime_seeds: set[int] = set()
+    dev_seeds: set[int] = set()
+    unresolved: set[str] = set()
+    for package in packages:
+        if package.project is None:
+            continue
+        runtime_refs = package.edges
+        dev_refs = tuple(r for _, refs in package.dev for r in refs)
+        for refs, seeds in ((runtime_refs, runtime_seeds), (dev_refs, dev_seeds)):
+            for ref in refs:
+                targets = resolve(ref)
+                seeds |= targets
+                if not targets:
+                    unresolved.add(ref[0])
+
+    runtime_reach = grow(runtime_seeds)
+    dev_reach = grow(dev_seeds)
+    package_scopes: dict[str, ScopeName] = {}
+    direct_scopes: dict[str, ScopeName] = {}
+    for i, package in enumerate(packages):
+        if package.project is not None:
+            continue
+        assert package.version is not None
+        key = pypi_expected_key(package.name, package.version)
+        scope: ScopeName = "dev" if i in dev_reach and i not in runtime_reach else "runtime"
+        if package_scopes.get(key) != "runtime":
+            package_scopes[key] = scope
+        declared: ScopeName | None = (
+            "runtime" if i in runtime_seeds else "dev" if i in dev_seeds else None
+        )
+        if declared is not None and direct_scopes.get(key) != "runtime":
+            direct_scopes[key] = declared
+    return ExpectedUv(package_scopes, direct_scopes, frozenset(unresolved))
+
+
+def uv_document(packages: Sequence[UvPackage]) -> dict[str, Any]:
+    """The lockfile as a dict for :func:`render_toml`."""
+    return {"version": 1, "requires-python": ">=3.10", "package": [p.to_toml() for p in packages]}
+
+
+def uv_refs() -> st.SearchStrategy[UvRef]:
+    """A reference to a pool, project or ghost name, with or without a version."""
+    names = st.sampled_from(
+        (*PYPI_LOCK_NAMES, *PYPI_LOCK_NAMES, *UV_PROJECT_NAMES, *UV_GHOST_NAMES)
+    )
+    return st.tuples(names, st.sampled_from(UV_REF_VERSIONS))
+
+
+def _hit_refs(identities: Sequence[tuple[str, str | None]]) -> st.SearchStrategy[UvRef]:
+    """References that mostly hit one of ``identities``: any spelling of its name, and its
+    version or none. A quarter are arbitrary (:func:`uv_refs`), so ghosts and wrong versions stay.
+    """
+    if not identities:
+        return uv_refs()
+
+    def hit(identity: tuple[str, str | None]) -> st.SearchStrategy[UvRef]:
+        name, version = identity
+        spellings = [
+            n
+            for n in (*PYPI_LOCK_NAMES, *UV_PROJECT_NAMES)
+            if pypi_expected_norm(n) == pypi_expected_norm(name)
+        ]
+        return st.tuples(st.sampled_from(spellings), st.sampled_from((None, version)))
+
+    return st.one_of(
+        st.sampled_from(identities).flatmap(hit),
+        st.sampled_from(identities).flatmap(hit),
+        st.sampled_from(identities).flatmap(hit),
+        uv_refs(),
+    )
+
+
+@st.composite
+def uv_locks(
+    draw: st.DrawFn, require_project: bool = False, max_packages: int = 7
+) -> tuple[UvPackage, ...]:
+    """Packages with dependencies, optional groups, cycles and versioned references, in any order.
+
+    Zero to two project packages (``source.virtual`` / ``source.editable``) hold the runtime
+    and dev seeds. Most references hit a package of the lock; some name ghosts or a version no
+    package has, so seeds can be unresolved. A project package may be referenced by another
+    one (a workspace member). A "dev-heavy" lock gives its projects few runtime seeds and
+    several dev seeds, so dev-only packages (also through chains and cycles) are common.
+    """
+    locked = draw(
+        st.lists(
+            st.tuples(st.sampled_from(PYPI_LOCK_NAMES), st.sampled_from(UV_PACKAGE_VERSIONS)),
+            min_size=draw(st.integers(min_value=0, max_value=3)),
+            max_size=max_packages,
+        )
+    )
+    projects = draw(
+        st.lists(
+            st.tuples(
+                st.sampled_from(UV_PROJECT_NAMES),
+                st.sampled_from((None, "0.1.0")),
+                st.sampled_from(("virtual", "editable")),
+            ),
+            min_size=1 if require_project else 0,
+            max_size=2,
+        )
+    )
+    dev_heavy = draw(st.booleans())
+    refs = _hit_refs([*locked, *((n, v) for n, v, _ in projects)])
+
+    def ref_list(max_size: int, min_size: int = 0) -> st.SearchStrategy[tuple[UvRef, ...]]:
+        return st.lists(refs, min_size=min_size, max_size=max_size).map(tuple)
+
+    def groups(
+        max_groups: int, max_refs: int, min_groups: int = 0, min_refs: int = 0
+    ) -> st.SearchStrategy[UvGroups]:
+        return st.lists(
+            st.tuples(st.sampled_from(UV_GROUP_NAMES), ref_list(max_refs, min_refs)),
+            unique_by=lambda t: t[0],
+            min_size=min_groups,
+            max_size=max_groups,
+        ).map(tuple)
+
+    packages: list[UvPackage] = []
+    for name, version in locked:
+        packages.append(UvPackage(name, version, None, draw(ref_list(2)), draw(groups(2, 2))))
+    for project_name, project_version, kind in projects:
+        packages.append(
+            UvPackage(
+                project_name,
+                project_version,
+                kind,
+                draw(ref_list(1 if dev_heavy else 3)),
+                draw(groups(1 if dev_heavy else 2, 1)),
+                draw(groups(2, 4, 1, 1) if dev_heavy else groups(2, 3)),
+            )
+        )
+    return tuple(draw(st.permutations(packages)))
+
+
+def shuffled_uv(packages: Sequence[UvPackage], seed: int) -> tuple[UvPackage, ...]:
+    """The same packages with the table order, every reference list and every group list
+    (and the order of the groups) shuffled.
+    """
+    rng = random.Random(seed)
+
+    def mix_refs(refs: tuple[UvRef, ...]) -> tuple[UvRef, ...]:
+        out = list(refs)
+        rng.shuffle(out)
+        return tuple(out)
+
+    def mix_groups(groups: UvGroups) -> UvGroups:
+        out = [(g, mix_refs(refs)) for g, refs in groups]
+        rng.shuffle(out)
+        return tuple(out)
+
+    out = [
+        replace(
+            p,
+            dependencies=mix_refs(p.dependencies),
+            optional=mix_groups(p.optional),
+            dev=mix_groups(p.dev),
+        )
+        for p in packages
+    ]
+    rng.shuffle(out)
+    return tuple(out)
+
+
+# ---- arbitrary TOML-shaped documents (totality) -----------------------------
+
+_TOML_TEXT = st.text(alphabet=st.characters(codec="utf-8"), max_size=12)
+_TOML_KEYS = st.one_of(
+    st.sampled_from(("name", "version", "source", "groups", "category", "dependencies")),
+    _TOML_TEXT,
+)
+
+
+def toml_values() -> st.SearchStrategy[Any]:
+    """Recursive TOML-compatible values: bool, 64-bit int, str, list (mixed types) and table."""
+    scalars = st.one_of(
+        st.booleans(), st.integers(min_value=-(2**63), max_value=2**63 - 1), _TOML_TEXT
+    )
+    return st.recursive(
+        scalars,
+        lambda inner: st.one_of(
+            st.lists(inner, max_size=3), st.dictionaries(_TOML_KEYS, inner, max_size=3)
+        ),
+        max_leaves=8,
+    )
+
+
+@st.composite
+def toml_like_documents(draw: st.DrawFn) -> dict[str, Any]:
+    """A document whose ``package`` entries carry the lockfile fields with random types.
+
+    Each field is either a well-formed value or any TOML value, so the parsers meet wrong
+    types, missing fields, odd names and nested tables in every position.
+    """
+    ref = st.fixed_dictionaries(
+        {"name": st.one_of(st.sampled_from(PYPI_LOCK_NAMES), toml_values())}
+    )
+    refs = st.lists(ref, max_size=3)
+    fields: dict[str, st.SearchStrategy[Any]] = {
+        "name": st.one_of(st.sampled_from(PYPI_LOCK_NAMES), _TOML_TEXT, toml_values()),
+        "version": st.one_of(st.sampled_from(PYPI_LOCK_VERSIONS), _TOML_TEXT, toml_values()),
+        "groups": st.one_of(st.lists(st.sampled_from(("main", "dev"))), toml_values()),
+        "category": st.one_of(st.sampled_from(("main", "dev")), toml_values()),
+        "source": st.one_of(
+            st.sampled_from(({"virtual": "."}, {"editable": "."}, {"registry": "x"})),
+            toml_values(),
+        ),
+        "dependencies": st.one_of(refs, toml_values()),
+        "optional-dependencies": st.one_of(st.dictionaries(st.just("extra"), refs), toml_values()),
+        "dev-dependencies": st.one_of(st.dictionaries(st.just("dev"), refs), toml_values()),
+    }
+    entries: list[dict[str, Any]] = []
+    for _ in range(draw(st.integers(min_value=0, max_value=4))):
+        chosen = draw(st.lists(st.sampled_from(tuple(fields)), unique=True, max_size=6))
+        entries.append({k: draw(fields[k]) for k in chosen})
+    doc: dict[str, Any] = {"package": entries}
+    if draw(st.booleans()):
+        doc["metadata"] = draw(toml_values())
+    return doc
