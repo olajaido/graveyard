@@ -532,6 +532,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929240
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182149668
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182200317
       }
     ],
     "T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package with the expected states from requirements.": [
@@ -553,6 +563,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929361
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182214129
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182223722
       }
     ],
     "T12.2 — `uv run mypy --strict core` clean.": [
@@ -560,6 +580,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929407
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182226156
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182237979
       }
     ],
     "T12.3 — `HYPOTHESIS_PROFILE=ci uv run pytest` green (`max_examples=500`), including `-m property` and `test_anchors.py`.": [
@@ -567,6 +597,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929445
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182240329
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182299003
       }
     ],
     "T12.4 — Confirm 85% line coverage on `backend/core/scoring` (testing.md gate).": [
@@ -574,6 +614,16 @@
         "executionId": "03a28e5d-bcf0-453b-a386-b5e8ecdf02a4",
         "chatSessionId": "sess_bd4b1c11-1c14-4ad2-81b1-02488076bd1a",
         "timestamp": 1794173929480
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182301582
+      },
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182432202
       }
     ],
     "T4 — `normalise.py` + tests (MM-NOR-1…8)": [
@@ -616,6 +666,34 @@
         "executionId": "fcdbcc44-0984-4deb-b13c-81884a4e7b90",
         "chatSessionId": "sess_6cbf7567-cdef-4564-8edf-9a5a99808fab",
         "timestamp": 1794179645033
+      }
+    ],
+    "T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package asserting the expectations in MM-ANC-1…9: `base_state`, `dead_reason`, `cursed`, `wounded`, `confidence` (where stated), `exposure == 1.0` and `exposure_assumed is True` for every anchor (paths are null in all fixtures), and `mortality == thresholds.s1_min_score` for left-pad.": [
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182204416
+      }
+    ],
+    "T11.3 — `six`: assert Resting with no overlays and `thresholds.ailing ≤ mortality < thresholds.dead`; record mortality as a \"borderline sentinel\" of ≈ 43.7, asserted with an absolute tolerance of 0.5.": [
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182205041
+      }
+    ],
+    "T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output (T10 complete: 9 fixtures committed)**": [
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182205085
+      }
+    ],
+    "T12 — Final gate": [
+      {
+        "executionId": "1d300438-5afb-4165-ae0c-673cb534ccd9",
+        "chatSessionId": "sess_74e7efda-aa95-4525-a852-74d4153eca54",
+        "timestamp": 1794182432252
       }
     ]
   }

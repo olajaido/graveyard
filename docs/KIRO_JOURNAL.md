@@ -2,20 +2,22 @@
 
 > Running evidence log for the Devpost "How Kiro was used" write-up, blog and video.
 > Format per entry: date · spec + task · Kiro features used · what Kiro got right · what I corrected · surprises.
-> The `kiro-journal` hook appends an entry after each spec task; manual entries are tagged *(manual)*.
+> The `kiro-journal` hook appends an entry when every sub-task of a parent task is done; manual entries are tagged *(manual)*.
 
 ## Running totals
 
-| Metric | Value (as of 3 Nov) |
+| Metric | Value (as of 9 Nov) |
 |---|---|
-| Specs | 1 (`mortality-model`) |
-| Spec iterations | 2 (draft → reviewed revision) |
-| Requirements / tasks | 52 / 21 |
+| Specs | 1 complete (`mortality-model`) |
+| Spec iterations | 3 (draft → reviewed revision → design/tasks v2) |
+| Tasks | T0–T12, all complete (paired tests per task) |
 | Steering files | 9 (4 always · 4 fileMatch · 1 manual) |
-| Hooks | 1 (`kiro-journal`, post-task) |
-| Defects caught in review before any code | 8 model + 1 IAM (steering) · 12 (spec) · 7 (design/tasks, pending) |
-| Credits used | ≈ 41.6 / 50 (free tier) |
-| Lines of production code | 0 (by design: validate first, then build) |
+| Hooks | 1 (`kiro-journal`, post-task; iterated 3× — cadence, date source, format) |
+| Defects caught before code | 9 (steering) · 12 (spec) · 9 (design/tasks) |
+| Defects caught during build | Kiro found the `compute_wounded` design gap. Human review found: the zero-weight I4 break; a determinism test that couldn't catch a clock read; 3 unvalidated config keys |
+| Tests | 356 (32 property, Hypothesis `ci` = 500 examples), 99% coverage on `core/scoring` |
+| Real-world anchors | 9/9 pass (request, node-uuid, left-pad, pycrypto, nose, six, express, moment, uuid) |
+| Credits used | ≈ 48 (free tier) + ≈ 119 / 4,000 (Kiroween) |
 
 ---
 
@@ -91,26 +93,27 @@
 - **Kiro got right:** applied all 12 in one pass (**10.88 credits**). The result is 52 requirements and 21 tasks, with design, tasks, steering and PRD §7 kept in sync.
 - **Lesson:** reviewing the spec costs nothing; finding these bugs later in the code would have cost credits and trust.
 
-### 3 Nov — Design and tasks review *(manual, pending application)*
-Findings to apply before the first task runs:
-1. No project scaffolding task yet: `pyproject.toml` (uv), pinned dependencies, pytest `property` marker, Hypothesis profiles (CI 500 / dev 200), ruff and mypy.
-2. Tests are batched after implementation; they should be paired with each implementation task.
-3. Fixture paths depend on the current working directory.
-4. `load_weights` is re-parsed on every call, so cache it.
-5. Use `yaml.safe_load` (security).
-6. Use tuples, not lists, inside the frozen dataclasses.
-7. Exposure multipliers need a `≤ 1` bound.
-8. The anchor-capture script needs a read-only GitHub token from the environment.
-9. Compare contribution sums with `math.isclose`.
+### 3–8 Nov — Design and tasks review *(manual review, applied 8 Nov by Kiro)*
+Nine findings, all applied before the first task ran (12.7 credits). Kiro restructured the tasks to T0–T12 with paired tests:
+1. Added a project scaffolding task (T0): `pyproject.toml` (uv), pinned dependencies, pytest `property` marker, Hypothesis profiles (CI 500 / dev 200), ruff and mypy.
+2. Tests are now paired with each implementation task, not batched at the end.
+3. Fixture paths resolve from `__file__`, so they don't depend on the working directory.
+4. `load_weights` is cached.
+5. YAML is parsed with `yaml.safe_load` only.
+6. Frozen dataclasses use tuples, not lists.
+7. Exposure multipliers are bounded `0 < m ≤ 1`.
+8. The anchor-capture script reads its token from the environment and is run by me, not the agent.
+9. Contribution sums are compared with `math.isclose`.
 
 ---
 
 <!-- Hook-appended entries continue below this line -->
+
 ### 8 Nov — Spec `mortality-model`: T0.1 (pyproject.toml)
 - **Spec/task:** mortality-model · T0.1 scaffold `backend/pyproject.toml` + `uv.lock`.
 - **Kiro features:** spec (tasks DAG), steering (tech.md pinning rules), agent (spec-task-execution subagent).
 - **Kiro got right:** exact `==` pins for pyyaml and the dev group, `requires-python = "==3.12.*"`, lock verified with `uv lock --check` and `uv sync --locked`.
-- **Corrected:** nothing yet (my review: confirm the added `[tool.uv] package = false` is wanted).
+- **Corrected:** nothing yet (my review: confirm the added `[tool.uv] package = false` is wanted — kept; added `pythonpath = ["."]` and pinned `types-pyyaml` by hand).
 - **Surprise:** task IDs are the full title strings, and the parent id `T0` was rejected by `task_update`; only leaf tasks dispatch.
 
 ### 8 Nov — Spec `mortality-model`: T0.2 (pytest config)
@@ -138,8 +141,8 @@ Findings to apply before the first task runs:
 - **Spec/task:** mortality-model · T0.5 `uv run pytest`, `ruff check`, `mypy --strict core` clean.
 - **Kiro features:** spec (tasks DAG, parent auto-complete), PBT profiles, agent (spec-task-execution subagent).
 - **Kiro got right:** created the empty `core/` package and a placeholder smoke test that proves `ci`=500 / `dev`=200 and the `property` marker; unknown profile fails loudly.
-- **Corrected:** nothing. The task text assumed an "empty package" already existed; the agent had to create it.
-- **Surprise:** mypy flagged `settings.default` as Optional in the smoke test; fixed with an assert. `test_smoke.py` is a placeholder to delete later.
+- **Corrected:** nothing. The task text assumed an "empty package" already existed; the agent had to create it. The placeholder `test_smoke.py` was deleted on 9 Nov once real tests existed.
+- **Surprise:** mypy flagged `settings.default` as Optional in the smoke test; fixed with an assert.
 
 ### 8 Nov — Spec `mortality-model`: T1 (weights + constants) *(manual backfill)*
 - **Spec/task:** mortality-model · T1.1 `weights.v1.yaml`, T1.2 `constants.py`, T1.3 `test_constants.py`.
@@ -151,32 +154,46 @@ Findings to apply before the first task runs:
 - **Spec/task:** mortality-model · T2.1 `types.py`, T2.2 61 unit tests, T2.3 property tests + shared `strategies.py`.
 - **Kiro features:** spec task execution, property-based testing (Hypothesis, `ci` profile).
 - **Kiro got right:** boundary + NaN/inf coverage; reusable strategies; 68 tests passing. 6.39 credits.
-- **Corrected:** strategies used a fixed `as_of`, which can't detect a hidden clock read (see T4 prep).
+- **Corrected:** strategies used a fixed `as_of`, which can't detect a hidden clock read (fixed in the strategy-hardening entry below).
+
+### 8 Nov — Strategy hardening *(manual review + Kiro)*
+- **Problem:** with a fixed `as_of`, a hidden `date.today()` would still pass every test, because results stay consistent within a run.
+- **Changes (Kiro, Haiku 4.5, 4.57 credits):**
+  - `as_of` is drawn randomly (2001–2035);
+  - about 10% of release, push and advisory dates are future-dated, to exercise clamping;
+  - committer counts are biased towards the r5 bucket edges.
+- **Follow-up:** added *time-translation* property tests at the normalise and pipeline levels. Shifting every date by the same delta must give identical results, which proves no wall-clock reads (including in the Cursed age check). Hypothesis discard rate: 4% (8/208).
+- **Lesson:** a randomised input only catches a bug if the property depends on it. "Values stay in [0, 1]" would pass even with a clock read.
 
 ### 8 Nov — Spec `mortality-model`: T3 (weights loader)
-- **Spec/task:** mortality-model · T3.1 `load_weights` + `lru_cache`, T3.2 MM-WGT-5 validation, T3.3 `test_weights.py`.
+- **Spec/task:** mortality-model · T3.1 `load_weights` + cache, T3.2 MM-WGT-5 validation, T3.3 `test_weights.py`.
 - **Kiro features:** spec task execution (sub-agent per leaf), fileMatch steering (mortality-model).
 - **Kiro got right:** `yaml.safe_load` only, `MappingProxyType`, path-resolved cache key, validation before return so failures never cache; 136 tests, ruff + mypy --strict clean.
-- **Corrected:** nothing needed. T3.1 already added a few required-key checks that T3.2 then extended.
-- **Surprise:** ruff UP033 wants `functools.cache`; kept `lru_cache(maxsize=None)` per design D4 with a `noqa`. Task IDs in the DAG are the full task text, not `T3`.
+- **Corrected:**
+  - Kiro had kept `lru_cache(maxsize=None)` with a `noqa` to match the design's wording; replaced by hand with `functools.cache`, since lint rules shouldn't be silenced to match a doc's spelling.
+  - Added validation for `resting_r6_max ∈ [0,1]` and for non-negative `resting_min_weekly_downloads` and `cursed_min_age_days`, with tests, synced across the spec.
+- **Surprise:** task IDs in the DAG are the full task text, not `T3`.
 
 ### 8 Nov — Spec `mortality-model`: T4 (normalisation)
 - **Spec/task:** mortality-model · T4.1 `normalise.py`, T4.2 54 unit tests, T4.3 property tests.
 - **Kiro features:** spec task execution (sub-agent per leaf), fileMatch steering (mortality-model), Hypothesis `ci` profile.
 - **Kiro got right:** `months_between` plus r2–r8 exactly per MM-NOR; tests derive boundaries from `load_weights()`, no hardcoded 12/24; 202 tests pass, ruff + mypy --strict clean.
 - **Corrected:** nothing needed. Property tests found no bugs; the agent added an all-None risks property beyond the task text.
-- **Surprise:** the T2 note about a fixed `as_of` in strategies was already handled by the shared `as_of_dates` strategy.
+- **Surprise:** the first property set only checked ranges, so it could not detect a clock read. That led to the time-translation property.
+
 ### 8 Nov — Spec `mortality-model`: T5 (score)
 - **Spec/task:** mortality-model · T5.1 `score.py`, T5.2 35 unit tests, T5.3 12 property tests (INV-1, 2, 4, SCO-7).
 - **Kiro features:** spec task execution (sub-agent per leaf), fileMatch steering (mortality-model), Hypothesis `ci` profile.
 - **Kiro got right:** S1 override with no scored signals (mortality = `s1_min_score`, confidence 0); no rounding; contributions sum via `math.isclose`; 250 tests pass, ruff + mypy --strict clean.
-- **Corrected:** `SCORED_SIGNAL_IDS` was missing from `normalise.py`, so it was added there. mypy caught a `round(None)` in a test, fixed with an assert.
-- **Surprise:** the loader allows zero weights, so the agent added a zero-weight-sum guard (mortality `None`, confidence 0). No property found a genuine bug.
+- **Corrected:**
+  - `SCORED_SIGNAL_IDS` was missing from `normalise.py`; mypy caught a `round(None)` in a test.
+  - Review found that zero weights break MM-INV-4's "iff": confidence = 1 even without all signals present. The tests passed only because they used the shipped weights. Tightened the loader to require every weight > 0; Kiro's zero-sum guard stays as a defensive check.
+- **Surprise:** passing property tests can still hide a hole if they never try every valid configuration.
 
 ### 8 Nov — Spec `mortality-model`: T6 (classify + overlays)
 - **Spec/task:** T6.1 `classify.py`, T6.2 `test_classify.py`, T6.3 property tests (INV-3, INV-5, INV-8 + None-vs-empty advisories).
 - **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests via shared strategies.
-- **Kiro got right:** **found a design bug** — `compute_wounded(advisories, cursed, s1b)` couldn't distinguish a Cursed no-fix advisory from a fix-pending one, so mixed cases returned Wounded=False. Fixed with a shared per-advisory helper; design.md updated. 303 tests, ruff + mypy --strict clean. 7.88 credits.
+- **Kiro got right:** **found a design bug.** `compute_wounded(advisories, cursed, s1b)` couldn't distinguish a Cursed no-fix advisory from a fix-pending one, so mixed cases returned Wounded=False. Fixed with a shared per-advisory helper; design.md updated. 303 tests, ruff + mypy --strict clean. 7.88 credits.
 - **Corrected:** nothing by me.
 - **Surprise:** the sub-agent flagged the spec gap instead of silently diverging; the three MM-INV properties found no bugs.
 
@@ -184,19 +201,43 @@ Findings to apply before the first task runs:
 - **Spec/task:** T7.1 `priority.py` (`compute_exposure`, `compute_priority`), T7.2 `test_priority.py` (18 unit tests).
 - **Kiro features:** spec task orchestration, sub-agent per leaf task, mortality-model steering.
 - **Kiro got right:** all multipliers read from `Weights`; `(1.0, True)` default for None/empty paths; priority None only when mortality is None; ruff + mypy --strict clean, tests pass.
-- **Corrected:** the T7.1 sub-agent worked from the steering formulas and had not read MM-PRI in requirements.md; the formulas matched on review.
+- **Corrected:** the T7.1 sub-agent worked from the steering formulas and had not read MM-PRI in requirements.md. The formulas matched, but I added a `tech.md` rule: read the referenced requirement IDs first, and requirements win over steering.
 - **Surprise:** `_path_weight` is private, so tests check it through single-path exposure. No spec gaps this time.
 
 ### 8 Nov — Spec `mortality-model`: T8 (deterministic sort)
 - **Spec/task:** T8.1 `sort.py` (`sort_results`), T8.2 `test_sort.py` (12 unit tests), T8.3 MM-INV-7 property tests.
 - **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests, mortality-model steering.
-- **Kiro got right:** scored/Unknown split with `None` services sorted last; duplicate purls rejected; strict-total-order property also checks permutation and shuffle-invariance. 336 tests, ruff + mypy --strict clean.
-- **Corrected:** nothing by me.
+- **Kiro got right:** scored/Unknown split with `None` services sorted last; duplicate purls rejected; the strict-total-order property also checks permutation and shuffle-invariance, and uses small value pools so tie-breakers are exercised. 336 tests, ruff + mypy --strict clean.
+- **Corrected:** removed a `type: ignore` by typing the test parameter properly.
 - **Surprise:** `__init__.py` re-exported `sort_results` already at T8.1; the properties found no bugs.
 
 ### 8 Nov — Spec `mortality-model`: T9 (score_package pipeline)
 - **Spec/task:** T9.1 `score_package` wiring in `__init__.py`, T9.2 `test_pipeline.py` (7 unit tests), T9.3 end-to-end property tests (MM-INV-1, 3, 5, 6).
 - **Kiro features:** spec task orchestration, sub-agent per leaf task, Hypothesis property tests, mortality-model steering.
 - **Kiro got right:** contributions computed pre-S1 while classify gets post-override mortality; `model_version` stamped from Weights; no model parameters hardcoded in tests.
-- **Corrected:** nothing by me.
-- **Surprise:** the T9.3 sub-agent put the property tests in a sibling `test_properties_pipeline.py`, not `test_pipeline.py`. It also couldn't confirm the full-suite counts included its new file.
+- **Corrected:** the determinism test ran the same input twice, which can't catch a clock read. Added a pipeline-level time-translation property covering the Cursed age check.
+- **Surprise:** the T9.3 sub-agent put the property tests in a sibling `test_properties_pipeline.py`. It couldn't confirm the full-suite count; I verified 347 by hand (343 + 4).
+
+### 8 Nov — T10: anchor capture *(manual)*
+- **Work:** Kiro wrote `scripts/capture_anchors.py` (PEP 723, `httpx` pinned). I ran it with a 7-day fine-grained, public-read-only GitHub token entered via `read -rs`. The token is sent only to `api.github.com`, scrubbed from errors, and output is checked for it before writing; the grep confirmed the fixtures are clean.
+- **Expectations derived by hand** from the fixtures using the model formulas, **not** copied from code output:
+  - request, node-uuid and left-pad: Dead (declared);
+  - pycrypto: Dead (score) + Cursed; nose: Dead (score); both at confidence 0.25, since neither has a repo;
+  - express, moment and uuid: Alive + Wounded;
+  - six: Resting at ≈ 43.7.
+- **Surprise 1:** **request is Cursed.** The spike treated its SSRF advisory (GHSA-p8p7-x288-28g6) as fixed, but OSV's affected ranges show no fixed version. It's a deprecated package with an unpatchable hole, which makes the strongest demo case.
+- **Surprise 2:** six isn't borderline. The repo was pushed in Feb 2026, so r3 = 0 and mortality ≈ 44: the textbook "finished, not dead" case.
+
+### 8 Nov — Spec `mortality-model`: T11 (fixture-driven anchor tests)
+- **Spec/task:** T11.1 fixture path resolution, T11.2 `signals_from_fixture` plus one test per package, T11.3 `six` sentinel.
+- **Kiro features:** spec task orchestration, sub-agent delegation, steering rules for anchors.
+- **Kiro got right:** all 9 anchors matched the hand-derived expectations on the first run, with no fixture edits and no weakened assertions.
+- **Corrected:** nothing needed.
+- **Surprise:** the task tool uses the full task text as the ID, so `T11` alone was not found.
+
+### 9 Nov — Spec `mortality-model`: T12 (final gate)
+- **Spec/task:** T12.1 ruff, T12.2 mypy strict, T12.3 CI-profile pytest, T12.4 coverage.
+- **Kiro features:** spec task orchestration, sub-agent delegation, steering testing gates.
+- **Kiro got right:** all gates passed first run: 357 tests (32 property), no Hypothesis counterexamples, 99% coverage on `core/scoring`.
+- **Corrected:** added the missing `pytest-cov==7.0.0` pin for the coverage gate; deleted the placeholder `test_smoke.py` (now 356 tests).
+- **Surprise:** the T12.4 sub-agent ran `git checkout` on `pyproject.toml` without diffing first. I verified the diff against HEAD was only the new pin, and both earlier manual edits survived.

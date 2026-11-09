@@ -64,13 +64,13 @@
   - [x] T10.2 — For each of request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six, write `tests/fixtures/anchors/<package>.json` containing `as_of = "2026-11-03"`, every raw signal value, and the source URL for each signal.
   - [x] T10.3 — Maintainer runs it once and commits the fixtures after reviewing them for secrets.
 
-- [ ] T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output (T10 complete: 9 fixtures committed)**
-  - [~] T11.1 — Resolve fixtures via `Path(__file__).parent / "fixtures" / "anchors"`; no network, no working-directory dependence.
-  - [~] T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package asserting the expectations in MM-ANC-1…9: `base_state`, `dead_reason`, `cursed`, `wounded`, `confidence` (where stated), `exposure == 1.0` and `exposure_assumed is True` for every anchor (paths are null in all fixtures), and `mortality == thresholds.s1_min_score` for left-pad.
-  - [~] T11.3 — `six`: assert Resting with no overlays and `thresholds.ailing ≤ mortality < thresholds.dead`; record mortality as a "borderline sentinel" of ≈ 43.7, asserted with an absolute tolerance of 0.5.
+- [x] T11 — `tests/test_anchors.py` (MM-ANC-1…9) — **depends on T10 output (T10 complete: 9 fixtures committed)**
+  - [x] T11.1 — Resolve fixtures via `Path(__file__).parent / "fixtures" / "anchors"`; no network, no working-directory dependence.
+  - [x] T11.2 — Implement `signals_from_fixture` (building tuples for `s7_advisories` / `paths`) and one test per package asserting the expectations in MM-ANC-1…9: `base_state`, `dead_reason`, `cursed`, `wounded`, `confidence` (where stated), `exposure == 1.0` and `exposure_assumed is True` for every anchor (paths are null in all fixtures), and `mortality == thresholds.s1_min_score` for left-pad.
+  - [x] T11.3 — `six`: assert Resting with no overlays and `thresholds.ailing ≤ mortality < thresholds.dead`; record mortality as a "borderline sentinel" of ≈ 43.7, asserted with an absolute tolerance of 0.5.
 
-- [ ] T12 — Final gate
-  - [~] T12.1 — `uv run ruff check` and `uv run ruff format --check` clean.
-  - [~] T12.2 — `uv run mypy --strict core` clean.
-  - [~] T12.3 — `HYPOTHESIS_PROFILE=ci uv run pytest` green (`max_examples=500`), including `-m property` and `test_anchors.py`.
-  - [~] T12.4 — Confirm 85% line coverage on `backend/core/scoring` (testing.md gate).
+- [x] T12 — Final gate
+  - [x] T12.1 — `uv run ruff check` and `uv run ruff format --check` clean.
+  - [x] T12.2 — `uv run mypy --strict core` clean.
+  - [x] T12.3 — `HYPOTHESIS_PROFILE=ci uv run pytest` green (`max_examples=500`), including `-m property` and `test_anchors.py`.
+  - [x] T12.4 — Confirm 85% line coverage on `backend/core/scoring` (testing.md gate).
