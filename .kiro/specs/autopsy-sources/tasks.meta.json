@@ -1,0 +1,321 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "T0.1 — From `backend/` run `uv add \"httpx==0.28.1\"`. This is the only task that changes dependencies. Check that `pyproject.toml` now holds the exact pin `httpx==0.28.1` (no `>=`, no `latest`), that `uv.lock` resolves `httpx` to 0.28.1, and list the transitive packages `uv` added (expected: `anyio`, `certifi`, `httpcore`, `h11`, `idna`, possibly `sniffio`). Add no dev dependency. **If `uv` resolves another httpx version, or the command fails, stop and ask.** Report `git diff --stat backend/pyproject.toml backend/uv.lock`.": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309506059
+      },
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309530718
+      }
+    ],
+    "T0.2 — Create the package skeletons, each `__init__.py` with a module docstring only (purpose; for `core/sources` the D1/D3/D4/D5/D11 summary; for `sources` the same plus \"imports `core.sources`, never `core.scoring`\"): `backend/core/sources/`, `backend/core/sources/parse/`, `backend/core/sources/tests/` (with `__init__.py`, matching `core/scoring/tests/__init__.py`), `backend/core/sources/tests/fixtures/recorded/` (empty directory with a `.gitkeep`), `backend/sources/`, `backend/sources/clients/`, `backend/sources/tests/` (with `__init__.py`).": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309534372
+      },
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309582081
+      }
+    ],
+    "T0.3 — Edit `backend/pyproject.toml`: `[tool.pytest.ini_options] testpaths = [\"core\", \"sources\"]`, `[tool.mypy] files = [\"core\", \"sources\"]`, `[tool.ruff.lint.isort] known-first-party = [\"core\", \"sources\"]`. Leave everything else unchanged. Run `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core sources` and `uv run pytest -q`: all green and the existing suites still collected.": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309587373
+      },
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309660957
+      }
+    ],
+    "T0.4 — Guard tests that cover every later module automatically. `core/sources/tests/test_purity.py` (SRC-PURE-1), modelled on `core/graph/tests/test_purity.py`: parametrised by glob over `core/sources/*.py` and `core/sources/parse/*.py`; fails on the forbidden imports (`httpx`, `socket`, `asyncio`, `os`, `subprocess`, `logging`, `warnings`, `time`, `random`, `secrets`, `shutil`, `tempfile`, `urllib.request`, `http`), relative imports, imports from `sources`, `workflow`, `rites`, `narrate`, calls to `open`, `print`, `input`, `datetime.now`, `datetime.utcnow`, `date.today`, and for any `core.scoring` import other than `core.scoring.types` unless the file is `resting.py`. `sources/tests/test_silence.py` (SRC-PURE-2, SRC-DEP-4), glob over both packages: no `os` import, no `environ` or `getenv` attribute use, no `print`/`input`, no `logging`, no `warnings`; in `sources/`, `httpx` is imported only by `gateway.py`, `session.py`, `api.py`, `time` and `datetime.now` only by `clock.py`, and nothing imports `core.scoring`. Add a test that each glob finds at least `__init__.py`, and that a deliberately bad sample string is rejected by the same checker function (so the guards cannot pass vacuously).": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794309665324
+      },
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794310565218
+      }
+    ],
+    "T0.5 — Confirm `.kiro/steering/structure.md` already describes `core/sources/` and `sources/` (updated with this spec): `grep -n \"core/sources\\|backend/sources\" .kiro/steering/structure.md` shows the layout lines and the separation rules.": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794310569145
+      },
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794310600286
+      }
+    ],
+    "T0 — Scaffold, pinned `httpx`, packaging and guard tests (SRC-DEP-1…4, SRC-PURE-1, SRC-PURE-2, D1)": [
+      {
+        "executionId": "3a56bd52-6a50-45da-bd90-32c46ca191df",
+        "chatSessionId": "sess_b8fadf29-986c-4adf-bf0f-e08540adc807",
+        "timestamp": 1794310600350
+      }
+    ],
+    "T1.1 — Implement `model.py` per design §3: `JsonValue`, `Evidence` (with the `__post_init__` invariants), `SourceWarning`, `ItemError`, `SourceResult` (exactly one of `signals` / `error`; read-only `evidence`), `SourceStats`, `BatchResult`, `WARNING_CODES`, `SOURCE_NAMES`, `EVIDENCE_KEYS` (11 keys in the order of the anchor fixtures). `Evidence` and `SourceWarning` apply the token-shape redaction from `secret.py` in `__post_init__`, truncate `detail` to 200 characters, and sort `signals` / `extra_source_urls`.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794310820767
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311425108
+      }
+    ],
+    "T1.2 — Implement `secret.py`: `SecretToken` (not a dataclass; non-empty, no whitespace or control characters, at most 255 characters, else `ValueError` without echoing the value; redacted `__repr__` / `__str__`; `__reduce__` raises `TypeError`; `reveal()`), and `redact(text, token=None)` (exact token plus the shapes `gh[pousr]_[A-Za-z0-9]{20,}` and `github_pat_[A-Za-z0-9_]{20,}`). No environment access.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311428978
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311494790
+      }
+    ],
+    "T1.3 — Implement `config.py`: `HostPolicy`, `Timeouts`, `RetryPolicy`, `CachePolicy`, `Limits`, `SourcesConfig` (with `SourcesConfig.default(contact=...)` using design §4.3 values). `__post_init__` validates: `hosts` keys equal `ALLOWED_HOSTS` exactly, positive limits, non-negative intervals, `contact` non-empty without control characters, `max_attempts >= 1`, TTLs positive. Reads no environment.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311500070
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311580236
+      }
+    ],
+    "T1.4 — Implement `clock.py` (the `Clock` Protocol only) and `urls.py`: `ALLOWED_HOSTS`, `NPM_BULK_MAX = 128`, and one builder per endpoint of design §6 (deps.dev version, package, project; Scorecard; npm packument; PyPI JSON; npm downloads single and bulk; pypistats; OSV querybatch and vuln; GitHub GraphQL), each taking validated components and quoting every segment with `quote(..., safe=\"\")`. The bulk builder takes names that already satisfy the bulk-safe pattern and raises `ValueError` otherwise; `is_bulk_safe(name)` is exported. OSV id validation (`[A-Za-z0-9_.:-]{1,100}`) lives here as `is_valid_osv_id`.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311583423
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311659461
+      }
+    ],
+    "T1.5 — Implement `accessors.py`: `as_mapping`, `as_list`, `as_str`, `as_bool`, `as_int(minimum=0)` (rejects `bool`, floats, negatives), `as_score` (rejects `bool`, non-finite, outside [0, 10] except −1), `as_date` (ISO 8601 → UTC date, else `None`). All return `None` on anything unexpected and never raise.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311663839
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311718666
+      }
+    ],
+    "T1.6 — Implement `cassette.py`: frozen `CassetteEntry` / `Cassette`, `request_key(method, url, body)` (SHA-256 of canonical JSON: sorted keys, compact separators), `cassette_from_obj(obj)` and `cassette_to_obj(cassette)` over already-parsed JSON (no file I/O), entries sorted by `(url, hash)`.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311721501
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311801278
+      }
+    ],
+    "T1.7 — Unit tests: `test_model.py` (evidence invariants, `SourceResult` xor rule, read-only mappings, truncation, sorting, closed code sets), `test_secret.py` (redacted repr/str/format, pickling refused, invalid tokens rejected without echo, `redact` on exact and shaped tokens), `test_config.py` (default valid; a missing or extra host key raises; each invalid value raises), `test_urls.py` (scoped npm `@babel/core` → `%40babel%2Fcore`; PyPI version `1.0+local` → `1.0%2Blocal`; project key `github.com/o/r` → `github.com%2Fo%2Fr`; bulk URL joins quoted names with literal commas; `is_bulk_safe` rejects `a,b`, `@s/x`, ``; OSV id validation), `test_accessors.py` (`True` is not an int, `float('nan')`, `-1` score, bad dates, time zones converted to UTC), `test_cassette.py` (hash stable under key order, differs for different bodies, round trip).": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794311805228
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794312113392
+      }
+    ],
+    "T1.8 — Property tests in `test_properties_foundation.py` (`@pytest.mark.property`): `test_redact_removes_token` (any token and any text containing it → output without it), `test_evidence_never_holds_token_shape`, `test_url_hostname_always_allowed` (for generated valid npm and PyPI purls and repos, every builder's URL has a hostname in `ALLOWED_HOSTS`, scheme `https`, no userinfo, port or fragment), `test_url_segments_are_quoted` (no builder output contains an unquoted `/` inside a package-name segment), `test_accessors_total` (arbitrary JSON-like input never raises), `test_config_roundtrip_validation`, `test_request_key_stable`.": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794312116863
+      },
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794312898000
+      }
+    ],
+    "T1 — Pure foundation: `model.py`, `secret.py`, `config.py`, `clock.py`, `urls.py`, `accessors.py`, `cassette.py` + tests (SRC-API-2/3, SRC-SEC-1/3/4, SRC-HTTP-2/3, SRC-WARN-2/3, SRC-PURE-3)": [
+      {
+        "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
+        "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",
+        "timestamp": 1794312898044
+      }
+    ],
+    "T2.1 — Implement `facts.py` per design §3 (`DepsDevVersion`, `DepsDevPackage`, `DepsDevProject`, `NpmRegistry`, `NpmFull`, `PypiDoc`, `Downloads`, `OsvIds`, `OsvVuln`, `GitHubRepo`), each frozen with `to_json()` and `from_json(obj)` that returns `None` on any mismatch (wrong type, extra or missing key, out-of-domain value).": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314029633
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314193969
+      }
+    ],
+    "T2.2 — Implement `parse/depsdev.py`: `parse_version` (`isDeprecated` only if `bool`; `publishedAt` via `as_date`; repo candidates from `relatedProjects` with `SOURCE_REPO`, then `links` with `SOURCE_REPO`, order preserved), `parse_package` (the single `isDefault: true` entry's `versionKey.version`; zero or several → `None`), `parse_project` (Scorecard `overallScore` and the `Maintained` check score through `as_score`; `has_scorecard`). Ported from the prototype's `depsdev_repo` and `collect_scorecard`.": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314198009
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314327727
+      }
+    ],
+    "T2.3 — Implement `parse/registry.py`: `parse_npm_abbreviated(data, resolved)` (`dist-tags.latest`, truthiness of `deprecated` for latest and resolved, `resolved_found`), `parse_npm_full(data, latest)` (`time[latest]`, `repository` string or `{url}`), `parse_pypi(data, resolved)` (`info.version`; earliest `upload_time_iso_8601` among `urls`, fallback `releases[latest]`; `resolved_found` from `releases` keys, `None` when the key is absent; label-ordered candidates per SRC-REPO-5). Lifted from `collect_registry_npm`, `collect_registry_pypi`, `pypi_release_date`, `pypi_repo`.": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314331457
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314458942
+      }
+    ],
+    "T2.4 — Implement `parse/downloads.py` (`parse_npm_single`, `parse_npm_bulk(data, requested)` per design §6.3, `parse_pypistats`) and `parse/scorecard.py` (`parse_scorecard_api`).": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314462341
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314592651
+      }
+    ],
+    "T2.5 — Unit tests with hand-built documents in the shapes recorded in design §6 (real-body tests land in T13): one file per parser, covering each field, each fallback order, `bool`-for-`int`, negative counts, `-1` and out-of-range scores, empty and non-mapping input, `null` bulk entries, missing requested keys, unrequested keys, one `isDefault` / none / two. `test_facts.py`: `from_json(to_json(f)) == f` for hand-built facts, and `from_json` rejects each malformed variant.": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314596725
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314873144
+      }
+    ],
+    "T2.6 — Property tests in `test_properties_parse.py`: `test_parsers_total` (SRC-TEST-4: every parser, arbitrary `json_like()` input from `tests/strategies.py`, returns a value or `None`, never raises), `test_facts_roundtrip` (generated facts), `test_facts_from_json_total`, `test_npm_bulk_only_requested_keys` (output keys equal the requested set for any response), `test_pypi_candidates_label_order` (priority labels first, remaining sorted, duplicates keep first position).": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794314877471
+      },
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794319238678
+      }
+    ],
+    "T2 — Facts and parsers for deps.dev, registries, downloads, Scorecard (SRC-S1…S4, S8, SRC-S9-1/2, SRC-LAT-1, SRC-REPO-5; SRC-TEST-4)": [
+      {
+        "executionId": "b502ad39-b3cf-455e-ab7d-0b0fc195dd1c",
+        "chatSessionId": "sess_fe3b649f-4b53-43b8-917c-45ab4f284349",
+        "timestamp": 1794319238770
+      }
+    ],
+    "T3.1 — Implement `osv_fix.py`: `fixed_versions(vuln, ecosystem, name)` and `has_fix`, per design §6.1 (ecosystem equality, PEP 503 name equality via `normalise_pypi_name`, skip `GIT`, valid `fixed` strings only). Ported from the prototype's `osv_fixed_versions` with explicit type checks.": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794319342781
+      },
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794319468817
+      }
+    ],
+    "T3.2 — Implement `parse/osv.py`: `parse_query_results(data, expected_count)` (list of `(ids, next_page_token)` per query, or `None` on a length mismatch or wrong shape), `parse_vuln(data, ecosystem, name)` → `OsvVuln` (`withdrawn`, `published_at`, `fixed_versions`, `has_fix`), and `to_advisory(vuln)` → `core.scoring.types.Advisory`. Ids failing `is_valid_osv_id` are dropped and counted.": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794319472227
+      },
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794319635224
+      }
+    ],
+    "T3.3 — Write the independent oracle in `tests/oracles.py`: `has_fix_oracle(doc, ecosystem, name)` flattens the document into `(path, value)` pairs with an explicit stack and answers by path pattern (`affected/i/ranges/j/events/k/fixed`, with the package match on `affected/i/package` and `ranges/j/type != \"GIT\"`). It must not import `core.sources.osv_fix` or `parse` (check by `ast`). Add `osv_vuln_docs()` to `tests/strategies.py`: several `affected` entries, mixed ecosystems and name spellings (`Flask_SQLAlchemy`, `flask-sqlalchemy`), `SEMVER`/`ECOSYSTEM`/`GIT` ranges, `introduced`/`fixed`/`last_affected`/`limit` events, absent, empty and wrongly typed fields.": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794319638961
+      },
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794320498757
+      }
+    ],
+    "T3.4 — Unit tests (`test_osv_fix.py`, `test_parse_osv.py`) with hand-built documents shaped like the anchors: a two-advisory fixable package (express-like), a no-fix advisory (request-like), a no-fix package with four advisories (pycrypto-like), a GIT-only range, `last_affected` only, a `fixed` of the wrong type, an empty `fixed`, a `fixed` with unexpected characters, a withdrawn advisory, `published` missing and unparsable, a length-mismatched `results` list, `next_page_token` handling.": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794320503356
+      },
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794320756761
+      }
+    ],
+    "T3.5 — Property tests in `test_properties_osv_fix.py`: `test_has_fix_matches_oracle`, `test_has_fix_ignores_git_and_last_affected` (adding or removing a `GIT` range or a `last_affected` event never changes the result), `test_valid_fixed_event_makes_fix` (adding a valid `fixed` event to a matching non-`GIT` range makes `has_fix` true), `test_fixed_versions_sorted_unique_valid`, `test_parse_vuln_total`.": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794320760270
+      },
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794321112825
+      }
+    ],
+    "T3 — OSV: `osv_fix.py`, `parse/osv.py` + oracle (SRC-OSV-4/5/7; SRC-TEST-3)": [
+      {
+        "executionId": "3334dcbe-6e40-4073-83f5-7b524d12b4eb",
+        "chatSessionId": "sess_b7d6695a-c6a5-4b00-a59e-ed78bcca5b40",
+        "timestamp": 1794321112913
+      }
+    ]
+  }
+}

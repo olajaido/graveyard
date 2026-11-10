@@ -398,3 +398,31 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Result:** chain 5,000 1.80 s to 0.11 s; ring 5,000 1.83 s to 0.11 s; chain 20,000 41.4 s to 0.47 s. 617 tests in `core/graph` pass unchanged, 120 property tests pass under `HYPOTHESIS_PROFILE=ci`, ruff and `mypy --strict` clean. A throwaway check of `capped_path_counts` against `len(list(back_paths(...)))` on 400 random graphs and four caps found no mismatches.
 - **Added:** three build-only timing tests in `test_scale.py`: chain and ring of 5,000 at 0.5 s, and a 20,000-package chain at 2 s (each 4x margin). The 20,000 case passes `max_components=20_001` because the root application component also counts toward the cap.
 - **Surprise:** T8 checked correctness against the oracle but its scale tests passed on the x4 margin alone (T10 noted 2.1–2.4 s against a 2 s budget). A margin that loose hid a 17x regression, so the new tests use the tighter, build-only budgets.
+
+### 10 Nov — Spec `autopsy-sources`: T0 (scaffold, pinned httpx, guard tests)
+- **Spec/task:** T0.1–T0.5. `httpx==0.28.1` pinned via `uv add`; package skeletons for `core/sources` and `sources`; `sources` added to pytest, mypy and ruff config; AST guard tests `test_purity.py` and `test_silence.py`; steering check.
+- **Kiro features:** task DAG tools with subagent dispatch per leaf task; `uv run` gates (ruff, mypy --strict, pytest).
+- **Kiro got right:** `uv` added `anyio`, `certifi`, `h11`, `httpcore`, `idna` and no `sniffio`, with no existing package changing version. Gates stayed green (1255 tests after T0.3; 118 in the two new guard files). The guards glob their modules, so later modules are covered automatically, and each rule has a bad-sample test.
+- **Corrected:** the purity test gained a check that fails if a new sub-package escapes the two globs.
+- **Surprise:** SRC-DEP-3 says both packages import `Signals` from `core.scoring.types`, but SRC-DEP-4, `structure.md` and the T0.4 text say `sources/` imports no `core.scoring` at all. The guard follows the strict reading. Left open for the maintainer.
+
+### 10 Nov — Spec `autopsy-sources`: T1 (pure foundation)
+- **Spec/task:** T1.1–T1.8. `model.py`, `secret.py`, `config.py`, `clock.py`, `urls.py`, `accessors.py`, `cassette.py` in `core/sources`, with unit and property tests.
+- **Kiro features:** task DAG tools with one subagent per leaf task; `uv run` gates (ruff, mypy --strict, pytest); Hypothesis `ci` profile for the property tests.
+- **Kiro got right:** all gates green at the end (1910 tests, 14 property tests under `ci`). `core/sources` stayed pure: the glob-based purity guard needed no change. Every builder URL is https on an allowed host with each segment quoted.
+- **Corrected:** `redact()` could return text that still held the token. Replacing the token with `[REDACTED]` can re-form it from neighbouring text, and the shape pass can re-add it. Hypothesis found both within a few examples. Fix: repeat both steps until a pass changes nothing, and delete the token if it survives a replacement.
+- **Surprise:** `urls.py` also rejects `.` and `..` segments, since `quote` leaves them unchanged and clients can normalise them into path traversal. `is_valid_osv_id` still accepts them, so `osv_vuln_url(".")` raises `ValueError` anyway.
+
+### 10 Nov — Spec `autopsy-sources`: T2 (facts and parsers)
+- **Spec/task:** T2.1–T2.6. `facts.py` (10 frozen facts with `to_json`/`from_json`), parsers for deps.dev, npm/PyPI registries, downloads and Scorecard, with unit and property tests.
+- **Kiro features:** task DAG tools with one subagent per leaf task; `uv run` gates (ruff, mypy --strict, pytest); Hypothesis `ci` profile (151 property tests, about 190 s).
+- **Kiro got right:** every parser returns a fact or `None` for any input, and every fact round-trips through JSON. Final gates: 2522 tests, ruff and mypy clean. The purity guard covered the new `parse/` modules with no change.
+- **Corrected:** the first generators almost never reached the parsers' inner branches (`parse_package` found an `isDefault` entry about once in 2000 examples). Document-shaped strategies lifted branch coverage to 100% on three parsers, 97% on `registry.py` and `facts.py`.
+- **Surprise:** the spec leaves open what `has_scorecard` means for the Scorecard API and which `Maintained` check wins when duplicated. Chosen: true if a `score` key or `checks` list exists; the first check wins. Both are documented and tested.
+
+### 10 Nov — Spec `autopsy-sources`: T3 (OSV fix detection and parsers)
+- **Spec/task:** T3.1–T3.5: `osv_fix.py`, `parse/osv.py`, independent `has_fix` oracle, `osv_vuln_docs()` strategy, unit and property tests.
+- **Kiro features:** spec-driven task dispatch to the task-execution sub-agent, with a PostTaskExec journal hook after each leaf task.
+- **Kiro got right:** the oracle flattens the document into `(path, value)` pairs and imports only `re`, enforced by an `ast` test. The oracle and `has_fix` agreed on 3000 generated documents and found no bug.
+- **Corrected:** a weighted-choice helper repeating strategies inside `st.one_of` produced multi-hundred-MB Hypothesis reprs. A composite helper drawing a weighted integer replaced it.
+- **Surprise:** the spec left a non-str `next_page_token` open. Chosen: the whole chunk is malformed, so a bad token cannot hide advisories behind a Cursed state (SRC-OSV-6).

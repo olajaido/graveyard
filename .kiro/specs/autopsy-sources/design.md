@@ -71,7 +71,7 @@ backend/core/sources/                 # PURE HALF: no httpx, asyncio, os, loggin
     ├── recorded.py      # load cassette JSON, fetch a recorded body by URL (for parser tests)
     └── test_*.py        # §12
 
-backend/sources/                      # I/O HALF: imports core.sources, never core.scoring (SRC-DEP-4)
+backend/sources/                      # I/O HALF: imports core.sources; from core.scoring only core.scoring.types (SRC-DEP-4)
 ├── __init__.py          # autopsy_async, autopsy, SourceSession, SourceCache, MemoryCache, SystemClock
 ├── api.py               # autopsy_async, autopsy (sync wrapper)
 ├── clock.py             # SystemClock (time.monotonic, datetime.now, asyncio.sleep)
@@ -243,7 +243,7 @@ Why those caps: measured on 10 Nov 2026, the largest anchor bodies are the expre
 | `max_packages_per_call` | 1,000 |
 | `max_vuln_details_per_package` / `per_batch` | 200 / 5,000 |
 | `max_history_pages` | 10 |
-| `github_rate_floor` (points) | 200 |
+| `github_rate_floor` (points, must be ≥ 1: a floor of 0 can never trigger) | 200 |
 | Cache TTLs: default, pypistats | 86,400 s, 604,800 s |
 
 The npm bulk limit (128 names) is a code constant next to the URL builder, because it is a property of the npm API, not a tuning knob. `contact` is required (no default) and must contain no control characters.
@@ -376,6 +376,8 @@ ids = union over packages; fetch each once, bounded by Limits; per package: if |
 S7(pkg) = None if ANY of {chunk, page, detail fetch for one of its ids} failed or capped     # SRC-OSV-6
         = tuple(sorted(Advisory(id, has_fix, published_at) for vuln in details if not withdrawn))
 ```
+
+**Malformed `next_page_token` fails closed.** `parse_query_results` returns `None` for the whole chunk when any result's `next_page_token` is present but neither `null` nor a `str` (a number, a list, a mapping, a `bool`). The alternative, treating an unusable token as "no further page", would end paging early: the advisories on the pages we never fetched are silently missing, a package that should read Cursed (a no-fix advisory on page 2) could read clean, and S7 would be a confident `()` or a short list instead of unknown. That is the one error we cannot afford, because S7 distinguishes `None` (unknown) from `()` (known empty) (`mortality-model.md`). Failing the chunk costs a known, visible loss (S7 `None` with a warning for the packages in that chunk, fixable by a retry or a later run) and keeps SRC-OSV-6 true. One bad token also rejects the sibling queries in the same chunk: OSV answers with one `results` array, and a response that breaks the documented shape is not trusted for any of its entries. An absent, `null` or empty-string token still means "no further page", which is what a normal last page looks like. Covered by `test_parse_osv.py` (wrong-type token, sibling rejection) and `test_properties_osv_fix.py` (arbitrary token JSON either is a `str` or rejects the chunk).
 
 `osv_fix.fixed_versions(vuln, ecosystem, name)`:
 
@@ -621,7 +623,7 @@ Pure-half tests are in `backend/core/sources/tests/`, I/O-half tests in `backend
 
 | File | Covers |
 |---|---|
-| `test_silence.py` | SRC-PURE-2 |
+| `test_silence.py` | SRC-PURE-2, SRC-DEP-4: `check_silence` allows exactly `core.scoring.types` in `sources/`; bad samples for the package, `from core.scoring import types`, `score`, `weights`, `classify`, `normalise`, `priority`, `sort`, `constants`, and a name that only starts with `core.scoring.types` |
 | `test_limiter.py`, `test_properties_limiter.py` | SRC-TEST-8 on `FakeClock` |
 | `test_gateway.py` | SRC-TEST-10 |
 | `test_cache.py`, `test_properties_cache.py` | SRC-TEST-13; model-based random put/get/advance vs a dict model |
