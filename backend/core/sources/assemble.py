@@ -94,7 +94,7 @@ FEEDS: Final[Mapping[str, tuple[str, ...]]] = MappingProxyType(
         "depsdev_package": (_S1, _S1B, _S2),
         "depsdev_project": (_S4, _S8),
         "scorecard": (_S4, _S8),
-        "npm_registry": (_S1, _S1B),
+        "npm_registry": (_S1, _S1B, _S2),  # S2: no latest version, no release date to look up
         "pypi": (_S2,),
         "npm_full": (_S2,),
         "osv": (_S7,),
@@ -553,6 +553,14 @@ def assemble(
 
     latest, latest_via = resolve_latest(purl.ecosystem, facts)
     from_depsdev = latest_via == "depsdev"
+    registry_doc = facts.registry_npm if npm else facts.registry_pypi
+    if registry_doc is not None and latest_via != "registry":
+        # The registry answered but named no usable latest version (SRC-LAT-1: "Ok without a
+        # usable latest version"). That is an unexpected shape, reported like any other; when
+        # the deps.dev fallback recovered the latest version the warning names no signal
+        # (SRC-LAT-2: "the registry warning is still reported").
+        label = "npm_registry" if npm else "pypi"
+        derived.append(Failure("UNEXPECTED_SHAPE", label, None, FEEDS[label]))
 
     # --- GitHub (S1 part, S3, S5, S6) ---
     github_gap = NOTE_NO_REPO
@@ -710,7 +718,7 @@ def assemble(
             )
             break
     if s2 is None:
-        ev[_S2] = _missing(NOTE_LATEST_UNKNOWN if latest is None else gap(_S2, NOTE_S2_UNAVAILABLE))
+        ev[_S2] = _missing(gap(_S2, NOTE_LATEST_UNKNOWN if latest is None else NOTE_S2_UNAVAILABLE))
 
     # --- S4 and S8: one document ---
     s4: float | None = None

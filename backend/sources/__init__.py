@@ -34,3 +34,17 @@ D11, untrusted text: response bodies are never copied into evidence, notes or
 warnings. Only parsed, validated scalar fields and fixed message templates
 are.
 """
+
+from sources.api import autopsy, autopsy_async
+from sources.cache import MemoryCache, SourceCache
+from sources.clock import SystemClock
+from sources.session import SourceSession
+
+__all__ = [
+    "MemoryCache",
+    "SourceCache",
+    "SourceSession",
+    "SystemClock",
+    "autopsy",
+    "autopsy_async",
+]

@@ -21,7 +21,8 @@ Domains, enforced on decode (SRC-SEC-4, SRC-API-6):
 * a ``GitHubRepo`` with ``found`` false has no other data, and
   ``committers_lower_bound`` implies ``committers`` is set;
 * ``repo_candidates`` hold raw strings in priority order. They are not trusted: the
-  consumer reduces each through ``core.purl.normalise_repo_url``.
+  consumer reduces each through ``core.purl.normalise_repo_url``, and the cache stores only
+  the reduced forms (``reduced_repo_candidates``), never the raw text.
 
 Constructing a fact directly does not validate it; the parsers build facts from values
 that already came through ``core.sources.accessors``.
@@ -32,11 +33,12 @@ Pure: no I/O, no clock, no environment.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date
 from typing import ClassVar, Final, Self
 
+from core.purl import normalise_repo_url
 from core.sources.accessors import (
     as_bool,
     as_date,
@@ -55,6 +57,24 @@ _VERSION: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+!~-]{0,99}")
 def is_valid_version(value: str) -> bool:
     """True if ``value`` matches ``[A-Za-z0-9][A-Za-z0-9._+!~-]{0,99}`` (SRC-SEC-4)."""
     return _VERSION.fullmatch(value) is not None
+
+
+def reduced_repo_candidates(candidates: Iterable[str]) -> list[JsonValue]:
+    """The repo candidates as the cache stores them: ``github.com/<owner>/<repo>`` only.
+
+    A candidate is a raw string from a response, so its text is untrusted: it can be any
+    description-like text, or an echo of a credential. The cache keeps what
+    ``normalise_repo_url`` makes of each one, in the same order, and drops a candidate it
+    rejects. Repository resolution does exactly that with a raw candidate (SRC-REPO-2) and
+    the reduced form is its own fixed point, so a decoded fact resolves to the same
+    repository as the fresh one (SRC-SEC-3, SRC-SEC-4).
+    """
+    out: list[JsonValue] = []
+    for raw in candidates:
+        reduced = normalise_repo_url(raw)
+        if reduced is not None:
+            out.append(reduced)
+    return out
 
 
 class _Reject(Exception):

@@ -457,6 +457,576 @@
         "chatSessionId": "sess_99a06929-c67e-4f9f-84a2-0891b8a8256e",
         "timestamp": 1794333021513
       }
+    ],
+    "T7.1 — Implement `sources/clock.py` (`SystemClock`) and `sources/tests/clock.py` (`FakeClock`, design §4.2). Implement `sources/limiter.py` (`HostLimiter`, design §4.5: semaphore, slot assignment under a lock, `penalise`).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867431
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333875242
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334084598
+      }
+    ],
+    "T7.2 — Implement `sources/gateway.py`: `ApiRequest`, `Ok`, `NotFound`, `Failed`, `HttpGateway` per design §4.4 and SRC-HTTP-2…11: allow-list check, batch deadline, retry loop with full-jitter backoff (injectable `random.Random`), `Retry-After` in both forms, per-host limiters, per-request `asyncio.timeout`, streaming size cap on decoded bytes, content-type check, strict JSON, 3xx refusal, GitHub 403 handling, per-request `Authorization` for `api.github.com` only, `trust_env=False`, `follow_redirects=False`, cookie jar cleared, injected `transport`, `redact()` on every produced string. The prototype's `Http.request` is the starting point.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867512
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334088446
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334381238
+      }
+    ],
+    "T7.3 — Implement `sources/tests/transports.py` (all `httpx.MockTransport`): `replay_transport(cassette)` returning `(transport, log)` with `log.unmatched`; `fault_transport(handler, plan)` with the fault kinds of design §12 and the `times` counter keyed by request key; `counting_handler(handler)`; `slow_body_response(chunks, delay)` (async-iterator body for the slow-drip test); `json_response(...)` helper.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867577
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334385305
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334836666
+      }
+    ],
+    "T7.4 — Unit tests `test_limiter.py` and `test_gateway.py` (SRC-TEST-10) on `FakeClock`: allow-list (other host, `http`, port, userinfo, fragment → `HOST_NOT_ALLOWED` with no request sent); 3xx → `REDIRECT_REFUSED` and the `Location` URL is never requested; 404 as `NotFound` only when allowed; `Content-Length` over the cap; streamed over-cap body; a gzip body that expands past the cap; `NaN`, `Infinity`, 100,000 nested `[`, invalid UTF-8 → `INVALID_JSON`; wrong content type; `application/vnd.npm.install-v1+json` accepted; retries on 429/500/502/503/504 and on `ReadTimeout`/`ConnectError`, success after retry, give-up after `max_attempts`; backoff within `[0, min(cap, base·2^n)]`; `Retry-After` seconds, HTTP-date, over the cap and over the remaining deadline → `RATE_LIMITED` without sleeping; sibling tasks delayed by a penalty; batch deadline → `DEADLINE_EXCEEDED`; a slow-drip body against a real 50 ms per-request deadline; `Authorization` present on `api.github.com` requests only and never on others; `trust_env` off (proxy environment variables ignored); cookie from a `Set-Cookie` is not sent on the next request; `Failed` carries no body or header text.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867622
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794334841716
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794335697834
+      }
+    ],
+    "T7.5 — Property tests in `test_properties_limiter.py` and `test_properties_gateway.py`: `test_limiter_invariants` (SRC-TEST-8: for generated task sets and policies on `FakeClock`, concurrent holders ≤ `max_concurrency`, consecutive slot starts ≥ `min_interval` apart, a penalty delays every later start); `test_gateway_never_raises` (generated sequences of faults from `fault_transport` always give `Ok | NotFound | Failed`); `test_backoff_bounds`; `test_failed_has_no_untrusted_text` (random bodies and headers never appear in `Failed`).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867663
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794335701713
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794336550954
+      }
+    ],
+    "T7.6 — Token secrecy at gateway level (first half of SRC-TEST-11) in `test_security.py`: a distinctive token passed to the gateway never appears in any `Failed`, in any exception raised by a hostile handler (the handler raises with the `Authorization` header in the message), in `repr`/`str` of the gateway, or in the request sent to a non-GitHub host.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867710
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794336554511
+      },
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794336862221
+      }
+    ],
+    "T8.1 — Implement `sources/cache.py`: `CacheEntry`, `SourceCache` Protocol, `MemoryCache(clock, max_entries)` (TTL by `monotonic()`, LRU eviction, values kept as JSON strings), the single-flight helper, `cache_key(namespace, subject)` (`v1#…`), and `cached_call` returning `Found | Absent | Failed` with the original `fetched_at` preserved on hits, no caching of `Failed`, and `CACHE_ERROR` handling for raising or undecodable entries.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867748
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337003395
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337270327
+      }
+    ],
+    "T8.2 — Unit tests `test_cache.py`: TTL expiry on `FakeClock`; LRU eviction order; mutation of a returned value does not change the stored one; `Failed` not stored; `Absent` stored; hit keeps the original `fetched_at`; a cache that raises on `get` or `put` yields a miss/ignored write plus a warning; a stored value that fails `codec.decode` is a miss plus a warning; N concurrent equal lookups run the fetch once; key format; GitHub keys differ by `as_of`; bulk population (one entry per name).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867807
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337274170
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337536666
+      }
+    ],
+    "T8.3 — Property tests in `test_properties_cache.py`: `test_cache_matches_dict_model` (model-based: random `put`/`get`/`advance`/`evict` sequences against a dict-with-expiry model, bounded size), `test_cache_roundtrip_json`, `test_single_flight_one_fetch` (generated concurrency levels).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867863
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337539770
+      },
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337823433
+      }
+    ],
+    "T9.1 — Implement `clients/depsdev.py` (`version`, `package`, `project`; 404 ok), `clients/scorecard.py`, `clients/registry.py` (`npm_abbreviated` with the `application/vnd.npm.install-v1+json` Accept, `npm_full`, `pypi`), each as: build URL → `cached_call` → gateway → parser → `Found | Absent | Failed`. Namespaces and subjects per design §5.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867902
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794337914407
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794338368724
+      }
+    ],
+    "T9.2 — Implement `clients/downloads.py`: `npm_downloads(names)` per design §6.3 (dedupe, split bulk-safe/individual, cache check per name, chunks of 128, single form for a chunk of one and for individual names, one cache entry per name, a failed request marks every name in it `Failed`), `pypistats(name)` (3 s interval comes from config).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867948
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794338372367
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794338622055
+      }
+    ],
+    "T9.3 — Implement `clients/osv.py`: `query_batch(queries)` (chunks of 1,000, re-query only the results with `next_page_token`, 20-page guard, length-mismatch handling) and `vuln(id)` (cached by id), plus `advisories_for(packages)` enforcing the per-package and per-batch detail caps and SRC-OSV-6 all-or-nothing.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333867993
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794338625095
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794339180752
+      }
+    ],
+    "T9.4 — Implement `clients/github.py`: `repos(group_by_as_of)` (sorted `repo_key`s, chunks of 50, variables only), `history_page(...)` follow-ups serial through the limiter up to `max_history_pages`, rate-limit floor, the failure matrix of design §6.2, one `github.repo` cache entry per `repo_key#as_of`, `GITHUB_DISABLED` when no token.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868042
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794339183924
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794339613240
+      }
+    ],
+    "T9.5 — Unit tests `test_clients_*.py` with `MockTransport` and hand-built bodies, one file per client: request URL and method are exactly the builder output; cache miss then hit (second call makes no request); `NotFound` cached, `Failed` not; bulk downloads (SRC-TEST-18: 300 names → 3 requests of ≤128, scoped and comma-bearing names individually and quoted, a chunk of one uses the single form, `null` entries → `Downloads(None)` without a warning, a missing key → `UNEXPECTED_SHAPE`, unrequested keys ignored, cache filled per name); OSV paging (a token on two of three queries re-queries only those two), length mismatch, detail failure → that package `Failed`, the cap → `TOO_MANY_ADVISORIES`, each id fetched once across packages; GitHub: 50-repo chunking, null alias, null `data`, follow-up page failure keeps the other signals, page cap sets the lower-bound flag, rate floor stops follow-ups, no token → disabled.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868117
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794339617929
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794340649471
+      }
+    ],
+    "T9.6 — Property tests in `test_properties_clients.py`: `test_osv_queries_chunked_and_unique` (chunks ≤ 1,000, every `(ecosystem, name, version)` once), `test_github_chunks_cover_repos_once` (chunks ≤ 50, union equals the distinct `repo_key`s, deterministic order), `test_bulk_names_partition` (bulk-safe and individual sets are disjoint and cover the input; no bulk name contains `,` `@` `/`).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868180
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794340652754
+      },
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794341361803
+      }
+    ],
+    "T10.1 — Implement `sources/session.py` per design §8: `SourceSession` (async context manager owning the `httpx.AsyncClient`, limiters, cache, clock), `collect()` with the `max_packages_per_call` check (`ValueError` before any I/O), per-item validation into `ItemError` (`INVALID_PURL`, `MISSING_VERSION`, `INVALID_AS_OF`, with `INVALID_INPUT` warnings), dedupe by `(format_purl, as_of)`, the per-package pipeline (registry ‖ deps.dev resolved → [deps.dev package fallback when the registry `Failed`] → deps.dev latest → repo resolution → project/Scorecard ‖ npm full), OSV and npm-downloads tasks started up front, GitHub grouping by `as_of` and `repo_key`, `guarded()` wrappers (`Exception` only; `CancelledError` propagates) producing `INTERNAL_ERROR` with the type name only, `max_packages_in_flight` semaphore, batch deadline, `SourceStats`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868244
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794341617923
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342247915
+      }
+    ],
+    "T10.2 — Add the two-pass assembly and the lazy PyPI phase: first `assemble` with `Deferred` PyPI downloads, `is_resting_candidate` on the first-pass `Signals`, pypistats for candidates only (serial through the limiter, after all other phases, under the deadline), second `assemble` with `Found` / `Failed` / `Skipped`, `s9_skipped` in the stats.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868334
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342251078
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342555660
+      }
+    ],
+    "T10.3 — Implement `sources/api.py` (`autopsy_async` as `async with SourceSession(...) as s: return await s.collect(requests)`; `autopsy` as `asyncio.run(autopsy_async(...))` with the same keyword arguments and no other logic) and `sources/__init__.py` re-exports (`autopsy_async`, `autopsy`, `SourceSession`, `SourceCache`, `MemoryCache`, `SystemClock`), and the `core/sources/__init__.py` re-exports of the pure types (SRC-NFR-4).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868443
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342559070
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342793914
+      }
+    ],
+    "T10.4 — Create `sources/tests/fakeweb.py` and `sources/tests/strategies.py`: `fakeweb(seed)` generates a consistent mini-internet (npm and PyPI packages with registry, deps.dev, OSV, repo graph with shared and case-variant repos, GitHub, downloads) and serves it through one `MockTransport` handler; `fault_plans()`, `package_sets()`, `request_batches()` (valid and invalid purls, duplicates, mixed `as_of`), `cache_ops()`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868543
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794342797123
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794343758421
+      }
+    ],
+    "T10.5 — Unit tests `test_session.py` and `test_api.py`: result order equals input order; duplicates share a result; invalid purl, versionless purl, non-str purl, `datetime` as `as_of` → per-item `ItemError` + warning while valid items are analysed (SRC-TEST-16); more than `max_packages_per_call` → `ValueError` with no request sent; no token → `GITHUB_DISABLED` and GitHub signals `None`; registry `Failed` → deps.dev package fallback recovers S1(a), S1b, S2 with the \"latest version from deps.dev\" note, both failing → `None`, registry `NotFound` → package endpoint not requested (SRC-TEST-17); lazy PyPI phase: a `six`-like package triggers one pypistats request and a `pycrypto`-like one none, with the \"cannot be Resting\" note and `s9_skipped` counted; batch deadline passed → `DEADLINE_EXCEEDED` warnings and partial results; an exception injected into a parser → `INTERNAL_ERROR` with only the type name; counting handler asserts the request budget of SRC-NFR-1; `autopsy(...)` equals `asyncio.run(autopsy_async(...))`, and `autopsy` inside a running loop raises `RuntimeError`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868609
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794343763177
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794344771628
+      }
+    ],
+    "T10.6 — Property tests in `test_properties_session.py` and `test_security.py`: `test_signals_always_validate_end_to_end` (SRC-TEST-5 over fakeweb with malformed documents mixed in); `test_failures_only_degrade` (SRC-TEST-6 over fakeweb: faulty value is `None` or equal to the clean value; every newly missing signal is named by a warning or carries an upstream-absence note; never raises); `test_batching_and_dedupe` (SRC-TEST-7); `test_result_independent_of_order_and_scheduling` (SRC-API-7); `test_invalid_items_do_not_affect_valid_items` (SRC-TEST-16). `test_security.py` (second half of SRC-TEST-11 and SRC-TEST-12): adversarial servers that echo the token or return prompt-injection strings, URLs and control characters in descriptions, deprecation messages, issue titles, author names and `project_urls`; assert none reaches any `Evidence`, `SourceWarning`, cache key or value, or `repr` / `str` of a result.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868675
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794344775738
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794353884213
+      }
+    ],
+    "T10.7 — Run `uv run pytest -q core/sources sources` and `uv run mypy --strict core sources`: both green before the recorder is written.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868740
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794353887311
+      },
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794354181147
+      }
+    ],
+    "T11.1 — Implement `scripts/record_source_responses.py` per design §13, run as `cd backend && uv run python ../scripts/record_source_responses.py [--fallbacks] [--probe-pypistats] [--strict]`. It reads `GITHUB_TOKEN` and `GRAVEYARD_CONTACT` from the environment **in the script only**, exits with a clear message if either is missing, builds `SecretToken` and `SourcesConfig`, defines `RecordingTransport(httpx.AsyncBaseTransport)` over `httpx.AsyncHTTPTransport` (stores method, URL, parsed JSON body, status, content type, `Retry-After`; never request headers), runs `autopsy_async` for the nine anchor purls at `as_of = 2026-11-03` as one batch, optionally records the `--fallbacks` endpoints (Scorecard API for each resolved repo, full packuments for `left-pad` and `node-uuid`, deps.dev package endpoint for `left-pad` and `six`, one 404 probe each for deps.dev and the Scorecard API), scores each result and compares it with the MM-ANC-1…9 table, prints SRC-ANC-3 parity differences, checks sizes (2 MiB per body, 6 MiB total) and scans for the token and token shapes, and only then writes the cassette atomically and appends provenance rows to `fixtures/recorded/README.md`. The token is never printed, logged or put in an exception message.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868799
+      }
+    ],
+    "T11.2 — **Refusal rule (Q3):** if any anchor's base state, `dead_reason`, `cursed`, `wounded`, or the extras (`left-pad` mortality equals `s1_min_score`, `pycrypto` and `nose` confidence 0.25, `six` mortality within 0.5 of 43.7) differ from the MM-ANC table, the script prints the anchor and field, exits non-zero and writes **nothing**. Parity differences in other fields are warnings, blocking only with `--strict`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868880
+      }
+    ],
+    "T11.3 — `--probe-pypistats` per SRC-REC-5: 12 sequential requests (3 each at 3.0, 2.0, 1.0, 0.5 s) for well-known package names, stop at the first `429`, record per request the interval, status, `Retry-After` and any `x-ratelimit-*` headers, compute `safe_interval_seconds`, write `fixtures/recorded/pypistats_probe.json` and add the finding to the README. It never edits configuration.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333868960
+      }
+    ],
+    "T11.4 — Tests in `sources/tests/test_record_script.py` (load the script with `importlib.util.spec_from_file_location`; call its pure functions, never `main()` against the network): the refusal rule on a doctored result set for each MM-ANC field (nothing written); size limits; token and token-shape scan; atomic write and stable ordering of entries; `RecordingTransport` driven over a `MockTransport` stores no request headers; a missing environment variable exits non-zero with a message that does not contain a token; the probe's `safe_interval_seconds` computation on synthetic series.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869026
+      }
+    ],
+    "T12.1 — Create a 7-day, fine-grained, public-read-only GitHub token and enter it with `read -rs GITHUB_TOKEN; export GITHUB_TOKEN`; export `GRAVEYARD_CONTACT` (an email or URL). Do not paste the token into chat or a file.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869115
+      }
+    ],
+    "T12.2 — From `backend/` run `uv run python ../scripts/record_source_responses.py --fallbacks --probe-pypistats`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869243
+      }
+    ],
+    "T12.3 — **If the script refuses because an anchor's expected state would change, do not edit the expectations to match.** Post its output and stop; the decision to change an MM-ANC expectation is a separate one.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869306
+      }
+    ],
+    "T12.4 — Review the new files under `backend/core/sources/tests/fixtures/recorded/` for secrets (`grep -ciE \"ghp_|github_pat_|authorization|bearer\" <files>` must print 0 for each), check their sizes (`du -h`), and commit them.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869415
+      }
+    ],
+    "T12.5 — Post the contents of `pypistats_probe.json` (the measured `safe_interval_seconds` and any `429` details). The agent records the measurement in `docs/KIRO_JOURNAL.md` and, if the safe interval is above 3 s, raises it as a decision before T13.5.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869484
+      }
+    ],
+    "T13.1 — `core/sources/tests/recorded.py` (load `anchors.cassette.json` through `Path(__file__).parent / \"fixtures\" / \"recorded\"`, fetch a body by method and URL) and `test_recorded_parsers.py`: for every parser, assert expected values taken from the recorded body by hand or by an independent `json` walk, not from the parser's own output. At minimum: deps.dev version for `request@2.88.2` (`isDeprecated` true, `publishedAt` date, `SOURCE_REPO` candidate), `uuid@3.4.0` and the latest `uuid` (S1b case), deps.dev project for `express` (Maintained 10, overall 8.5 at capture time), npm abbreviated for `left-pad` and `moment`, PyPI JSON for `six` (both `urls` and `releases` paths) and `pycrypto` (no GitHub candidate), npm bulk (six names, one request), pypistats for `six`, OSV querybatch and vuln documents for `express`, `moment`, `request`, `pycrypto` (`has_fix` as in the committed anchor fixtures), GitHub first page for the seven repos and one history page, and the recorded 404 bodies (`NotFound`). Include a copy of each recorded body with free-text fields replaced by injection strings and assert the parsers' outputs are unchanged.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869530
+      }
+    ],
+    "T13.2 — `sources/tests/test_recorded_clients.py`: each client against `replay_transport(cassette)`; every request the client makes is matched (`log.unmatched` empty); results equal the T13.1 expectations; the `--fallbacks` entries exercise `npm_full` for `left-pad`/`node-uuid`, the Scorecard API, and the deps.dev package endpoint for `left-pad` and `six`.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869577
+      }
+    ],
+    "T13.3 — `sources/tests/test_anchors_e2e.py` (SRC-ANC-1…5): the nine anchors as one batch through `autopsy_async` with `replay_transport` and a `FakeClock`; `score_package` on each `Signals`; the explicit MM-ANC-1…9 table (base state, `dead_reason`, `cursed`, `wounded`, `exposure == 1.0`, `exposure_assumed`, `left-pad` mortality equals `s1_min_score`, `pycrypto` and `nose` confidence 0.25, `six` within 0.5 of 43.7); state tuple equality with the committed `core/scoring/tests/fixtures/anchors/<pkg>.json` run through the existing `signals_from_fixture`; the SRC-ANC-3 parity table with the tolerance written next to each field and the D5 and D14 exceptions listed by name; evidence `source_url` on the allow-list and `fetched_at` within the fake clock's span; request log shows one npm bulk request with six names, exactly one pypistats request (`six`), one OSV `querybatch`, one GitHub first-page request for seven repos; `log.unmatched` empty.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869616
+      }
+    ],
+    "T13.4 — Fault property over the cassette (SRC-TEST-6) in `test_anchors_e2e.py` or `test_properties_recorded.py` (`@pytest.mark.property`): `fault_transport(replay handler, plan)` for generated plans; no exception, every signal is `None` or equal to the clean run, newly missing signals are named by a warning or carry an upstream-absence note; a request missing from the cassette in a faulted run is a connection error, not a failure. If 500 examples are too slow, run on a three-package subset and keep the nine-package example test.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869677
+      }
+    ],
+    "T13.5 — `test_pypistats_probe.py`: when `pypistats_probe.json` exists, assert the default `pypistats.org` interval in `SourcesConfig.default` is at least `safe_interval_seconds` (skip with a clear message if the probe had no safe interval or the file is absent).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869726
+      }
+    ],
+    "T14.1 — `uv run ruff check` and `uv run ruff format --check` are clean.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869784
+      }
+    ],
+    "T14.2 — `uv run mypy --strict core sources` is clean, and `grep -rn \"type: ignore\" core/sources sources` finds nothing.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869827
+      }
+    ],
+    "T14.3 — `uv run pytest -q` is green, including the existing `core/purl`, `core/graph` and `core/scoring` suites.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869869
+      }
+    ],
+    "T14.4 — `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q` is green (`max_examples=500`). `grep -rn \"deadline=None\" core/sources` finds nothing; in `sources/tests` it appears only in async property bodies and each use has a comment.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869908
+      }
+    ],
+    "T14.5 — Coverage on **both** halves (SRC-TEST-14): `uv run pytest core/sources sources --cov=core/sources --cov=sources --cov-report=`, then `uv run coverage report --include='core/sources/*' --omit='*/tests/*' --fail-under=85 --show-missing` and `uv run coverage report --include='sources/*' --omit='*/tests/*' --fail-under=85 --show-missing`. Both pass. Report the two actual percentages and any uncovered branch that is not a defensive guard.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869955
+      }
+    ],
+    "T14.6 — Dependency check: `git diff --stat backend/pyproject.toml backend/uv.lock` shows the `httpx==0.28.1` runtime pin and its transitive lock entries, the three config edits of T0.3, and nothing else; no dev dependency was added (SRC-DEP-1, D13).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333869992
+      }
+    ],
+    "T14.7 — Guards: `test_purity.py` and `test_silence.py` pass and, by listing, cover every module that exists (`core/sources/*.py`, `core/sources/parse/*.py`, `sources/*.py`, `sources/clients/*.py`); `grep -rn \"environ\\|getenv\\|print(\" core/sources sources --include=*.py --exclude-dir=tests` finds nothing; no file under `sources/` imports any `core.scoring` module other than `core.scoring.types` (SRC-DEP-4): `grep -rn \"core.scoring\" sources --include=*.py --exclude-dir=tests` lists only `core.scoring.types` imports.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333870040
+      }
+    ],
+    "T14.8 — Secret scan: if `gitleaks` is installed, `gitleaks detect --no-git --source core/sources/tests/fixtures/recorded` is clean; otherwise run the `grep` of T12.4 again and say that gitleaks was not available.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333870083
+      }
+    ],
+    "T14.9 — Traceability check: every SRC-TEST-1…18 and SRC-ANC-1…5 has a named test, every SRC-* requirement ID appears in at least one test docstring or in the design's test tables (§12), and every deviation in design §14 is covered by a test or an explicit note. Report any gap instead of closing silently.": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333870134
+      }
+    ],
+    "T14.10 — Journal: add an entry to `docs/KIRO_JOURNAL.md` with every counterexample Hypothesis found during T2–T13 and what changed, the measured pypistats limit from T12.5, the final coverage figures, and one example where the spec stopped a mistake (candidates: the PyPI `releases` deprecation, the comma-bearing npm name in a bulk URL, or a `sponsors/<user>` link read as a repo).": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794333870182
+      }
+    ],
+    "T7 — I/O foundations: clock, limiter, gateway, test transports (SRC-HTTP-1…11, SRC-RATE-1/2/4, SRC-SEC-1…3; SRC-TEST-1, 8, 10)": [
+      {
+        "executionId": "86bed68a-6246-4cd9-9897-0e8874595b95",
+        "chatSessionId": "sess_aa763af5-1ac7-4365-ae8e-2dea90fdb3e2",
+        "timestamp": 1794336862302
+      }
+    ],
+    "T8 — Cache: protocol, `MemoryCache`, single flight, `cached_call` (SRC-CACHE-1…8; SRC-TEST-13)": [
+      {
+        "executionId": "6d10e27d-1ca8-496e-8aad-961892b39c16",
+        "chatSessionId": "sess_a6589195-4db3-4d6c-843c-30d77e7b5b53",
+        "timestamp": 1794337823556
+      }
+    ],
+    "T9 — Per-source clients (SRC-LAT-1, SRC-OSV-1…3, 6, SRC-GH-1…8, SRC-S9-1, SRC-HTTP-3, SRC-CACHE-3/4/8; SRC-TEST-18)": [
+      {
+        "executionId": "cbd13883-24df-41b8-8715-7e3d70b17c8f",
+        "chatSessionId": "sess_3c802fda-6e46-4a4c-b4e0-5ed42b96f254",
+        "timestamp": 1794341361906
+      }
+    ],
+    "T10 — Session, orchestration, `autopsy_async` / `autopsy` (SRC-API-1…9, SRC-RATE-3, SRC-LAT-1…3, SRC-S9-3/4, SRC-WARN-4/5, SRC-SEC-5, SRC-NFR-1, SRC-NFR-4; D3, D14, D15, D16)": [
+      {
+        "executionId": "b228c052-99b8-449e-bafd-fde096df6d8d",
+        "chatSessionId": "sess_99f84924-e22f-4792-87b3-80d17ab16fe5",
+        "timestamp": 1794354181215
+      }
     ]
   }
 }

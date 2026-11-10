@@ -34,3 +34,54 @@ D11, untrusted text: response bodies are never copied into evidence, notes or
 warnings. Only parsed, validated scalar fields and fixed message templates
 are.
 """
+
+from core.sources.clock import Clock
+from core.sources.config import (
+    CachePolicy,
+    HostPolicy,
+    Limits,
+    RetryPolicy,
+    SourcesConfig,
+    Timeouts,
+)
+from core.sources.model import (
+    EVIDENCE_KEYS,
+    ITEM_ERROR_CODES,
+    REPO_VIA_VALUES,
+    SOURCE_NAMES,
+    WARNING_CODES,
+    BatchResult,
+    Evidence,
+    ItemError,
+    JsonValue,
+    SourceResult,
+    SourceStats,
+    SourceWarning,
+)
+from core.sources.repo_resolve import RepoVia
+from core.sources.secret import SecretToken, redact
+
+__all__ = [
+    "EVIDENCE_KEYS",
+    "ITEM_ERROR_CODES",
+    "REPO_VIA_VALUES",
+    "SOURCE_NAMES",
+    "WARNING_CODES",
+    "BatchResult",
+    "CachePolicy",
+    "Clock",
+    "Evidence",
+    "HostPolicy",
+    "ItemError",
+    "JsonValue",
+    "Limits",
+    "RepoVia",
+    "RetryPolicy",
+    "SecretToken",
+    "SourceResult",
+    "SourceStats",
+    "SourceWarning",
+    "SourcesConfig",
+    "Timeouts",
+    "redact",
+]

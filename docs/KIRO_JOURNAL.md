@@ -448,3 +448,31 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Resting candidacy asks the scorer instead of re-implementing its rules. S1/S1b use Kleene logic checked against an enumeration oracle, with exhaustive and sampled tests.
 - **Corrected:** Hypothesis found that `Evidence` redaction could leave the primary URL in `extra_source_urls` after two token-shaped URLs became equal. Fixed in `model.py`, with a regression test.
 - **Surprise:** the repair path in `_construct` is unreachable through `assemble` by design, so it stays covered only by a direct unit test.
+
+### 10 Nov — Spec `autopsy-sources`: T7 (I/O foundations: clock, limiter, gateway, transports)
+- **Spec/task:** T7.1 clocks and `HostLimiter`, T7.2 `HttpGateway`, T7.3 test transports, T7.4 unit tests, T7.5 property tests, T7.6 token secrecy (SRC-TEST-1, 8, 10, 11 first half).
+- **Kiro features:** spec task orchestration with sub-agent delegation, steering (security, testing, structure), PostTaskExec journal hook, Hypothesis `ci` profile, `ast` silence guard covering new modules by glob.
+- **Kiro got right:** one gateway enforces the allow-list, no redirects, decoded-size cap, strict JSON and `Authorization` for `api.github.com` only. Mutation checks confirmed the tests fail when each guard is removed.
+- **Corrected:** the limiter in design §4.5 let a sleeping task enter early after a later `penalise`; it now re-checks the not-before time. `FakeClock.sleep` applies the time change after the yield so sleepers keep their own wake times.
+- **Surprise:** with an injected transport httpx ignores proxy variables anyway, so the first `trust_env` test could not tell the setting apart; the test now inspects the client directly. The properties found no bug.
+
+### 10 Nov — Spec `autopsy-sources`: T8 (Cache: protocol, MemoryCache, single flight, cached_call)
+- **Spec/task:** T8.1 `sources/cache.py`, T8.2 unit tests, T8.3 property tests (SRC-CACHE-1…8, SRC-TEST-13).
+- **Kiro features:** spec task orchestration with sub-agent delegation, steering (testing, structure, security), PostTaskExec journal hook, Hypothesis `ci` profile, `ast` silence guard covering the new module by glob.
+- **Kiro got right:** `Failed` is never stored, a hit keeps the original `fetched_at`, and a raising, malformed or undecodable cache entry is a miss plus a fixed-template `CACHE_ERROR` warning. `cache_lookup` and `cache_store` let bulk downloads fill one entry per name.
+- **Corrected:** single flight shares a leader's exception with all waiters, but a cancelled leader makes waiters retry instead of inheriting its cancellation.
+- **Surprise:** the first single-flight property used a fetch that never yielded, so callers ran one after another and `Failed` was fetched again. Concurrency needs at least one yield. The properties found no bug in `cache.py`.
+
+### 10 Nov — Spec `autopsy-sources`: T9 (Per-source clients)
+- **Spec/task:** T9.1 deps.dev, Scorecard and registry clients, T9.2 downloads, T9.3 OSV, T9.4 GitHub, T9.5 unit tests, T9.6 property tests (SRC-LAT-1, SRC-OSV-1…3/6, SRC-GH-1…8, SRC-S9-1, SRC-TEST-18).
+- **Kiro features:** spec task orchestration with sub-agent delegation, steering (testing, structure, security), PostTaskExec journal hook, Hypothesis `ci` profile, `ast` silence guard covering new modules by glob.
+- **Kiro got right:** every client goes through one `call_source`/`cached_call` path, so only `Found` and `Absent` are cached and a failed bulk request fails exactly the names in it. The GitHub rate floor stops follow-ups only, as SRC-GH-6 says.
+- **Corrected:** the `osv.vuln` cache subject is `<id>#<ecosystem>/<name>` instead of the id alone, because `has_fix` depends on the package. A vuln 404 is not cached. The first property strategies never crossed the 50 and 128 limits; they now pick boundary sizes.
+- **Surprise:** npm download names that differ only by ASCII case share one cache subject, so single flight serves the second without a request. The properties found no client bug.
+
+### 10 Nov — Spec `autopsy-sources`: T10 (Session, orchestration, `autopsy` entry points)
+- **Spec/task:** T10.1 session pipeline, T10.2 lazy PyPI phase, T10.3 `autopsy`/`autopsy_async`, T10.4 fakeweb and strategies, T10.5 unit tests, T10.6 property and security tests, T10.7 green run (SRC-API-1…9, SRC-LAT-1…3, SRC-S9-3/4, SRC-TEST-5/6/7/11/12/16).
+- **Kiro features:** spec task orchestration with sub-agent delegation, steering (testing, security, structure), PostTaskExec journal hook, Hypothesis `ci` profile, `ast` silence guards covering new modules by glob.
+- **Kiro got right:** PyPI downloads are deferred, the scorer decides who could be Resting, and only those names reach pypistats. A step that raises becomes an `INTERNAL_ERROR` warning naming only the exception type.
+- **Corrected:** PBT over a generated mini-internet found real bugs. The cache persisted raw `project_urls` text, a partly dropped OSV answer gave a partial S7, `input_purl` depended on input order, and an empty registry answer lost S2 silently.
+- **Surprise:** the Scorecard numbers in the fake web differed between deps.dev and the Scorecard API, so any fallback looked like a changed value. Open gap: wrong-typed GitHub author fields give a lower S5 with no warning.
