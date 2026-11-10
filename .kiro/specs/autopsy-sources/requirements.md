@@ -1,0 +1,279 @@
+# Spec: autopsy-sources
+
+> **Source of truth:** PRD §7.1 (S1–S9), AU-1…AU-7, EX-9, §10.7 (external rate limits), §13 T2, T6, T7; `docs/adr/0001-data-sources-and-sbom.md` (decisions 3–9); `docs/SPIKES.md` (Q1–Q4); the working prototype `scripts/capture_anchors.py`, whose logic this spec lifts; `core.purl` (`parse_purl`, `registry_name`, `package_key`, `normalise_repo_url`, `repo_key`); `core.scoring.types` (`Signals`, `Advisory`); steering `tech.md`, `security.md`, `structure.md` (updated by this spec), `testing.md`, `mortality-model.md`.
+> **Scope:** clients that turn a list of `(purl, as_of)` into a `Signals` plus per-signal evidence `{value, source_url, fetched_at}` for npm and PyPI, in two packages:
+> - `backend/core/sources/` (pure half): URL builders, response parsers, `has_fix` from OSV affected ranges, the EX-9 repo resolution rules, signal assembly, the "could this be Resting" predicate, config and result types;
+> - `backend/sources/` (I/O half): the async `httpx` gateway with per-host concurrency limits, rate limiting, `Retry-After` and exponential backoff; the per-source clients (deps.dev v3, OSV `querybatch` and vulnerability detail, npm registry, PyPI JSON, npm downloads, pypistats, Scorecard API fallback, GitHub GraphQL batched); the cache protocol with an in-memory implementation; the session and the public entry points `autopsy_async` and `autopsy`.
+>
+> Any source failure makes that signal missing and adds a structured warning; it never fails the batch (AU-4).
+>
+> **Out of scope:** computing mortality, state or confidence (`core.scoring`); the DynamoDB cache and the autopsy-level 24 h cache (AU-5); the `GET /packages/{purl}/autopsy` endpoint (AU-7); the Step Functions task handler and Lambda wiring (`backend/workflow/`); obtaining GitHub App installation tokens; Bedrock narration (AU-6); `ecosyste.ms` (P1); metrics emission and logging (this code returns data, callers emit); reading `paths`, `services_affected` or `shared_repo` (not observable from public sources, D12); a version-range matcher (`purl-and-versions` D1).
+
+---
+
+## Design decisions recorded by this spec
+
+| ID | Decision | Rationale and consequence |
+|----|----------|---------------------------|
+| D1 | **Two packages (review decision Q1).** Pure half in `backend/core/sources/`; I/O half in a new `backend/sources/`. `pyproject.toml` gets `sources` added to `[tool.mypy] files`, `[tool.pytest.ini_options] testpaths` and `[tool.ruff.lint.isort] known-first-party`. `structure.md` is updated (done with this spec). An `ast` purity test guards the pure half the way `core/graph/tests/test_purity.py` guards `core/graph`. | `structure.md` keeps `backend/core/` free of I/O and puts clients in `backend/sources/`. The pure half carries the property tests; the I/O half is thin. `backend/sources/` imports `core.sources` only, never `core.scoring`. |
+| D2 | **Async `httpx.AsyncClient`, not threads.** One `SourceSession` owns one client, the per-host limiters and the clock. Public entry points: `autopsy_async(...)` and a synchronous `autopsy(...)` that is `asyncio.run(autopsy_async(...))` (review decision Q5). | Many independent I/O waits per package (PRD §10.6, p95 ≤ 90 s for 1,000 packages). Python 3.12 gives `asyncio.TaskGroup` and `asyncio.timeout`. |
+| D3 | **Never raise for source, network or data problems.** Every fetch returns an outcome value (`Ok`, `NotFound`, `Failed`); every parser returns `None` or a value for any `object`. `ValueError` is for programmer errors only (bad config, empty token, a call with more than `max_packages_per_call` items). `asyncio.CancelledError` is never swallowed. | AU-4. A parser bug is also contained: the per-package wrapper converts an unexpected `Exception` into an `INTERNAL_ERROR` warning that carries the exception type name only. |
+| D4 | **Missing is `None`, never 0, never a guess.** A 404 is a definitive absence (note on the evidence, no warning). A failure is a warning. Failures are not cached. | `mortality-model.md`: missing ≠ healthy. |
+| D5 | **S1 and S1b use three-valued (Kleene) logic.** `s1 = OR(parts)`, `s1b = resolved_deprecated AND NOT latest_deprecated`. `True` wins; `False` needs every applicable part known `False`; otherwise `None`. | The prototype returned `False` for npm when GitHub data was missing, which claims "not declared dead" without knowing the archive flag. The scorer treats `None` and `False` alike, so no anchor state changes. A failure can then only turn a signal into `None`, never into a different known value (SRC-TEST-6). |
+| D6 | **Evidence is keyed by `Signals` field name** (11 keys) and uses `source_url`, not the prototype's `source`. Extra URLs go in `extra_source_urls`. | Matches the PRD wording and AU-3. |
+| D7 | **The GitHub token is a constructor argument of type `SecretToken`.** Neither package imports `os` or reads the environment, and the token appears in no string they produce. | `security.md` T6. |
+| D8 | **Limits are per process.** Per-host concurrency and intervals protect one Lambda's view of a host. The global ceiling comes from Distributed Map `MaxConcurrency`, the cache, and `429` backoff. | A cross-Lambda limiter would need shared state. Out of scope; documented as a risk. |
+| D9 | **`has_fix` follows the prototype and `mortality-model.md`:** an advisory has a fix when any non-`GIT` range of an `affected` entry for this package contains a `fixed` event. It does not test whether the resolved version lies inside that range. | No in-house version matcher (`purl-and-versions` D1). Known limitation: a vulnerability with a fixed range for another major line and an unfixed range for this one reads as fixable. |
+| D10 | **Repository resolution is EX-9 with two hardening rules** the prototype lacked: PyPI URL candidates are tried in label-priority order, and URLs whose owner is a GitHub reserved path (`sponsors`, `orgs`, …) are rejected. | A `project_urls` entry such as `https://github.com/sponsors/<user>` parses as a valid `owner/name`, and a wrong repo gives wrong S3–S6, S8. |
+| D11 | **Response bodies are never copied into evidence, notes or warnings.** Only parsed, validated scalar fields and fixed message templates are. | Third-party text is untrusted (T1; `security.md`). The npm `deprecated` message is read as a boolean only. |
+| D12 | **`paths`, `services_affected` and `shared_repo` are not set** (defaults), exactly as the anchors do. | Not observable from public sources. |
+| D13 | **Tests need no new dev dependency (Q5).** Async code is driven with `asyncio.run` from synchronous tests; recorded and faulted HTTP uses `httpx.MockTransport` with a handler (no `respx`, no `pytest-asyncio`). | Keeps the dependency list to `httpx` alone. |
+| D14 | **S9 is fetched cheaply or lazily (Q4).** npm downloads use the bulk endpoint (up to 128 unscoped names per request; scoped names individually). PyPI downloads (`pypistats`, 3 s interval, 7-day cache) are fetched in a second phase, only for packages that could be Resting. | S9 feeds only the Resting rule, and pypistats is the slowest source. "Could be Resting" is decided by `core.scoring`, not re-implemented: score the package with S9 set to the Resting threshold and see whether the base state is Resting (SRC-S9-3). Consequence: PyPI packages that cannot be Resting have no downloads in their evidence. |
+| D15 | **Latest-version fallback (Q6).** When the registry lookup fails, the latest version is taken from deps.dev `GET /v3/systems/{s}/packages/{name}` (the version with `isDefault: true`). | Without it one registry outage removes S1(a), S1b and S2 together. Checked on 10 Nov 2026: the endpoint returns `versions[]` with `isDefault`, `publishedAt`, `isDeprecated`. |
+| D16 | **An invalid input item is a per-item error plus a warning; the batch continues (Q2).** The item's `SourceResult` has `signals=None` and an `ItemError`. | The caller can still tell which items were not analysed, and the type forces it to handle them. |
+
+---
+
+## Dependency, packaging and purity
+
+| ID | Requirement |
+|----|-------------|
+| SRC-DEP-1 | **THE SYSTEM SHALL** add exactly one runtime dependency, `httpx==0.28.1` (the version the prototype pins), with `uv add "httpx==0.28.1"` run from `backend/`, so `pyproject.toml` holds the exact pin and `uv.lock` the resolved transitive set. No dev dependency is added (D13). |
+| SRC-DEP-2 | `backend/pyproject.toml` SHALL list `sources` next to `core` in `[tool.mypy] files`, `[tool.pytest.ini_options] testpaths` and `[tool.ruff.lint.isort] known-first-party`. `uv run mypy --strict core sources`, `uv run ruff check` and `uv run ruff format --check` SHALL pass; no blanket `type: ignore`. |
+| SRC-DEP-3 | Both packages SHALL import `Signals` and `Advisory` from `core.scoring.types`, and use `parse_purl`, `format_purl`, `registry_name`, `package_key`, `normalise_repo_url` and `repo_key` from `core.purl`. They SHALL NOT redefine them or hand-format keys or purls. |
+| SRC-DEP-4 | Only `core/sources/resting.py` SHALL import `core.scoring` beyond `core.scoring.types` (it imports `score_package` and `load_weights`). `backend/sources/` SHALL NOT import `core.scoring` outside its tests. |
+| SRC-PURE-1 | **Pure half.** A test `core/sources/tests/test_purity.py` SHALL parse every module under `core/sources/` (excluding `tests/`) with `ast` and fail if it imports `httpx`, `socket`, `asyncio`, `os`, `subprocess`, `logging`, `warnings`, `time`, `random`, `secrets`, `shutil`, `tempfile`, `urllib.request`, `http`, uses a relative import, or imports from `sources`, `workflow`, `rites`, `narrate`; calls `open`, `print`, `input`; or calls `datetime.now`, `datetime.utcnow`, `date.today`. The only permitted `core.scoring` import beyond `core.scoring.types` is in `resting.py`. The parametrisation SHALL use a glob, so a new module is covered automatically. |
+| SRC-PURE-2 | **Whole feature.** A test `sources/tests/test_silence.py` SHALL apply to both packages: no `os` import and no `environ`/`getenv` use, no `print`/`input`, no `logging`, no `warnings`. In `backend/sources/`, `httpx` SHALL be imported only by `gateway.py`, `session.py` and `api.py`, and `time` / `datetime.now` only by `clock.py`. Diagnostics leave only as `SourceWarning` values (SRC-WARN-1). |
+| SRC-PURE-3 | Public functions SHALL NOT mutate their arguments. Result types SHALL be frozen dataclasses; mappings in them SHALL be read-only (`MappingProxyType`). |
+
+---
+
+## Public API (AU-1, AU-4, AU-7)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-API-1 | **THE SYSTEM SHALL** provide, from `sources` (`backend/sources/__init__.py`): <br>• `async def autopsy_async(requests, *, config, token=None, cache=None, transport=None, clock=None) -> BatchResult`; <br>• `def autopsy(requests, *, config, token=None, cache=None, transport=None, clock=None) -> BatchResult`, which SHALL be `asyncio.run(autopsy_async(...))` and nothing else (inside a running event loop it raises `RuntimeError` from `asyncio.run`; the docstring says to use `autopsy_async` there); <br>• `SourceSession`, an async context manager that `autopsy_async` uses and that callers may reuse to share limiters and cache across several calls (`await session.collect(requests)`). <br>`requests` is `Sequence[tuple[str, date]]` (purl string, `as_of`). `config` is a `SourcesConfig`; `token` an optional `SecretToken`; `cache` a `SourceCache` (default: a new `MemoryCache`); `transport` an optional `httpx.AsyncBaseTransport` (tests); `clock` an optional `Clock`. `BatchResult.results` has one `SourceResult` per input, in input order. Equal `(purl, as_of)` pairs are computed once and share one result. |
+| SRC-API-2 | `SourceResult` SHALL carry: `input_purl: str` (the input, truncated to 200 characters); `signals: Signals \| None`; `error: ItemError \| None`; `evidence: Mapping[str, Evidence]`; `warnings: tuple[SourceWarning, ...]`; `repo: str \| None` (display form `github.com/<owner>/<repo>`); `repo_via: "depsdev" \| "registry" \| "project_urls" \| None`; `resolved_version: str \| None`; `latest_version: str \| None`. Exactly one of `signals` and `error` is set. `Signals.purl` is the canonical `format_purl` of the input; `Signals.as_of` is the input `as_of`. |
+| SRC-API-3 | For an item with `signals`, `evidence` SHALL contain exactly these 11 keys, present or missing: `s1_declared_death`, `s1b_version_deprecated`, `s2_latest_release_at`, `s3_last_push_at`, `s4_maintained`, `s5_committers`, `s6_open_issues`, `s6_closed_issues`, `s7_advisories`, `s8_overall`, `s9_weekly_downloads`. An `Evidence` has `value` (JSON-compatible; dates as ISO `YYYY-MM-DD`), `source_url`, `fetched_at` (timezone-aware UTC), `extra_source_urls`, `note`. When `value` is not `None`, `source_url` and `fetched_at` SHALL be set. For a missing signal, `value` is `None`, `note` is a fixed reason string, and `source_url` is the last URL attempted or `None`. For an item with `error`, `evidence` is empty. |
+| SRC-API-4 | `fetched_at` SHALL be the time the data was fetched from its origin. A cache hit SHALL keep the original fetch time (AU-5: serve with an "as of" timestamp). |
+| SRC-API-5 | **Per-item errors (D16, Q2).** An input that `parse_purl` rejects (including non-npm/PyPI), a purl without a version, a non-`str` purl, or an `as_of` that is not a `date` (a `datetime` is rejected too) SHALL yield a `SourceResult` with `signals=None`, `error=ItemError(code, detail)` with `code` one of `INVALID_PURL`, `MISSING_VERSION`, `INVALID_AS_OF`, a fixed-template `detail`, and an `INVALID_INPUT` warning. All other items SHALL be processed normally. `collect` SHALL raise `ValueError` only when `len(requests)` exceeds `max_packages_per_call`, before any I/O. |
+| SRC-API-6 | Every `Signals` produced SHALL pass its own validation (`Signals.__post_init__`). Parsers SHALL check the domain before construction (counts are `int`, not `bool`, and ≥ 0; scores finite and in [0, 10] or exactly −1). A value outside the domain SHALL become `None` with an `OUT_OF_DOMAIN` warning. If construction still raises `ValueError`, the offending fields SHALL be set to `None` with a warning and the other signals kept. |
+| SRC-API-7 | Given identical responses, identical config and a fixed clock, the result SHALL be identical regardless of task scheduling and of input order (per package). Output ordering (warnings, `extra_source_urls`, advisories) SHALL be sorted. |
+| SRC-API-8 | `as_of` SHALL affect only the GitHub 12-month commit window (SRC-GH-4) and the cache key of GitHub data. Neither package SHALL compute any signal from the current time. |
+| SRC-API-9 | `BatchResult.stats` SHALL report per-source request counts, per-source failure counts (the `SourceErrors{source}` metric of `tech.md`), cache hits and misses, and the number of PyPI downloads lookups skipped under D14. |
+
+---
+
+## HTTP gateway (T2, T7)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-HTTP-1 | **All network I/O SHALL go through one `HttpGateway`** (`backend/sources/gateway.py`). |
+| SRC-HTTP-2 | **Fixed allow-list.** Only `https` URLs on these hosts SHALL be requested: `api.deps.dev`, `api.osv.dev`, `registry.npmjs.org`, `pypi.org`, `api.npmjs.org`, `pypistats.org`, `api.securityscorecards.dev`, `api.github.com`. The list is a code constant in `core/sources/urls.py`; configuration can tune a host but not add one. The gateway SHALL reject (without sending) any URL with another host, scheme or port, or with userinfo or a fragment, returning `Failed(HOST_NOT_ALLOWED)`. |
+| SRC-HTTP-3 | **Server-built URLs.** URLs SHALL be built only in `core/sources/urls.py` from validated components: package names from `registry_name(parse_purl(...))`, versions from the parsed purl, OSV ids matching `[A-Za-z0-9_.:-]{1,100}`, repos from `normalise_repo_url`. Every path segment SHALL be percent-encoded with `quote(segment, safe="")`, including the `/` in `@scope/name` and the `/` in a project key. The only literal separator that is not encoded is the comma between names in the npm bulk downloads URL (SRC-S9-1). No URL SHALL be taken from a response body. |
+| SRC-HTTP-4 | **No redirects.** `follow_redirects=False`; any 3xx SHALL yield `Failed(REDIRECT_REFUSED)` and the `Location` SHALL NOT be followed or recorded. The client SHALL use `trust_env=False` (no proxy, netrc or CA overrides from the environment), keep TLS verification on, and clear its cookie jar after each response. |
+| SRC-HTTP-5 | **Timeouts.** Each request SHALL have connect, read, write and pool timeouts plus an overall per-request deadline (so a slow-drip body cannot hold a slot). The batch SHALL have a deadline; once it passes, remaining requests SHALL fail fast with `DEADLINE_EXCEEDED`, so a Lambda returns partial results inside the 5-minute workflow limit (PRD §10.6). All values are config. |
+| SRC-HTTP-6 | **Response-size cap.** The body SHALL be streamed and counted after content decoding; reading SHALL stop and the outcome be `Failed(RESPONSE_TOO_LARGE)` as soon as the cap is exceeded. A `Content-Length` above the cap SHALL fail before reading. The cap is per host, config-driven. |
+| SRC-HTTP-7 | **Defensive JSON.** The media type SHALL be `application/json`, `application/*+json` or `application/vnd.npm.install-v1+json`, otherwise `Failed(BAD_CONTENT_TYPE)`. The body SHALL be decoded as UTF-8 and parsed with `json`, rejecting `NaN`, `Infinity` and `-Infinity`. `ValueError`, `UnicodeDecodeError` and `RecursionError` SHALL become `Failed(INVALID_JSON)`. The top-level type SHALL be checked by the caller's parser. |
+| SRC-HTTP-8 | **Retry.** Statuses `429`, `500`, `502`, `503`, `504`, and `httpx` timeout and connection errors SHALL be retried up to `max_attempts` (default 4) with exponential backoff and full jitter (`uniform(0, min(cap, base·2^n))`). `Retry-After` in delta-seconds or HTTP-date form SHALL be honoured, capped at `max_retry_after_seconds`; when the requested wait exceeds the cap or the remaining deadline, the request SHALL fail with `RATE_LIMITED` instead of sleeping. Other 4xx SHALL fail at once. Only read-only requests are sent, so POSTs to OSV and GitHub GraphQL are safe to retry. |
+| SRC-HTTP-9 | **404.** A caller that marks 404 as meaningful (deps.dev version, package and project, Scorecard API, npm and PyPI package lookups, vulnerability detail) SHALL receive `NotFound`. For all other requests 404 is `Failed(HTTP_STATUS)`. |
+| SRC-HTTP-10 | The gateway SHALL send a `User-Agent` containing the configured contact (`graveyard/<version> (+<contact>)`, no control characters) and an `Accept` header. POST bodies SHALL be serialised compactly with sorted keys so identical queries produce identical bytes. |
+| SRC-HTTP-11 | `fetch` SHALL never raise except `asyncio.CancelledError`. It returns `Ok(data, url, fetched_at)`, `NotFound(url, fetched_at)` or `Failed(kind, url, status)`. `Failed` carries no body, header values or exception text. |
+
+---
+
+## Rate limiting and concurrency (§10.7, AU-1)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-RATE-1 | **Per host,** the gateway SHALL enforce a maximum number of in-flight requests and a minimum interval between request starts. Defaults are config (design §4.3): `pypistats.org` has the strictest interval (3 s); `api.github.com` is serial. |
+| SRC-RATE-2 | A `429`, or a `Retry-After`, from a host SHALL set a host-wide not-before time, so sibling tasks pause as well, not only the task that saw it. |
+| SRC-RATE-3 | The number of packages processed concurrently SHALL be bounded (`max_packages_in_flight`, default 50). |
+| SRC-RATE-4 | Retry, backoff, limiter waits and deadlines SHALL use the injected `Clock` (`now`, `monotonic`, `sleep`), and jitter SHALL come from an injectable `random.Random`, so tests run without real waiting. |
+| SRC-RATE-5 | The limiters SHALL be documented as per-process (D8). |
+
+---
+
+## Security (T2, T6, T7; `security.md`)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-SEC-1 | **Token handling.** `SecretToken` SHALL wrap a non-empty string without whitespace or control characters. Its `repr` and `str` SHALL be a fixed redacted value, it SHALL refuse pickling, and only the gateway SHALL call `reveal()`. The packages SHALL accept the token only as an argument (D7). |
+| SRC-SEC-2 | The `Authorization` header SHALL be added per request, only when the host is `api.github.com`, never as a client default header. |
+| SRC-SEC-3 | The token SHALL NOT appear in any `Evidence`, `SourceWarning`, `Failed`, exception message, cache key, cache value or cassette. As defence in depth, every string the packages emit SHALL pass a redaction step that removes the exact token and anything shaped like a GitHub token (`gh[pousr]_…`, `github_pat_…`). |
+| SRC-SEC-4 | **Untrusted data.** Response content SHALL be used only through typed accessors that return `None` on the wrong type. Free text from responses (descriptions, summaries, deprecation messages, issue titles, author names) SHALL NOT be stored in evidence, notes or warnings (D11). The only strings copied from a response are: advisory ids (SRC-HTTP-3 pattern), fixed-version strings matching `[A-Za-z0-9][A-Za-z0-9._+!~-]{0,99}`, dates parsed to `date`, and URLs that `normalise_repo_url` has reduced to `github.com/<owner>/<repo>`. |
+| SRC-SEC-5 | **Cost and abuse bounds (T7).** Config SHALL cap: packages per `collect` call (default 1,000), OSV detail fetches per package (default 200) and per batch (default 5,000), GitHub history pages per repo (default 10), and response bytes. When a cap is hit for a signal that would otherwise be wrong if truncated (S7), the signal SHALL be `None` with a warning rather than a partial value. |
+| SRC-SEC-6 | No code from, or about, a package SHALL be executed or installed (T9). Only metadata endpoints are called. |
+| SRC-SEC-7 | The recording script (SRC-REC) SHALL store no request headers, and SHALL refuse to write a cassette containing the token or a token-shaped string. |
+
+---
+
+## Cache (AU-5, §10.7)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-CACHE-1 | **THE SYSTEM SHALL** define `SourceCache` (in `backend/sources/cache.py`) as a `typing.Protocol` with `async get(key) -> CacheEntry \| None` and `async put(key, value, ttl_seconds)`, where `value` is JSON-compatible. The later DynamoDB implementation SHALL need no change to the clients. |
+| SRC-CACHE-2 | **THE SYSTEM SHALL** provide `MemoryCache`: TTL via the injected clock, a bounded entry count with least-recently-used eviction, values stored as serialised JSON so callers cannot mutate cached data, and safe for concurrent tasks. |
+| SRC-CACHE-3 | Keys SHALL be `v1#<namespace>#<subject>` with one namespace per source call. Subjects SHALL use `package_key` or `repo_key` (never the raw purl, never npm name case) so equivalent requests share an entry. GitHub keys SHALL include the `as_of` date because the commit window depends on it. |
+| SRC-CACHE-4 | Only successful results and definitive `NotFound` results SHALL be cached. A `Failed` outcome SHALL NOT be cached. The cached value SHALL hold the parsed minimal fact plus the original `fetched_at`, not raw response bodies. |
+| SRC-CACHE-5 | Default TTL is 24 h; `pypistats` is 7 days (PRD §10.7); GitHub repo data is 24 h. TTLs are config. |
+| SRC-CACHE-6 | A cache `get` or `put` error, or a cached value that does not decode, SHALL be treated as a miss (and a write failure ignored) with a `CACHE_ERROR` warning; it SHALL NOT fail the package. |
+| SRC-CACHE-7 | Concurrent lookups for the same key inside one session SHALL share one fetch (single flight). |
+| SRC-CACHE-8 | A bulk response (npm downloads) SHALL populate one cache entry per name. |
+
+---
+
+## Repository resolution (EX-9, ADR 0001 decision 7)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-REPO-1 | **THE SYSTEM SHALL** resolve each package's repository in this order and stop at the first accepted candidate: (1) deps.dev version document for the resolved version, then for the latest version: `relatedProjects[]` with `relationType == "SOURCE_REPO"` (`projectKey.id`), then `links[]` with `label == "SOURCE_REPO"` (`url`); (2) npm only: the `repository` field (string or `{url}`) of the full packument, fetched only if step 1 found nothing; (3) PyPI only: `info.project_urls` values, then `info.home_page`, then `info.download_url`. |
+| SRC-REPO-2 | Every candidate SHALL be normalised with `core.purl.normalise_repo_url`. A candidate that returns `None` is skipped. The prototype's own regex SHALL NOT be reused. |
+| SRC-REPO-3 | **WHEN** no repo resolves **THEN** S3, S5, S6 (open and closed) and the GitHub part of S1 SHALL be missing with the note "no GitHub repo resolved". S4 and S8 are also missing, because the Scorecard lookup is by repo (the anchors `pycrypto` and `nose` rely on this: SRC-ANC-3). |
+| SRC-REPO-4 | Repo-level lookups (deps.dev project, Scorecard API, GitHub) SHALL be keyed and deduplicated by `repo_key`. A repo shared by several packages in a batch SHALL be fetched once. The display form used for evidence is the smallest display string among the sharers. |
+| SRC-REPO-5 | PyPI `project_urls` SHALL be tried in label-priority order (case-insensitive: `source`, `source code`, `repository`, `code`, `github`, `homepage`, `home`, then the remaining labels sorted) before `home_page` and `download_url`. |
+| SRC-REPO-6 | A candidate whose owner segment is a GitHub reserved path (for example `sponsors`, `orgs`, `topics`, `marketplace`, `settings`, `features`, `about`, `collections`, `events`, `apps`, `login`) SHALL be rejected (D10). The list is a constant in `repo_resolve.py`. |
+
+---
+
+## Latest-version fallback (D15, Q6)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-LAT-1 | **WHEN** the registry lookup (npm packument or PyPI JSON) returns `Failed`, or `Ok` without a usable latest version, **THEN** the latest version SHALL be taken from `GET https://api.deps.dev/v3/systems/{npm\|pypi}/packages/{name}` (404 is `NotFound`): the single `versions[]` entry with `isDefault == true`. Zero or several defaults, or a failure, leave the latest version unknown. The request is not made when the registry answered. |
+| SRC-LAT-2 | With the fallback, the deps.dev version document for the latest version is requested as usual, so S1(a) (deps.dev `isDeprecated`), S1b and S2 are recovered. The registry warning is still reported, with `signals` naming only the signals that stayed missing. The evidence note of a recovered signal SHALL say "latest version from deps.dev". Registry-only data (PyPI `project_urls`, the `VERSION_NOT_FOUND` check) stays unavailable. |
+| SRC-LAT-3 | If the registry answered `NotFound` (the package does not exist there), the fallback SHALL NOT be used. |
+
+---
+
+## Per-signal sources (§7.1, ADR 0001)
+
+Every row's failure rule is: source failed or response unusable ⇒ the signal is `None` with a warning, other signals unaffected.
+
+| ID | Signal | Requirement |
+|----|--------|-------------|
+| SRC-S1 | S1 `s1_declared_death` | Kleene OR (D5) of: **(a) npm only:** latest version deprecated, from deps.dev `isDeprecated` of the latest version when it is a `bool`, else the npm registry `deprecated` field of the latest version (truthy = deprecated); **(b) all ecosystems:** GitHub `isArchived`. PyPI has no (a) (ADR decision 3). Evidence `source_url` is the first contributing source, the rest in `extra_source_urls`. |
+| SRC-S1B | S1b `s1b_version_deprecated` | npm only: Kleene `resolved_deprecated AND NOT latest_deprecated`, each from the same source order as S1(a). PyPI: `None` with note "PyPI exposes no deprecation signal". |
+| SRC-S2 | S2 `s2_latest_release_at` | Date (UTC) of the latest version's publication: deps.dev `publishedAt` of the latest version; else (npm) the full packument `time[latest]`; else (PyPI) the earliest `upload_time_iso_8601` among the top-level `urls` (the files of the latest release), then among `releases[latest]`. PyPI has deprecated the `releases` key, so it is a fallback, not the primary source (design §6). Timestamps are parsed as ISO 8601 and converted to UTC before taking the date. "Latest" is npm `dist-tags.latest`, PyPI `info.version`, or the SRC-LAT-1 fallback. |
+| SRC-S3 | S3 `s3_last_push_at` | GitHub `pushedAt`, as a date. |
+| SRC-S4 | S4 `s4_maintained` | Scorecard check `Maintained` `score` from the deps.dev project document; when deps.dev has no project or no scorecard, from the Scorecard API (`api.securityscorecards.dev`). −1 is passed through unchanged (the scorer treats it as missing). |
+| SRC-S5 | S5 `s5_committers` | See SRC-GH-4…6. |
+| SRC-S6 | S6 `s6_open_issues`, `s6_closed_issues` | GitHub `issues(states: OPEN) { totalCount }` and `issues(states: CLOSED) { totalCount }`, all-time (ADR decision 5). |
+| SRC-S7 | S7 `s7_advisories` | See SRC-OSV-1…7. `None` means unknown; an empty tuple means known to be empty. |
+| SRC-S8 | S8 `s8_overall` | Scorecard `overallScore` from the same document as S4. |
+| SRC-S9-1 | S9 npm | `downloads` of `api.npmjs.org/downloads/point/last-week/<names>`. Unscoped names that match `[A-Za-z0-9][A-Za-z0-9._~-]*` SHALL be requested in bulk, up to 128 distinct names per request, comma-separated, each name quoted. A chunk with exactly one name SHALL use the single-name form, whose response shape differs. Scoped names, and names that do not match the pattern (a comma in a name must never merge two lookups), SHALL be requested individually. In a bulk response a `null` entry means the name is unknown (S9 `None`, note, no warning); a requested name whose entry is missing or not a mapping with a non-negative `int` `downloads` is `None` with `UNEXPECTED_SHAPE`; response keys that were not requested are ignored. A failed bulk request makes S9 `None` with a warning for every name in it. Names are deduplicated across the batch before chunking. |
+| SRC-S9-2 | S9 PyPI | `data.last_week` of `pypistats.org/api/packages/<normalised name>/recent`, fetched only under SRC-S9-3. |
+| SRC-S9-3 | Lazy PyPI phase (D14, Q4) | After S1–S8 are assembled, a PyPI package SHALL be looked up on pypistats only when `core.sources.resting.is_resting_candidate(signals)` is true. That predicate returns true iff `score_package` on the signals, with `s9_weekly_downloads` replaced by `weights.resting_min_weekly_downloads`, gives base state Resting (so it applies the thresholds, the known-empty advisory rule and the `r6` rule without re-implementing them). For any other PyPI package S9 is `None` with the note "not fetched: package cannot be Resting", no warning, and `stats` counts the skip. After the lookup the signals are re-assembled with S9. |
+| SRC-S9-4 | Rate | The `pypistats.org` interval stays 3.0 s and its cache TTL 7 days. The lazy phase runs after all other phases and is subject to the batch deadline: a request that cannot start before the deadline makes S9 `None` with `DEADLINE_EXCEEDED`. The recording run measures the real limit (SRC-REC-5). |
+
+### OSV (SRC-OSV)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-OSV-1 | **THE SYSTEM SHALL** send one `POST /v1/querybatch` per chunk of at most 1,000 `(ecosystem, name, version)` queries for the whole batch (PRD §10.7), not one per package. Ecosystem names are `npm` and `PyPI`. The response `results` SHALL be matched to queries by index; a length mismatch SHALL make S7 `None` for every query in that chunk. |
+| SRC-OSV-2 | Results with `next_page_token` SHALL be re-queried (only those queries) until no token remains, with a guard of 20 pages per query; exceeding the guard makes that package's S7 `None` with `PAGINATION_ABORTED`. |
+| SRC-OSV-3 | The union of ids is fetched with `GET /v1/vulns/<id>`, each id **once per batch** (shared across packages and cached by id). Invalid ids (SRC-HTTP-3 pattern) are ignored and counted in a warning. |
+| SRC-OSV-4 | **`has_fix`:** for each advisory, consider `affected[]` entries whose `package.ecosystem` equals the queried ecosystem and whose `package.name` equals the queried name after PEP 503 normalisation (both ecosystems, as in the prototype). Ignore ranges of type `GIT`. `has_fix` is true iff at least one remaining range has an event with a valid `fixed` version string (SRC-SEC-4 pattern). `fixed_versions` (sorted, unique) is kept as an audit aid in the evidence value only. |
+| SRC-OSV-5 | Advisories with a `withdrawn` field SHALL be skipped. `published_at` is the date of `published`, or `None` if absent or unparsable (and then never satisfies the Cursed age condition, per `mortality-model.md`). Advisories are NOT deduplicated by alias: the anchors expect 2 for express, 2 for moment and 4 for pycrypto. |
+| SRC-OSV-6 | **All-or-nothing.** If the query, any page, or any detail fetch for a package fails or is capped, that package's S7 SHALL be `None`, never a partial list. A partial list could hide a no-fix advisory and so a Cursed state. |
+| SRC-OSV-7 | The resulting advisories SHALL be `core.scoring.types.Advisory(id, has_fix, published_at)`, sorted by id. |
+
+### GitHub (SRC-GH)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-GH-1 | **THE SYSTEM SHALL** query `https://api.github.com/graphql` with up to 50 distinct repos per request (tech.md, §10.7), using GraphQL **variables only**: no owner, name or date is interpolated into the query text. Aliases are generated (`r0`…). |
+| SRC-GH-2 | Per repo the query SHALL request `isArchived`, `pushedAt`, `issues(states: OPEN) { totalCount }`, `issues(states: CLOSED) { totalCount }`, and the default branch `history(since, until, first: 100)` with `pageInfo` and each node's `author { name email user { login } }`; plus `rateLimit { cost remaining resetAt }` once per request. |
+| SRC-GH-3 | A GraphQL response with `data` `null` makes every repo in that request missing with a warning. A repo whose alias is `null` is "not found" and is missing without failing the others. A response with an `errors` array and usable `data` SHALL keep the usable aliases. |
+| SRC-GH-4 | **S5 window:** `since = as_of − 365 days at 00:00:00Z`, `until = as_of at 23:59:59Z` (prototype). S5 is the number of distinct author keys in that window, key = `user.login`, else lower-cased `email`, else `name`. |
+| SRC-GH-5 | History SHALL be paginated per repo (`first: 100`, `after: endCursor`) up to `max_history_pages` (default 10 = 1,000 commits). If the cap is reached, S5 is the count so far, a `PAGINATION_TRUNCATED` warning is added, and the evidence note says the value is a lower bound. A failure on a later page makes S5 `None` (the other GitHub signals are kept). |
+| SRC-GH-6 | **WHEN** `rateLimit.remaining` is below a configured floor, history follow-ups SHALL stop and S5 SHALL be `None` with `RATE_LIMITED`; the signals already in the first response are kept. A `403` or `429` with `Retry-After`, or with `x-ratelimit-remaining: 0`, SHALL follow SRC-HTTP-8 and SRC-RATE-2. |
+| SRC-GH-7 | **WHEN** no token is supplied **THEN** all GitHub-derived signals SHALL be missing and each affected package SHALL carry a `GITHUB_DISABLED` warning. |
+| SRC-GH-8 | Batches SHALL be grouped by `as_of` (the window differs) and deduplicated by `repo_key` (SRC-REPO-4). Within a group, repos are sorted by `repo_key` so the request body is deterministic. |
+
+---
+
+## Warnings (AU-4)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-WARN-1 | Every failure, cap, out-of-domain value and unexpected shape SHALL be reported as a `SourceWarning(code, source, signals, detail, status)` on the affected packages' results. The code SHALL NOT log or print. |
+| SRC-WARN-2 | `code` SHALL be one of a closed set: `INVALID_INPUT`, `HOST_NOT_ALLOWED`, `HTTP_STATUS`, `TIMEOUT`, `CONNECT_ERROR`, `RATE_LIMITED`, `REDIRECT_REFUSED`, `RESPONSE_TOO_LARGE`, `BAD_CONTENT_TYPE`, `INVALID_JSON`, `UNEXPECTED_SHAPE`, `OUT_OF_DOMAIN`, `VERSION_NOT_FOUND`, `PAGINATION_TRUNCATED`, `PAGINATION_ABORTED`, `TOO_MANY_ADVISORIES`, `DEADLINE_EXCEEDED`, `GITHUB_DISABLED`, `CACHE_ERROR`, `INTERNAL_ERROR`. `source` SHALL be one of `depsdev`, `osv`, `npm_registry`, `pypi`, `npm_downloads`, `pypistats`, `scorecard`, `github`, `cache`, `internal`. |
+| SRC-WARN-3 | `detail` SHALL be at most 200 characters and built only from fixed templates and validated values (status code, host name, signal keys, ids matching SRC-HTTP-3). It SHALL NOT contain response bodies, header values, exception text, memory addresses or timestamps. |
+| SRC-WARN-4 | A batch-wide failure (for example one GitHub request) SHALL be reported on each affected package but counted once in `stats`. |
+| SRC-WARN-5 | **VERSION_NOT_FOUND:** when the registry lists its versions and the resolved version is not among them, the registry-derived signals (S1(a), S1b) are `None` with this warning; sources keyed by the purl version (OSV, deps.dev) are still tried. For PyPI, if the response has no `releases` key the check is skipped (unknown, no warning). |
+
+---
+
+## Testing (testing.md, `mortality-model.md`)
+
+Pure-half tests live in `backend/core/sources/tests/`; I/O-half tests in `backend/sources/tests/`. The anchor end-to-end test lives in `backend/sources/tests/` because it needs both halves and `core.scoring`. The recorded cassette lives in `backend/core/sources/tests/fixtures/recorded/`; `backend/sources/tests/` reads it through a path relative to `__file__`.
+
+| ID | Requirement |
+|----|-------------|
+| SRC-TEST-1 | **No test SHALL use the network.** Tests use `httpx.MockTransport` with a handler (replay, fault plan or hand-built), or in-process fakes. No `respx`. A replay handler SHALL record any request with no recorded match in a log, answer it with a connection error, and the test SHALL assert the log is empty. |
+| SRC-TEST-2 | **Recorded-response example tests:** each parser (deps.dev version, package and project; OSV query and vuln; npm abbreviated and full packument; PyPI JSON; npm downloads single and bulk; pypistats; Scorecard API; GitHub GraphQL first page and a history page) SHALL be tested against real recorded bodies, with expected values derived by independent code or by hand from the body, not from the parser's own output. Recorded 404 bodies SHALL cover `NotFound`. Hand-built documents may be used for shapes the recording does not contain. |
+| SRC-TEST-3 | **Property: `has_fix` oracle.** For generated OSV vulnerability documents (several `affected` entries, mixed ecosystems and names in different spellings, `SEMVER`, `ECOSYSTEM` and `GIT` ranges, `introduced`, `fixed`, `last_affected`, `limit` events, absent and empty fields), `has_fix` SHALL equal an independent oracle that walks the document as flattened `(path, value)` pairs instead of nested lookups. Adding or removing a `GIT` range or a `last_affected` event SHALL never change the result; adding a valid `fixed` event to a matching non-`GIT` range SHALL make it true. |
+| SRC-TEST-4 | **Property: parsers are total.** Every parser SHALL return a value or `None`, and never raise, for arbitrary JSON-like input (nested, wrong types, `bool` where `int` is expected, huge ints, unicode, very long strings). |
+| SRC-TEST-5 | **Property: `Signals` always validate.** For any generated mix of well-formed and malformed responses across all sources, every `SourceResult.signals` that is set SHALL be a valid `Signals` and every evidence value SHALL be JSON-serialisable. |
+| SRC-TEST-6 | **Property: failures only degrade.** Run a clean batch, then run it again with a generated fault plan per request (timeout, connection error, 429 with `Retry-After`, 5xx, 3xx, 404, truncated body, invalid JSON, oversize body, wrong content type, wrong shape, empty object/array). Each fault applies to the first `k` attempts of a request, `k` from 1 to 5, so both recovery by retry and persistent failure are covered. `collect` SHALL return without raising, and for every signal of every package the faulty value SHALL be either `None` or equal to the clean value (the deliberate corollary of D5). Every signal that is `None` in the faulty run and not in the clean run SHALL be named in at least one warning's `signals`, or carry a note citing an upstream absence (no repo, not-a-candidate). The property runs over a generated in-memory "web" (`sources/tests/fakeweb.py`) and over the recorded anchor cassette. In a faulted run, a fallback request that the cassette does not contain (for example the deps.dev package endpoint for an anchor other than `left-pad` and `six`) is answered as a connection error and is not a test failure; the unmatched-request assertion of SRC-TEST-1 applies to clean runs. |
+| SRC-TEST-7 | **Property: batching and dedupe.** For generated package sets: the number of OSV queries equals the number of distinct `(ecosystem, name, version)`, with `ceil(n/1000)` requests; each OSV id is fetched at most once; the number of GitHub repos queried equals the number of distinct `repo_key`s, with `ceil(m/50)` first-page requests per `as_of` group; npm bulk requests contain at most 128 names, no scoped or comma-bearing name, and each unscoped name once; results are identical for any input permutation; duplicate inputs produce equal results. |
+| SRC-TEST-8 | **Property: rate limiter.** Under a fake clock, for generated task sets, in-flight requests per host never exceed the limit, request starts per host are at least `min_interval` apart, and a recorded `Retry-After` delays every task on that host. |
+| SRC-TEST-9 | **Property: Kleene logic.** `s1` and `s1b` SHALL equal a truth-table oracle over all combinations of `{True, False, None}` for each part and each ecosystem. |
+| SRC-TEST-10 | **Gateway tests** (MockTransport, fake clock): allow-list; scheme, port and userinfo rejection; redirect refusal with `Location` not requested; `Content-Length` and streamed size cap including a gzip body that expands past the cap; `NaN`, deep nesting and invalid UTF-8; content-type check; retry schedule and jitter bounds; `Retry-After` in both forms and over the cap; batch deadline; a slow-drip body against a real 50 ms per-request deadline; `Authorization` sent to `api.github.com` only; cookie jar cleared; `trust_env` off. |
+| SRC-TEST-11 | **Token secrecy:** with a distinctive token, adversarial servers that echo the `Authorization` header, put the token in the body, the headers or the JSON, and raise exceptions containing it SHALL not make the token appear in any `Evidence`, `SourceWarning`, cache key or value, `repr`, or `str` of any result, or in a generated cassette. |
+| SRC-TEST-12 | **Untrusted text:** recorded or hand-built responses whose descriptions, deprecation messages, issue titles, author names and `project_urls` contain prompt-injection strings, URLs and control characters SHALL produce no such string in any evidence, note or warning. |
+| SRC-TEST-13 | **Cache tests:** TTL expiry, LRU bound, mutation isolation, no caching of `Failed`, caching of `NotFound`, original `fetched_at` preserved on a hit, `CACHE_ERROR` on a raising cache, single flight (N concurrent equal lookups, one request), GitHub key includes `as_of`, a bulk downloads response fills one entry per name. |
+| SRC-TEST-14 | Property tests are tagged `@pytest.mark.property`, use `deadline=None` for async bodies, and respect the `HYPOTHESIS_PROFILE` profiles. `uv run pytest -q`, `uv run ruff check`, `uv run ruff format --check` and `uv run mypy --strict core sources` SHALL pass. **Line coverage SHALL be at least 85 % on `core/sources` and, separately, at least 85 % on `sources`** (`testing.md`), excluding `tests/` directories. |
+| SRC-TEST-15 | **Property: Resting candidate (D14).** For generated `Signals`, `is_resting_candidate(s)` SHALL be true iff some value `v` in `{None, 0, threshold − 1, threshold, threshold + 1, 10⁹}` makes `score_package` on `s` with `s9_weekly_downloads = v` return base state Resting (an exhaustive oracle over the interesting S9 values). The result SHALL NOT depend on the `s9_weekly_downloads` already in `s`. When it is false, no `v` gives Resting; when it is true, every `v ≥ threshold` does. |
+| SRC-TEST-16 | **Per-item errors and wrappers (D16, Q5).** For arbitrary strings as purls (and arbitrary non-`date` `as_of` values) in a batch with valid items, `collect` SHALL return, the invalid items SHALL have `error` set and `signals=None`, and the valid items' results SHALL equal the results of the valid items alone. `autopsy(...)` SHALL return a result equal to `asyncio.run(autopsy_async(...))` on the same inputs, and SHALL raise `RuntimeError` when called inside a running event loop. |
+| SRC-TEST-17 | **Latest fallback (D15).** With the registry faulted (`Failed`) and the deps.dev package endpoint serving `isDefault`, S1(a), S1b and S2 SHALL equal the clean run's values; with both faulted they SHALL be `None`; with the registry `NotFound`, the package endpoint SHALL NOT be requested. |
+| SRC-TEST-18 | **npm bulk downloads (SRC-S9-1).** Names are chunked at 128, scoped and comma-bearing names go individually, the single-name chunk uses the single form, `null` entries are `None` without a warning, a missing requested key is `UNEXPECTED_SHAPE`, unrequested keys are ignored. |
+
+---
+
+## Recording the real responses (SRC-REC)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-REC-1 | **THE SYSTEM SHALL** provide `scripts/record_source_responses.py`, a **manual, maintainer-run** script like `capture_anchors.py`. It runs the **production** clients (`autopsy_async`) against the live sources for the nine anchor purls at `as_of = 2026-11-03` through a recording transport defined in the script, and writes one cassette `backend/core/sources/tests/fixtures/recorded/anchors.cassette.json` plus a provenance table in `fixtures/recorded/README.md` (source, command, `httpx` version, date). The nine anchors are queried as one batch, so the GitHub request body in the cassette is the one the tests will send. |
+| SRC-REC-2 | `GITHUB_TOKEN` and `GRAVEYARD_CONTACT` SHALL be read **by the script** from the environment and passed in (D7); the script exits with an error if either is missing. With `--fallbacks` it additionally records endpoints the happy path does not touch: the Scorecard API for each resolved repo, the full packuments for `left-pad` and `node-uuid`, the deps.dev package endpoint for `left-pad` and `six` (D15), and one `404` probe each for deps.dev and the Scorecard API. |
+| SRC-REC-3 | A cassette entry SHALL hold `{request: {method, url, body}, response: {status, content_type, retry_after, body}}`. The body is stored as parsed JSON, verbatim. No request header is stored (SRC-SEC-7). The cassette types and the canonical hash (`method`, `url`, SHA-256 of the canonical JSON body) live in the pure half (`core/sources/cassette.py`, no file I/O); file reading and writing is in the tests and the script. Replay is an `httpx.MockTransport` whose handler matches on that hash, independent of order, and answers with the recorded status and body. A fault wrapper is a handler that delegates to the replay handler (SRC-TEST-6). Both live in `sources/tests/transports.py`. |
+| SRC-REC-4 | **The script SHALL refuse to write anything if the live data would change any anchor's expected state.** After the run it scores each result with `score_package` and compares base state, `dead_reason`, `cursed`, `wounded`, and the MM-ANC extras (`left-pad` mortality equal to `s1_min_score`, `pycrypto` and `nose` confidence 0.25, `six` mortality within 0.5 of 43.7) with the table of MM-ANC-1…9. On a mismatch it prints which anchor and which field and exits non-zero. It also refuses if any single recorded body exceeds 2 MiB or the total exceeds 6 MiB (measured on 10 Nov 2026: about 0.7 MB of npm abbreviated packuments, 0.8 MB for the express full packument, 0.1 MB for PyPI), or if a token-shaped string is found. Differences in the other SRC-ANC-3 fields are printed as warnings and do not block, unless `--strict` is given. |
+| SRC-REC-5 | **pypistats measurement (Q4).** With `--probe-pypistats` the script SHALL send a small, polite series of sequential requests to `pypistats.org` for well-known package names (3 requests at each interval of 3.0, 2.0, 1.0 and 0.5 s, 12 in total), stopping at the first `429`, and write `fixtures/recorded/pypistats_probe.json` with, per request, the interval, status, `Retry-After` and any `x-ratelimit-*` headers, plus a computed `safe_interval_seconds` (the smallest tested interval with no `429`, or `null` if none). It SHALL also add the finding to the README. It never changes configuration by itself. |
+
+---
+
+## Anchors re-run end to end (MM-ANC-1…9)
+
+| ID | Requirement |
+|----|-------------|
+| SRC-ANC-1 | **THE SYSTEM SHALL** have a test that sends the nine anchor purls (`request@2.88.2`, `node-uuid@1.4.8`, `left-pad@1.3.0`, `express@4.17.1`, `uuid@3.4.0`, `moment@2.29.1`, `pycrypto@2.6.1`, `nose@1.3.7`, `six@<fixture version>`) with `as_of = 2026-11-03` through `autopsy_async` in one batch against the replay transport, then through `core.scoring.score_package`, and asserts the expectations of MM-ANC-1…9 from an explicit table in the test: base state, `dead_reason`, `cursed`, `wounded`, `exposure == 1.0` and `exposure_assumed`, `left-pad` mortality equal to `s1_min_score`, `pycrypto` and `nose` confidence 0.25, and `six` mortality within 0.5 of 43.7. |
+| SRC-ANC-2 | The same test SHALL assert that, per anchor, the state tuple (base state, `dead_reason`, `cursed`, `wounded`) equals the one computed from the existing committed fixture `core/scoring/tests/fixtures/anchors/<pkg>.json`, and that the replay log has no unmatched requests. |
+| SRC-ANC-3 | Signal-level parity with the committed anchor fixtures, per anchor: `repo` (compared by `repo_key`), `resolved_version`, `latest_version`, S1b, S2 are **equal**; S7 has every fixture advisory id with the same `has_fix` and `published_at` (extra ids are listed by the test, not failed); `pycrypto` and `nose` have no repo and `None` for S1, S3–S6, S8; the live counters S3, S5, S6, S4, S8 and the npm S9 are equal in presence (a value in one is a value in the other) and within a stated tolerance, which the test records next to each field. PyPI S9 exists only for `six`; for `pycrypto` and `nose` it is `None` with the "cannot be Resting" note (D14) and is not compared. S1 may differ from the fixture only in the D5 cases (fixture `False`, new `None`), listed by name in the test. |
+| SRC-ANC-4 | The anchor test SHALL also run with a fake clock and assert that every `Evidence` of a non-missing signal has a `source_url` on the allow-list and a `fetched_at` between the fake clock's start and end times of the run (the fake clock advances when a limiter sleeps). |
+| SRC-ANC-5 | The request log of the anchor run SHALL show: one npm bulk request carrying the six npm names; exactly one pypistats request (for `six`); one OSV `querybatch` request; one GitHub first-page request for the seven distinct repos. |
+
+---
+
+## Non-functional
+
+| ID | Requirement |
+|----|-------------|
+| SRC-NFR-1 | **Request budget.** For `n` packages with `r` distinct repos and `a` distinct advisories: OSV requests ≤ `ceil(n/1000)` plus pages plus `a` details; GitHub first-page requests ≤ `ceil(r/50)` plus one per extra history page; per package at most 2 deps.dev version requests, 1 deps.dev project request, 1 registry request (+1 full packument fallback, +1 deps.dev package request when the registry failed), 1 Scorecard API request (fallback); npm downloads ≤ `ceil(u/128)` bulk requests plus one per scoped name; pypistats ≤ one per Resting candidate. A test with a counting handler SHALL assert these bounds on the anchor batch. |
+| SRC-NFR-2 | **Latency target** (PRD G1): 1,000 unique packages cold in ≤ 90 s at p95 is a target for the whole scan; this code's share is bounded by SRC-NFR-1 and the per-host concurrency. It SHALL be measured with the load test of `testing.md` (manual, W4), not asserted in unit tests. |
+| SRC-NFR-3 | Memory is bounded by `max_packages_in_flight × max_response_bytes` plus the cache bound. |
+| SRC-NFR-4 | Public names are re-exported from `core.sources` (pure types: `SourcesConfig`, `SecretToken`, `Evidence`, `SourceWarning`, `SourceResult`, `BatchResult`, `ItemError`, …) and from `sources` (`autopsy_async`, `autopsy`, `SourceSession`, `SourceCache`, `MemoryCache`), with module docstrings that state D1, D3, D4, D5 and D11. |
+
+---
+
+## Review decisions applied
+
+| # | Decision | Where it landed |
+|---|----------|-----------------|
+| Q1 | Split now: pure half in `backend/core/sources/` with an `ast` purity test; I/O half in `backend/sources/`; `pyproject.toml` and `structure.md` updated. | D1, SRC-DEP-2, SRC-DEP-4, SRC-PURE-1/2 |
+| Q2 | Invalid purl: per-item error plus warning; the batch continues. | D16, SRC-API-2, SRC-API-5, SRC-TEST-16 |
+| Q3 | Recording script written; maintainer runs it with their token; it refuses to write if any MM-ANC expected state would change. | SRC-REC-1…4 |
+| Q4 | npm downloads in bulk; PyPI downloads lazily for Resting candidates only; 3 s interval and 7-day cache kept; measure the limit while recording. | D14, SRC-S9-1…4, SRC-REC-5, SRC-TEST-15, SRC-TEST-18 |
+| Q5 | No `pytest-asyncio`; `autopsy_async` plus a sync `autopsy`; `httpx.MockTransport`, no `respx`. | D13, SRC-API-1, SRC-TEST-1, SRC-TEST-16 |
+| Q6 | deps.dev package `isDefault` as the latest-version fallback. | D15, SRC-LAT-1…3, SRC-TEST-17 |

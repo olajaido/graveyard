@@ -17,9 +17,11 @@ graveyard/
 ├── powers/graveyard/            # Kiro Power: POWER.md, mcp.json, steering/, hooks
 ├── backend/
 │   ├── pyproject.toml          # uv-managed; Python 3.12; pytest, ruff, mypy config
-│   ├── core/                    # pure logic: purl, versions, scoring, graph (PBT heavy)
-│   │   └── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
-│   ├── sources/                 # osv, depsdev, scorecard, npm, pypi, github clients
+│   ├── core/                    # pure logic: purl, versions, scoring, graph, sources (PBT heavy)
+│   │   ├── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
+│   │   └── sources/             # pure half of the source clients: parsers, has_fix, repo resolution, signal assembly
+│   │       └── tests/fixtures/recorded/   # recorded HTTP cassette shared with backend/sources/tests
+│   ├── sources/                 # I/O half of the source clients: async gateway, per-source clients, cache, session (imports core.sources)
 │   ├── workflow/                # Step Functions task handlers
 │   ├── api/                     # handlers + openapi.yaml
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
@@ -57,7 +59,9 @@ graveyard/
 
 - `backend/core/` contains only pure logic with no I/O. Every function here is property-testable.
 - Tests for `backend/core/scoring/` are colocated in `backend/core/scoring/tests/`, with fixtures in `backend/core/scoring/tests/fixtures/`. Tests resolve fixture paths via `Path(__file__).parent`, never the working directory. `backend/tests/` remains for cross-package unit, property, and integration tests.
-- `backend/sources/` contains only external API clients and caching. No scoring logic.
+- `backend/core/sources/` is the pure half of the source clients: URL builders, response parsers, `has_fix`, repo resolution, signal assembly, config and result types. It has no I/O and no `httpx`, `asyncio`, `os`, `logging` or `print`. It may import `core.purl` and `core.scoring`, and the only module that may import `core.scoring` beyond `core.scoring.types` is `core/sources/resting.py` (it decides which packages could be Resting, by calling `score_package`). Its tests and the recorded HTTP cassette are colocated in `core/sources/tests/`.
+- `backend/sources/` contains only external API clients and caching: the async HTTP gateway, per-source clients, the cache protocol and in-memory cache, and the session. It imports `core.sources` and never `core.scoring` (tests excepted). No scoring logic, no response parsing rules. Its tests may read the cassette in `core/sources/tests/fixtures/recorded/` through a path relative to `__file__`.
+- Neither `core/sources` nor `sources` reads environment variables, logs or prints. Secrets, contact strings and tokens are passed in by the caller (`workflow/` or a script).
 - `backend/workflow/` contains Step Functions task handlers only.
 - `backend/rites/` contains remediation generators and codemod rules. No scoring.
 - `backend/narrate/` contains Bedrock prompts and validators only.
