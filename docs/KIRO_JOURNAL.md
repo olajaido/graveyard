@@ -426,3 +426,25 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** the oracle flattens the document into `(path, value)` pairs and imports only `re`, enforced by an `ast` test. The oracle and `has_fix` agreed on 3000 generated documents and found no bug.
 - **Corrected:** a weighted-choice helper repeating strategies inside `st.one_of` produced multi-hundred-MB Hypothesis reprs. A composite helper drawing a weighted integer replaced it.
 - **Surprise:** the spec left a non-str `next_page_token` open. Chosen: the whole chunk is malformed, so a bad token cannot hide advisories behind a Cursed state (SRC-OSV-6).
+
+
+### 10 Nov — Spec `autopsy-sources`: T4 (GitHub query builder and parsers)
+- **Spec/task:** T4.1–T4.3: `parse/github.py` (batch and history queries, window, variables, first-page and history parsers, `author_key`, `committers`), 189 unit tests, 7 property tests.
+- **Kiro features:** task DAG tools with one sub-agent per leaf task; PostTaskExec journal hook; Hypothesis `ci` profile; `ast` purity guard picked up the new module by glob.
+- **Kiro got right:** query text depends only on the repo count. A non-ASCII marker on generated owners and names shows no data reaches the text. Final gates: 3120 tests, ruff and mypy clean.
+- **Corrected:** the property run could not record PBT status because the task id contains the full title. The property tests passed.
+- **Surprise:** the spec left open a `hasNextPage` with no usable cursor. Chosen: `end_cursor` is None, so the T9.4 client treats S5 as unknown. A `nodes` value that is not a list gives `history=None` (fail closed).
+
+### 10 Nov — Spec `autopsy-sources`: T5 (Repository resolution)
+- **Spec/task:** T5.1–T5.3: `repo_resolve.py` (`RESERVED_OWNERS`, `accept`, `choose`, `group_by_repo_key`), 210 unit tests, 4 property tests.
+- **Kiro features:** task DAG tools with one sub-agent per leaf task; PostTaskExec journal hook; Hypothesis `ci` profile; `ast` purity guard covered the new module by glob.
+- **Kiro got right:** reserved owners (`sponsors` etc.) are rejected case-insensitively, and each test first checks that `normalise_repo_url` alone would accept the URL. The properties found no bug.
+- **Corrected:** nothing needed correcting in `repo_resolve.py`; the shared strategies gained repo-candidate generators.
+- **Surprise:** `actions` and `github` were left out of the reserved list because they are real owners. The task ids contain the full task title, so each status update needed the whole text.
+
+### 10 Nov — Spec `autopsy-sources`: T6 (resting.py and assemble.py)
+- **Spec/task:** T6.1 `resting.py`, T6.2 `assemble.py`, T6.3 unit tests, T6.4 property tests (SRC-TEST-5, 9, 15).
+- **Kiro features:** spec task orchestration with sub-agent delegation, steering (testing, structure), PostTaskExec journal hook, Hypothesis `ci` profile, `ast` purity guard covering new modules by glob.
+- **Kiro got right:** Resting candidacy asks the scorer instead of re-implementing its rules. S1/S1b use Kleene logic checked against an enumeration oracle, with exhaustive and sampled tests.
+- **Corrected:** Hypothesis found that `Evidence` redaction could leave the primary URL in `extra_source_urls` after two token-shaped URLs became equal. Fixed in `model.py`, with a regression test.
+- **Surprise:** the repair path in `_construct` is unreachable through `assemble` by design, so it stays covered only by a direct unit test.

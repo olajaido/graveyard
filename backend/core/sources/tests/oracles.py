@@ -9,6 +9,11 @@ missing ``type`` or a wrongly typed ``package``, then shows up as a counterexamp
 This module must stay independent of the code it checks. It imports only the standard
 library, repeats the version pattern (SRC-SEC-4) and the PEP 503 normaliser instead of
 importing them, and ``test_oracles_independence.py`` enforces that with ``ast``.
+
+``s1_oracle`` and ``s1b_oracle`` (SRC-TEST-9) do the same for the Kleene signals of
+``core.sources.assemble``: they enumerate completions instead of using ``k_and`` / ``k_or``.
+The Resting-candidate oracle (SRC-TEST-15) needs ``score_package``, so it lives in
+``test_properties_resting.py``.
 """
 
 from __future__ import annotations
@@ -89,3 +94,42 @@ def has_fix_oracle(doc: object, ecosystem: str, name: str) -> bool:
             continue
         return True
     return False
+
+
+# --- Kleene logic (SRC-TEST-9, design §9.1) ---------------------------------------------------
+#
+# S1 and S1b are three-valued. The oracle does not use any three-valued operator. It fills
+# every unknown (``None``) part with each of ``True`` and ``False``, evaluates the plain
+# two-valued formula for every filling, and reports a value only if all fillings agree.
+
+
+def _fillings(parts: list[bool | None]) -> list[list[bool]]:
+    """Every way to replace the ``None`` entries of ``parts`` by a ``bool``."""
+    if not parts:
+        return [[]]
+    head, rest = parts[0], _fillings(parts[1:])
+    options = [True, False] if head is None else [head]
+    return [[option, *tail] for option in options for tail in rest]
+
+
+def _agreed(outcomes: list[bool]) -> bool | None:
+    """``True`` / ``False`` if every outcome is that value, else ``None`` (unknown)."""
+    if all(outcomes):
+        return True
+    if not any(outcomes):
+        return False
+    return None
+
+
+def s1_oracle(ecosystem: str, latest_deprecated: bool | None, archived: bool | None) -> bool | None:
+    """S1: npm is "latest version deprecated OR repo archived"; PyPI is "repo archived"."""
+    if ecosystem == "npm":
+        return _agreed([f[0] or f[1] for f in _fillings([latest_deprecated, archived])])
+    return _agreed([f[0] for f in _fillings([archived])])
+
+
+def s1b_oracle(ecosystem: str, resolved: bool | None, latest: bool | None) -> bool | None:
+    """S1b: npm is "resolved deprecated AND latest not deprecated"; PyPI has no such signal."""
+    if ecosystem != "npm":
+        return None
+    return _agreed([f[0] and not f[1] for f in _fillings([resolved, latest])])

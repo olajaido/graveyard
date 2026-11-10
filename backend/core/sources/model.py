@@ -148,10 +148,12 @@ class Evidence:
         object.__setattr__(self, "value", _clean_json(self.value))
         if self.source_url is not None:
             object.__setattr__(self, "source_url", _clean_text(self.source_url))
+        # Redaction can make two different URLs equal, so uniqueness and "not the primary URL"
+        # are decided after cleaning.
         object.__setattr__(
             self,
             "extra_source_urls",
-            tuple(sorted({_clean_text(url) for url in self.extra_source_urls})),
+            tuple(sorted({_clean_text(url) for url in self.extra_source_urls} - {self.source_url})),
         )
         if self.note is not None:
             object.__setattr__(self, "note", _clean_text(self.note))

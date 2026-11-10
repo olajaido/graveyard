@@ -153,6 +153,19 @@ def test_extra_source_urls_are_sorted_and_unique() -> None:
     assert evidence.extra_source_urls == ("https://a", "https://b")
 
 
+def test_extra_source_urls_never_repeat_the_primary_url_after_redaction() -> None:
+    """Two URLs that differ only in a token-shaped part are equal once redacted (T6.4 finding)."""
+    other = SHAPED[:-1] + ("0" if SHAPED[-1] != "0" else "1")
+    evidence = Evidence(
+        1,
+        f"https://example.test/{SHAPED}",
+        NOW,
+        extra_source_urls=(f"https://example.test/{other}", "https://a"),
+    )
+    assert evidence.source_url == f"https://example.test/{REDACTED}"
+    assert evidence.extra_source_urls == ("https://a",)
+
+
 def test_evidence_redacts_token_shapes_everywhere() -> None:
     evidence = Evidence(
         value={SHAPED: [SHAPED, {"k": f"x {SHAPED} y"}], "n": 1},

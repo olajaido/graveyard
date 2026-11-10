@@ -11,6 +11,10 @@
 
 * ``osv_vuln_docs()`` produces OSV vulnerability documents for the ``has_fix`` property
   (SRC-TEST-3), with ``QUERY_ECOSYSTEM`` / ``QUERY_NAME`` as the queried package.
+* ``package_scenarios()`` produces everything ``assemble`` takes (SRC-TEST-5, T6.4), with
+  facts built directly so that wrong types, out-of-domain numbers, ``bool`` where an ``int``
+  is wanted, ``NaN`` and malformed advisories are common. ``scoring_signals()`` and
+  ``weights_variants()`` feed the Resting-candidate property (SRC-TEST-15).
 """
 
 from __future__ import annotations
@@ -18,11 +22,28 @@ from __future__ import annotations
 import copy
 import string
 from collections.abc import Callable
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta, timezone
 from typing import Any
 
 from hypothesis import strategies as st
 
+from core.purl import Purl, parse_purl
+from core.scoring.types import Advisory, Signals, Weights
+from core.scoring.weights import load_weights
+from core.sources.assemble import (
+    FEEDS,
+    Absent,
+    Deferred,
+    DownloadsState,
+    Failed,
+    Failure,
+    Found,
+    PackageFacts,
+    RepoInfo,
+    Skipped,
+    Sourced,
+)
 from core.sources.facts import (
     DepsDevPackage,
     DepsDevProject,
@@ -35,6 +56,8 @@ from core.sources.facts import (
     OsvVuln,
     PypiDoc,
 )
+from core.sources.model import EVIDENCE_KEYS, SOURCE_NAMES, WARNING_CODES
+from core.sources.repo_resolve import RESERVED_OWNERS
 
 _ALNUM = string.ascii_letters + string.digits
 _CLASSIC_KINDS = "pousr"
@@ -758,4 +781,429 @@ def osv_vuln_docs() -> st.SearchStrategy[dict[str, Any]]:
             "affected": (_affected_entries(), 9),
             "database_specific": (decoy_doc, 2),
         }
+    )
+
+
+# --- repository candidates (SRC-REPO-1..6, T5.3) -------------------------------------------
+
+_OWNER_POOL = ("o", "O", "lodash", "Lodash", "LODASH", "Foo-Bar", "octocat", "a1")
+_REPO_POOL = ("r", "R", "lodash", "Lodash", "Lodash.js", "x_y", "repo-1", "core.git-utils")
+_REPO_URL_TEMPLATES = (
+    "https://github.com/{o}/{r}",
+    "http://github.com/{o}/{r}",
+    "https://www.github.com/{o}/{r}",
+    "github.com/{o}/{r}",
+    "git+https://github.com/{o}/{r}.git",
+    "git://github.com/{o}/{r}.git",
+    "git+ssh://git@github.com/{o}/{r}.git",
+    "ssh://git@github.com/{o}/{r}.git",
+    "git@github.com:{o}/{r}",
+    "git@github.com:{o}/{r}.git",
+    "github:{o}/{r}",
+    "https://github.com/{o}/{r}.git?ref=main#readme",
+    "https://github.com/{o}/{r}/tree/main/docs",
+    "  https://github.com/{o}/{r}  ",
+)
+_FOREIGN_CANDIDATES = (
+    "https://gitlab.com/o/r",
+    "https://bitbucket.org/o/r",
+    "git+https://gitlab.com/o/r.git",
+    "git@gitlab.com:o/r.git",
+    "https://github.com.evil.example/o/r",
+    "https://evil.example#@github.com/o/r",
+    "https://example.org/",
+    "https://github.com/onlyowner",
+    "not a url",
+    "",
+)
+
+
+def repo_owners() -> st.SearchStrategy[str]:
+    """Plausible, non-reserved owner names, with case variants that collide on ``repo_key``."""
+    return st.one_of(
+        st.sampled_from(_OWNER_POOL), st.from_regex(r"[A-Za-z0-9]{1,3}", fullmatch=True)
+    )
+
+
+def repo_names() -> st.SearchStrategy[str]:
+    return st.one_of(
+        st.sampled_from(_REPO_POOL), st.from_regex(r"[A-Za-z0-9]{1,3}", fullmatch=True)
+    )
+
+
+@st.composite
+def reserved_owners(draw: st.DrawFn) -> str:
+    """A reserved GitHub path in a random mix of upper and lower case."""
+    name = draw(st.sampled_from(sorted(RESERVED_OWNERS)))
+    return "".join(draw(st.sampled_from((ch.lower(), ch.upper()))) for ch in name)
+
+
+def _render(template: str, owner: str, repo: str) -> str:
+    return template.format(o=owner, r=repo)
+
+
+def repo_url_forms(owners: st.SearchStrategy[str] | None = None) -> st.SearchStrategy[str]:
+    """One of the EX-9 URL forms for a generated owner and repo."""
+    return st.builds(
+        _render,
+        st.sampled_from(_REPO_URL_TEMPLATES),
+        repo_owners() if owners is None else owners,
+        repo_names(),
+    )
+
+
+def repo_candidates() -> st.SearchStrategy[str]:
+    """Raw repository strings: valid forms, reserved-owner forms, other hosts and junk."""
+    return st.one_of(
+        repo_url_forms(),
+        repo_url_forms(),
+        repo_url_forms(reserved_owners()),
+        st.sampled_from(_FOREIGN_CANDIDATES),
+        st.text(max_size=40),
+    )
+
+
+def repo_candidate_lists(max_size: int = 5) -> st.SearchStrategy[tuple[str, ...]]:
+    return st.lists(repo_candidates(), max_size=max_size).map(tuple)
+
+
+def display_repos() -> st.SearchStrategy[str]:
+    """``github.com/<owner>/<repo>`` display forms, drawn from pools so keys collide often."""
+    return st.builds("github.com/{}/{}".format, repo_owners(), repo_names())
+
+
+# --- assembly scenarios (SRC-TEST-5, T6.4) ---------------------------------------------------
+
+PURL_STRINGS = (
+    "pkg:npm/x@1.0.0",
+    "pkg:npm/%40a/b@2.0.0",
+    "pkg:pypi/six@1.17.0",
+    "pkg:pypi/flask-sqlalchemy@3.0%2Blocal",
+)
+
+_BAD_FLAGS = st.sampled_from((0, 1, 2, "true", "", [], 1.0, "deprecated"))
+_BAD_COUNTS = st.sampled_from(
+    (-1, -(10**30), True, False, 1.5, float("nan"), float("inf"), "3", [], date(2026, 1, 1))
+)
+_BAD_SCORES = st.sampled_from(
+    (11, -2, 10.5, -0.5, 1e308, float("nan"), float("inf"), -float("inf"), True, False, "5", [])
+)
+_BAD_DAYS = st.sampled_from(
+    (
+        datetime(2026, 11, 3, 12, 0),
+        datetime(2026, 11, 3, 12, 0, tzinfo=UTC),
+        "2026-11-03",
+        20261103,
+        1.5,
+        [],
+    )
+)
+_BAD_VERSIONS = st.sampled_from(("", "not valid!", " 1.0", "1.0\n", "x" * 101, 5, ["1.0"], True))
+_URL_STRINGS = st.one_of(
+    st.sampled_from(
+        (
+            "https://api.deps.dev/v3/systems/npm/packages/x",
+            "https://registry.npmjs.org/x",
+            "https://api.github.com/graphql",
+            "https://example.org/a?b=c",
+        )
+    ),
+    st.text(min_size=1, max_size=30),
+    token_shapes().map("https://example.org/{}".format),
+)
+
+
+def messy_flags() -> st.SearchStrategy[Any]:
+    """``None``, a ``bool``, or a value that is not a ``bool``."""
+    return _weighted((st.none(), 3), (st.booleans(), 6), (_BAD_FLAGS, 1))
+
+
+def messy_counts() -> st.SearchStrategy[Any]:
+    """``None``, a count (huge ones too), or a negative, ``bool``, float, ``NaN`` or string."""
+    valid = st.one_of(
+        st.integers(0, 10**6), st.integers(10**30, 10**60), st.just(10**400), st.just(0)
+    )
+    return _weighted((st.none(), 3), (valid, 6), (_BAD_COUNTS, 3))
+
+
+def messy_scores() -> st.SearchStrategy[Any]:
+    """``None``, a score in [0, 10] or -1, or a value outside the domain."""
+    valid = st.one_of(fact_scores(), st.integers(0, 10), st.just(-1))
+    return _weighted((st.none(), 3), (valid, 6), (_BAD_SCORES, 3))
+
+
+def messy_days() -> st.SearchStrategy[Any]:
+    """``None``, a ``date``, or a ``datetime``, string or number in its place."""
+    return _weighted((st.none(), 3), (fact_dates(), 6), (_BAD_DAYS, 2))
+
+
+def messy_versions() -> st.SearchStrategy[Any]:
+    return _weighted((st.none(), 3), (version_strings(), 6), (_BAD_VERSIONS, 2))
+
+
+def messy_bools() -> st.SearchStrategy[Any]:
+    """A required ``bool`` that is sometimes something else."""
+    return _weighted((st.booleans(), 8), (_BAD_FLAGS, 1))
+
+
+def _messy_depsdev_versions() -> st.SearchStrategy[DepsDevVersion]:
+    return st.builds(
+        DepsDevVersion,
+        is_deprecated=messy_flags(),
+        published_at=messy_days(),
+        repo_candidates=st.just(()),
+    )
+
+
+def _messy_depsdev_packages() -> st.SearchStrategy[DepsDevPackage]:
+    return st.builds(DepsDevPackage, default_version=messy_versions())
+
+
+def _messy_depsdev_projects() -> st.SearchStrategy[DepsDevProject]:
+    return st.builds(
+        DepsDevProject,
+        maintained=messy_scores(),
+        overall=messy_scores(),
+        has_scorecard=messy_bools(),
+    )
+
+
+def _messy_npm_registries() -> st.SearchStrategy[NpmRegistry]:
+    return st.builds(
+        NpmRegistry,
+        latest=messy_versions(),
+        latest_deprecated=messy_flags(),
+        resolved_deprecated=messy_flags(),
+        resolved_found=_weighted((st.just(True), 6), (st.just(False), 2), (_BAD_FLAGS, 1)),
+    )
+
+
+def _messy_npm_fulls() -> st.SearchStrategy[NpmFull]:
+    return st.builds(NpmFull, latest_published=messy_days(), repo_candidates=st.just(()))
+
+
+def _messy_pypi_docs() -> st.SearchStrategy[PypiDoc]:
+    return st.builds(
+        PypiDoc,
+        latest=messy_versions(),
+        latest_published=messy_days(),
+        resolved_found=_weighted(
+            (st.none(), 2), (st.just(True), 5), (st.just(False), 2), (_BAD_FLAGS, 1)
+        ),
+        repo_candidates=st.just(()),
+    )
+
+
+def _messy_downloads() -> st.SearchStrategy[Downloads]:
+    return st.builds(Downloads, weekly=messy_counts())
+
+
+def _messy_github_repos() -> st.SearchStrategy[GitHubRepo]:
+    return st.builds(
+        GitHubRepo,
+        is_archived=messy_flags(),
+        pushed_at=messy_days(),
+        open_issues=messy_counts(),
+        closed_issues=messy_counts(),
+        committers=messy_counts(),
+        committers_lower_bound=messy_bools(),
+        found=_weighted((st.just(True), 7), (st.just(False), 2), (_BAD_FLAGS, 1)),
+    )
+
+
+def _messy_osv_vulns() -> st.SearchStrategy[Any]:
+    """An ``OsvVuln`` with fields that are sometimes wrong, or something that is not one."""
+    broken = st.builds(
+        OsvVuln,
+        id=_weighted((osv_ids(), 6), (st.sampled_from(("", "bad id!", "a" * 101, 5, None)), 2)),
+        withdrawn=messy_bools(),
+        published_at=messy_days(),
+        fixed_versions=_weighted(
+            (st.lists(version_strings(), max_size=3).map(tuple), 5),
+            (st.sampled_from((["1.0"], ("not valid!",), "1.0", None, (1,))), 2),
+        ),
+        has_fix=messy_bools(),
+    )
+    return _weighted(
+        (osv_vulns(), 8), (broken, 3), (st.sampled_from((None, "GHSA-aaaa", {}, 7)), 1)
+    )
+
+
+@st.composite
+def _messy_osv_facts(draw: st.DrawFn) -> Any:
+    vulns = draw(st.lists(_messy_osv_vulns(), max_size=4))
+    return list(vulns) if draw(st.integers(0, 9)) == 0 else tuple(vulns)
+
+
+def _sourced(fact: st.SearchStrategy[Any]) -> st.SearchStrategy[Sourced[Any] | None]:
+    """A ``Sourced`` fact (always valid: URL non-empty, fetch time UTC) or ``None``."""
+    moments = st.datetimes(timezones=st.sampled_from((UTC, timezone(timedelta(0)))))
+    built = st.builds(
+        Sourced,
+        fact,
+        _URL_STRINGS,
+        moments,
+        st.lists(_URL_STRINGS, max_size=2).map(tuple),
+    )
+    return _weighted((st.none(), 2), (built, 8))
+
+
+@st.composite
+def messy_package_facts(draw: st.DrawFn) -> PackageFacts:
+    """Facts for ``assemble`` with fields that are sometimes missing, wrong or out of domain."""
+    return PackageFacts(
+        registry_npm=draw(_sourced(_messy_npm_registries())),
+        registry_pypi=draw(_sourced(_messy_pypi_docs())),
+        npm_full=draw(_sourced(_messy_npm_fulls())),
+        depsdev_resolved=draw(_sourced(_messy_depsdev_versions())),
+        depsdev_latest=draw(_sourced(_messy_depsdev_versions())),
+        depsdev_package=draw(_sourced(_messy_depsdev_packages())),
+        project=draw(_sourced(_messy_depsdev_projects())),
+        scorecard=draw(_sourced(_messy_depsdev_projects())),
+        osv=draw(_sourced(_messy_osv_facts())),
+        github=draw(_sourced(_messy_github_repos())),
+        absent=draw(st.frozensets(st.sampled_from(sorted(FEEDS)), max_size=3)),
+    )
+
+
+def failures() -> st.SearchStrategy[Failure]:
+    """A ``Failure`` as a client would record it (any code, any source but ``internal``)."""
+    return st.builds(
+        Failure,
+        code=st.sampled_from(sorted(WARNING_CODES)),
+        source=st.sampled_from(sorted(SOURCE_NAMES - {"internal"})),
+        status=st.one_of(st.none(), st.integers(100, 599)),
+        feeds=st.lists(st.sampled_from(EVIDENCE_KEYS), max_size=4).map(tuple),
+        url=st.one_of(st.none(), _URL_STRINGS),
+    )
+
+
+def _downloads_states() -> st.SearchStrategy[DownloadsState]:
+    found = _sourced(_messy_downloads()).map(
+        lambda sourced: Found(sourced) if sourced is not None else Absent()
+    )
+    return _weighted(
+        (found, 8),
+        (st.builds(Absent, url=st.one_of(st.none(), _URL_STRINGS)), 1),
+        (
+            st.builds(
+                Failed,
+                kind=st.sampled_from(sorted(WARNING_CODES)),
+                status=st.one_of(st.none(), st.integers(100, 599)),
+                url=st.one_of(st.none(), _URL_STRINGS),
+            ),
+            1,
+        ),
+        (st.just(Skipped()), 1),
+        (st.just(Deferred()), 1),
+    )
+
+
+def _repo_infos() -> st.SearchStrategy[RepoInfo]:
+    with_repo = st.builds(
+        RepoInfo,
+        repo=st.just("github.com/o/r"),
+        via=st.sampled_from(("depsdev", "registry", "project_urls")),
+    )
+    return _weighted((st.just(RepoInfo()), 1), (with_repo, 3))
+
+
+@dataclass(frozen=True)
+class Scenario:
+    """Everything one call of ``assemble`` takes."""
+
+    purl: Purl
+    as_of: date
+    facts: PackageFacts
+    failures: tuple[Failure, ...]
+    repo_info: RepoInfo
+    downloads: DownloadsState
+
+
+def package_scenarios() -> st.SearchStrategy[Scenario]:
+    """Well-formed and malformed inputs for ``assemble`` across all sources (SRC-TEST-5)."""
+    return st.builds(
+        Scenario,
+        purl=st.sampled_from(PURL_STRINGS).map(parse_purl),
+        as_of=st.dates(),
+        facts=messy_package_facts(),
+        failures=st.lists(failures(), max_size=4).map(tuple),
+        repo_info=_repo_infos(),
+        downloads=_downloads_states(),
+    )
+
+
+# --- signals for the Resting-candidate property (SRC-TEST-15) --------------------------------
+
+
+@st.composite
+def scoring_signals(draw: st.DrawFn) -> Signals:
+    """Valid ``Signals`` spread over the Alive, Ailing, Resting and Dead bands.
+
+    Ages run from 0 to about five years, so the staleness risks cover [0, 1]. S7 is unknown,
+    known empty or non-empty; S9 is anything, including values on both sides of the threshold.
+    """
+    as_of = draw(st.dates(min_value=date(2020, 1, 1), max_value=date(2030, 12, 31)))
+
+    def day() -> date | None:
+        if draw(st.integers(0, 9)) == 0:
+            return None
+        return as_of - timedelta(days=draw(st.integers(-30, 1800)))
+
+    def score() -> float | None:
+        result: float | None = draw(
+            _weighted((st.none(), 2), (st.floats(0, 10), 7), (st.just(-1.0), 1))
+        )
+        return result
+
+    def count(high: int) -> int | None:
+        result: int | None = draw(_weighted((st.none(), 2), (st.integers(0, high), 8)))
+        return result
+
+    advisory = st.builds(
+        Advisory,
+        id=osv_ids(),
+        has_fix=st.booleans(),
+        published_at=_optional(st.dates(min_value=date(2015, 1, 1), max_value=as_of)),
+    )
+    return Signals(
+        purl="pkg:pypi/x@1.0.0",
+        as_of=as_of,
+        s1_declared_death=draw(_weighted((st.none(), 2), (st.just(False), 7), (st.just(True), 1))),
+        s1b_version_deprecated=draw(st.one_of(st.none(), st.booleans())),
+        s2_latest_release_at=day(),
+        s3_last_push_at=day(),
+        s4_maintained=score(),
+        s5_committers=count(30),
+        s6_open_issues=count(100),
+        s6_closed_issues=count(300),
+        s7_advisories=draw(
+            _weighted(
+                (st.none(), 2),
+                (st.just(()), 6),
+                (st.lists(advisory, min_size=1, max_size=2).map(tuple), 2),
+            )
+        ),
+        s8_overall=score(),
+        s9_weekly_downloads=draw(
+            _weighted((st.none(), 2), (st.integers(0, 40_000), 4), (st.integers(0, 10**9), 2))
+        ),
+    )
+
+
+@st.composite
+def weights_variants(draw: st.DrawFn) -> Weights:
+    """The packaged v1 weights, or the same weights with other thresholds."""
+    base = load_weights()
+    if draw(st.booleans()):
+        return base
+    ailing = draw(st.floats(0, 100))
+    return replace(
+        base,
+        threshold_ailing=ailing,
+        threshold_dead=draw(st.floats(ailing, 100)),
+        threshold_resting_r6_max=draw(st.floats(0, 1)),
+        resting_min_weekly_downloads=draw(
+            _weighted((st.just(base.resting_min_weekly_downloads), 2), (st.integers(0, 10**6), 3))
+        ),
     )
