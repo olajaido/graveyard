@@ -38,6 +38,20 @@ def _shown(path: str) -> str:
     return text if len(text) <= MAX_SHOWN_PATH_CHARS else text[:MAX_SHOWN_PATH_CHARS] + "…"
 
 
+def lockfiles_in(directory: Path) -> tuple[str, ...]:
+    """Recognised lockfiles directly in ``directory`` (not recursive), sorted (CLI-SBOM-2)."""
+    base = os.path.abspath(directory)
+    try:
+        names = sorted(os.listdir(base))
+    except OSError:
+        return ()
+    return tuple(
+        name
+        for name in names
+        if _is_lockfile_name(name) and _is_regular_file(os.path.join(base, name))
+    )
+
+
 def find_services(root: Path) -> tuple[ServiceDir, ...]:
     """Return the manifest directories under ``root``, sorted by relative POSIX path."""
     base = Path(os.path.abspath(root))

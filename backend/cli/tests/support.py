@@ -16,15 +16,33 @@ import stat
 import sys
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
-from typing import Final, Literal
+from typing import Any, Final, Literal
 from urllib.parse import unquote
 
 import httpx
 
+from cli.args import GateClass
+from cli.env import CliEnvironment
+from cli.errors import ExitCode
+from cli.gate import evaluate
+from cli.model import CliWarning, InputMode, Report, Row
+from cli.why import why
+from core.graph import GraphNode, GraphWarning
+from core.scoring import score_package, sort_results
+from core.scoring.tests.test_anchors import signals_from_fixture
 from core.scoring.types import Signals
 from core.sources.cassette import Cassette, CassetteEntry, thaw_json
-from core.sources.model import EVIDENCE_KEYS, Evidence, SourceResult, SourceWarning
+from core.sources.model import (
+    EVIDENCE_KEYS,
+    Evidence,
+    ItemError,
+    SourceResult,
+    SourceStats,
+    SourceWarning,
+)
+from core.sources.tests import recorded as rec
 from sources.tests.clock import FakeClock
 from sources.tests.transports import ReplayLog, UnmatchedRequest, json_response, key_of
 
@@ -33,6 +51,9 @@ __all__ = [
     "FakeClock",
     "ReplayLog",
     "StubSyft",
+    "anchor_signals",
+    "make_env",
+    "make_report",
     "make_source_result",
     "make_stub_syft",
     "shape",
@@ -243,12 +264,78 @@ def make_source_result(signals: Signals, *, warnings: Iterable[SourceWarning] = 
     )
 
 
+def anchor_signals(name: str) -> Signals:
+    """The committed anchor fixture as scoring input (exposure unset)."""
+    return signals_from_fixture(rec.anchor_fixture(name))
+
+
+def make_env(**overrides: Any) -> CliEnvironment:
+    """A ``CliEnvironment`` with no token and a plain Syft environment."""
+    values: dict[str, Any] = {
+        "token": None,
+        "token_rejected": False,
+        "contact": None,
+        "syft_env": {"PATH": "/usr/bin:/bin", "SYFT_CHECK_FOR_APP_UPDATE": "false"},
+        "width": 100,
+    }
+    values.update(overrides)
+    return CliEnvironment(**values)
+
+
+def make_report(
+    signals_list: Sequence[Signals],
+    *,
+    nodes: Mapping[str, GraphNode] | None = None,
+    sources: Mapping[str, SourceResult] | None = None,
+    input_mode: InputMode = "purl",
+    fail_on: frozenset[GateClass] = frozenset(),
+    cli_warnings: Sequence[CliWarning] = (),
+    item_errors: Sequence[tuple[str, ItemError]] = (),
+    graph_warnings: Sequence[GraphWarning] = (),
+    services: Sequence[str] = (),
+    lockfiles: Sequence[tuple[str, str, bool]] = (),
+    as_of: date = rec.AS_OF,
+) -> Report:
+    """Score ``signals_list``, rank it and wrap it in a ``Report`` (no pipeline involved)."""
+    by_purl = {s.purl: s for s in signals_list}
+    ordered = sort_results([score_package(s) for s in signals_list])
+    rows = tuple(
+        Row(
+            rank=position,
+            node=(nodes or {}).get(result.purl),
+            source=(sources or {}).get(result.purl) or make_source_result(by_purl[result.purl]),
+            scoring=result,
+            signals=by_purl[result.purl],
+            why=why(result, by_purl[result.purl]),
+        )
+        for position, result in enumerate(ordered, start=1)
+    )
+    matches = evaluate(rows, fail_on)
+    return Report(
+        as_of=as_of,
+        input_mode=input_mode,
+        syft_version="1.56.0" if input_mode == "syft" else None,
+        services=tuple(services),
+        lockfiles=tuple(lockfiles),
+        model_version=ordered[0].model_version if ordered else None,
+        rows=rows,
+        item_errors=tuple(item_errors),
+        graph_warnings=tuple(graph_warnings),
+        cli_warnings=tuple(cli_warnings),
+        stats=SourceStats(requests={}, failures={}, cache_hits=0, cache_misses=0, s9_skipped=0),
+        fail_on=fail_on,
+        matches=matches,
+        exit_code=ExitCode.GATE_TRIPPED if matches else ExitCode.OK,
+    )
+
+
 def shape(value: object) -> object:
     """The key/type skeleton of a JSON value.
 
     Objects map each key to its shape; arrays to the shape of the first element or
-    ``"empty"``; scalars to their JSON type name (``string``, ``number``, ``boolean``,
-    ``null``).
+    ``"empty"``; scalars to their JSON type name (``string``, ``integer``, ``number``,
+    ``boolean``, ``null``). ``bool`` is tested before ``int`` because it is a subclass of
+    ``int``; ``integer`` is an ``int`` and ``number`` a ``float``.
     """
     if isinstance(value, dict):
         return {key: shape(item) for key, item in value.items()}
@@ -258,7 +345,9 @@ def shape(value: object) -> object:
         return "null"
     if isinstance(value, bool):
         return "boolean"
-    if isinstance(value, int | float):
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
         return "number"
     if isinstance(value, str):
         return "string"

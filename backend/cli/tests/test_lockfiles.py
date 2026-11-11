@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from types import MappingProxyType
 
 from cli.lockfiles import MAX_LOCKFILE_BYTES, merge_scopes, read_scopes
 from cli.model import CliWarning, ServiceDir
 from core.graph import GraphWarning, ScopeResult
-from core.graph.model import MAX_LOCKFILE_CHARS
+from core.graph.model import MAX_LOCKFILE_CHARS, Scope
 
 FIXTURES = Path(__file__).resolve().parents[2] / "core" / "graph" / "tests" / "fixtures"
 
@@ -36,10 +37,10 @@ def _assert_one_unreadable(
     assert used == ((name, False),)
 
 
-def _scope(package: dict[str, str], direct: dict[str, str] | None = None) -> ScopeResult:
+def _scope(package: Mapping[str, Scope], direct: Mapping[str, Scope] | None = None) -> ScopeResult:
     return ScopeResult(
-        package_scopes=MappingProxyType(package),  # type: ignore[arg-type]
-        direct_scopes=MappingProxyType(direct or {}),  # type: ignore[arg-type]
+        package_scopes=MappingProxyType(dict(package)),
+        direct_scopes=MappingProxyType(dict(direct or {})),
         warnings=(),
     )
 

@@ -208,9 +208,18 @@ def test_make_source_result_has_all_keys() -> None:
 def test_shape() -> None:
     value = {"a": [{"b": 1, "c": "x"}, {"zz": 1}], "d": [], "e": None, "f": True, "g": 1.5}
     assert shape(value) == {
-        "a": {"b": "number", "c": "string"},
+        "a": {"b": "integer", "c": "string"},
         "d": "empty",
         "e": "null",
         "f": "boolean",
         "g": "number",
     }
+
+
+def test_shape_bool_is_not_integer_and_int_is_not_number() -> None:
+    assert shape(True) == "boolean"
+    assert shape(False) == "boolean"
+    assert shape(0) == "integer"
+    assert shape(-7) == "integer"
+    assert shape(1.0) == "number"
+    assert shape(0.0) == "number"

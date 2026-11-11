@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from cli.discover import find_services
+from cli.discover import find_services, lockfiles_in
 from cli.errors import CliError
 from core.graph.model import DEFAULT_MAX_SERVICES
 
@@ -122,3 +122,19 @@ def test_glob_character_in_path_refused(tmp_path: Path) -> None:
 def test_empty_tree_mentions_sbom(tmp_path: Path) -> None:
     with pytest.raises(CliError, match="--sbom"):
         find_services(tmp_path)
+
+
+def test_lockfiles_in_is_not_recursive_and_sorted(tmp_path: Path) -> None:
+    _touch(tmp_path, "uv.lock")
+    _touch(tmp_path, "package-lock.json")
+    _touch(tmp_path, "requirements-dev.txt")
+    _touch(tmp_path, "requirements.txt.bak")
+    _touch(tmp_path, "sub/poetry.lock")
+    assert lockfiles_in(tmp_path) == ("package-lock.json", "requirements-dev.txt", "uv.lock")
+
+
+def test_lockfiles_in_ignores_symlinks_and_missing_directories(tmp_path: Path) -> None:
+    (tmp_path / "real.lock").write_text("x", encoding="utf-8")
+    (tmp_path / "uv.lock").symlink_to(tmp_path / "real.lock")
+    assert lockfiles_in(tmp_path) == ()
+    assert lockfiles_in(tmp_path / "does-not-exist") == ()

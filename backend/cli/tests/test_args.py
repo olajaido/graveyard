@@ -7,14 +7,14 @@ from pathlib import Path
 
 import pytest
 
-from cli.args import build_parser, parse_args
+from cli.args import Options, build_parser, parse_args
 from cli.errors import EXIT_CODE_TABLE, ExitRequest, UsageError
 
 TODAY = date(2026, 6, 15)
 PURL = "pkg:npm/request@2.88.2"
 
 
-def parse(*argv: str):  # type: ignore[no-untyped-def]
+def parse(*argv: str) -> Options:
     return parse_args(argv, today=TODAY)
 
 

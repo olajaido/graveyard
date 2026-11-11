@@ -3,14 +3,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
+from typing import Literal
 
+from cli.args import GateClass
+from cli.errors import ExitCode
 from cli.text import sanitise
+from core.graph import GraphNode, GraphWarning
+from core.scoring.types import BaseState, ScoringResult, Signals
+from core.sources.model import ItemError, SourceResult, SourceStats
 
 WARNING_CODES: frozenset[str] = frozenset(
     {"LOCKFILE_UNREADABLE", "GITHUB_TOKEN_MISSING", "GITHUB_TOKEN_INVALID"}
 )
+TOKEN_WARNING_CODES: frozenset[str] = frozenset({"GITHUB_TOKEN_MISSING", "GITHUB_TOKEN_INVALID"})
 MAX_DETAIL_CHARS = 200
+
+InputMode = Literal["syft", "sbom", "purl"]
 
 
 @dataclass(frozen=True)
@@ -35,3 +45,46 @@ class CliWarning:
     def sort_key(self) -> tuple[str, str, str]:
         """Total order that tolerates ``service is None``."""
         return (self.service or "", self.code, self.detail)
+
+
+@dataclass(frozen=True)
+class Row:
+    """One ranked package."""
+
+    rank: int  # 1-based position in `sort_results` order
+    node: GraphNode | None  # None in --purl mode (no graph)
+    source: SourceResult  # evidence, warnings, repo, versions
+    scoring: ScoringResult
+    signals: Signals  # the signals actually scored (exposure set in project mode)
+    why: str
+
+
+@dataclass(frozen=True)
+class Report:
+    """Everything the table, the JSON file, the notes and the exit code are made from."""
+
+    as_of: date
+    input_mode: InputMode
+    syft_version: str | None
+    services: tuple[str, ...]  # sorted service paths; empty in --purl mode
+    lockfiles: tuple[tuple[str, str, bool], ...]  # (service, file, used)
+    model_version: str | None  # None only when no package was scored
+    rows: tuple[Row, ...]  # rank order
+    item_errors: tuple[tuple[str, ItemError], ...]  # (purl, error)
+    graph_warnings: tuple[GraphWarning, ...]
+    cli_warnings: tuple[CliWarning, ...]
+    stats: SourceStats
+    fail_on: frozenset[GateClass]
+    matches: tuple[str, ...]  # purls that match fail_on, in rank order
+    exit_code: ExitCode  # OK or GATE_TRIPPED
+
+    @property
+    def unknown_count(self) -> int:
+        return sum(1 for row in self.rows if row.scoring.base_state is BaseState.UNKNOWN)
+
+    @property
+    def degraded(self) -> bool:
+        """True when any source warning or token warning exists (CLI-JSON-6)."""
+        return any(row.source.warnings for row in self.rows) or any(
+            w.code in TOKEN_WARNING_CODES for w in self.cli_warnings
+        )

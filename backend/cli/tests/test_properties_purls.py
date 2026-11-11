@@ -7,6 +7,7 @@ Profiles (``dev`` = 200 examples, ``ci`` = 500) come from ``conftest.py`` via
 from __future__ import annotations
 
 import dataclasses
+import random
 
 import pytest
 from hypothesis import given
@@ -52,13 +53,13 @@ _CANDIDATES = st.lists(
 
 
 @given(_VALID_LISTS, st.randoms(use_true_random=False))
-def test_validate_purls_order_independent(raw: list[str], rnd: object) -> None:
+def test_validate_purls_order_independent(raw: list[str], rnd: random.Random) -> None:
     """Any permutation of the arguments gives the same result.
 
     **Validates: Requirements CLI-PURL-2, CLI-PURL-3**
     """
     shuffled = list(raw)
-    rnd.shuffle(shuffled)  # type: ignore[attr-defined]
+    rnd.shuffle(shuffled)
     assert validate_purls(shuffled) == validate_purls(raw)
 
 
