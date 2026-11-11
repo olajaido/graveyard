@@ -9,7 +9,7 @@ import pytest
 from cli import sbom
 from cli.errors import CliError
 
-FIXTURE = Path(__file__).resolve().parent / "fixtures" / "sboms" / "all.cdx.json"
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "sboms" / "web.cdx.json"
 
 
 def test_valid_file_returns_the_document() -> None:

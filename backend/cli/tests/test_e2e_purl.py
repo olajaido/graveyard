@@ -24,13 +24,13 @@ import pytest
 from cli.app import run
 from cli.tests.support import FakeClock, make_env, subset_replay_transport
 from cli.tests.test_e2e_project import (
-    ALL_SBOM,
     ASSUMED_ORDER,
     CLOCK_START,
     MM_ANC,
     PROJECT,
     PURLS,
     SENTINEL,
+    WEB_SBOM,
 )
 from core.sources.secret import SecretToken
 from core.sources.tests import recorded as rec
@@ -247,7 +247,7 @@ def test_syft_is_never_looked_up_in_purl_mode(tmp_path: Path) -> None:
         ["autopsy", "--purl", "pkg:maven/org.example/thing@1.0.0"],
         ["autopsy", "--purl", REQUEST, "--purl", "not-a-purl"],
         ["autopsy", str(PROJECT), "--purl", REQUEST],
-        ["autopsy", "--purl", REQUEST, "--sbom", str(ALL_SBOM)],
+        ["autopsy", "--purl", REQUEST, "--sbom", str(WEB_SBOM)],
         ["autopsy"],
     ],
     ids=[

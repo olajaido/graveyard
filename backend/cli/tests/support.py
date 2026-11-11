@@ -26,7 +26,7 @@ import httpx
 from cli.args import GateClass
 from cli.env import CliEnvironment
 from cli.errors import ExitCode
-from cli.gate import evaluate
+from cli.gate import evaluate, unverified_sources
 from cli.model import CliWarning, InputMode, Report, Row
 from cli.why import why
 from core.graph import GraphNode, GraphWarning
@@ -74,17 +74,22 @@ import time
 
 SBOM_DIR = {sbom_dir!r}
 LOG_PATH = {log_path!r}
+VERSION_LOG_PATH = {version_log_path!r}
 VERSION = {version!r}
 MODE = {mode!r}
 SENTINEL = {sentinel!r}
 
 args = sys.argv[1:]
+SYFT_ENV = {{k: v for k, v in os.environ.items() if k.startswith("SYFT_")}}
 if args == ["--version"]:
+    with open(VERSION_LOG_PATH, "a", encoding="utf-8") as log:
+        log.write(json.dumps({{"syft_env": SYFT_ENV}}) + "\\n")
     sys.stdout.write("syft " + VERSION + "\\n")
     sys.exit(0)
 
 with open(LOG_PATH, "a", encoding="utf-8") as log:
-    log.write(json.dumps({{"argv": args, "env_keys": sorted(os.environ)}}) + "\\n")
+    entry = {{"argv": args, "env_keys": sorted(os.environ), "syft_env": SYFT_ENV}}
+    log.write(json.dumps(entry) + "\\n")
 
 if MODE == "ok":
     segment = ""
@@ -116,6 +121,17 @@ class StubSyft:
 
     path: Path
     log_path: Path
+    version_log_path: Path
+
+    def version_calls(self) -> list[dict[str, str]]:
+        """The ``SYFT_*`` variables seen by every ``--version`` call."""
+        if not self.version_log_path.exists():
+            return []
+        out: list[dict[str, str]] = []
+        for line in self.version_log_path.read_text(encoding="utf-8").splitlines():
+            loaded = json.loads(line)
+            out.append(dict(loaded["syft_env"]))
+        return out
 
     def calls(self) -> list[dict[str, object]]:
         """Every recorded non-``--version`` call: ``{"argv": [...], "env_keys": [...]}``."""
@@ -140,11 +156,13 @@ def make_stub_syft(
     """Write the stub script into ``tmp_path`` and return it with its log path."""
     path = tmp_path / "syft"
     log_path = tmp_path / "syft-calls.log"
+    version_log_path = tmp_path / "syft-version-calls.log"
     path.write_text(
         _STUB_TEMPLATE.format(
             python=sys.executable,
             sbom_dir=str(sbom_dir),
             log_path=str(log_path),
+            version_log_path=str(version_log_path),
             version=version,
             mode=mode,
             sentinel=STUB_STDERR_SENTINEL,
@@ -153,7 +171,7 @@ def make_stub_syft(
     )
     path.chmod(0o755)
     assert path.stat().st_mode & stat.S_IXUSR
-    return StubSyft(path=path, log_path=log_path)
+    return StubSyft(path=path, log_path=log_path, version_log_path=version_log_path)
 
 
 # ------------------------------------------------------------------ cassette-derived transport
@@ -223,11 +241,14 @@ def subset_replay_transport(cassette: Cassette) -> tuple[httpx.MockTransport, Re
         return json_response({"results": answers})
 
     def derive_npm(request: httpx.Request, key: str) -> httpx.Response:
-        name = unquote(str(request.url)[len(_NPM_DOWNLOADS) :])
-        if "," in name or name not in bulk:
+        names = unquote(str(request.url)[len(_NPM_DOWNLOADS) :]).split(",")
+        if not all(name in bulk for name in names):
             return unmatched(request, key)
         log.matched.append(key)
-        return json_response(bulk[name])
+        # one name: the flat single-name document; several: a subset of the recorded bulk one
+        if len(names) == 1:
+            return json_response(bulk[names[0]])
+        return json_response({name: bulk[name] for name in names})
 
     def handler(request: httpx.Request) -> httpx.Response:
         key = key_of(request)
@@ -299,18 +320,22 @@ def make_report(
     """Score ``signals_list``, rank it and wrap it in a ``Report`` (no pipeline involved)."""
     by_purl = {s.purl: s for s in signals_list}
     ordered = sort_results([score_package(s) for s in signals_list])
-    rows = tuple(
-        Row(
-            rank=position,
-            node=(nodes or {}).get(result.purl),
-            source=(sources or {}).get(result.purl) or make_source_result(by_purl[result.purl]),
-            scoring=result,
-            signals=by_purl[result.purl],
-            why=why(result, by_purl[result.purl]),
+    rows: list[Row] = []
+    for position, result in enumerate(ordered, start=1):
+        source = (sources or {}).get(result.purl) or make_source_result(by_purl[result.purl])
+        unverified = unverified_sources(result, by_purl[result.purl], source.warnings)
+        rows.append(
+            Row(
+                rank=position,
+                node=(nodes or {}).get(result.purl),
+                source=source,
+                scoring=result,
+                signals=by_purl[result.purl],
+                why=why(result, by_purl[result.purl], unverified),
+                unverified=unverified,
+            )
         )
-        for position, result in enumerate(ordered, start=1)
-    )
-    matches = evaluate(rows, fail_on)
+    matches = evaluate(tuple(rows), fail_on)
     return Report(
         as_of=as_of,
         input_mode=input_mode,
@@ -318,7 +343,7 @@ def make_report(
         services=tuple(services),
         lockfiles=tuple(lockfiles),
         model_version=ordered[0].model_version if ordered else None,
-        rows=rows,
+        rows=tuple(rows),
         item_errors=tuple(item_errors),
         graph_warnings=tuple(graph_warnings),
         cli_warnings=tuple(cli_warnings),

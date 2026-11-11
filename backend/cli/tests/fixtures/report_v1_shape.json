@@ -41,6 +41,10 @@
       "cache_misses": ["integer"],
       "s9_skipped": ["integer"]
     },
+    "stats": {
+      "direct_edges_added": ["integer"],
+      "unverified": ["integer"]
+    },
     "gate": {
       "fail_on": {"$items": ["string"]},
       "tripped": ["boolean"],
@@ -82,6 +86,8 @@
         }
       },
       "why": ["string"],
+      "gate_eligible": ["boolean"],
+      "unverified_reason": ["string", "null"],
       "normalised_risks": {"$values": ["number", "null"]},
       "contributions": {"$values": ["number", "null"]},
       "evidence": {

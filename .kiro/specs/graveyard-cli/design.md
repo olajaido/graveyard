@@ -619,3 +619,108 @@ exclude = ["**/tests/**", "**/__pycache__/**"]
 ```
 
 Nothing in `backend/core/` or `backend/sources/` changes.
+
+---
+
+## 13. Review round 2 (real-Syft findings)
+
+Implements `requirements.md`, "Review round 2" (CLI-DEV, CLI-AUG, CLI-FIX, CLI-EVID, CLI-DOC, CLI-TEST-13, CLI-TEST-14). The facts behind it are in that section; the ones that shape the design are repeated here.
+
+### 13.1 Facts that shape the design
+
+| Fact | Consequence |
+|---|---|
+| `core.graph` treats an unreferenced `dependencies` entry that has targets and belongs to a component as a root (`core/graph/cyclonedx.py`: `roots = {ref ... if ref not in children and (ref == meta_ref or (ref in ref_to_key and targets))}`), and drops root components from the package list. | With dev dependencies on, the orphan `request` (edge `request -> uuid`) is a second root and disappears as a package. Augmentation must run **before** `build_graph` and must not choose `request` as the root. |
+| In the real BOMs the project root is the one orphan whose package key is **not** a declared direct dependency. | Root choice: candidate roots minus those whose key is in `direct_scopes` (CLI-AUG-2). No second input is needed, so the signature stays `add_direct_edges(bom, direct_scopes)`. |
+| A project with only dev dependencies has no `dependencies` entry for its root (Syft writes entries only for components that have dependencies). `metadata.component` carries a bom-ref (a directory hash) that is not a component. | Fallback root = the `metadata.component` bom-ref, with a new `dependencies` entry (CLI-AUG-2). `core.graph` accepts it (`ref == meta_ref`). |
+| `SourceWarning.signals` lists the signals that ended up missing because of the failure. Repo-less packages have no `GITHUB_DISABLED` warning. | Evidence rule uses warnings only (CLI-EVID-2); no change to `sources` is needed, so the STOP condition of the review did not fire. |
+
+### 13.2 Module changes
+
+| Module | Change |
+|---|---|
+| `cli/syft.py` | `syft_environment(base) -> dict`: `dict(base)` plus the two fixed variables, applied in `check_version` and `run_syft`. Constants `SYFT_FIXED_ENV` (names and values) are exported for the tests. |
+| `cli/augment.py` (new, pure) | `add_direct_edges`, `AugmentResult`. See 13.3. |
+| `cli/model.py` | `CliWarning` gains `subjects: tuple[str, ...] = ()` (sorted, capped at `MAX_SUBJECTS = 20`); code `DIRECT_NOT_IN_SBOM`. `Row` gains `unverified: tuple[str, ...] = ()` and the properties `gate_eligible` and `unverified_reason`. `Report` gains `direct_edges_added: int = 0`. |
+| `cli/gate.py` | `unverified_sources(scoring, warnings) -> tuple[str, ...]` (CLI-EVID-2); `evaluate` counts eligible rows only. |
+| `cli/why.py` | `why(scoring, signals, unverified=())` puts `unverified: <sources> data unavailable` first. |
+| `cli/pipeline.py` | `_from_syft` and `_from_sbom` call `add_direct_edges` after `read_scopes`; `Inputs` gains `direct_edges_added`; `rank` computes `unverified` per row. |
+| `cli/render.py` | Second footer line for unverified packages (CLI-EVID-6); stderr note (CLI-EVID-8); `DIRECT_NOT_IN_SBOM` lines show up to five subjects. |
+| `cli/report.py` | Package keys `gate_eligible`, `unverified_reason` after `why`; `summary.stats` after `summary.sources`; warning `subjects` for CLI warnings. |
+| `pyproject.toml` | Register the `syft` marker. |
+
+### 13.3 `add_direct_edges`
+
+```python
+class AugmentResult(NamedTuple):
+    bom: Mapping[str, Any]
+    added_keys: tuple[str, ...]
+    missing_keys: tuple[str, ...]
+
+def add_direct_edges(bom, direct_scopes) -> AugmentResult:
+    parsed = _read(bom)                      # components -> (ref, package_key); dependencies entries; meta ref
+    if parsed is None: return AugmentResult(bom, (), ())      # shape we cannot read: leave it to core.graph
+    ref_for_key = {key: min(refs) for key, refs in parsed.refs_by_key.items()}   # components with a bom-ref only
+    missing = sorted(k for k in direct_scopes if k not in ref_for_key)
+    root = _choose_root(parsed, direct_keys=set(direct_scopes))
+    if root is None: return AugmentResult(bom, (), tuple(missing))
+    have = {parsed.key_of_ref.get(r) for r in parsed.children_of(root)}           # keys the root already reaches
+    new_refs, added = [], []
+    for key in sorted(direct_scopes):
+        ref = ref_for_key.get(key)
+        if ref is None or ref == root or key in have: continue
+        new_refs.append(ref); added.append(key); have.add(key)
+    if not new_refs: return AugmentResult(bom, (), tuple(missing))
+    return AugmentResult(_with_edges(bom, root, new_refs), tuple(added), tuple(missing))
+```
+
+- `_read` flattens nested components with an explicit stack and maps each `purl` to `package_key(parse_purl(purl))`; a component whose purl does not parse has no key and cannot be a target. It reads `dependencies` as `ref -> ordered dependsOn`, and `metadata.component["bom-ref"]`.
+- `_choose_root` applies CLI-AUG-2: candidates, minus those whose component key is in `direct_scopes`; one left is the root; none left falls back to the `metadata.component` ref; otherwise `None`.
+- `_with_edges` builds a new top-level mapping with a new `dependencies` list: the root's entry is replaced by a copy whose `dependsOn` is the original list plus `new_refs` (a new entry is appended when the root had none); every other entry is shared with the input, unchanged.
+- The loop is over `sorted(direct_scopes)` and `min(refs)` is used for duplicates, so the result does not depend on dict or document order.
+
+Worked example on the real `web` BOM: components `anchors-web`, `express`, `left-pad`, `moment`, `node-uuid`, `request`, `uuid`; entries `anchors-web -> [express, left-pad, moment]`, `express -> [node-uuid]`, `request -> [uuid]`; `direct_scopes` = `express`, `left-pad`, `moment` (runtime), `request` (dev). Candidates: `anchors-web`, `request`; `request`'s key is a direct, so the root is `anchors-web`; the root already reaches three of the four directs; `request` is added. `core.graph` now finds one root, `request` is a direct of scope `dev`, `uuid` is a transitive dev dependency of it.
+
+### 13.4 Gate eligibility
+
+```python
+_RISK_SIGNALS = {"r2": ("s2_latest_release_at",), "r3": ("s3_last_push_at",), "r4": ("s4_maintained",),
+                 "r5": ("s5_committers",), "r6": ("s6_open_issues", "s6_closed_issues"), "r8": ("s8_overall",)}
+
+def cursed_by_age(signals) -> bool:
+    # advisories alone: every scored signal absent => base state Unknown => the Dead/Ailing bypass cannot apply
+    return score_package(Signals(purl=signals.purl, as_of=signals.as_of, s7_advisories=signals.s7_advisories)).cursed
+
+def unverified_sources(scoring, signals, warnings) -> tuple[str, ...]:
+    on_score = scoring.dead_reason == "score" or scoring.base_state is BaseState.AILING
+    if not on_score or (scoring.cursed and cursed_by_age(signals)): return ()
+    missing = {sig for rid, risk in scoring.normalised_risks.items() if risk is None for sig in _RISK_SIGNALS.get(rid, ())}
+    return tuple(sorted({w.source for w in warnings if missing & set(w.signals)}))
+```
+
+`_RISK_SIGNALS` only names which evidence keys belong to which risk id; it holds no weights or thresholds (D9). `cursed_by_age` asks the scoring package, so the `cursed_min_age_days` threshold stays in `weights.v1.yaml`. `normalised_risks` is the authority for "missing" because it is what the score was computed from. Verified on the token-less cassette replay: `six` (repo `benjaminp/six`) gets `{"github"}`; `pycrypto` and `nose` get `()` because nothing was skipped (`no GitHub repo resolved`).
+
+- **WHY:** `unverified: no GitHub data; Scorecard maintained 0/10; last release 2024-12` (display labels in `model.SOURCE_LABELS`; the JSON `unverified_reason` keeps `github data unavailable`).
+- **Footer:** `1 unverified, not gated; set GITHUB_TOKEN to verify` (token warning present) or `... rerun when the sources are reachable`.
+- **JSON:** `gate_eligible: false`, `unverified_reason: "github data unavailable"`; `summary.stats = {"direct_edges_added": N, "unverified": M}`.
+
+### 13.5 Real fixtures and the contract test
+
+Regeneration (provenance goes into the fixture README):
+
+```
+SYFT_CHECK_FOR_APP_UPDATE=false SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=true \
+  ~/.local/bin/syft dir:<repo>/backend/cli/tests/fixtures/anchors-project/web -q -o cyclonedx-json > sboms/web.cdx.json
+(the same for api), then one exact-string replacement of metadata.component.name by fixtures/web | fixtures/api
+```
+
+`test_fixture_project.py` (T3) keeps checking the lockfiles and the arithmetic of §9.2 but now builds its graph through `add_direct_edges`; its integrity checks on the SBOMs are rewritten for real output (spec version 1.7, tool `syft` 1.56.0, no absolute path, every `dependsOn` ref a component bom-ref). The stub's `all.cdx.json` is gone. The contract test calls `collect_inputs` with the real binary, so it exercises `syft.py`, discovery, scopes and augmentation together.
+
+### 13.6 Risks and limits
+
+| Risk | Handling |
+|---|---|
+| Root cannot be chosen (several orphan roots that are not declared directs). | Nothing is added; `core.graph` reports `MULTIPLE_ROOTS` or `ROOT_NOT_FOUND`. README limit (CLI-AUG-9). |
+| `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES` is a Syft configuration name that could change in a later Syft. | The pin test and the contract test fail when it stops working; the Syft version is pinned to 1.56.0 anyway. |
+| A source warning that stops listing its signals would make the evidence rule silently permissive. | CLI-EVID-9 tests run a real replay and assert `six` is unverified. |
+| `six`-like packages: a verdict that rests on the score (Dead by score, Ailing) on partial evidence is shown but not gated. | Final round-2 tweak: Ailing joined the rule. A Cursed that holds only through the Dead/Ailing bypass follows its base state; Cursed by the age rule is always gated. |

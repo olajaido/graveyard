@@ -175,7 +175,7 @@ def test_the_environment_is_cleared_and_the_token_is_not_passed(
     # bare interpreter reports when started with the same environment.
     baseline = subprocess.run(
         [sys.executable, "-c", "import json, os; print(json.dumps(sorted(os.environ)))"],
-        env=SAFE_ENV,
+        env={**SAFE_ENV, **syft.SYFT_FIXED_ENV},
         capture_output=True,
         text=True,
         check=True,
@@ -232,3 +232,63 @@ def test_stub_log_is_json_per_line(tmp_path: Path) -> None:
     syft.run_syft(str(stub.path), _web(), [], TIMEOUT, SAFE_ENV)
     for line in stub.log_path.read_text(encoding="utf-8").splitlines():
         assert isinstance(json.loads(line), dict)
+
+
+# ------------------------------------------------------ CLI-DEV-1, CLI-DEV-2: the fixed variables
+
+FIXED = {
+    "SYFT_CHECK_FOR_APP_UPDATE": "false",
+    "SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES": "true",
+}
+
+
+def test_the_fixed_variables_are_exactly_these_two() -> None:
+    assert dict(syft.SYFT_FIXED_ENV) == FIXED
+
+
+def test_syft_environment_adds_the_fixed_values_and_keeps_the_rest() -> None:
+    assert syft.syft_environment({"PATH": "/usr/bin", "HOME": "/h"}) == {
+        "PATH": "/usr/bin",
+        "HOME": "/h",
+        **FIXED,
+    }
+
+
+def test_syft_environment_overrides_and_strips_syft_variables() -> None:
+    env = syft.syft_environment(
+        {
+            "PATH": "/usr/bin",
+            "SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES": "false",
+            "SYFT_CHECK_FOR_APP_UPDATE": "true",
+            "SYFT_LOG_LEVEL": "trace",
+        }
+    )
+    assert env == {"PATH": "/usr/bin", **FIXED}
+
+
+def test_syft_environment_does_not_mutate_its_argument() -> None:
+    base = {"PATH": "/usr/bin", "SYFT_LOG_LEVEL": "trace"}
+    syft.syft_environment(base)
+    assert base == {"PATH": "/usr/bin", "SYFT_LOG_LEVEL": "trace"}
+
+
+def test_version_check_and_run_both_see_exactly_the_fixed_values(tmp_path: Path) -> None:
+    stub = make_stub_syft(tmp_path)
+    syft.check_version(str(stub.path), SAFE_ENV)
+    syft.run_syft(str(stub.path), _web(), [], TIMEOUT, SAFE_ENV)
+    assert stub.version_calls() == [FIXED]
+    assert [call["syft_env"] for call in stub.calls()] == [FIXED]
+
+
+def test_a_hostile_caller_environment_cannot_change_the_values(tmp_path: Path) -> None:
+    hostile = {
+        **SAFE_ENV,
+        "SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES": "false",
+        "SYFT_CHECK_FOR_APP_UPDATE": "true",
+        "SYFT_CONFIG": "/nonexistent/evil.yaml",
+    }
+    stub = make_stub_syft(tmp_path)
+    syft.check_version(str(stub.path), hostile)
+    syft.run_syft(str(stub.path), _web(), [], TIMEOUT, hostile)
+    assert stub.version_calls() == [FIXED]
+    assert [call["syft_env"] for call in stub.calls()] == [FIXED]

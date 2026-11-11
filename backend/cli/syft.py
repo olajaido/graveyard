@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 from collections.abc import Mapping, Sequence
+from types import MappingProxyType
 from typing import Any, Final
 
 from cli.errors import CliError
@@ -22,6 +23,17 @@ from cli.text import sanitise
 SYFT_VERSION: Final = "1.56.0"
 """The one Syft release this CLI accepts (ADR 0001, `docs/SPIKES.md`)."""
 
+SYFT_FIXED_ENV: Final[Mapping[str, str]] = MappingProxyType(
+    {
+        # Never look for a newer Syft (CLI-ENV-6).
+        "SYFT_CHECK_FOR_APP_UPDATE": "false",
+        # Syft drops the `dev: true` packages of a package-lock.json unless told otherwise
+        # (docs/SPIKES.md, Q7). Without them the dev dependencies never reach the graph (CLI-DEV-1).
+        "SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES": "true",
+    }
+)
+"""The only ``SYFT_*`` variables Syft is started with. ``syft.py`` sets them itself."""
+
 VERSION_TIMEOUT_SECONDS: Final = 10.0
 _VERSION_WORD: Final = re.compile(r"[0-9A-Za-z.+-]{1,40}")
 _SHOWN_PATH_CHARS: Final = 100
@@ -29,6 +41,17 @@ _INSTALL_HINT: Final = (
     f"install Syft v{SYFT_VERSION} from https://github.com/anchore/syft/releases/tag/"
     f"v{SYFT_VERSION} and pass --syft PATH, or use --sbom FILE to skip Syft"
 )
+
+
+def syft_environment(base: Mapping[str, str]) -> dict[str, str]:
+    """``base`` without any ``SYFT_*`` variable, plus ``SYFT_FIXED_ENV`` (CLI-DEV-1).
+
+    The caller's mapping cannot leave the fixed values out or override them, and no other
+    ``SYFT_*`` setting can reach Syft.
+    """
+    env = {name: value for name, value in base.items() if not name.startswith("SYFT_")}
+    env.update(SYFT_FIXED_ENV)
+    return env
 
 
 def _label(service: ServiceDir) -> str:
@@ -63,7 +86,7 @@ def check_version(exe: str, syft_env: Mapping[str, str]) -> str:
             capture_output=True,
             timeout=VERSION_TIMEOUT_SECONDS,
             check=False,
-            env=dict(syft_env),
+            env=syft_environment(syft_env),
         )
     except subprocess.TimeoutExpired:
         raise CliError("Syft did not answer `--version` in time") from None
@@ -122,7 +145,7 @@ def run_syft(
             capture_output=True,
             timeout=timeout,
             check=False,
-            env=dict(syft_env),
+            env=syft_environment(syft_env),
         )
     except subprocess.TimeoutExpired:
         raise CliError(f"Syft timed out for service {label}; raise --syft-timeout") from None

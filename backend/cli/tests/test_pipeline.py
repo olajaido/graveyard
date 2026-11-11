@@ -8,10 +8,13 @@ recorded answers are needed. Syft is the stub executable.
 from __future__ import annotations
 
 import asyncio
+import copy
+import json
 import shutil
 from collections.abc import Mapping
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -407,7 +410,7 @@ def test_syft_mode_without_lockfiles_is_an_input_error(tmp_path: Path) -> None:
 
 
 def test_sbom_mode_is_one_service_and_assumes_scopes_without_lockfiles() -> None:
-    sbom = DEFAULT_SBOM_DIR / "all.cdx.json"
+    sbom = DEFAULT_SBOM_DIR / "api.cdx.json"
     inputs = collect_inputs(_opts("autopsy", str(PROJECT), "--sbom", str(sbom)), make_env())
     assert inputs.mode == "sbom"
     assert inputs.syft_version is None
@@ -431,3 +434,100 @@ def test_sbom_mode_reads_lockfiles_directly_in_path_only(tmp_path: Path) -> None
 def test_collect_inputs_refuses_purl_mode() -> None:
     with pytest.raises(ValueError):
         collect_inputs(_opts("autopsy", "--purl", "pkg:npm/request@2.88.2"), make_env())
+
+
+# --------------------------------------------------- T12.7: direct edges from the lockfiles
+
+
+def _without_root_edge(document: dict[str, Any], ref_prefix: str) -> dict[str, Any]:
+    """The document as real Syft writes it: the root does not link to the dev direct."""
+    out = copy.deepcopy(document)
+    root_prefixes = ("pkg:npm/anchors-web@", "pkg:pypi/anchors-api@")
+    for entry in out["dependencies"]:
+        if entry["ref"].startswith(root_prefixes):
+            entry["dependsOn"] = [t for t in entry["dependsOn"] if not t.startswith(ref_prefix)]
+    return out
+
+
+def _real_shaped_sboms(tmp_path: Path) -> Path:
+    """A directory of SBOMs where request and nose are not linked to their roots."""
+    sboms = tmp_path / "sboms"
+    sboms.mkdir()
+    for service, prefix in (("web", "pkg:npm/request@"), ("api", "pkg:pypi/nose@")):
+        document = json.loads((DEFAULT_SBOM_DIR / f"{service}.cdx.json").read_text("utf-8"))
+        (sboms / f"{service}.cdx.json").write_text(
+            json.dumps(_without_root_edge(document, prefix)), encoding="utf-8"
+        )
+    return sboms
+
+
+def test_project_mode_adds_the_dev_edges_the_sbom_lacks(tmp_path: Path) -> None:
+    stub = make_stub_syft(tmp_path, sbom_dir=_real_shaped_sboms(tmp_path))
+    inputs = collect_inputs(_opts("autopsy", str(PROJECT), "--syft", str(stub.path)), make_env())
+    assert inputs.direct_edges_added == 2  # request (web) and nose (api)
+    assert [w.code for w in inputs.cli_warnings] == []  # added edges are not warnings
+    graph = build_graph(inputs.services)
+    assert graph.warnings == ()
+    request, nose = graph.node("npm/request@2.88.2"), graph.node("pypi/nose@1.3.7")
+    assert request is not None and nose is not None
+    assert [(p.runtime, p.direct) for p in request.path_infos] == [(False, True)]
+    assert [(p.runtime, p.direct) for p in nose.path_infos] == [(False, True)]
+    uuid = graph.node("npm/uuid@3.4.0")
+    assert uuid is not None
+    assert [(p.runtime, p.direct) for p in uuid.path_infos] == [(False, False)]
+
+
+def test_a_declared_direct_with_no_component_is_one_warning_per_service(tmp_path: Path) -> None:
+    sboms = tmp_path / "sboms"
+    sboms.mkdir()
+    web = json.loads((DEFAULT_SBOM_DIR / "web.cdx.json").read_text("utf-8"))
+    gone = [c["bom-ref"] for c in web["components"] if c.get("name") == "moment"]
+    assert gone
+    web["components"] = [c for c in web["components"] if c["bom-ref"] not in gone]
+    for entry in web["dependencies"]:
+        entry["dependsOn"] = [t for t in entry.get("dependsOn", []) if t not in gone]
+    (sboms / "web.cdx.json").write_text(json.dumps(web), encoding="utf-8")
+    shutil.copy(DEFAULT_SBOM_DIR / "api.cdx.json", sboms / "api.cdx.json")
+    stub = make_stub_syft(tmp_path, sbom_dir=sboms)
+    inputs = collect_inputs(_opts("autopsy", str(PROJECT), "--syft", str(stub.path)), make_env())
+    [warning] = [w for w in inputs.cli_warnings if w.code == "DIRECT_NOT_IN_SBOM"]
+    assert warning.service == "web"
+    assert warning.subjects == ("npm/moment@2.29.1",)
+    assert warning.detail == (
+        "1 direct dependency declared in the lockfile has no component in the SBOM; not analysed"
+    )
+
+
+def test_sbom_mode_adds_edges_when_lockfiles_are_in_path(tmp_path: Path) -> None:
+    project = tmp_path / "proj"
+    project.mkdir()
+    shutil.copy(PROJECT / "api" / "uv.lock", project / "uv.lock")
+    sbom = _real_shaped_sboms(tmp_path) / "api.cdx.json"
+    inputs = collect_inputs(_opts("autopsy", str(project), "--sbom", str(sbom)), make_env())
+    assert inputs.lockfiles == ((".", "uv.lock", True),)
+    assert inputs.direct_edges_added == 1  # nose
+    assert build_graph(inputs.services).warnings == ()
+
+
+def test_sbom_mode_without_lockfiles_adds_nothing(tmp_path: Path) -> None:
+    sbom = _real_shaped_sboms(tmp_path) / "api.cdx.json"
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    inputs = collect_inputs(_opts("autopsy", str(empty), "--sbom", str(sbom)), make_env())
+    assert inputs.direct_edges_added == 0
+    assert inputs.cli_warnings == ()
+    assert inputs.services[0].scopes is None
+
+
+def test_the_count_reaches_the_report_and_purl_mode_has_none(tmp_path: Path) -> None:
+    stub = make_stub_syft(tmp_path, sbom_dir=_real_shaped_sboms(tmp_path))
+    down = _DownTransport()
+    report = analyse(
+        _opts("autopsy", str(PROJECT), "--syft", str(stub.path)),
+        make_env(),
+        down.transport,
+        FakeClock(START),
+    )
+    assert report.direct_edges_added == 2
+    purl_report = analyse(_opts_for(), make_env(), _DownTransport().transport, FakeClock(START))
+    assert purl_report.direct_edges_added == 0

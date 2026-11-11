@@ -1,6 +1,9 @@
 """Integrity and self-check of the anchors fixture project (CLI-TEST-2; design §9.1, §9.2).
 
-No CLI code is imported: only ``core.graph``, ``core.scoring`` and the recorded helpers.
+The SBOMs are real Syft 1.56.0 output (CLI-FIX-1), so the graphs are built through
+``cli.augment.add_direct_edges``, which adds the root -> dev-direct edges Syft does not emit.
+Apart from that pure module only ``core.graph``, ``core.scoring`` and the recorded helpers are
+used; the rest of the CLI is not imported.
 """
 
 from __future__ import annotations
@@ -10,11 +13,11 @@ import json
 import re
 from collections.abc import Iterator
 from pathlib import Path
-from types import MappingProxyType
 from typing import Any
 
 import pytest
 
+from cli.augment import add_direct_edges
 from core.graph import (
     DependencyGraph,
     ScopeResult,
@@ -75,30 +78,19 @@ def _load(path: Path) -> dict[str, Any]:
     return loaded
 
 
+def _augmented(path: str, bom_name: str, scopes: ScopeResult) -> ServiceInput:
+    bom = add_direct_edges(_load(SBOMS / bom_name), scopes.direct_scopes).bom
+    return ServiceInput(path, bom, scopes)
+
+
 def _web_input() -> ServiceInput:
     text = (PROJECT / "web" / "package-lock.json").read_text(encoding="utf-8")
-    return ServiceInput("web", _load(SBOMS / "web.cdx.json"), parse_package_lock(text))
+    return _augmented("web", "web.cdx.json", parse_package_lock(text))
 
 
 def _api_input() -> ServiceInput:
     text = (PROJECT / "api" / "uv.lock").read_text(encoding="utf-8")
-    return ServiceInput("api", _load(SBOMS / "api.cdx.json"), parse_uv_lock(text))
-
-
-def _merged(a: ScopeResult, b: ScopeResult) -> ScopeResult:
-    """Runtime wins over dev per key (local copy: this test imports no CLI code)."""
-
-    def merge(x: Any, y: Any) -> Any:
-        out: dict[str, Any] = {}
-        for key in sorted({*x, *y}):
-            out[key] = "runtime" if "runtime" in (x.get(key), y.get(key)) else "dev"
-        return MappingProxyType(out)
-
-    return ScopeResult(
-        merge(a.package_scopes, b.package_scopes),
-        merge(a.direct_scopes, b.direct_scopes),
-        tuple(sorted({*a.warnings, *b.warnings}, key=repr)),
-    )
+    return _augmented("api", "api.cdx.json", parse_uv_lock(text))
 
 
 def _two_service_graph() -> DependencyGraph:
@@ -122,7 +114,7 @@ def test_no_fixture_contains_an_absolute_path() -> None:
         assert not _FORBIDDEN.search(path.read_text(encoding="utf-8")), path
 
 
-@pytest.mark.parametrize("name", ["web", "api", "all"])
+@pytest.mark.parametrize("name", ["web", "api"])
 def test_every_dependency_ref_is_a_component_bom_ref(name: str) -> None:
     bom = _load(SBOMS / f"{name}.cdx.json")
     refs = set(_bom_refs(bom))
@@ -147,13 +139,28 @@ def test_two_service_graph_matches_design_section_9_2() -> None:
         assert node.services_affected == 1, name
 
 
-def test_combined_sbom_with_merged_scopes_has_the_same_nine_purls() -> None:
-    web, api = _web_input(), _api_input()
-    assert web.scopes is not None and api.scopes is not None
-    graph = build_graph(
-        [ServiceInput(".", _load(SBOMS / "all.cdx.json"), _merged(web.scopes, api.scopes))]
-    )
-    assert sorted(n.purl for n in graph.nodes) == sorted(_anchor_purls().values())
+@pytest.mark.parametrize("name", ["web", "api"])
+def test_the_sboms_are_real_syft_1_56_0_output(name: str) -> None:
+    bom = _load(SBOMS / f"{name}.cdx.json")
+    assert bom["bomFormat"] == "CycloneDX"
+    assert bom["specVersion"] == "1.7"
+    [tool] = bom["metadata"]["tools"]["components"]
+    assert (tool["name"], tool["version"]) == ("syft", "1.56.0")
+    assert bom["metadata"]["component"]["name"] == f"fixtures/{name}"  # the one scrubbed value
+
+
+def test_the_real_sboms_do_not_link_the_root_to_its_dev_directs() -> None:
+    """What the augmentation exists for (docs/SPIKES.md, Q7)."""
+    for name, dev in (("web", "request"), ("api", "nose")):
+        bom = _load(SBOMS / f"{name}.cdx.json")
+        components = {c["bom-ref"]: c["name"] for c in bom["components"] if c["type"] == "library"}
+        assert dev in components.values()  # dev dependencies are included (the Syft variable)
+        linked = {t for e in bom["dependencies"] for t in e.get("dependsOn", [])}
+        assert dev not in {components.get(t) for t in linked if t in components}
+
+
+def test_the_combined_sbom_is_gone() -> None:
+    assert not (SBOMS / "all.cdx.json").exists()
 
 
 def test_exposure_changes_the_rank_order_to_the_design_literal() -> None:

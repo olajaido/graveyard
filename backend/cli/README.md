@@ -12,7 +12,7 @@ The CLI is glue. It holds no scoring rules (`core.scoring` does), parses no resp
 graveyard autopsy PATH [--sbom FILE] [options]
 ```
 
-Every directory under `PATH` that directly contains a lockfile (`package-lock.json`, `uv.lock`, `poetry.lock` or `requirements*.txt`) is a *service*. Syft 1.56.0 produces one CycloneDX document per service (or `--sbom FILE` supplies one document for the whole project), the lockfiles supply the runtime or dev scope of each package, and the dependency graph gives each package its exposure.
+Every directory under `PATH` that directly contains a lockfile (`package-lock.json`, `uv.lock`, `poetry.lock` or `requirements*.txt`) is a *service*. Syft 1.56.0 produces one CycloneDX document per service (or `--sbom FILE` supplies one document for the whole project), the lockfiles supply the runtime or dev scope of each package and the project's declared direct dependencies, and the dependency graph gives each package its exposure. See "Dev dependencies and direct edges" below for what the CLI adds to Syft's output.
 
 **Single-package mode** takes package URLs and skips discovery, Syft and the graph. It is meant for an install-time check.
 
@@ -33,7 +33,7 @@ uv run graveyard autopsy PATH
 uv run python -m cli autopsy PATH
 ```
 
-Project mode needs Syft **1.56.0** (exactly). The CLI does not install or update it. Install that release from the Syft releases page, then either put it on `PATH` or pass `--syft PATH`. `--sbom FILE` avoids Syft altogether.
+Project mode needs Syft **1.56.0** (exactly). The CLI does not install or update it. It starts Syft with a cleared environment plus `SYFT_CHECK_FOR_APP_UPDATE=false` and `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=true`, and no other `SYFT_*` setting reaches it. Install that release from the Syft releases page, then either put it on `PATH` or pass `--syft PATH`. `--sbom FILE` avoids Syft altogether.
 
 ## Options
 
@@ -62,7 +62,7 @@ The environment is read in one place, `cli/__main__.py`, and nowhere else.
 | `GITHUB_TOKEN` | Optional. Sent only to `api.github.com`, for repository signals (archived flag, last push, committers, issue counts). Only public data is read, so a token with no extra scopes or permissions is expected to be enough. An empty or whitespace-only value counts as no token. A value that is not a valid token (inner whitespace, control characters, over 255 characters) is ignored with a warning. The value is never printed, logged or written to the report, and is never passed to Syft. |
 | `GRAVEYARD_CONTACT` | Optional contact for the `User-Agent` sent to the public APIs. Default: `https://github.com/olajaido/graveyard`. |
 
-**Without a token the run still works.** GitHub signals are missing, confidence is lower, the report says `degraded: true`, and stderr carries one `no GITHUB_TOKEN set` warning. The exit code is not changed by that. When you use `--fail-on` on a degraded run, stderr also says the gate was evaluated on partial evidence and how many packages are Unknown, because a package with little evidence may not reach Dead or Ailing.
+**Without a token the run still works.** GitHub signals are missing, confidence is lower, the report says `degraded: true`, and stderr carries one `no GITHUB_TOKEN set` warning. The exit code is not changed by that. When you use `--fail-on` on a degraded run, stderr also says the gate was evaluated on partial evidence and how many packages are Unknown. A package that is Dead only because its remaining signals scored badly while GitHub data was skipped is shown as *unverified* and is not gated (see "`--fail-on`").
 
 ## Exit codes
 
@@ -75,7 +75,7 @@ The environment is read in one place, `cli/__main__.py`, and nowhere else.
 | 4 | internal error |
 
 - **0** includes degraded runs and runs where some inputs were skipped as item errors.
-- **1** means at least one ranked package is in a class named by `--fail-on`. Without `--fail-on` the gate never trips.
+- **1** means at least one ranked, gate-eligible package is in a class named by `--fail-on`. Without `--fail-on` the gate never trips.
 - **2**: unknown option, bad `--fail-on` or `--as-of`, a missing directory, `PATH` with `--purl`, `--sbom` with `--purl`, an invalid or version-less `--purl`.
 - **3**: no lockfiles under `PATH` (use `--sbom`), more than 50 services, Syft missing, the wrong version, failed, timed out or producing bad output, an unreadable or invalid SBOM, or a failure to write `--json`. A failure for any one service is fatal, so a gate cannot pass on a service that was not scanned.
 - **4**: a bug. The message names the exception type and nothing else.
@@ -85,6 +85,19 @@ The JSON report is written only for a completed analysis (codes 0 and 1).
 ## `--fail-on`
 
 The list is a set, not a threshold: a package matches if it is in *any* named class. `dead` is base state Dead, `ailing` is base state Ailing (it does not include Dead), and `cursed` is the Cursed overlay (a known vulnerability with no fixed version), whatever the base state. Unknown packages never match. To gate on everything pass `dead,cursed,ailing`.
+
+**Only evidence that was seen is gated.** A package is *gate-eligible* unless its verdict rests on the score **and** at least one of its scored signals is missing because a source was skipped or failed: no `GITHUB_TOKEN`, a rate limit, a network error, a malformed response. A verdict rests on the score when the package is Dead *by score* (not declared dead) or Ailing, and is not Cursed through the age rule. Such a package is *unverified*: it keeps its state and priority in the table, its `WHY` starts with `unverified: no <source> data` (for example `unverified: no GitHub data`), and `--fail-on` ignores it, whatever class it names (`dead` or `ailing`). A signal that is missing because the data does not exist (no repository could be resolved, a 404) does not count, because nothing was skipped. Declared Dead is always gated. Cursed is gated when a no-fix advisory is old enough on its own (the model's age rule); a package that is Cursed only because it is Dead or Ailing (the model counts any no-fix advisory then) follows the verdict it is Cursed on. The sources say which case applies: the warnings of a package list exactly the signals that its failures left missing. The table footer counts unverified packages (`N unverified, not gated; set GITHUB_TOKEN to verify`), stderr says how many were not gated, and the JSON has `gate_eligible` and `unverified_reason` for every package.
+
+## Dev dependencies and direct edges
+
+Syft 1.56.0 does two things that the dependency graph cannot use as it is (`docs/SPIKES.md`, Q7): it leaves out the `dev: true` packages of a `package-lock.json` unless it is told otherwise, and it never links a project's root to its dev direct dependencies (npm `devDependencies`, uv dev groups). The CLI therefore:
+
+1. starts Syft with `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=true`, and
+2. adds `root -> direct` edges for every direct dependency the lockfile declares and the root does not already reach (`cli/augment.py`), before the graph is built. Only root-sourced edges are added; nothing is removed or changed.
+
+Without the second step an orphan dev package that has edges of its own would be read as a second *root* and dropped, and one without edges would be unreachable (its exposure assumed). The number of edges added is `summary.stats.direct_edges_added` in the JSON; added edges are not warnings. A declared direct dependency that has no component in the SBOM at all produces one `DIRECT_NOT_IN_SBOM` warning per service, with the keys as `subjects`; those packages are not analysed. This runs in project mode and in `--sbom` mode when lockfiles sit directly in `PATH`.
+
+The root is the one unreferenced `dependencies` entry whose package is not itself a declared direct dependency, or `metadata.component` when a project has only dev dependencies. If the root cannot be told, nothing is added and the graph warns `MULTIPLE_ROOTS` or `ROOT_NOT_FOUND`.
 
 ## The table
 
@@ -96,18 +109,18 @@ The list is a set, not a threshold: a package matches if it is in *any* named cl
 | `EXPOSURE` | `direct` or `transitive`, then `runtime` or `dev`, plus ` · N services` when several; `assumed` when there is no graph. |
 | `PRIORITY` | The ranking number, one decimal place (`—` for Unknown). Rows are ordered by it, highest first. |
 
-A footer line gives the counts per state and how many rows were hidden. Everything printed is passed through a filter that replaces control characters and bidirectional overrides, so a hostile package name cannot inject a terminal escape sequence.
+A footer line gives the counts per state and how many rows were hidden, followed by a line for unverified packages when there are any. `WHY` is the first column to be shortened when the terminal is narrow (the width comes from the terminal, 100 when it is not one); the unverified text is kept short (`unverified: no GitHub data`) so that it fits 100 columns. The JSON `unverified_reason` keeps the long form (`github data unavailable`). Everything printed is passed through a filter that replaces control characters and bidirectional overrides, so a hostile package name cannot inject a terminal escape sequence.
 
 ## JSON report, schema `graveyard.autopsy` version 1
 
 Top-level keys, in order: `schema`, `schema_version`, `model_version`, `as_of`, `input`, `summary`, `packages`, `errors`, `warnings`.
 
 - `input`: `mode` (`syft`, `sbom` or `purl`), `syft_version`, `services`, `lockfiles` (`service`, `file`, `used`).
-- `summary`: package count, `states` (all five keys), `cursed`, `wounded`, `item_errors`, `degraded`, warning counts, source statistics, `gate` (`fail_on`, `tripped`, `matches`) and `exit_code`.
-- `packages`: every scored package in rank order, with `rank`, `purl`, `key`, `ecosystem`, `name`, `version`, `state`, `dead_reason`, `cursed`, `wounded`, `mortality`, `confidence`, `priority`, `exposure`, `exposure_assumed`, `services_affected`, `direct`, `scope`, `manifests`, `path_infos`, `example_paths`, `why`, `normalised_risks`, `contributions`, `evidence`, `repo`, `repo_via`, `resolved_version`, `latest_version` and `warnings`. Numbers are unrounded.
+- `summary`: package count, `states` (all five keys), `cursed`, `wounded`, `item_errors`, `degraded`, warning counts, source statistics (`sources`), `stats` (`direct_edges_added`, `unverified`), `gate` (`fail_on`, `tripped`, `matches`, which lists gate-eligible packages only) and `exit_code`.
+- `packages`: every scored package in rank order, with `rank`, `purl`, `key`, `ecosystem`, `name`, `version`, `state`, `dead_reason`, `cursed`, `wounded`, `mortality`, `confidence`, `priority`, `exposure`, `exposure_assumed`, `services_affected`, `direct`, `scope`, `manifests`, `path_infos`, `example_paths`, `why`, `gate_eligible`, `unverified_reason`, `normalised_risks`, `contributions`, `evidence`, `repo`, `repo_via`, `resolved_version`, `latest_version` and `warnings`. Numbers are unrounded.
 - `evidence`: the 11 signals, each with `value`, `source_url`, `fetched_at`, `extra_source_urls` and `note`, so every point of the score can be traced to a link.
 - `errors`: inputs the sources rejected (`purl`, `code`, `detail`); they are not ranked and do not change the exit code.
-- `warnings`: graph warnings (`origin: "graph"`) and CLI warnings (`origin: "cli"`). Source warnings are under each package.
+- `warnings`: graph warnings (`origin: "graph"`) and CLI warnings (`origin: "cli"`: `LOCKFILE_UNREADABLE`, `GITHUB_TOKEN_MISSING`, `GITHUB_TOKEN_INVALID`, `DIRECT_NOT_IN_SBOM`). Source warnings are under each package.
 
 **Nullability by mode.** In `--purl` mode `services_affected`, `direct` and `scope` are `null` and `manifests`, `path_infos` and `example_paths` are empty arrays. `model_version` is `null` only when no package was scored. The file contains no absolute path, no environment value and no token. For identical inputs, date and source answers the file is byte-identical.
 
@@ -133,6 +146,8 @@ The wrapper never exits 1. The wrapper itself belongs to the `kiro-power` spec.
 
 ## Known limitations
 
+- If a service's lockfile cannot be read there is nothing to add edges from, so the dev-package problem above returns for that service: the run completes, warns `LOCKFILE_UNREADABLE`, and the graph reports `MULTIPLE_ROOTS` (an orphan dev package with edges of its own is read as a second root and left out of the packages).
+- The root of a project cannot be found when several unexplained orphan roots exist, or when there is neither a root entry nor a `metadata.component`; nothing is added then. Packages that are unreachable but not declared in the lockfile (for example a transitive dev dependency whose parent Syft left out) stay unreachable and have assumed exposure.
 - `requirements*.txt` files are treated as runtime, including `requirements-dev.txt`, so the exposure of dev-only requirements is overstated.
 - Syft may catalogue more than the lockfiles list. Packages without lockfile data get `runtime` scope and a `SCOPE_ASSUMED` warning.
 - The cache lives in memory for one run; there is no persistent cache.
@@ -150,4 +165,11 @@ SYFT_CHECK_FOR_APP_UPDATE=false uv run graveyard autopsy cli/tests/fixtures/anch
   --syft ~/.local/bin/syft --as-of 2026-11-03 --all
 ```
 
-Run it without `GITHUB_TOKEN` to see the degraded path. The expected result is the nine anchor packages, with request, left-pad, node-uuid, nose and pycrypto Dead. Live data may differ in detail from the recorded cassette the tests use.
+Run it without `GITHUB_TOKEN` to see the degraded path (`six` is then Dead on partial evidence, shown as unverified and not gated, as would an Ailing verdict reached the same way). The expected result is the nine anchor packages, with request, left-pad, node-uuid, nose and pycrypto Dead. Live data may differ in detail from the recorded cassette the tests use.
+
+The same check exists as an opt-in contract test, marked `syft`, which runs the real binary on the fixture project and asserts the nine packages and their paths after augmentation. It skips itself, with a reason, unless a `syft` reporting exactly 1.56.0 is found on `PATH` or in `~/.local/bin`:
+
+```
+uv run pytest -m syft -q cli      # only the contract tests
+uv run pytest -m "not syft" -q    # everything else
+```

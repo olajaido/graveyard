@@ -36,7 +36,10 @@ package = true
 
 [tool.pytest.ini_options]
 addopts = ["--strict-markers"]
-markers = ["property: Hypothesis property-based tests"]
+markers = [
+    "property: Hypothesis property-based tests",
+    "syft: contract tests that run the real Syft 1.56.0 binary (skipped when it is not found)",
+]
 testpaths = ["core", "sources", "cli"]
 pythonpath = ["."]
 

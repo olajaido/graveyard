@@ -27,7 +27,7 @@ graveyard/
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
 │   ├── narrate/                 # Bedrock prompts + validators
 │   ├── mcp/                     # graveyard-mcp server
-│   ├── cli/                     # graveyard CLI (check, check-install, scan)
+│   ├── cli/                     # graveyard CLI (autopsy; later check-install, scan)
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/
@@ -62,6 +62,7 @@ graveyard/
 - `backend/core/sources/` is the pure half of the source clients: URL builders, response parsers, `has_fix`, repo resolution, signal assembly, config and result types. It has no I/O and no `httpx`, `asyncio`, `os`, `logging` or `print`. It may import `core.purl` and `core.scoring`, and the only module that may import `core.scoring` beyond `core.scoring.types` is `core/sources/resting.py` (it decides which packages could be Resting, by calling `score_package`). Its tests and the recorded HTTP cassette are colocated in `core/sources/tests/`.
 - `backend/sources/` contains only external API clients and caching: the async HTTP gateway, per-source clients, the cache protocol and in-memory cache, and the session. It imports `core.sources` and, from `core.scoring`, only the data-type module `core.scoring.types` (any other `core.scoring` module, and the package itself, is forbidden; tests excepted). No scoring logic, no response parsing rules. Its tests may read the cassette in `core/sources/tests/fixtures/recorded/` through a path relative to `__file__`.
 - Neither `core/sources` nor `sources` reads environment variables, logs or prints. Secrets, contact strings and tokens are passed in by the caller (`workflow/` or a script).
+- `backend/cli/` is glue: no scoring, no parsing, no HTTP. It calls `core.graph`, `sources` and `core.scoring` (only `score_package`, `sort_results` and the result types), formats the results, and runs Syft through one module (`syft.py`, the only user of `subprocess`). It reads the environment only in `__main__.py` and imports no HTTP client. Its tests and fixtures are colocated in `cli/tests/`.
 - `backend/workflow/` contains Step Functions task handlers only.
 - `backend/rites/` contains remediation generators and codemod rules. No scoring.
 - `backend/narrate/` contains Bedrock prompts and validators only.

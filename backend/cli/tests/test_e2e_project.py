@@ -25,7 +25,14 @@ from typing import Any
 import pytest
 
 from cli.app import run
-from cli.tests.support import FakeClock, StubMode, StubSyft, make_env, make_stub_syft
+from cli.tests.support import (
+    FakeClock,
+    StubMode,
+    StubSyft,
+    make_env,
+    make_stub_syft,
+    subset_replay_transport,
+)
 from core.sources.model import EVIDENCE_KEYS
 from core.sources.secret import SecretToken
 from core.sources.tests import recorded as rec
@@ -33,7 +40,8 @@ from sources.tests.transports import ReplayLog, replay_transport
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PROJECT = FIXTURES / "anchors-project"
-ALL_SBOM = FIXTURES / "sboms" / "all.cdx.json"
+WEB_SBOM = FIXTURES / "sboms" / "web.cdx.json"
+API_SBOM = FIXTURES / "sboms" / "api.cdx.json"
 SENTINEL = "e2e-sentinel-4f1c9a"
 CLOCK_START = datetime(2026, 11, 10, 9, 0, tzinfo=UTC)
 
@@ -140,12 +148,18 @@ def run_cli(
     project: Path = PROJECT,
     token: bool = True,
     mode: StubMode = "ok",
+    subset: bool = False,
+    width: int = 100,
 ) -> Run:
     work = root / label
     work.mkdir()
     stub = make_stub_syft(work, mode=mode)
     json_path = work / "report.json"
-    transport, log = replay_transport(rec.cassette())
+    # The exact cassette answers the nine-package run as recorded. Runs over fewer packages send
+    # smaller OSV bodies, so those use the derived transport (no token: no GitHub request).
+    transport, log = (
+        subset_replay_transport(rec.cassette()) if subset else replay_transport(rec.cassette())
+    )
     out, err = io.StringIO(), io.StringIO()
     code = run(
         [
@@ -160,7 +174,7 @@ def run_cli(
             "--all",
             *extra,
         ],
-        env=make_env(token=SecretToken(SENTINEL) if token else None),
+        env=make_env(token=SecretToken(SENTINEL) if token else None, width=width),
         out=out,
         err=err,
         transport=transport,
@@ -351,26 +365,54 @@ def test_no_fail_on_never_trips(main: Run) -> None:
 # --------------------------------------------------------------------- T9.4: the variants
 
 
-def test_sbom_mode_with_the_combined_document(tmp_path: Path) -> None:
-    result = run_cli(tmp_path, "sbom", "--sbom", str(ALL_SBOM))
+def test_sbom_mode_with_the_web_document_and_its_lockfile(tmp_path: Path) -> None:
+    """CLI-TEST-4a: `--sbom` with `PATH` the web service, which holds a package-lock.json."""
+    result = run_cli(
+        tmp_path, "sbom", "--sbom", str(WEB_SBOM), project=PROJECT / "web", token=False, subset=True
+    )
     assert result.log.unmatched == []
     assert result.code == 0
     assert result.stub.calls() == []  # Syft is never run with --sbom
     report = result.report
-    assert report["input"]["mode"] == "sbom"
-    assert report["input"]["syft_version"] is None
-    assert report["input"]["services"] == ["."]
-    assert report["input"]["lockfiles"] == []
+    assert report["input"] == {
+        "mode": "sbom",
+        "syft_version": None,
+        "services": ["."],
+        "lockfiles": [{"service": ".", "file": "package-lock.json", "used": True}],
+    }
+    npm = {name: PURLS[name] for name in PURLS if PURLS[name].startswith("pkg:npm/")}
     states = {
         p["purl"]: (p["state"], p["dead_reason"], p["cursed"], p["wounded"])
         for p in report["packages"]
     }
-    assert states == {PURLS[name]: expected for name, expected in MM_ANC.items()}
-    assert any(w["origin"] == "graph" and w["code"] == "SCOPE_ASSUMED" for w in report["warnings"])
-    for package in report["packages"]:
-        assert package["path_infos"], package["purl"]
-        assert all(info["runtime"] for info in package["path_infos"]), package["purl"]
-        assert package["scope"] == "runtime"
+    assert states == {purl: MM_ANC[name] for name, purl in npm.items()}
+    by_name = dict(zip(result.names(), report["packages"], strict=True))
+    assert by_name["request"]["scope"] == "dev"  # the lockfile says so, via the added edge
+    assert by_name["uuid"]["scope"] == "dev"
+    assert by_name["express"]["scope"] == "runtime"
+    assert report["summary"]["stats"]["direct_edges_added"] == 1  # request
+    assert not any(w["origin"] == "graph" for w in report["warnings"])
+
+
+def test_sbom_mode_without_a_lockfile_assumes_scopes_and_leaves_nose_unreachable(
+    tmp_path: Path,
+) -> None:
+    empty = tmp_path / "no-lockfile"
+    empty.mkdir()
+    result = run_cli(
+        tmp_path, "sbom2", "--sbom", str(API_SBOM), project=empty, token=False, subset=True
+    )
+    assert result.log.unmatched == []
+    assert result.code == 0
+    report = result.report
+    assert report["input"]["lockfiles"] == []
+    assert [w["code"] for w in report["warnings"] if w["origin"] == "graph"] == ["SCOPE_ASSUMED"]
+    by_name = dict(zip(result.names(), report["packages"], strict=True))
+    assert by_name["pycrypto"]["scope"] == "runtime"
+    nose = by_name["nose"]  # listed by Syft, linked from nowhere, and no lockfile to say more
+    assert nose["path_infos"] == []
+    assert nose["exposure_assumed"] is True
+    assert report["summary"]["stats"]["direct_edges_added"] == 0
 
 
 def test_no_token_degrades_but_works(main: Run, tmp_path: Path) -> None:
@@ -394,11 +436,18 @@ def test_no_token_degrades_but_works(main: Run, tmp_path: Path) -> None:
     assert SENTINEL not in result.out + result.err + result.json_text
 
 
-def test_an_unreadable_lockfile_is_a_warning_and_the_scopes_are_assumed(tmp_path: Path) -> None:
+def test_an_unreadable_lockfile_is_a_warning_and_the_graph_says_what_it_lost(
+    tmp_path: Path,
+) -> None:
+    """With no scopes there is nothing to augment from (CLI-AUG-7, limit CLI-AUG-9).
+
+    The real Syft BOM then has an orphan dev package (`request`) with edges of its own, which
+    `core.graph` reads as a second root and drops. The run still completes and says so.
+    """
     project = tmp_path / "project"
     shutil.copytree(PROJECT, project)
     (project / "web" / "package-lock.json").write_text("this is not json", encoding="utf-8")
-    result = run_cli(tmp_path, "badlock", project=project)
+    result = run_cli(tmp_path, "badlock", project=project, token=False, subset=True)
     assert result.log.unmatched == []
     assert result.code == 0
     report = result.report
@@ -407,15 +456,16 @@ def test_an_unreadable_lockfile_is_a_warning_and_the_scopes_are_assumed(tmp_path
     assert lockfile_warnings[0]["origin"] == "cli"
     assert lockfile_warnings[0]["service"] == "web"
     assert result.err.count("warning: web: could not read lockfile package-lock.json") == 1
-    assumed = [w for w in report["warnings"] if w["code"] == "SCOPE_ASSUMED"]
-    assert [w["service"] for w in assumed] == ["web"]
+    graph = {(w["code"], w["service"]) for w in report["warnings"] if w["origin"] == "graph"}
+    assert ("SCOPE_ASSUMED", "web") in graph
+    assert ("MULTIPLE_ROOTS", "web") in graph
+    assert PURLS["request"] not in result.purls()  # dropped as a second root
     assert {"service": "web", "file": "package-lock.json", "used": False} in report["input"][
         "lockfiles"
     ]
     by_name = dict(zip(result.names(), report["packages"], strict=True))
-    assert by_name["request"]["scope"] == "runtime"  # was dev with the lockfile
-    assert by_name["uuid"]["scope"] == "runtime"
     assert by_name["nose"]["scope"] == "dev"  # the api service is untouched
+    assert report["summary"]["stats"]["direct_edges_added"] == 1  # nose only
 
 
 def test_a_failing_syft_is_exit_3_and_writes_nothing(tmp_path: Path) -> None:

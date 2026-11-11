@@ -234,3 +234,20 @@ def test_partial_evidence_note_for_unknown_packages_and_degraded_runs() -> None:
 def test_no_partial_evidence_note_without_fail_on() -> None:
     unknown = Signals(purl="pkg:npm/mystery@1.0.0", as_of=date(2026, 11, 3))
     assert "partial evidence" not in render_stderr_notes(make_report([unknown]))
+
+
+def test_subjects_of_a_cli_warning_are_listed_up_to_five() -> None:
+    many = tuple(f"npm/p{i}@1.0.0" for i in range(8))
+    few = ("npm/a@1.0.0", "npm/b@1.0.0")
+    report = _report(
+        cli_warnings=(
+            CliWarning("DIRECT_NOT_IN_SBOM", "8 have no component", "web", many),
+            CliWarning("DIRECT_NOT_IN_SBOM", "2 have no component", "api", few),
+        )
+    )
+    lines = render_stderr_notes(report).splitlines()
+    assert lines[0] == "warning: api: 2 have no component (npm/a@1.0.0, npm/b@1.0.0)"
+    assert lines[1] == (
+        "warning: web: 8 have no component (npm/p0@1.0.0, npm/p1@1.0.0, npm/p2@1.0.0, "
+        "npm/p3@1.0.0, npm/p4@1.0.0, ...)"
+    )

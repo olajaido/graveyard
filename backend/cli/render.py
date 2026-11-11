@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Final
 
-from cli.model import Report, Row
+from cli.model import TOKEN_WARNING_CODES, Report, Row
 from cli.text import sanitise
 from core.purl import parse_purl, registry_name
 from core.scoring.types import BaseState
@@ -25,6 +25,7 @@ _MIN_WHY: Final = 8
 _MIN_PACKAGE: Final = 20
 _ELLIPSIS: Final = "…"
 _MAX_LISTED: Final = 10
+_MAX_SUBJECTS_SHOWN: Final = 5
 _DASH: Final = "—"
 _STATE_ORDER: Final = (
     BaseState.DEAD,
@@ -97,6 +98,15 @@ def _footer(report: Report, hidden: int) -> str:
     )
 
 
+def _unverified_line(report: Report) -> str:
+    """``N unverified, not gated; ...`` (CLI-EVID-6)."""
+    token_problem = any(w.code in TOKEN_WARNING_CODES for w in report.cli_warnings)
+    advice = (
+        "set GITHUB_TOKEN to verify" if token_problem else "rerun when the sources are reachable"
+    )
+    return f"{report.unverified_count} unverified, not gated; {advice}"
+
+
 def render_table(report: Report, width: int, show_all: bool) -> str:
     """The table and footer for ``stdout``; a pure function of ``report`` (CLI-OUT-10)."""
     shown = [row for row in report.rows if show_all or _needs_attention(row)]
@@ -126,6 +136,8 @@ def render_table(report: Report, width: int, show_all: bool) -> str:
         lines.append("no package needs attention; use --all to list every package")
     lines.append("")
     lines.append(_footer(report, hidden))
+    if report.unverified_count:
+        lines.append(_unverified_line(report))
     return "\n".join(lines) + "\n"
 
 
@@ -134,7 +146,12 @@ def render_stderr_notes(report: Report) -> str:
     lines: list[str] = []
     for warning in sorted(report.cli_warnings, key=lambda w: w.sort_key):
         prefix = f"{warning.service}: " if warning.service else ""
-        lines.append(f"warning: {prefix}{warning.detail}")
+        subjects = ""
+        if warning.subjects:
+            shown = ", ".join(warning.subjects[:_MAX_SUBJECTS_SHOWN])
+            ellipsis = ", ..." if len(warning.subjects) > _MAX_SUBJECTS_SHOWN else ""
+            subjects = f" ({shown}{ellipsis})"
+        lines.append(f"warning: {prefix}{warning.detail}{subjects}")
     for purl, error in report.item_errors[:_MAX_LISTED]:
         lines.append(f"warning: skipped {purl}: {error.code}: {error.detail}")
     if len(report.item_errors) > _MAX_LISTED:
@@ -150,6 +167,11 @@ def render_stderr_notes(report: Report) -> str:
                 f"gate: {_plural(len(report.matches), 'package')} {verb} --fail-on {classes}: "
                 f"{listed}{tail}"
             )
+        if report.unverified_count:
+            count = report.unverified_count
+            verb = "is" if count == 1 else "are"
+            was = "was" if count == 1 else "were"
+            lines.append(f"note: {_plural(count, 'package')} {verb} unverified and {was} not gated")
         if report.degraded or report.unknown_count:
             lines.append(
                 "note: the gate was evaluated on partial evidence; "

@@ -17,17 +17,18 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date
 from pathlib import Path
 from typing import Any, Final
 
 from cli.args import Options
+from cli.augment import add_direct_edges
 from cli.discover import find_services, lockfiles_in
 from cli.env import DEFAULT_CONTACT, CliEnvironment
 from cli.errors import CliError, ExitCode
-from cli.gate import evaluate
+from cli.gate import evaluate, unverified_sources
 from cli.lockfiles import read_scopes
 from cli.model import CliWarning, InputMode, Report, Row, ServiceDir
 from cli.sbom import load_sbom
@@ -37,6 +38,7 @@ from cli.why import why
 from core.graph import (
     DependencyGraph,
     GraphNode,
+    ScopeResult,
     ServiceInput,
     build_graph,
     exposure_inputs,
@@ -86,6 +88,7 @@ class Inputs:
     syft_version: str | None
     lockfiles: tuple[tuple[str, str, bool], ...]  # (service, file, used)
     cli_warnings: tuple[CliWarning, ...]
+    direct_edges_added: int = 0  # root -> direct edges added from the lockfiles (CLI-AUG-6)
 
 
 PURL_INPUTS: Final = Inputs(
@@ -96,8 +99,35 @@ PURL_INPUTS: Final = Inputs(
 # ------------------------------------------------------------------------------ input stage
 
 
+def _augment(
+    service: str, bom: Mapping[str, Any], scopes: ScopeResult | None
+) -> tuple[Mapping[str, Any], int, tuple[CliWarning, ...]]:
+    """Add the root -> direct edges the lockfile declares (CLI-AUG-7).
+
+    Only when the lockfiles gave scopes. Declared direct dependencies with no component in the
+    SBOM become one ``DIRECT_NOT_IN_SBOM`` warning for the service (CLI-AUG-5).
+    """
+    if scopes is None:
+        return bom, 0, ()
+    result = add_direct_edges(bom, scopes.direct_scopes)
+    warnings: tuple[CliWarning, ...] = ()
+    if result.missing_keys:
+        count = len(result.missing_keys)
+        noun = "direct dependency declared" if count == 1 else "direct dependencies declared"
+        verb = "has" if count == 1 else "have"
+        warnings = (
+            CliWarning(
+                "DIRECT_NOT_IN_SBOM",
+                f"{count} {noun} in the lockfile {verb} no component in the SBOM; not analysed",
+                service,
+                result.missing_keys,
+            ),
+        )
+    return result.bom, len(result.added_keys), warnings
+
+
 def _from_sbom(opts: Options, path: Path) -> Inputs:
-    bom = load_sbom(opts.sbom) if opts.sbom is not None else {}
+    bom: Mapping[str, Any] = load_sbom(opts.sbom) if opts.sbom is not None else {}
     names = lockfiles_in(path)
     scopes = None
     warnings: tuple[CliWarning, ...] = ()
@@ -106,12 +136,14 @@ def _from_sbom(opts: Options, path: Path) -> Inputs:
         root = ServiceDir(path=".", directory=path, lockfiles=names)
         scopes, warnings, used = read_scopes(root)
         lockfiles = tuple((".", name, ok) for name, ok in used)
+    bom, added, augment_warnings = _augment(".", bom, scopes)
     return Inputs(
         mode="sbom",
         services=(ServiceInput(path=".", bom=bom, scopes=scopes),),
         syft_version=None,
         lockfiles=lockfiles,
-        cli_warnings=warnings,
+        cli_warnings=(*warnings, *augment_warnings),
+        direct_edges_added=added,
     )
 
 
@@ -123,18 +155,23 @@ def _from_syft(opts: Options, path: Path, env: CliEnvironment) -> Inputs:
     inputs: list[ServiceInput] = []
     warnings: list[CliWarning] = []
     lockfiles: list[tuple[str, str, bool]] = []
+    added_total = 0
     for service in services:  # sequential; a failure here is fatal (D6)
-        bom = run_syft(exe, service, all_paths, opts.syft_timeout, env.syft_env)
+        raw = run_syft(exe, service, all_paths, opts.syft_timeout, env.syft_env)
         scopes, service_warnings, used = read_scopes(service)
+        bom, added, augment_warnings = _augment(service.path, raw, scopes)
         inputs.append(ServiceInput(path=service.path, bom=bom, scopes=scopes))
         warnings.extend(service_warnings)
+        warnings.extend(augment_warnings)
         lockfiles.extend((service.path, name, ok) for name, ok in used)
+        added_total += added
     return Inputs(
         mode="syft",
         services=tuple(inputs),
         syft_version=version,
         lockfiles=tuple(lockfiles),
         cli_warnings=tuple(warnings),
+        direct_edges_added=added_total,
     )
 
 
@@ -213,6 +250,25 @@ def _token_warnings(env: CliEnvironment) -> tuple[CliWarning, ...]:
     return (CliWarning("GITHUB_TOKEN_MISSING", TOKEN_MISSING_DETAIL, None),)
 
 
+def _row(
+    position: int,
+    scoring: ScoringResult,
+    node: GraphNode | None,
+    result: SourceResult,
+    signals: Signals,
+) -> Row:
+    unverified = unverified_sources(scoring, signals, result.warnings)
+    return Row(
+        rank=position,
+        node=node,
+        source=result,
+        scoring=scoring,
+        signals=signals,
+        why=why(scoring, signals, unverified),
+        unverified=unverified,
+    )
+
+
 def rank(
     nodes: Sequence[GraphNode | None],
     results: Sequence[SourceResult],
@@ -244,14 +300,7 @@ def rank(
         [score_package(signals) for _node, _result, signals in scored.values()]
     )
     rows = tuple(
-        Row(
-            rank=position,
-            node=scored[scoring.purl][0],
-            source=scored[scoring.purl][1],
-            scoring=scoring,
-            signals=scored[scoring.purl][2],
-            why=why(scoring, scored[scoring.purl][2]),
-        )
+        _row(position, scoring, *scored[scoring.purl])
         for position, scoring in enumerate(ordered, start=1)
     )
     matches = evaluate(rows, opts.fail_on)
@@ -270,6 +319,7 @@ def rank(
         fail_on=opts.fail_on,
         matches=matches,
         exit_code=ExitCode.GATE_TRIPPED if matches else ExitCode.OK,
+        direct_edges_added=inputs.direct_edges_added,
     )
 
 

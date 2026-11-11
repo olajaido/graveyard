@@ -10,7 +10,7 @@ Run every Python tool from `backend/` with `uv run` (`tech.md`). No task adds a 
 
 ```mermaid
 graph LR
-  T0 --> T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7 --> T8 --> T9 --> T10 --> T11
+  T0 --> T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7 --> T8 --> T9 --> T10 --> T11 --> T12 --> T13 --> T14 --> T15
 ```
 
 T2 needs only T1. T3 needs `core.graph` and `core.scoring`, not the CLI code, so it also validates the fixture arithmetic of design §9.2 before any pipeline code exists. T5 needs the stub from T4. T7 needs T2, T5 and T6. T9 and T10 need everything before them. The chain is kept linear so each task starts from a green suite.
@@ -124,3 +124,49 @@ T2 needs only T1. T3 needs `core.graph` and `core.scoring`, not the CLI code, so
   - [x] T11.10 — Traceability check: every CLI-* requirement ID appears in a test docstring or module docstring, or in design §10; every test named in CLI-TEST-1…12 exists. Report any gap instead of closing it silently.
   - [x] T11.11 — Network check (CLI-TEST-1): `grep -rn "AsyncClient(\|httpx.Client(" cli/tests` finds only `test_conftest.py`, and the socket blocker of T1.6 is active in every test (no `--noconftest`). Report the result.
   - [x] T11.12 — Final report: list the documentation follow-ups this spec does not make (`structure.md` cli line and separation rule, `testing.md` coverage row for `backend/cli`, PRD §14 and hook H6 renamed to `autopsy`, hook exit-code mapping for H9 and KP-3, Lambda packaging notes for `infra-serverless`), the coverage figures, the wheel listing, and the smoke-run result.
+
+## Review round 2 (real-Syft findings)
+
+Implements `requirements.md`, "Review round 2", per `design.md` §13. The same working rules apply: `uv run` from `backend/`, no new dependency, nothing committed. **Stop conditions are marked in bold; when one fires, stop and report instead of changing a literal.**
+
+- [x] T12 — Dev dependencies and direct edges (CLI-DEV-1/2, CLI-AUG-1…9, D20, D21, D24)
+  - [x] T12.1 — `syft.py`: add `SYFT_FIXED_ENV` and `syft_environment(base)`; use it in `check_version` and `run_syft`. Extend `make_stub_syft` so the script logs the `SYFT_*` variables it sees for version calls too (a second log, `StubSyft.version_calls()`), and keep `calls()` as it is.
+  - [x] T12.2 — Tests for CLI-DEV-1/2 in `test_syft.py`: both values present and exact for `--version` and for runs; a caller mapping that tries `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=false` or omits the update switch still gets the fixed values; no other `SYFT_*` variable appears.
+  - [x] T12.3 — `model.py`: `DIRECT_NOT_IN_SBOM`, `CliWarning.subjects` (sorted, capped at 20), `Report.direct_edges_added`. Update `test_model.py`.
+  - [x] T12.4 — `augment.py` per design §13.3.
+  - [x] T12.5 — Unit tests `test_augment.py` (CLI-AUG-8): web and api fixtures built from the current stub BOMs and from a hand-built real-shaped document (the real fixtures arrive in T13); missing key; dev-only project with the `metadata.component` fallback; no root; two undeclared roots; a key present twice; a key already reached through another ref; the root key in `direct_scopes`; components without `bom-ref`; malformed input returned unchanged; input not mutated; idempotent.
+  - [x] T12.6 — Property tests `test_properties_augment.py`: only root-sourced edges are added; input unchanged; idempotent; original edges and components preserved; every direct key with a component ends up a root child; result independent of the order of `dependencies` entries and of `direct_scopes`.
+  - [x] T12.7 — Pipeline: call `add_direct_edges` in `_from_syft` and `_from_sbom` after `read_scopes`; build the `DIRECT_NOT_IN_SBOM` warnings; add `direct_edges_added` to `Inputs` and `Report`; report it as `summary.stats.direct_edges_added`; `summary.stats` in `report.py`; update `report_v1_shape.json` and `test_report.py`; `render_stderr_notes` shows up to five subjects. Tests in `test_pipeline.py`: edges added counted, missing-key warning, none when scopes are `None`, none in `--purl` mode, `--sbom` with and without lockfiles in `PATH`.
+  - [x] T12.8 — `uv run pytest -q cli`, `ruff`, `mypy --strict cli` are green.
+
+- [x] T13 — Real fixtures and the contract test (CLI-FIX-1…3, CLI-TEST-4a, CLI-TEST-13, CLI-TEST-14, D23)
+  - [x] T13.1 — Regenerate `sboms/web.cdx.json` and `sboms/api.cdx.json` from the real Syft 1.56.0 as in design §13.5 (check `syft --version` first; **if it is not 1.56.0, stop**). Scrub `metadata.component.name` with one exact-string replacement; `grep -c "/Users/"` must print 0. Delete `sboms/all.cdx.json`.
+  - [x] T13.2 — Rewrite the `anchors-project/README.md` provenance (CLI-FIX-2) and `sboms` references.
+  - [x] T13.3 — Update `test_fixture_project.py` (integrity checks for real output; the graph is built through `add_direct_edges`; the `all.cdx.json` check is removed), `test_pipeline.py`, `test_e2e_project.py` (variant a becomes CLI-TEST-4a), `test_syft.py`, `test_support.py`, `test_report_shape.py` and any other user of `all.cdx.json` or of the stub shapes.
+  - [x] T13.4 — **The e2e tests must still give the nine states, the §9.2 `path_infos` and the order through `augment.py`. If any literal disagrees, stop and report; do not edit the literal.**
+  - [x] T13.5 — Register the `syft` marker; write `test_syft_contract.py` (CLI-TEST-13). Run it with the real binary and with `-m "not syft"`.
+  - [x] T13.6 — `uv run pytest -q cli` is green.
+
+- [x] T14 — Gate only on evidence that was seen (CLI-EVID-1…9, D22)
+  - [x] T14.1 — Confirm the premise with the token-less cassette replay: for each anchor, the missing scored signals and the warnings that list them (design §13.1). **If a skipped or failed signal cannot be told from a nonexistent one, stop and report what is missing.**
+  - [x] T14.2 — `gate.py`: `unverified_sources`; `evaluate` counts eligible rows only; `model.Row`: `unverified`, `gate_eligible`, `unverified_reason`.
+  - [x] T14.3 — `why.py`, `render.py` (footer line, stderr note), `report.py` (package keys after `why`, `summary.stats.unverified`), `pipeline.rank`; update `report_v1_shape.json`, `README` later in T15.
+  - [x] T14.4 — Unit tests: the rule on hand-built `SourceWarning` values (each source kind, absent versus failed, declared, cursed, ailing, no warnings), `why`, footer, notes, JSON keys and order.
+  - [x] T14.5 — Property tests: declared Dead and Cursed always eligible; no warnings means eligible; a warning that lists no missing scored signal never makes a package unverified; `gate.matches` of an ineligible row is never counted.
+  - [x] T14.6 — End-to-end (CLI-EVID-9): anchors project, no token, `--fail-on dead,cursed` exits 1 with `six` unverified and not in `matches`, `nose` gated; `--purl pkg:pypi/six@1.17.0 --fail-on dead,cursed` with no token exits 0, `six` unverified; the same with a token is Resting. Update the earlier e2e expectations that the new footer or keys touch.
+  - [x] T14.7 — `uv run pytest -q cli`, `ruff`, `mypy --strict cli` are green.
+
+- [x] T15 — Documentation, README, final gate, smoke run, journal (CLI-DOC-1…4)
+  - [x] T15.1 — `docs/adr/0001-data-sources-and-sbom.md` and `docs/SPIKES.md`: the Syft finding (CLI-DOC-1).
+  - [x] T15.2 — `structure.md`, `testing.md`, `docs/PRD.md` (CLI-DOC-2…4). Show the diffs.
+  - [x] T15.3 — `backend/cli/README.md`: dev dependencies and augmentation, `DIRECT_NOT_IN_SBOM`, unverified packages and the footer, JSON keys (`gate_eligible`, `unverified_reason`, `summary.stats`), the `syft` marker, limits (CLI-AUG-9); `test_readme.py` still green.
+  - [x] T15.4 — Final gate: `ruff check`, `ruff format --check`, `mypy --strict core sources cli`, `grep -rn "type: ignore" cli`, `pytest -q`, `HYPOTHESIS_PROFILE=ci pytest -m property -q`, coverage of `cli` at least 85 %.
+  - [x] T15.5 — Smoke run again, real Syft, no token, `SYFT_CHECK_FOR_APP_UPDATE=false`; report the command, the exit code, the first lines of the table and the footer.
+  - [x] T15.6 — Journal entry; list what was not done. Nothing is committed.
+
+- [x] T16 — Final round-2 tweaks (CLI-EVID-1, CLI-EVID-3, CLI-EVID-5, D22; CLI-AUG-9 unchanged)
+  - [x] T16.1 — `WHY` shortened to `unverified: no <source> data` with display labels (`model.SOURCE_LABELS`, `unverified_short`); the JSON `unverified_reason` keeps the long form. The e2e table test now runs at the default 100 columns.
+  - [x] T16.2 — Eligibility extended to every score-based verdict (Dead by score, Ailing): `unverified_sources(scoring, signals, warnings)`; Cursed stays eligible through the age rule (`cursed_by_age`, which asks `score_package` about the advisories alone, so no threshold lives in the CLI); a Cursed that holds only through the Dead/Ailing bypass follows its base state.
+  - [x] T16.3 — Requirement rows and the design section updated; unit tests for Ailing, Cursed by age, Cursed through the bypass (Dead and Ailing, fresh and undated advisories), the age threshold boundary; the oracle property now reads the model's age threshold and has a dedicated bypass strategy.
+  - [x] T16.4 — README keeps the CLI-AUG-9 limits (tested). Gates: full suite, CI property tests, ruff, `mypy --strict core sources cli`.
+

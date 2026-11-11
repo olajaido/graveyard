@@ -650,10 +650,10 @@ Use several inclusion modes deliberately:
 | H3 | `secret-sentinel` | PreToolUse (write/shell) **blocking** | command: `gitleaks protect --staged --redact` (or on the path written) | Agent can't commit secrets |
 | H4 | `openapi-sync` | File save `backend/api/openapi.yaml` | command: regenerate TS types (`openapi-typescript`) | Contract drift eliminated |
 | H5 | `kiro-journal` | Post spec task execution | agent prompt: "Append to docs/KIRO_JOURNAL.md: task, Kiro feature used, what you'd have done manually, surprises" | Write-up evidence, generated automatically |
-| H6 | `dogfood-autopsy` | File save `**/package-lock.json`, `**/uv.lock` | command: `graveyard check web/package-lock.json backend/uv.lock --fail-on dead,cursed` | Graveyard guards its own dependencies |
+| H6 | `dogfood-autopsy` | File save `**/package-lock.json`, `**/uv.lock` | command: `graveyard autopsy . --fail-on dead,cursed` (scans the `web/` and `backend/` services) | Graveyard guards its own dependencies |
 | H7 | `a11y-review` | File save `web/components/**/*.tsx` | agent prompt: review against `ui-theme.md` accessibility checklist | Design-score insurance |
 | H8 | `stop-lint` | Stop (agent turn complete) | command: `ruff check && mypy backend && pnpm -C web lint && pnpm -C web typecheck` | No broken turns left behind |
-| H9 | `dead-install-blocker` | PreToolUse shell **blocking** | command: `graveyard check-install "$COMMAND"` | **The demo moment**; also shipped inside the Power |
+| H9 | `dead-install-blocker` | PreToolUse shell **blocking** | command: `graveyard check-install "$COMMAND"` (parses the install command, then runs `graveyard autopsy --purl <purl> --fail-on dead,cursed`; a wrapper maps CLI exit 1 to hook exit 2 and any CLI error to allow with a notice) | **The demo moment**; also shipped inside the Power |
 | H10 | `component-scaffold` | File create `web/components/**/*.tsx` | agent prompt: scaffold a typed component, a Vitest test and an a11y checklist per `ui-theme.md` | Consistency from the first line |
 | H11 | `stale-import-sweep` | File delete `backend/**/*.py`, `web/**/*.ts*` | agent prompt: find and remove imports of the deleted module, then run typecheck | Prevents broken builds after refactors |
 | H12 | `post-write-format` | PostToolUse (file write) | command: `ruff format` / `prettier --write` on the written path | Agent output is always formatted |
@@ -843,7 +843,7 @@ graveyard/
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
 │   ├── narrate/                 # Bedrock prompts + validators
 │   ├── mcp/                     # graveyard-mcp server
-│   ├── cli/                     # graveyard CLI (check, check-install, scan)
+│   ├── cli/                     # graveyard CLI (autopsy; later check-install, scan)
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/

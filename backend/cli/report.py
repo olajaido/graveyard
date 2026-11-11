@@ -95,6 +95,8 @@ def _package(row: Row) -> dict[str, Any]:
     out.update(
         {
             "why": row.why,
+            "gate_eligible": row.gate_eligible,
+            "unverified_reason": row.unverified_reason,
             "normalised_risks": dict(scoring.normalised_risks),
             "contributions": dict(scoring.contributions),
             "evidence": {key: _evidence(source.evidence[key]) for key in EVIDENCE_KEYS},
@@ -132,7 +134,7 @@ def report_to_dict(report: Report) -> dict[str, Any]:
             "code": w.code,
             "detail": w.detail,
             "service": w.service,
-            "subjects": [],
+            "subjects": list(w.subjects),
         }
         for w in sorted(report.cli_warnings, key=lambda w: w.sort_key)
     )
@@ -169,6 +171,10 @@ def report_to_dict(report: Report) -> dict[str, Any]:
                 "cache_hits": stats.cache_hits,
                 "cache_misses": stats.cache_misses,
                 "s9_skipped": stats.s9_skipped,
+            },
+            "stats": {
+                "direct_edges_added": report.direct_edges_added,
+                "unverified": report.unverified_count,
             },
             "gate": {
                 "fail_on": sorted(report.fail_on),

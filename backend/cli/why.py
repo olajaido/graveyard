@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Final
 
+from cli.model import unverified_short
 from core.scoring.types import BaseState, ScoringResult, Signals
 
 __all__ = ["why"]
@@ -85,9 +86,14 @@ def _advisories_without_fix(signals: Signals) -> int:
     return sum(1 for a in signals.s7_advisories or () if not a.has_fix)
 
 
-def why(scoring: ScoringResult, signals: Signals) -> str:
-    """One short, plain-text reason for the row. Total over every valid ``ScoringResult``."""
+def why(scoring: ScoringResult, signals: Signals, unverified: tuple[str, ...] = ()) -> str:
+    """One short, plain-text reason for the row. Total over every valid ``ScoringResult``.
+
+    A package that is unverified (CLI-EVID-5) starts with ``unverified: no <source> data``.
+    """
     parts: list[str] = []
+    if unverified:
+        parts.append(f"unverified: {unverified_short(unverified)}")
     declared = scoring.dead_reason == "declared"
     if declared:
         parts.append("declared dead")

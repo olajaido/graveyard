@@ -102,3 +102,35 @@ def test_the_readme_names_the_pinned_syft_version() -> None:
     from cli.syft import SYFT_VERSION
 
     assert f"**{SYFT_VERSION}**" in _text()
+
+
+def test_the_readme_documents_the_review_round_2_behaviour() -> None:
+    from cli.model import WARNING_CODES
+    from cli.syft import SYFT_FIXED_ENV
+
+    text = _text()
+    for name, value in SYFT_FIXED_ENV.items():
+        assert f"{name}={value}" in text, name
+    for code in sorted(WARNING_CODES):
+        assert f"`{code}`" in text, code
+    for needle in (
+        "gate_eligible",
+        "unverified_reason",
+        "summary.stats.direct_edges_added",
+        "unverified, not gated",
+        "pytest -m syft",
+        'pytest -m "not syft"',
+        "Dev dependencies and direct edges",
+    ):
+        assert needle in text, needle
+
+
+def test_the_readme_keeps_the_aug_9_limits_and_the_short_unverified_text() -> None:
+    """CLI-AUG-9 stays a documented limit; CLI-EVID-5 / CLI-EVID-3 wording is present."""
+    text = _text()
+    assert "If a service's lockfile cannot be read" in text
+    assert "`MULTIPLE_ROOTS`" in text
+    assert "cannot be found when several unexplained orphan roots exist" in text
+    assert "unverified: no GitHub data" in text
+    assert "Ailing" in text.split("Only evidence that was seen is gated.")[1].split("\n")[0]
+    assert "age rule" in text

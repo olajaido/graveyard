@@ -52,6 +52,8 @@ PACKAGE_KEYS = [
     "path_infos",
     "example_paths",
     "why",
+    "gate_eligible",
+    "unverified_reason",
     "normalised_risks",
     "contributions",
     "evidence",
@@ -301,3 +303,31 @@ def test_no_packages_scored_leaves_model_version_null() -> None:
     assert doc["packages"] == []
     assert doc["summary"]["packages"] == 0
     assert doc["as_of"] == date(2026, 11, 3).isoformat()
+
+
+def test_summary_stats_carry_the_direct_edge_count() -> None:
+    report = make_report(NINE)
+    assert report_to_dict(report)["summary"]["stats"] == {
+        "direct_edges_added": 0,
+        "unverified": 0,
+    }
+    assert report_to_dict(replace(report, direct_edges_added=3))["summary"]["stats"] == {
+        "direct_edges_added": 3,
+        "unverified": 0,
+    }
+    assert list(report_to_dict(report)["summary"])[7:9] == ["sources", "stats"]
+
+
+def test_cli_warning_subjects_are_in_the_json() -> None:
+    warning = CliWarning("DIRECT_NOT_IN_SBOM", "2 have no component", "web", ("npm/b@1", "npm/a@1"))
+    doc = report_to_dict(make_report([anchor_signals("six")], cli_warnings=(warning,)))
+    assert doc["warnings"] == [
+        {
+            "origin": "cli",
+            "code": "DIRECT_NOT_IN_SBOM",
+            "detail": "2 have no component",
+            "service": "web",
+            "subjects": ["npm/a@1", "npm/b@1"],
+        }
+    ]
+    assert doc["summary"]["degraded"] is False  # an SBOM gap is not a source or token problem

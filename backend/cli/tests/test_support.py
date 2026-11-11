@@ -223,3 +223,16 @@ def test_shape_bool_is_not_integer_and_int_is_not_number() -> None:
     assert shape(-7) == "integer"
     assert shape(1.0) == "number"
     assert shape(0.0) == "number"
+
+
+def test_a_subset_of_the_recorded_bulk_downloads_url_is_derived() -> None:
+    transport, log = subset_replay_transport(rec.cassette())
+    url = f"{NPM_LAST_WEEK}express,left-pad,moment"
+    response = _get(transport, url)
+    body = response.json()
+    assert list(body) == ["express", "left-pad", "moment"]
+    assert body["express"] == rec.body(rec.NPM_BULK_URL)["express"]
+    assert log.unmatched == []
+    with pytest.raises(httpx.ConnectError):
+        _get(transport, f"{NPM_LAST_WEEK}express,not-recorded")
+    assert [u.url for u in log.unmatched] == [f"{NPM_LAST_WEEK}express,not-recorded"]

@@ -99,3 +99,24 @@ Versus the old BOM: new components `JSONStream`, `jsonparse`, `through`; 47 depe
 | 1.56.0 | `syft dir:spikes/fixtures/npm -o cyclonedx-json` | `JSONStream` 1.3.5 (fixture pins `"JSONStream": "1.3.5"`; found by `javascript-lock-cataloger`) | `pkg:npm/JSONStream@1.3.5` | `pkg:npm/jsonstream@1.3.5?package-id=32a65e0552e1b113` | `purl` keeps `JSONStream`; `bom-ref` is lower-case `jsonstream` |
 
 Notes: `name` is `JSONStream`. The `purl` and the `bom-ref` spell the same package with different case, so dedupe on either one needs ASCII case folding for npm (`package_key`). The `package-id` suffix is a Syft hash and not part of the purl. Component saved as `backend/core/purl/tests/fixtures/syft_jsonstream.json`.
+
+## Q7 — Syft and dev dependencies, run against the CLI fixture project (11 Nov 2026)
+
+Found by the first real-Syft run of `graveyard autopsy` (spec `graveyard-cli`, T11.3). The CLI's fixture project (`backend/cli/tests/fixtures/anchors-project/`) has a `package-lock.json` with two `dev: true` packages (`request`, `uuid`) and a `uv.lock` whose dev group holds `nose`. Syft 1.56.0, `syft dir:<service> -q -o cyclonedx-json`.
+
+| Question | Finding |
+|---|---|
+| Does Syft list the `dev: true` packages of a `package-lock.json`? | **No, by default.** `web` gave 5 library components (the project, `express`, `left-pad`, `moment`, `node-uuid`); `request` and `uuid` were absent. With `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=true` it gave 7, including `request` and the edge `request -> uuid`. |
+| Does Syft link the project root to its dev direct dependencies? | **No, with or without the variable.** In both real documents the root `dependsOn` lists only the runtime directs. `request` (npm `devDependencies`) and `nose` (uv dev group) have no incoming edge. `nose` is listed as a component even by default; the uv cataloguer includes dev groups. |
+| What does `core.graph` make of that? | `request` has edges of its own (`request -> uuid`) and nothing depends on it, so it matches the root rule (an unreferenced `dependencies` entry with targets) and becomes a **second root**: `MULTIPLE_ROOTS`, `request` dropped as a package, `uuid` read as a direct dependency. `nose` has no entry, so it is a node with no path: its exposure is assumed (the highest weight). |
+| Where do absolute paths appear? | Only in `metadata.component.name` (the scanned directory). The fixtures replace it by `fixtures/web` or `fixtures/api`. |
+
+Consequences:
+
+- The CLI starts Syft with `SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES=true` (and `SYFT_CHECK_FOR_APP_UPDATE=false`), set by `cli/syft.py`.
+- The CLI adds `root -> direct` edges for every direct dependency the lockfile declares and the root does not already reach (`cli/augment.py`), before the graph is built. The root is the one unreferenced entry whose package is not itself a declared direct dependency; for a project with only dev dependencies it is `metadata.component`.
+- The EX-8 premise "Syft gives no scope, so read it from the lockfile" holds, and also covers the edges: for dev dependencies the lockfile is the only source of "the project declares this".
+- An unreadable lockfile leaves nothing to augment from, so the problem above returns for that service (`MULTIPLE_ROOTS`); the CLI reports it and continues.
+- The hand-written, Syft-shaped SBOMs the CLI tests first used encoded the opposite assumption (an edge from the root to each dev direct). They were replaced by real output, and an opt-in contract test (`pytest -m syft`) runs the real binary.
+- The same applies to any other tool that feeds the pipeline from a Syft SBOM, for example the Lambda in the `infra-serverless` spec: set the variable in the container environment and apply the same edges.
+
