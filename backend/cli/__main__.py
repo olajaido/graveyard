@@ -28,10 +28,12 @@ def _environment(environ: Mapping[str, str], width: int) -> CliEnvironment:
     token: SecretToken | None = None
     rejected = False
     raw = environ.get("GITHUB_TOKEN")
-    if raw is not None:
+    # An empty or whitespace-only value is an absent token: GitHub Actions renders an absent
+    # secret as "" (CLI-ENV-2). Anything else that is not a valid token is rejected.
+    if raw is not None and raw.strip():
         try:
             token = SecretToken(raw)
-        except ValueError:  # blank, whitespace, control characters or too long (CLI-ENV-2)
+        except ValueError:  # inner whitespace, control characters or too long
             rejected = True
     contact = environ.get("GRAVEYARD_CONTACT")
     if contact is not None and not contact.strip():

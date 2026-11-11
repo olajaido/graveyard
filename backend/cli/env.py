@@ -18,7 +18,7 @@ DEFAULT_CONTACT: Final = "https://github.com/olajaido/graveyard"
 @dataclass(frozen=True)
 class CliEnvironment:
     token: SecretToken | None
-    token_rejected: bool  # GITHUB_TOKEN set but not a valid token; value dropped
+    token_rejected: bool  # GITHUB_TOKEN set to a non-blank, invalid value; value dropped
     contact: str | None  # GRAVEYARD_CONTACT or None
     syft_env: Mapping[str, str]  # allow-listed variables + SYFT_CHECK_FOR_APP_UPDATE=false
     width: int  # terminal columns

@@ -36,13 +36,21 @@ def test_a_valid_token_is_wrapped_and_never_shown() -> None:
 
 @pytest.mark.parametrize(
     "bad",
-    ["", "   ", "has space", "tab\there", "new\nline", "x" * 300, "esc\x1bchar"],
+    ["has space", "tab\there", "new\nline", "x" * 300, "esc\x1bchar", " padded "],
 )
 def test_an_invalid_token_is_dropped_and_flagged(bad: str) -> None:
     env = _env(GITHUB_TOKEN=bad)
     assert env.token is None
     assert env.token_rejected is True
-    assert bad.strip() == "" or bad not in repr(env)
+    assert bad not in repr(env)
+
+
+@pytest.mark.parametrize("blank", ["", " ", "   ", "\t", "\n", " \t\r\n ", "\u00a0", "\u2003"])
+def test_an_empty_or_whitespace_only_token_is_absent_not_invalid(blank: str) -> None:
+    """GitHub Actions renders an absent secret as the empty string (CLI-ENV-2)."""
+    env = _env(GITHUB_TOKEN=blank)
+    assert env.token is None
+    assert env.token_rejected is False
 
 
 def test_no_token_is_not_the_same_as_an_invalid_one() -> None:

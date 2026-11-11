@@ -1,0 +1,127 @@
+{
+  "$comment": "Shape of the graveyard.autopsy JSON report, schema_version 1 (CLI-JSON-9). A list of strings is a leaf: the allowed JSON types (integer also matches number). An object is an object with exactly these keys. {\"$items\": S} is an array whose elements all match S (it may be empty). {\"$values\": S} is an object whose values all match S. \"any\" matches every JSON value. Fields that are null in --purl mode are listed with \"null\". Changing this file is a schema change: see the versioning rule in cli/README.md.",
+  "schema": ["string"],
+  "schema_version": ["integer"],
+  "model_version": ["string", "null"],
+  "as_of": ["string"],
+  "input": {
+    "mode": ["string"],
+    "syft_version": ["string", "null"],
+    "services": {"$items": ["string"]},
+    "lockfiles": {
+      "$items": {
+        "service": ["string"],
+        "file": ["string"],
+        "used": ["boolean"]
+      }
+    }
+  },
+  "summary": {
+    "packages": ["integer"],
+    "states": {
+      "Dead": ["integer"],
+      "Unknown": ["integer"],
+      "Resting": ["integer"],
+      "Ailing": ["integer"],
+      "Alive": ["integer"]
+    },
+    "cursed": ["integer"],
+    "wounded": ["integer"],
+    "item_errors": ["integer"],
+    "degraded": ["boolean"],
+    "warnings": {
+      "graph": ["integer"],
+      "cli": ["integer"],
+      "source": ["integer"]
+    },
+    "sources": {
+      "requests": {"$values": ["integer"]},
+      "failures": {"$values": ["integer"]},
+      "cache_hits": ["integer"],
+      "cache_misses": ["integer"],
+      "s9_skipped": ["integer"]
+    },
+    "gate": {
+      "fail_on": {"$items": ["string"]},
+      "tripped": ["boolean"],
+      "matches": {"$items": ["string"]}
+    },
+    "exit_code": ["integer"]
+  },
+  "packages": {
+    "$items": {
+      "rank": ["integer"],
+      "purl": ["string"],
+      "key": ["string"],
+      "ecosystem": ["string"],
+      "name": ["string"],
+      "version": ["string"],
+      "state": ["string"],
+      "dead_reason": ["string", "null"],
+      "cursed": ["boolean"],
+      "wounded": ["boolean"],
+      "mortality": ["number", "null"],
+      "confidence": ["number"],
+      "priority": ["number", "null"],
+      "exposure": ["number"],
+      "exposure_assumed": ["boolean"],
+      "services_affected": ["integer", "null"],
+      "direct": ["boolean", "null"],
+      "scope": ["string", "null"],
+      "manifests": {"$items": ["string"]},
+      "path_infos": {
+        "$items": {
+          "runtime": ["boolean"],
+          "direct": ["boolean"]
+        }
+      },
+      "example_paths": {
+        "$items": {
+          "service": ["string"],
+          "nodes": {"$items": ["string"]}
+        }
+      },
+      "why": ["string"],
+      "normalised_risks": {"$values": ["number", "null"]},
+      "contributions": {"$values": ["number", "null"]},
+      "evidence": {
+        "$values": {
+          "value": ["any"],
+          "source_url": ["string", "null"],
+          "fetched_at": ["string", "null"],
+          "extra_source_urls": {"$items": ["string"]},
+          "note": ["string", "null"]
+        }
+      },
+      "repo": ["string", "null"],
+      "repo_via": ["string", "null"],
+      "resolved_version": ["string", "null"],
+      "latest_version": ["string", "null"],
+      "warnings": {
+        "$items": {
+          "code": ["string"],
+          "source": ["string"],
+          "signals": {"$items": ["string"]},
+          "detail": ["string"],
+          "status": ["integer", "null"]
+        }
+      }
+    }
+  },
+  "errors": {
+    "$items": {
+      "purl": ["string"],
+      "code": ["string"],
+      "detail": ["string"]
+    }
+  },
+  "warnings": {
+    "$items": {
+      "origin": ["string"],
+      "code": ["string"],
+      "detail": ["string"],
+      "service": ["string", "null"],
+      "subjects": {"$items": ["string"]}
+    }
+  }
+}
