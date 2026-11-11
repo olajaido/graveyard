@@ -560,3 +560,16 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Surprise:** an unreadable lockfile now makes a service worse than before the change (no scopes, nothing to augment from, so `request` is read as a second root and left out). The run completes and warns; it is a documented limit (CLI-AUG-9), not fixed. Also: at the default 100 columns the table cuts `unverified: github data unavailable` to `... unavail…`; the JSON keeps the full text.
 - **Smoke run (real Syft 1.56.0, no token, `SYFT_CHECK_FOR_APP_UPDATE=false`):** exit 0; 9 packages (was 7), every package has real paths (`exposure_assumed` false), no graph warnings, `direct_edges_added` 2, `six` shown Dead but unverified and not gated; with `--fail-on dead,cursed` exit 1 on the five gate-eligible packages, and `--purl pkg:pypi/six@1.17.0 --fail-on dead,cursed` exits 0.
 - **Round-2 tweaks:** `WHY` now reads `unverified: no GitHub data` (fits 100 columns; the JSON keeps `unverified_reason`), Ailing joined Dead-by-score as a verdict that is not gated on skipped data, and Cursed stays gated only through the age rule (asked of `score_package` on the advisories alone, so no threshold in the CLI). A property test caught my own mistake: comparing against "no advisories" with `()` flips a package to Resting, so the comparison uses `None`.
+
+### 11 Nov — Spec `kiro-power`: T1 (spike KP-S1, hook payload) *(manual)*
+- **Spec/task:** kiro-power · T1.1–T1.7: a throwaway PreToolUse probe hook, removed afterwards; findings in `docs/SPIKES.md`.
+- **Kiro features:** hooks (`createHook`, PreToolUse, exit 2 blocking), spec task execution.
+- **Kiro got right:** the command is `tool_input.command` and `cwd` is in the top-level envelope; stdin is closed; exit 2 blocks and the stderr line reaches the model.
+- **Surprise:** the tool name is `execute_bash`; `tool_input.cwd` exists but was null. Exit 1, hook timeout and `${VAR}` expansion are unmeasured.
+
+### 11 Nov — Spec `kiro-power`: T2 (renderer polish)
+- **Spec/task:** kiro-power · T2.1–T2.9: shrink order EXPOSURE, PACKAGE, WHY; Unknown clause omitted at 0; `_join` helper; polish tests; CLI spec amendment rows.
+- **Kiro features:** spec task execution, sub-agent per sub-task, baseline capture before editing.
+- **Kiro got right:** the footers stayed byte-identical after the `_join` refactor, checked against the "before" renders.
+- **Corrected:** the task assumed `TOKEN_INVALID_DETAIL` contains `issue counts`; only the missing-token text does.
+- **Surprise:** neither reported join defect (`·3 hidden`, `issuecounts`) reproduced, so likely terminal wrapping.

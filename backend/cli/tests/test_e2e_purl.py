@@ -159,7 +159,8 @@ def test_a_single_purl_run_degrades_without_a_token_and_says_so(tmp_path: Path) 
 def test_a_degraded_gate_run_notes_partial_evidence(tmp_path: Path) -> None:
     result = run_purl(tmp_path, "--purl", EXPRESS, "--fail-on", "dead")
     assert "partial evidence" in result.err
-    assert "0 packages Unknown" in result.err
+    assert "note: the gate was evaluated on partial evidence\n" in result.err
+    assert "Unknown" not in result.err
 
 
 # -------------------------------------------------------------- T10.3: nine --purl arguments

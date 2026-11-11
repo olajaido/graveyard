@@ -7,7 +7,7 @@ sequence. Rounding happens only here (priority to one decimal place).
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import Final
 
 from cli.model import TOKEN_WARNING_CODES, Report, Row
@@ -19,10 +19,17 @@ __all__ = ["MIN_WIDTH", "render_stderr_notes", "render_table"]
 
 MIN_WIDTH: Final = 60
 HEADERS: Final = ("STATE", "PACKAGE", "WHY", "EXPOSURE", "PRIORITY")
-_WHY, _PACKAGE, _PRIORITY = 2, 1, 4
+_PACKAGE, _WHY, _EXPOSURE, _PRIORITY = 1, 2, 3, 4
 _GAP: Final = "  "
 _MIN_WHY: Final = 8
 _MIN_PACKAGE: Final = 20
+_MIN_EXPOSURE: Final = 12
+# Columns shrink in this order when the table is too wide; STATE and PRIORITY never shrink.
+_SHRINK_ORDER: Final = (
+    (_EXPOSURE, _MIN_EXPOSURE),
+    (_PACKAGE, _MIN_PACKAGE),
+    (_WHY, _MIN_WHY),
+)
 _ELLIPSIS: Final = "…"
 _MAX_LISTED: Final = 10
 _MAX_SUBJECTS_SHOWN: Final = 5
@@ -85,16 +92,25 @@ def _plural(count: int, word: str) -> str:
     return f"{count} {word}" if count == 1 else f"{count} {word}s"
 
 
+def _join(fragments: Iterable[str], sep: str = " · ") -> str:
+    """Join the non-empty fragments with exactly one ``sep`` (KPW-POL-4)."""
+    return sep.join(fragment for fragment in fragments if fragment)
+
+
 def _footer(report: Report, hidden: int) -> str:
     counts = {state: 0 for state in _STATE_ORDER}
     for row in report.rows:
         counts[row.scoring.base_state] += 1
-    states = " · ".join(f"{state.value} {counts[state]}" for state in _STATE_ORDER)
     cursed = sum(1 for row in report.rows if row.scoring.cursed)
     wounded = sum(1 for row in report.rows if row.scoring.wounded)
-    return (
-        f"{_plural(len(report.rows), 'package')} · {states} · Cursed {cursed} · "
-        f"Wounded {wounded} · {hidden} hidden"
+    return _join(
+        [
+            _plural(len(report.rows), "package"),
+            *(f"{state.value} {counts[state]}" for state in _STATE_ORDER),
+            f"Cursed {cursed}",
+            f"Wounded {wounded}",
+            f"{hidden} hidden",
+        ]
     )
 
 
@@ -104,7 +120,7 @@ def _unverified_line(report: Report) -> str:
     advice = (
         "set GITHUB_TOKEN to verify" if token_problem else "rerun when the sources are reachable"
     )
-    return f"{report.unverified_count} unverified, not gated; {advice}"
+    return _join([f"{report.unverified_count} unverified, not gated", advice], sep="; ")
 
 
 def render_table(report: Report, width: int, show_all: bool) -> str:
@@ -116,12 +132,12 @@ def render_table(report: Report, width: int, show_all: bool) -> str:
     widths = [max([len(HEADERS[i])] + [len(cells[i]) for cells in body]) for i in range(5)]
     limit = max(width, MIN_WIDTH)
     excess = sum(widths) + len(_GAP) * 4 - limit
-    if excess > 0:  # WHY shrinks first, then PACKAGE (CLI-OUT-9)
-        shrink = min(excess, max(widths[_WHY] - _MIN_WHY, 0))
-        widths[_WHY] -= shrink
-        excess -= shrink
-    if excess > 0:
-        widths[_PACKAGE] -= min(excess, max(widths[_PACKAGE] - _MIN_PACKAGE, 0))
+    for column, floor in _SHRINK_ORDER:  # EXPOSURE, then PACKAGE, then WHY (KPW-POL-1)
+        if excess <= 0:
+            break
+        take = min(excess, max(widths[column] - floor, 0))
+        widths[column] -= take
+        excess -= take
 
     def line(cells: Sequence[str]) -> str:
         parts = []
@@ -173,8 +189,8 @@ def render_stderr_notes(report: Report) -> str:
             was = "was" if count == 1 else "were"
             lines.append(f"note: {_plural(count, 'package')} {verb} unverified and {was} not gated")
         if report.degraded or report.unknown_count:
-            lines.append(
-                "note: the gate was evaluated on partial evidence; "
-                f"{_plural(report.unknown_count, 'package')} Unknown"
-            )
+            line = "note: the gate was evaluated on partial evidence"
+            if report.unknown_count:
+                line += f"; {_plural(report.unknown_count, 'package')} Unknown"
+            lines.append(line)
     return "".join(sanitise(line) + "\n" for line in lines)

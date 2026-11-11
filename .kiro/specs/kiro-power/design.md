@@ -293,7 +293,7 @@ class HookPayload:
 def extract_payload(text: str) -> HookPayload | None:
     # json.loads inside a depth guard (a manual depth count on the parsed value, since json.loads recursion errors are RecursionError)
     # value must be dict; value["tool_input"] must be dict; value["tool_input"][COMMAND_FIELD] must be str and 0 < len <= MAX_COMMAND_CHARS
-    # cwd comes from the envelope (value[CWD_FIELD]), not from tool_input; the spike says which of the two carries it
+    # cwd comes from the envelope (value[CWD_FIELD]), not from tool_input. KP-S1 (docs/SPIKES.md) observed that tool_input also has a "cwd" key, null in the sample; it is ignored and the envelope's cwd is used
 ```
 
 `json.loads` raising `ValueError` or `RecursionError` returns `None`. The function does not look at `tool_name` (the matcher selects the tools) or `hook_event_name`. A non-shell tool whose input happens to have a `command` string would be parsed too, which is harmless: the parser yields no targets unless the text is an install command.

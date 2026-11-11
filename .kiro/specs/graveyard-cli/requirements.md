@@ -338,6 +338,8 @@ The smoke run of 11 Nov 2026 against the real Syft 1.56.0 (T11.3) showed that th
 | CLI-GATE-1, CLI-GATE-3 | Only gate_eligible packages match (CLI-EVID-4); the partial-evidence note stays. |
 | CLI-JSON-3, CLI-JSON-6 | Packages gain `gate_eligible` and `unverified_reason`; `summary` gains `stats` (CLI-EVID-7, CLI-AUG-6). |
 | CLI-OUT-4 | `WHY` may start with the `unverified:` fragment (CLI-EVID-5). |
+| CLI-OUT-9 | **Amended by kiro-power (KPW-POL-1).** The shrink order is now `EXPOSURE` (down to 12), then `PACKAGE` (down to 20), then `WHY` (down to 8, shortened with `…` last). `STATE` and `PRIORITY` never shrink. |
+| CLI-GATE-3 | **Amended by kiro-power (KPW-POL-2).** The partial-evidence note omits the `; N packages Unknown` clause when N is 0 (`note: the gate was evaluated on partial evidence`); it keeps the clause for N ≥ 1. Exit codes and the JSON schema are unchanged. |
 | CLI-TEST-2, CLI-TEST-3, CLI-TEST-4 | Real SBOMs (CLI-FIX-1), through `augment.py` (CLI-FIX-3); the `--sbom` variant is CLI-TEST-4a. |
 | Warning codes | `DIRECT_NOT_IN_SBOM` joins `LOCKFILE_UNREADABLE`, `GITHUB_TOKEN_MISSING`, `GITHUB_TOKEN_INVALID`. |
 

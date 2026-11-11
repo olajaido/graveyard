@@ -126,7 +126,7 @@ def test_exposure_cell_from_the_node() -> None:
         services_affected=2,
     )
     node = _node(purl, "npm/request@2.88.2", (PathInfo(runtime=False, direct=True),), 2)
-    text = render_table(make_report([signals], nodes={purl: node}), 100, True)
+    text = render_table(make_report([signals], nodes={purl: node}), 200, True)
     assert "direct dev · 2 services" in text
 
 
@@ -228,7 +228,8 @@ def test_partial_evidence_note_for_unknown_packages_and_degraded_runs() -> None:
     out = render_stderr_notes(warned)
     assert "warning: no GITHUB_TOKEN set" in out
     assert "partial evidence" in out
-    assert "0 packages Unknown" in out
+    assert "note: the gate was evaluated on partial evidence\n" in out
+    assert "Unknown" not in out
 
 
 def test_no_partial_evidence_note_without_fail_on() -> None:
@@ -251,3 +252,28 @@ def test_subjects_of_a_cli_warning_are_listed_up_to_five() -> None:
         "warning: web: 8 have no component (npm/p0@1.0.0, npm/p1@1.0.0, npm/p2@1.0.0, "
         "npm/p3@1.0.0, npm/p4@1.0.0, ...)"
     )
+
+
+PARTIAL = "note: the gate was evaluated on partial evidence"
+
+
+def _partial_line(unknown_count: int) -> str:
+    """The partial-evidence note of a degraded gate run with ``unknown_count`` Unknown packages."""
+    unknowns = [
+        Signals(purl=f"pkg:npm/mystery{i}@1.0.0", as_of=date(2026, 11, 3))
+        for i in range(unknown_count)
+    ]
+    report = make_report(
+        [anchor_signals("request"), *unknowns],
+        fail_on=frozenset({"dead"}),
+        cli_warnings=(CliWarning("GITHUB_TOKEN_MISSING", "no GITHUB_TOKEN set", None),),
+    )
+    notes = render_stderr_notes(report).splitlines()
+    (line,) = [x for x in notes if x.startswith("note: the gate")]
+    return line
+
+
+def test_unknown_clause_is_omitted_at_zero_and_kept_for_one_and_two() -> None:
+    assert _partial_line(0) == PARTIAL
+    assert _partial_line(1) == f"{PARTIAL}; 1 package Unknown"
+    assert _partial_line(2) == f"{PARTIAL}; 2 packages Unknown"

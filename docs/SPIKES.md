@@ -120,3 +120,29 @@ Consequences:
 - The hand-written, Syft-shaped SBOMs the CLI tests first used encoded the opposite assumption (an edge from the root to each dev direct). They were replaced by real output, and an opt-in contract test (`pytest -m syft`) runs the real binary.
 - The same applies to any other tool that feeds the pipeline from a Syft SBOM, for example the Lambda in the `infra-serverless` spec: set the variable in the container environment and apply the same edges.
 
+## KP-S1 — What a Pre Tool Use hook receives and whether exit 2 blocks (2026-11-11)
+Spec `kiro-power`, T1. A throwaway `PreToolUse` command hook (matcher `shell`) wrote its raw stdin and the environment variable names to a scratch directory, and exited 2 when stdin held a sentinel. Kiro 1.4.86 (commit `853cde3b3bed4d25550ec316e5272a435d3bb86c`, arm64, macOS), read with `kiro --version` from the CLI launcher; not checked against the About dialog. Tool name seen by the hook: `execute_bash` (the matcher `shell` matched it).
+Payload: top-level keys `session_id`, `hook_event_name` (`"PreToolUse"`), `cwd`, `tool_name`, `tool_input`. `cwd` equals the workspace root. `tool_input` keys: `command` (string, the full text including multi-line commands), `description`, `cwd`, `run_in_background` (bool), `timeout`. In the sample the three of those that are not `command` or `run_in_background` were null. The payload has no trailing newline.
+Redacted sample:
+```json
+{"session_id":"<SESSION_ID>","hook_event_name":"PreToolUse","cwd":"<WORKSPACE_ROOT>","tool_name":"execute_bash","tool_input":{"command":"echo kp-s1-harmless","description":null,"cwd":null,"run_in_background":false,"timeout":null}}
+```
+Other observations:
+- Stdin was closed after the write: `cat` returned and the capture is complete, valid JSON.
+- No environment variable carries the tool call (no `TOOL_*`, `HOOK_*` or command variable). `KIRO_SESSION_ID` and `VSCODE_*` names exist. The probe's own working directory was the workspace root.
+- Exit 2 blocked the call: the marker file was not created. The model received a message saying the call was intercepted by PreToolUse hooks and not executed, containing the probe's one stderr line (`graveyard kp-s1 probe: sentinel blocked`) wrapped in tool text. No stderr label and no exit code were shown. A capture exists for the blocked call.
+### Observed fields
+| Field | Observed |
+|---|---|
+| `COMMAND_FIELD` | `command` (in `tool_input`) |
+| `CWD_FIELD` | `cwd` (top-level envelope; `tool_input.cwd` exists but was null) |
+| `tool_name` | `execute_bash` |
+| `stdin closed` | yes |
+| `exit 2 blocks` | yes |
+| `stderr reaches the model` | yes (wrapped in tool text) |
+### Unmeasured
+- Exit 1 behaviour: not documented, not measured.
+- Hook timeout behaviour: not documented, not measured.
+- Unapproved `${VAR}` expansion: not documented, not measured.
+- MCP server working directory: not documented, not measured.
+- Types of non-null `tool_input.cwd`, `tool_input.timeout` and `tool_input.description`: not documented, not measured.
