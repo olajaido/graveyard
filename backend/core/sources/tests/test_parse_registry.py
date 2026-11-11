@@ -166,11 +166,35 @@ def test_npm_full_no_latest_means_no_date() -> None:
     assert fact.latest_published is None
 
 
-@pytest.mark.parametrize("time", [None, [], "2024-03-01", 3, {}, {"1.0.0": "soon"}, {"1.0.0": 5}])
-def test_npm_full_unusable_time(time: object) -> None:
+@pytest.mark.parametrize("time", [None, {}, {"1.0.0": None}, {"2.0.0": "2024-03-01T00:00:00Z"}])
+def test_npm_full_absent_time_is_an_absence(time: object) -> None:
     fact = parse_npm_full({"time": time}, "1.0.0")
     assert fact is not None
     assert fact.latest_published is None
+
+
+def test_npm_full_without_a_time_key_is_an_absence() -> None:
+    fact = parse_npm_full({"name": "x"}, "1.0.0")
+    assert fact is not None and fact.latest_published is None
+
+
+@pytest.mark.parametrize(
+    "time",
+    [[], "2024-03-01", 3, True, {"1.0.0": "soon"}, {"1.0.0": 5}, {"1.0.0": []}, {"1.0.0": ""}],
+)
+def test_npm_full_present_but_unusable_time_rejects_the_document(time: object) -> None:
+    # D17: with a latest to look up, a damaged `time` (or `time[latest]`) is not an absence.
+    assert parse_npm_full({"time": time, "repository": "github:o/r"}, "1.0.0") is None
+
+
+def test_npm_full_damaged_time_is_not_read_when_there_is_no_latest() -> None:
+    fact = parse_npm_full({"time": [], "repository": "github:o/r"}, None)
+    assert fact is not None and fact.latest_published is None
+
+
+def test_npm_full_damage_in_another_versions_time_is_ignored() -> None:
+    fact = parse_npm_full({"time": {"1.0.0": "2024-03-01T00:00:00Z", "0.9.0": 5}}, "1.0.0")
+    assert fact is not None and fact.latest_published == date(2024, 3, 1)
 
 
 @pytest.mark.parametrize("data", NON_MAPPINGS)
@@ -243,7 +267,7 @@ def test_pypi_urls_are_used_before_releases() -> None:
     assert fact.latest_published == date(2024, 12, 4)
 
 
-@pytest.mark.parametrize("urls", [[], None, "files", {}, [upload("soon")], [upload(None)], ["x"]])
+@pytest.mark.parametrize("urls", [[], None, [upload(None)], [{}]])
 def test_pypi_falls_back_to_releases_of_latest(urls: object) -> None:
     doc = pypi_doc(
         urls=urls,
@@ -255,6 +279,43 @@ def test_pypi_falls_back_to_releases_of_latest(urls: object) -> None:
     fact = parse_pypi(doc, "1.16.0")
     assert fact is not None
     assert fact.latest_published == date(2024, 12, 2)
+
+
+@pytest.mark.parametrize(
+    "urls",
+    [
+        "files",
+        {},
+        5,
+        [upload("soon")],
+        [upload(5)],
+        [upload("")],
+        ["x"],
+        [None],
+        [upload("2024-12-03T00:00:00Z"), 3],
+    ],
+)
+def test_pypi_unreadable_upload_times_reject_the_document(urls: object) -> None:
+    # D17: skipping a damaged file could pick a later date than the real earliest one.
+    doc = pypi_doc(urls=urls, releases={"1.17.0": [upload("2024-12-02T00:00:00Z")]})
+    assert parse_pypi(doc, "1.17.0") is None
+
+
+def test_pypi_unreadable_releases_are_read_only_when_urls_gave_no_date() -> None:
+    damaged = {"1.17.0": [upload("soon")]}
+    with_date = pypi_doc(urls=[upload("2024-12-04T00:00:00Z")], releases=damaged)
+    fact = parse_pypi(with_date, "1.17.0")
+    assert fact is not None and fact.latest_published == date(2024, 12, 4)
+    without = pypi_doc(urls=[], releases=damaged)
+    assert parse_pypi(without, "1.17.0") is None
+
+
+def test_pypi_damage_in_the_releases_of_other_versions_is_ignored() -> None:
+    doc = pypi_doc(
+        urls=[], releases={"1.16.0": [upload("soon")], "1.17.0": [upload("2024-12-02T00:00:00Z")]}
+    )
+    fact = parse_pypi(doc, "1.16.0")
+    assert fact is not None and fact.latest_published == date(2024, 12, 2)
 
 
 def test_pypi_no_dates_anywhere() -> None:

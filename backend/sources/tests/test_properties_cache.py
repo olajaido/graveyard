@@ -239,7 +239,7 @@ async def _run_model(max_entries: int, sequence: list[Op]) -> None:
             assert entry.value == expected
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(max_entries=st.integers(1, 5), sequence=st.lists(ops, max_size=40))
 def test_cache_matches_dict_model(max_entries: int, sequence: list[Op]) -> None:
     """**Validates: Requirements SRC-CACHE-2, SRC-TEST-13**
@@ -269,7 +269,7 @@ async def _roundtrip_memory(value: JsonValue) -> None:
     assert second.value == snapshot
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(value=json_values())
 def test_cache_roundtrip_json(value: JsonValue) -> None:
     """**Validates: Requirements SRC-CACHE-2, SRC-TEST-13**
@@ -309,7 +309,7 @@ async def _roundtrip_result(payload: JsonValue, fetched_at: datetime, absent: bo
     assert hit.fetched_at == fetched_at
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(payload=non_null_json_values(), fetched_at=utc_times, absent=st.booleans())
 def test_cache_result_roundtrip_keeps_fetched_at(
     payload: JsonValue, fetched_at: datetime, absent: bool
@@ -354,7 +354,7 @@ async def _single_flight(n: int, turns: int, kind: str, payload: JsonValue) -> N
     assert calls == (2 if kind == "failed" else 1)
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(
     n=st.integers(1, 200),
     turns=st.integers(1, 5),
@@ -395,7 +395,7 @@ async def _distinct_keys(order: list[int], kinds: list[str], turns: list[int]) -
     assert len(store) == sum(1 for index in distinct if kinds[index] != "failed")
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(
     order=st.lists(st.integers(0, 7), min_size=1, max_size=200),
     kinds=st.lists(st.sampled_from(KINDS), min_size=8, max_size=8),

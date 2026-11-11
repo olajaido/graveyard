@@ -141,7 +141,7 @@ def assert_closed_sets(batch: BatchResult) -> None:
 # ------------------------------------------------------------------------ SRC-TEST-5
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(ps=package_sets(), with_token=st.booleans())
 def test_signals_always_validate_end_to_end(ps: PackageSet, with_token: bool) -> None:
     web = ps.web(malformed=True)
@@ -258,7 +258,7 @@ def assert_only_degrades(
                 assert now == was, where
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(ps=package_sets(), plan=fault_plans())
 def test_failures_only_degrade(ps: PackageSet, plan: FaultPlan) -> None:
     clean_web = ps.web()
@@ -291,7 +291,7 @@ _LEAVES = st.lists(st.integers(0, 10_000), min_size=1, max_size=4)
 _TIMES = st.sampled_from((1, 2, ALWAYS))
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(ps=package_sets(), leaves=_LEAVES, times=_TIMES)
 def test_one_damaged_github_leaf_only_degrades(
     ps: PackageSet, leaves: list[int], times: int
@@ -315,14 +315,11 @@ def test_one_damaged_github_leaf_only_degrades(
     assert_only_degrades(faulty_web, clean, faulty, inputs)
 
 
-# api.osv.dev is left out on purpose: a wrong type inside an advisory's `affected` ranges still
-# changes `has_fix` without a warning (SRC-OSV-4 documents "does not count"). That is an open
-# decision, not a pass; the fixed counterparts are `published` (SRC-OSV-5) and the vulns entries
-# (SRC-OSV-3).
 _SINGLE_LEAF_HOSTS: Final = frozenset(
     {
         "api.github.com",
         "api.deps.dev",
+        "api.osv.dev",
         "registry.npmjs.org",
         "pypi.org",
         "api.npmjs.org",
@@ -332,14 +329,16 @@ _SINGLE_LEAF_HOSTS: Final = frozenset(
 )
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(ps=package_sets(), leaves=_LEAVES, times=_TIMES)
-def test_one_damaged_leaf_on_any_host_but_osv_only_degrades(
+def test_one_damaged_leaf_on_any_host_only_degrades(
     ps: PackageSet, leaves: list[int], times: int
 ) -> None:
     """**Validates: Requirements SRC-TEST-6**
 
-    The same single-leaf damage on every host except OSV.
+    The same single-leaf damage on every host, OSV included (D17: a wrong-typed member of an
+    advisory that could concern the package makes S7 ``None`` with a warning, never a changed
+    ``has_fix``).
     """
     clean_web = ps.web()
     inputs = clean_web.inputs
@@ -472,7 +471,7 @@ def _check_downloads(web: FakeWeb, purls: Sequence[Any]) -> None:
     assert set(pypi_names) <= candidates
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(batch=request_batches())
 def test_batching_and_dedupe(batch: RequestBatch) -> None:
     mixed_web = batch.package_set.web()
@@ -550,7 +549,7 @@ def expected_input_text(raw: object) -> str:
     return raw[:200] if isinstance(raw, str) else ""
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(
     batch=request_batches(max_items=10),
     shuffle_seed=st.integers(0, 2**32 - 1),
@@ -587,7 +586,7 @@ def test_result_independent_of_order_and_scheduling(
 # ------------------------------------------------------------------------ SRC-TEST-16
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(batch=request_batches(max_items=12))
 def test_invalid_items_do_not_affect_valid_items(batch: RequestBatch) -> None:
     mixed_web = batch.package_set.web()

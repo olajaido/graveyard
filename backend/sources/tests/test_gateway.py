@@ -714,9 +714,9 @@ def test_start_batch_restarts_the_batch_deadline_from_now() -> None:
 
 
 def test_a_task_that_waits_for_a_slot_past_the_deadline_fails_without_a_request() -> None:
-    # pypistats spaces starts 3 s apart; the batch deadline is 2 s, so the second start
+    # pypistats spaces starts 1.2 s apart; the batch deadline is 0.5 s, so the second start
     # is assigned a time that is already past the deadline.
-    config = make_config(timeouts=Timeouts(batch_deadline=2.0))
+    config = make_config(timeouts=Timeouts(batch_deadline=0.5))
 
     async def scenario(gateway: HttpGateway, _clock: FakeClock) -> list[FetchResult]:
         request = ApiRequest("GET", PYPISTATS_URL, "pypistats")

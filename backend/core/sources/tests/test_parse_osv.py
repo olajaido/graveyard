@@ -383,19 +383,71 @@ def test_pep_503_name_equality_and_exact_ecosystem_reach_the_parsed_result() -> 
     assert wrong_case is not None and wrong_case.has_fix is False
 
 
-def test_git_only_last_affected_only_and_bad_fixed_values_give_no_fix() -> None:
+def test_git_only_last_affected_only_and_null_fixed_give_no_fix() -> None:
     cases = {
         "git": [{"type": "GIT", "events": [{"introduced": "0"}, {"fixed": "f" * 40}]}],
         "last_affected": [{"type": "SEMVER", "events": [{"last_affected": "1.0"}]}],
-        "wrong type": [{"type": "SEMVER", "events": [{"fixed": 4}]}],
-        "empty": [{"type": "SEMVER", "events": [{"fixed": ""}]}],
-        "characters": [{"type": "SEMVER", "events": [{"fixed": "1.0; drop"}]}],
+        "null": [{"type": "SEMVER", "events": [{"fixed": None}]}],
     }
     for label, ranges in cases.items():
         affected = [{"package": {"ecosystem": "npm", "name": "express"}, "ranges": ranges}]
         vuln = parse_vuln(_doc(affected=affected), "npm", "express")
         assert vuln is not None, label
         assert (vuln.has_fix, vuln.fixed_versions) == (False, ()), label
+
+
+@pytest.mark.parametrize("fixed", ["", "1.0; drop", "1.0\n", "a" * 101])
+def test_a_fixed_string_outside_the_version_pattern_rejects_the_advisory(fixed: str) -> None:
+    """SRC-OSV-4: reading it as "no fix" would hide a fix; the package's S7 becomes ``None``."""
+    ranges = [{"type": "SEMVER", "events": [{"fixed": fixed}]}]
+    affected = [{"package": {"ecosystem": "npm", "name": "express"}, "ranges": ranges}]
+    assert parse_vuln(_doc(affected=affected), "npm", "express") is None
+
+
+@pytest.mark.parametrize(
+    "ranges",
+    [
+        [{"type": "SEMVER", "events": [{"fixed": 4}]}],
+        [{"type": "SEMVER", "events": [{"fixed": ["1.0"]}]}],
+        [{"type": "SEMVER", "events": [{"introduced": 0}, {"fixed": "1.0"}]}],
+        [{"type": 5, "events": [{"fixed": "1.0"}]}],
+        [{"type": "SEMVER", "events": {"fixed": "1.0"}}],
+        [{"type": "SEMVER", "events": ["fixed"]}],
+        ["SEMVER"],
+        {"type": "SEMVER"},
+    ],
+    ids=[
+        "fixed-number",
+        "fixed-list",
+        "introduced-number",
+        "type-number",
+        "events-mapping",
+        "event-string",
+        "range-string",
+        "ranges-mapping",
+    ],
+)
+def test_a_wrong_typed_member_in_an_entry_for_this_package_rejects_the_advisory(
+    ranges: object,
+) -> None:
+    # D17, SRC-OSV-4: a fixed that stopped being a string would otherwise read as "no fix" and
+    # could flip Wounded into Cursed. The package's S7 is unknown instead (SRC-OSV-6).
+    affected = [{"package": {"ecosystem": "npm", "name": "express"}, "ranges": ranges}]
+    assert parse_vuln(_doc(affected=affected), "npm", "express") is None
+
+
+def test_the_same_damage_in_an_entry_for_another_package_is_ignored() -> None:
+    affected = [
+        {"package": {"ecosystem": "npm", "name": "express"}, "ranges": [_semver_fixed("4.19.2")]},
+        {"package": {"ecosystem": "npm", "name": "other"}, "ranges": 5},
+        {"package": {"ecosystem": "Go", "name": ["express"]}, "ranges": "x"},
+    ]
+    vuln = parse_vuln(_doc(affected=affected), "npm", "express")
+    assert vuln is not None and vuln.fixed_versions == ("4.19.2",)
+
+
+def _semver_fixed(version: str) -> dict[str, object]:
+    return {"type": "SEMVER", "events": [{"introduced": "0"}, {"fixed": version}]}
 
 
 def test_has_fix_is_consistent_with_fixed_versions() -> None:
@@ -417,10 +469,17 @@ def test_a_non_empty_withdrawn_string_marks_the_advisory_withdrawn(withdrawn: st
     assert vuln is not None and vuln.withdrawn is True
 
 
-@pytest.mark.parametrize("withdrawn", [None, "", 0, 1, True, False, ["2021-01-01"], {"at": "x"}])
-def test_missing_empty_or_wrongly_typed_withdrawn_is_not_withdrawn(withdrawn: object) -> None:
+@pytest.mark.parametrize("withdrawn", [None, ""])
+def test_null_or_empty_withdrawn_is_not_withdrawn(withdrawn: object) -> None:
     vuln = parse_vuln(_doc(withdrawn=withdrawn), "npm", "express")
     assert vuln is not None and vuln.withdrawn is False
+
+
+@pytest.mark.parametrize("withdrawn", [0, 1, True, False, 1.5, ["2021-01-01"], {"at": "x"}])
+def test_a_wrongly_typed_withdrawn_rejects_the_advisory(withdrawn: object) -> None:
+    # Read as "not withdrawn" it would bring a withdrawn advisory back as a live one: the
+    # single-leaf fault property found exactly that (D17, SRC-OSV-5).
+    assert parse_vuln(_doc(withdrawn=withdrawn), "npm", "express") is None
 
 
 def test_no_withdrawn_key_is_not_withdrawn() -> None:
@@ -511,10 +570,15 @@ def test_a_non_mapping_advisory_gives_none(data: object) -> None:
     assert parse_vuln(data, "npm", "express") is None
 
 
-@pytest.mark.parametrize("affected", [None, [], "x", 5, {"a": 1}, ["x"], [{"package": 3}]])
-def test_a_missing_or_malformed_affected_gives_an_advisory_without_a_fix(affected: object) -> None:
+@pytest.mark.parametrize("affected", [None, []])
+def test_a_missing_or_empty_affected_gives_an_advisory_without_a_fix(affected: object) -> None:
     vuln = parse_vuln(_doc(affected=affected), "npm", "express")
     assert vuln == OsvVuln("GHSA-1111-2222-3333", False, None, (), False)
+
+
+@pytest.mark.parametrize("affected", ["x", 5, {"a": 1}, ["x"], [None], [{"package": 3}]])
+def test_a_malformed_affected_rejects_the_advisory(affected: object) -> None:
+    assert parse_vuln(_doc(affected=affected), "npm", "express") is None
 
 
 def test_only_validated_scalars_leave_the_parser() -> None:

@@ -145,11 +145,19 @@ def test_parse_version_published_at_is_a_utc_date(stamp: str, expected: date) ->
     assert fact.published_at == expected
 
 
-@pytest.mark.parametrize("value", ["yesterday", "", 20240301, None, [], "2024-13-45"])
-def test_parse_version_bad_published_at_is_none(value: object) -> None:
-    fact = parse_version({"publishedAt": value})
-    assert fact is not None
-    assert fact.published_at is None
+def test_parse_version_null_or_absent_published_at_is_an_absence() -> None:
+    for doc in ({"publishedAt": None}, {}):
+        fact = parse_version(doc)
+        assert fact is not None
+        assert fact.published_at is None
+
+
+@pytest.mark.parametrize("value", ["yesterday", "", 20240301, [], {}, True, 1.5, "2024-13-45"])
+def test_parse_version_present_but_unusable_published_at_rejects_the_document(
+    value: object,
+) -> None:
+    # D17: S2 depends on it; a damaged value read as "absent" would drop S2 with no warning.
+    assert parse_version({"publishedAt": value, "isDeprecated": True}) is None
 
 
 def test_parse_version_empty_mapping_gives_empty_fact() -> None:

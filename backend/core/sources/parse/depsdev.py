@@ -85,13 +85,23 @@ def parse_version(data: object) -> DepsDevVersion | None:
     is ``publishedAt`` as a UTC date. ``repo_candidates`` lists the ``projectKey.id`` of
     each ``relatedProjects`` entry whose ``relationType`` is ``SOURCE_REPO``, then the
     ``url`` of each ``links`` entry whose ``label`` is ``SOURCE_REPO``, in document order.
+
+    ``None`` is also returned when ``publishedAt`` is present (not ``null``) and is not a
+    string that parses as a date (D17): S2 depends on it, and reading a damaged value as
+    "absent" would drop S2 with no warning when the other S2 sources are damaged too. The
+    document is rejected (``UNEXPECTED_SHAPE``, not cached); S1 and the repo come from their
+    own fallbacks.
     """
     doc = as_mapping(data)
     if doc is None:
         return None
+    raw_published = doc.get("publishedAt")
+    published = as_date(raw_published)
+    if raw_published is not None and published is None:
+        return None
     return DepsDevVersion(
         is_deprecated=as_bool(doc.get("isDeprecated")),
-        published_at=as_date(doc.get("publishedAt")),
+        published_at=published,
         repo_candidates=tuple(
             _related_project_candidates(doc.get("relatedProjects"))
             + _link_candidates(doc.get("links"))

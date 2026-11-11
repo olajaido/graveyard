@@ -1130,7 +1130,8 @@ def test_main_with_the_probe_writes_the_probe_file_and_a_readme_row(
     ]
     probe = json.loads((tmp_path / "pypistats_probe.json").read_text("utf-8"))
     assert probe["safe_interval_seconds"] == 0.5 and probe["stopped_at_429"] is False
-    assert probe["configured_interval_seconds"] == 3.0 and len(probe["requests"]) == 12
+    # the default pypistats spacing (1.2 s since the probe, SRC-S9-4)
+    assert probe["configured_interval_seconds"] == 1.2 and len(probe["requests"]) == 12
     assert "safe_interval_seconds = 0.5" in out
     assert "| pypistats_probe.json |" in (tmp_path / "README.md").read_text("utf-8")
 

@@ -120,29 +120,57 @@ def parse_npm_full(data: object, latest: str | None) -> NpmFull | None:
     ``latest_published`` is ``time[latest]`` as a UTC date (``None`` without a latest
     version). ``repo_candidates`` holds ``repository`` when it is a string, or its
     ``url`` when it is a mapping.
+
+    ``None`` is also returned when, with a ``latest`` to look up, ``time`` is present and not
+    an object, or ``time[latest]`` is present (not ``null``) and not a date string (D17):
+    S2 depends on it, and a damaged value read as "absent" would drop S2 with no warning.
     """
     doc = as_mapping(data)
     if doc is None:
         return None
-    times = as_mapping(doc.get("time"))
-    published = as_date(times.get(latest)) if times is not None and latest is not None else None
+    published: date | None = None
+    raw_times = doc.get("time")
+    if latest is not None and raw_times is not None:
+        times = as_mapping(raw_times)
+        if times is None:
+            return None
+        raw_published = times.get(latest)
+        published = as_date(raw_published)
+        if raw_published is not None and published is None:
+            return None
     repository = doc.get("repository")
     mapping = as_mapping(repository)
     raw = _candidate(mapping.get("url")) if mapping is not None else _candidate(repository)
     return NpmFull(latest_published=published, repo_candidates=_dedupe([raw]))
 
 
-def _earliest_upload(files: object) -> date | None:
-    """The earliest ``upload_time_iso_8601`` date among a list of release files."""
+def _earliest_upload(files: object) -> tuple[date | None, bool]:
+    """``(earliest date, readable)`` of the ``upload_time_iso_8601`` of a list of release files.
+
+    ``files`` absent or ``null`` is an absence: ``(None, True)``. A list that is not a list, a
+    file that is not an object, or an upload time that is present (not ``null``) and not a
+    date string makes it unreadable, ``(None, False)`` (D17): skipping that file could pick a
+    later date than the real earliest one.
+    """
+    if files is None:
+        return None, True
+    items = as_list(files)
+    if items is None:
+        return None, False
     earliest: date | None = None
-    for item in as_list(files) or []:
+    for item in items:
         entry = as_mapping(item)
         if entry is None:
+            return None, False
+        raw = entry.get("upload_time_iso_8601")
+        if raw is None:
             continue
-        uploaded = as_date(entry.get("upload_time_iso_8601"))
-        if uploaded is not None and (earliest is None or uploaded < earliest):
+        uploaded = as_date(raw)
+        if uploaded is None:
+            return None, False
+        if earliest is None or uploaded < earliest:
             earliest = uploaded
-    return earliest
+    return earliest, True
 
 
 def _label_rank(label: str) -> tuple[int, str, str]:
@@ -174,6 +202,10 @@ def parse_pypi(data: object, resolved: str) -> PypiDoc | None:
     ``None`` without a latest version. ``resolved_found`` is whether ``resolved`` is a key
     of ``releases``, or ``None`` when ``releases`` is absent or not a mapping.
     ``repo_candidates`` are label-ordered per SRC-REPO-5.
+
+    ``None`` is also returned when the release files that ``latest_published`` is read from are
+    unreadable (``_earliest_upload``, D17): a damaged upload time must not silently become a
+    later date, or an absent one.
     """
     doc = as_mapping(data)
     if doc is None:
@@ -183,9 +215,13 @@ def parse_pypi(data: object, resolved: str) -> PypiDoc | None:
     releases = as_mapping(doc.get("releases"))
     published: date | None = None
     if latest is not None:
-        published = _earliest_upload(doc.get("urls"))
+        published, readable = _earliest_upload(doc.get("urls"))
+        if not readable:
+            return None
         if published is None and releases is not None:
-            published = _earliest_upload(releases.get(latest))
+            published, readable = _earliest_upload(releases.get(latest))
+            if not readable:
+                return None
     return PypiDoc(
         latest=latest,
         latest_published=published,

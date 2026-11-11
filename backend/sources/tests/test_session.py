@@ -484,13 +484,13 @@ def test_unknown_to_pypistats_is_a_note_and_no_warning() -> None:
 
 
 def test_batch_deadline_passed_before_a_pypistats_request_is_deadline_exceeded() -> None:
-    # pypistats.org is spaced 3 s apart on the fake clock, so the second lookup starts after
-    # the 2 s batch deadline; the first one starts at once and succeeds.
+    # pypistats.org is spaced 1.2 s apart on the fake clock, so the second lookup starts after
+    # the 0.5 s batch deadline; the first one starts at once and succeeds.
     base = config(max_attempts=1)
     cfg = SourcesConfig(
         hosts=base.hosts,
         contact=base.contact,
-        timeouts=Timeouts(batch_deadline=2.0),
+        timeouts=Timeouts(batch_deadline=0.5),
         retry=RetryPolicy(max_attempts=1),
     )
     web = Web({**six_routes(), **six_routes("sixer"), **stats_route("six"), **stats_route("sixer")})

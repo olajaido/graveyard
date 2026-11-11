@@ -337,7 +337,7 @@ def test_a_plan_over_every_request_key_degrades_without_raising() -> None:
 
 @pytest.mark.property
 @given(plan=fault_plans(), keys=st.lists(st.text(max_size=8), max_size=10))
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 def test_fault_plans_resolve_to_plans_fault_transport_accepts(
     plan: FaultPlan, keys: list[str]
 ) -> None:
@@ -351,7 +351,7 @@ def test_fault_plans_resolve_to_plans_fault_transport_accepts(
 
 @pytest.mark.property
 @given(pset=package_sets(2, 5))
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 def test_package_sets_build_consistent_webs(pset: PackageSet) -> None:
     web = pset.web()
     assert len(web.projects) == pset.size
@@ -379,7 +379,7 @@ def oracle(item: tuple[Any, Any]) -> str | None:
 
 @pytest.mark.property
 @given(batch=request_batches())
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 def test_request_batches_match_the_purl_oracle(batch: RequestBatch) -> None:
     web = batch.package_set.web()
     resolved = batch.resolve(web)
@@ -414,7 +414,7 @@ def test_every_item_kind_gets_the_expected_result_from_the_session() -> None:
 
 @pytest.mark.property
 @given(ops=cache_ops())
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 def test_cache_ops_run_on_a_memory_cache(ops: list[CacheOp]) -> None:
     clock = FakeClock()
     cache = MemoryCache(clock, max_entries=4)

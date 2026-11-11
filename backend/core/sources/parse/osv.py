@@ -38,16 +38,24 @@ Otherwise it returns one ``OsvQueryResult`` per query, in query order:
 ``parse_vuln`` contract
 -----------------------
 Returns ``None`` when the document is not a mapping, its ``id`` is missing, not a ``str``,
-or invalid, or ``published`` is **present and unusable** (not ``null``, and not a string that
+or invalid, the advisory is unreadable for this package (below), ``withdrawn`` is present
+and not a string, or ``published`` is **present and unusable** (not ``null``, and not a string that
 parses as a date). ``withdrawn`` is true iff the field is present and a non-empty ``str``
-(OSV's value is a timestamp); the caller skips withdrawn advisories (SRC-OSV-5).
+(OSV's value is a timestamp); the caller skips withdrawn advisories (SRC-OSV-5). A
+``withdrawn`` that is present and not a string (D17) rejects the document: read as "not
+withdrawn" it would bring a withdrawn advisory back as a live one (found by the single-leaf
+fault property).
 ``published_at`` is the date of ``published``, or ``None`` when ``published`` is absent or
 ``null`` (an honest unknown: the advisory never satisfies the Cursed age condition). A
 ``published`` that is there but unusable is not read as "unknown": the Cursed rule depends on
 that date, and a value that silently became ``None`` would change the verdict with no
 warning, so the document is rejected and the package's S7 is unknown (SRC-OSV-5, SRC-OSV-6).
 ``fixed_versions`` and ``has_fix`` come from ``core.sources.osv_fix`` for the queried
-``ecosystem`` and ``name``.
+``ecosystem`` and ``name``. If ``osv_fix`` finds the advisory unreadable (a present but
+wrong-typed ``package.name`` / ``ecosystem``, ``ranges``, range ``type``, ``events``,
+``fixed`` or ``introduced`` in an entry that may name this package, D17) the document is
+rejected too: ``parse_vuln`` returns ``None``, so that package's S7 is unknown rather than a
+verdict computed from half an advisory (SRC-OSV-4, SRC-OSV-6).
 
 Pure: no I/O, no clock, no environment.
 """
@@ -129,12 +137,16 @@ def parse_vuln(data: object, ecosystem: str, name: str) -> OsvVuln | None:
     vuln_id = as_str(doc.get("id"))
     if vuln_id is None or not is_valid_osv_id(vuln_id):
         return None
-    withdrawn_raw = as_str(doc.get("withdrawn"))
+    withdrawn_raw = doc.get("withdrawn")
+    if withdrawn_raw is not None and not isinstance(withdrawn_raw, str):
+        return None  # present but unusable: a withdrawn advisory must not come back to life
     published_raw = doc.get("published")
     published = as_date(published_raw)
     if published_raw is not None and published is None:
         return None  # present but unusable: not an honest "unknown" (SRC-OSV-5)
     fixed = fixed_versions(doc, ecosystem, name)
+    if fixed is None:
+        return None  # an entry that may be ours is unreadable (D17, SRC-OSV-4)
     return OsvVuln(
         id=vuln_id,
         withdrawn=withdrawn_raw is not None and withdrawn_raw != "",

@@ -116,7 +116,7 @@ def _queries(sent: Sent) -> list[tuple[str, str, str]]:
     return out
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(purls=osv_purls())
 def test_osv_queries_chunked_and_unique(purls: list[Purl]) -> None:
     """**Validates: Requirements SRC-OSV-1, SRC-TEST-18**
@@ -209,7 +209,7 @@ def _asked(sent: Sent) -> tuple[tuple[str, str], list[str]]:
     return (variables["since"], variables["until"]), keys
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(groups=github_groups, seed=st.randoms(use_true_random=False))
 def test_github_chunks_cover_repos_once(groups: dict[date, list[str]], seed: random.Random) -> None:
     """**Validates: Requirements SRC-GH-1, SRC-GH-8, SRC-API-7, SRC-TEST-18**
@@ -318,7 +318,7 @@ def _downloads_server(request: httpx.Request) -> httpx.Response:
     return json_response({name: {"downloads": len(name)} for name in names})
 
 
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(names=npm_names())
 def test_bulk_names_partition(names: list[str]) -> None:
     """**Validates: Requirements SRC-S9-1, SRC-TEST-18**

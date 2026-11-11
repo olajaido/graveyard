@@ -1,11 +1,13 @@
 """Property tests for ``has_fix`` and the OSV parsers (T3.5; SRC-TEST-3).
 
-Covers SRC-OSV-4 (``has_fix`` rules), SRC-OSV-5 (withdrawn, ``published``), SRC-OSV-7 (the
-``fixed_versions`` that feed the advisories) and SRC-TEST-4 for ``parse_vuln`` and
-``parse_query_results``.
+Covers SRC-OSV-4 (``has_fix`` rules and, with D17, the unreadable advisory), SRC-OSV-5
+(withdrawn, ``published``), SRC-OSV-7 (the ``fixed_versions`` that feed the advisories) and
+SRC-TEST-4 for ``parse_vuln`` and ``parse_query_results``.
 
 ``has_fix`` is compared with ``oracles.has_fix_oracle``, which walks the document as
-flattened ``(path, value)`` pairs and shares no code with ``osv_fix``.
+flattened ``(path, value)`` pairs and shares no code with ``osv_fix``. Both answer ``True``,
+``False`` or ``None`` (the advisory cannot be read: a present but wrong-typed member in a
+place that could change the answer for this package, D17).
 
 Profiles (``dev`` = 200 examples, ``ci`` = 500) come from ``conftest.py`` via
 ``HYPOTHESIS_PROFILE``. No ``max_examples`` is set here.
@@ -88,21 +90,29 @@ def _ranges(doc: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def _append_entry(doc: dict[str, Any], entry: dict[str, Any]) -> None:
-    """Add ``entry`` to ``doc['affected']``, replacing it if it is absent or not a list.
+def _append_entry(doc: dict[str, Any], entry: dict[str, Any]) -> bool:
+    """Add ``entry`` to ``doc['affected']``; ``True`` if it was added.
 
-    Replacing an unusable ``affected`` cannot change a ``False`` answer into anything but
-    what the new entry gives, and the callers add only entries that never add a fix.
+    ``affected`` that is absent or ``null`` is created (an absence stays an absence). One that
+    is present with the wrong type is left alone and ``False`` is returned: replacing it would
+    *repair* a damaged advisory and turn ``None`` into a value, which is not what the callers
+    mean to test. The callers add only entries that never add a fix to a readable document.
     """
     affected = doc.get("affected")
     if isinstance(affected, list):
         affected.append(entry)
-    else:
+        return True
+    if affected is None:
         doc["affected"] = [entry]
+        return True
+    return False
 
 
 def _with_git_ranges(doc: dict[str, Any], commit: str) -> dict[str, Any]:
-    """Copy of ``doc`` with a ``GIT`` range (a commit-hash ``fixed``) in every matching place."""
+    """Copy of ``doc`` with a ``GIT`` range (a commit-hash ``fixed``) in every usable place.
+
+    Entries whose ``ranges`` is present with the wrong type are left as they are.
+    """
     out = copy.deepcopy(doc)
 
     def git_range() -> dict[str, Any]:
@@ -116,7 +126,7 @@ def _with_git_ranges(doc: dict[str, Any], commit: str) -> dict[str, Any]:
         ranges = entry.get("ranges")
         if isinstance(ranges, list):
             ranges.append(git_range())
-        else:
+        elif ranges is None:
             entry["ranges"] = [git_range()]
     _append_entry(out, {"package": query_package(), "ranges": [git_range()]})
     return out
@@ -198,14 +208,18 @@ def _matching_open_ranges(doc: dict[str, Any]) -> list[list[Any]]:
 def test_has_fix_matches_oracle(doc: dict[str, Any], pair: tuple[str, str]) -> None:
     """**Validates: Requirements SRC-TEST-3, SRC-OSV-4**
 
-    ``has_fix`` equals the independent oracle, and ``fixed_versions`` is non-empty exactly
-    when the oracle says there is a fix. The document is not mutated.
+    ``has_fix`` equals the independent oracle, ``True``, ``False`` or ``None`` (unreadable).
+    ``fixed_versions`` is ``None`` exactly when the oracle says ``None``, and otherwise is
+    non-empty exactly when the oracle says ``True``. The document is not mutated.
     """
     ecosystem, name = pair
     before = copy.deepcopy(doc)
     expected = has_fix_oracle(doc, ecosystem, name)
     assert has_fix(doc, ecosystem, name) is expected
-    assert bool(fixed_versions(doc, ecosystem, name)) is expected
+    fixed = fixed_versions(doc, ecosystem, name)
+    assert (fixed is None) is (expected is None)
+    if fixed is not None:
+        assert bool(fixed) is expected
     assert doc == before
 
 
@@ -221,7 +235,8 @@ def test_has_fix_ignores_git_and_last_affected(
 
     Adding a ``GIT`` range (with a valid-looking commit hash as ``fixed``), adding
     ``last_affected`` events, or deleting existing ``GIT`` ranges and ``last_affected``
-    events never changes the result, nor the list of fixed versions.
+    events never changes the result, nor the list of fixed versions, and never turns an
+    unreadable advisory (``None``) into a readable one.
     """
     base_fixed = fixed_versions(doc, QUERY_ECOSYSTEM, QUERY_NAME)
     for variant in (
@@ -230,8 +245,9 @@ def test_has_fix_ignores_git_and_last_affected(
         _without_git_and_last_affected(doc),
     ):
         assert fixed_versions(variant, QUERY_ECOSYSTEM, QUERY_NAME) == base_fixed
-        assert has_fix(variant, QUERY_ECOSYSTEM, QUERY_NAME) is bool(base_fixed)
-        assert has_fix_oracle(variant, QUERY_ECOSYSTEM, QUERY_NAME) is bool(base_fixed)
+        expected = None if base_fixed is None else bool(base_fixed)
+        assert has_fix(variant, QUERY_ECOSYSTEM, QUERY_NAME) is expected
+        assert has_fix_oracle(variant, QUERY_ECOSYSTEM, QUERY_NAME) is expected
 
 
 @given(
@@ -245,17 +261,19 @@ def test_valid_fixed_event_makes_fix(
 ) -> None:
     """**Validates: Requirements SRC-TEST-3, SRC-OSV-4**
 
-    Appending a valid ``fixed`` event to a matching non-``GIT`` range (or, if the document
-    has none or ``prefer_existing`` is false, a new matching entry with such a range) makes
-    ``has_fix`` true, and the version appears in ``fixed_versions``.
+    On a readable advisory, appending a valid ``fixed`` event to a matching non-``GIT`` range
+    (or, if there is none or ``prefer_existing`` is false, a new matching entry with such a
+    range) makes ``has_fix`` true and the version appears in ``fixed_versions``. On an
+    unreadable advisory it changes nothing: damage dominates, a fix does not repair it.
     """
     base_fixed = fixed_versions(doc, QUERY_ECOSYSTEM, QUERY_NAME)
     out = copy.deepcopy(doc)
     open_ranges = _matching_open_ranges(out)
+    appended = True
     if prefer_existing and open_ranges:
         open_ranges[0].append({"fixed": version})
     else:
-        _append_entry(
+        appended = _append_entry(
             out,
             {
                 "package": query_package(),
@@ -264,9 +282,16 @@ def test_valid_fixed_event_makes_fix(
                 ],
             },
         )
-    assert has_fix(out, QUERY_ECOSYSTEM, QUERY_NAME)
-    assert has_fix_oracle(out, QUERY_ECOSYSTEM, QUERY_NAME)
     result = fixed_versions(out, QUERY_ECOSYSTEM, QUERY_NAME)
+    if base_fixed is None:
+        assert result is None
+        assert has_fix(out, QUERY_ECOSYSTEM, QUERY_NAME) is None
+        assert has_fix_oracle(out, QUERY_ECOSYSTEM, QUERY_NAME) is None
+        return
+    assert appended
+    assert has_fix(out, QUERY_ECOSYSTEM, QUERY_NAME) is True
+    assert has_fix_oracle(out, QUERY_ECOSYSTEM, QUERY_NAME) is True
+    assert result is not None
     assert version in result
     assert set(base_fixed) <= set(result)
 
@@ -275,11 +300,14 @@ def test_valid_fixed_event_makes_fix(
 def test_fixed_versions_sorted_unique_valid(doc: dict[str, Any], pair: tuple[str, str]) -> None:
     """**Validates: Requirements SRC-OSV-4, SRC-OSV-7, SRC-SEC-4**
 
-    ``fixed_versions`` is a tuple of ``str``, sorted, without duplicates, every item
-    matches the version pattern and occurs as a ``fixed`` value in the document.
+    When the advisory is readable, ``fixed_versions`` is a tuple of ``str``, sorted, without
+    duplicates, every item matches the version pattern and occurs as a ``fixed`` value in the
+    document.
     """
     ecosystem, name = pair
     result = fixed_versions(doc, ecosystem, name)
+    if result is None:
+        return
     assert isinstance(result, tuple)
     assert all(isinstance(item, str) for item in result)
     assert list(result) == sorted(set(result))
@@ -291,6 +319,188 @@ def test_fixed_versions_sorted_unique_valid(doc: dict[str, Any], pair: tuple[str
     for item in result:
         assert _VERSION.fullmatch(item) is not None
         assert item in raw_fixed
+
+
+# ---------------------------------------------------------------------------
+# D17: damage in an entry that names the package, and damage elsewhere
+# ---------------------------------------------------------------------------
+
+_WRONG_FOR_OBJECT = st.one_of(
+    st.integers(),
+    st.booleans(),
+    st.text(max_size=5),
+    st.lists(st.integers(), max_size=2),
+)
+"""Present, not ``null``, not an object: wrong for ``package``, an entry, a range, an event."""
+_WRONG_FOR_LIST = st.one_of(
+    st.integers(),
+    st.booleans(),
+    st.text(max_size=5),
+    st.dictionaries(st.text(max_size=3), st.integers(), max_size=2),
+)
+"""Present, not ``null``, not a list: wrong for ``affected``, ``ranges``, ``events``."""
+_WRONG_FOR_STR = st.one_of(
+    st.integers(),
+    st.booleans(),
+    st.floats(allow_nan=False, allow_infinity=False),
+    st.lists(st.text(max_size=3), max_size=2),
+    st.dictionaries(st.text(max_size=3), st.integers(), max_size=2),
+)
+"""Present, not ``null``, not a string: wrong for ``name``, ``type``, ``introduced``, ``fixed``."""
+
+_NOT_A_VERSION = st.one_of(
+    st.sampled_from(
+        ("", " ", "1.0 ", " 1.0", "1.0\n", "x y", "1.0;rm -rf /", "<script>", "-1", ".1")
+    ),
+    st.just("a" * 101),
+    st.text(max_size=12).filter(
+        lambda t: re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._+!~-]{0,99}", t) is None
+    ),
+)
+"""A string ``fixed`` outside the SRC-SEC-4 version pattern (repeated here, not imported)."""
+
+_SPELLINGS_OF_QUERY = st.sampled_from(
+    ("flask-sqlalchemy", "Flask_SQLAlchemy", "FLASK.SQLAlchemy", "flask__sqlalchemy")
+)
+
+type _Site = tuple[tuple[str | int, ...], st.SearchStrategy[Any]]
+
+
+def _damage_sites(ours: int) -> list[_Site]:
+    """Where a wrong type makes the advisory unreadable, for the entry at ``affected[ours]``."""
+    entry = ("affected", ours)
+    rng = (*entry, "ranges", 0)
+    event = (*rng, "events", 0)
+    return [
+        (("affected",), _WRONG_FOR_LIST),
+        (entry, _WRONG_FOR_OBJECT),
+        ((*entry, "package"), _WRONG_FOR_OBJECT),
+        ((*entry, "package", "name"), _WRONG_FOR_STR),
+        ((*entry, "package", "ecosystem"), _WRONG_FOR_STR),
+        ((*entry, "ranges"), _WRONG_FOR_LIST),
+        (rng, _WRONG_FOR_OBJECT),
+        ((*rng, "type"), _WRONG_FOR_STR),
+        ((*rng, "events"), _WRONG_FOR_LIST),
+        (event, _WRONG_FOR_OBJECT),
+        ((*event, "introduced"), _WRONG_FOR_STR),
+        ((*rng, "events", 1, "fixed"), _WRONG_FOR_STR),
+        ((*rng, "events", 1, "fixed"), _NOT_A_VERSION),
+    ]
+
+
+def _clean_advisory(
+    version: str, spelling: str, foreign_first: bool, git_range: bool
+) -> dict[str, Any]:
+    """An advisory with one fixed range for the queried package: readable, a fix."""
+    ranges: list[dict[str, Any]] = [
+        {"type": "SEMVER", "events": [{"introduced": "0"}, {"fixed": version}]}
+    ]
+    if git_range:
+        ranges.append(
+            {"type": "GIT", "repo": "https://example.org/r", "events": [{"fixed": "a" * 40}]}
+        )
+    ours = {"package": {"ecosystem": QUERY_ECOSYSTEM, "name": spelling}, "ranges": ranges}
+    foreign = {
+        "package": {"ecosystem": "npm", "name": "other"},
+        "ranges": [{"type": "SEMVER", "events": [{"fixed": "9.9.9"}]}],
+    }
+    return {"id": "GHSA-1", "affected": [foreign, ours] if foreign_first else [ours]}
+
+
+def _set_path(doc: dict[str, Any], path: tuple[str | int, ...], value: Any) -> None:
+    node: Any = doc
+    for step in path[:-1]:
+        node = node[step]
+    node[path[-1]] = value
+
+
+@given(
+    version=version_strings(),
+    spelling=_SPELLINGS_OF_QUERY,
+    foreign_first=st.booleans(),
+    git_range=st.booleans(),
+    site=st.integers(0, 12),
+    data=st.data(),
+)
+def test_a_wrong_typed_member_in_an_entry_that_names_the_package_is_unreadable(
+    version: str,
+    spelling: str,
+    foreign_first: bool,
+    git_range: bool,
+    site: int,
+    data: st.DataObject,
+) -> None:
+    """**Validates: Requirements SRC-OSV-4, SRC-OSV-6 (D17)**
+
+    Start from a readable advisory with a fix for the queried package. Give one place a value
+    of the wrong type, anywhere D17 lists (``affected``, an entry, ``package``, ``name``,
+    ``ecosystem``, ``ranges``, a range, its ``type``, ``events``, an event, ``introduced``,
+    ``fixed``), or give ``fixed`` a string outside the version pattern. The advisory becomes
+    unreadable: ``fixed_versions`` and ``has_fix`` are ``None`` (so is the oracle) and
+    ``parse_vuln`` rejects it. The fix next to the damage does not rescue it.
+    """
+    doc = _clean_advisory(version, spelling, foreign_first, git_range)
+    assert has_fix(doc, QUERY_ECOSYSTEM, QUERY_NAME) is True  # the starting point is readable
+    path, wrong = _damage_sites(1 if foreign_first else 0)[site]
+    _set_path(doc, path, data.draw(wrong))
+    assert fixed_versions(doc, QUERY_ECOSYSTEM, QUERY_NAME) is None
+    assert has_fix(doc, QUERY_ECOSYSTEM, QUERY_NAME) is None
+    assert has_fix_oracle(doc, QUERY_ECOSYSTEM, QUERY_NAME) is None
+    assert parse_vuln(doc, QUERY_ECOSYSTEM, QUERY_NAME) is None
+
+
+@given(
+    version=version_strings(),
+    spelling=_SPELLINGS_OF_QUERY,
+    kind=st.integers(0, 5),
+    junk=json_like(max_leaves=8),
+    other_junk=json_like(max_leaves=8),
+    wrong=_WRONG_FOR_STR,
+    position=st.integers(0, 3),
+    git_junk=st.booleans(),
+)
+def test_damage_that_cannot_concern_the_package_is_ignored(
+    version: str,
+    spelling: str,
+    kind: int,
+    junk: Any,
+    other_junk: Any,
+    wrong: Any,
+    position: int,
+    git_junk: bool,
+) -> None:
+    """**Validates: Requirements SRC-OSV-4 (D17)**
+
+    An entry whose identity says it is another package (a well-typed ecosystem or name that
+    differs, even if the other identity field is damaged), has no ``package`` or an
+    incomplete one, is ignored however damaged the rest of it is. A ``GIT`` range keeps its
+    own rules: junk inside it is not looked at. The readable advisory around them gives the
+    same answer as without them.
+    """
+    clean = _clean_advisory(version, spelling, False, git_range=False)
+    base = fixed_versions(clean, QUERY_ECOSYSTEM, QUERY_NAME)
+    assert base is not None
+
+    members: dict[str, Any] = {"ranges": junk, "versions": other_junk, "database_specific": junk}
+    packages: list[Any] = [
+        {"ecosystem": "npm", "name": "other"},
+        {"ecosystem": "Go", "name": wrong},  # name damaged, the ecosystem proves another package
+        {"ecosystem": wrong, "name": "other"},  # ecosystem damaged, the name proves it
+        None,
+        {"ecosystem": QUERY_ECOSYSTEM},  # incomplete identity: names nobody
+        {"name": QUERY_NAME},
+    ]
+    foreign = dict(members)
+    if kind != 3 or position % 2:  # kind 3 is both "package null" and "package absent"
+        foreign["package"] = packages[kind]
+    doc = copy.deepcopy(clean)
+    ours = doc["affected"][0]
+    doc["affected"].insert(min(position, len(doc["affected"])), foreign)
+    if git_junk:
+        ours["ranges"].append({"type": "GIT", "events": junk, "repo": other_junk, "x": wrong})
+
+    assert fixed_versions(doc, QUERY_ECOSYSTEM, QUERY_NAME) == base
+    assert has_fix_oracle(doc, QUERY_ECOSYSTEM, QUERY_NAME) is bool(base)
 
 
 # ---------------------------------------------------------------------------
@@ -320,10 +530,14 @@ def _check_vuln(data: object, ecosystem: str, name: str) -> None:
     raw_id = data.get("id")
     id_valid = isinstance(raw_id, str) and _OSV_ID.fullmatch(raw_id) is not None
     # A `published` that is present and unusable rejects the document (SRC-OSV-5): the Cursed
-    # rule depends on it, so it must not silently become "unknown".
+    # rule depends on it, so it must not silently become "unknown". So does an advisory that
+    # cannot be read for this package (SRC-OSV-4, D17).
     published = data.get("published")
     published_usable = published is None or _parses_as_date(published)
-    assert (vuln is not None) is (id_valid and published_usable)
+    raw_withdrawn = data.get("withdrawn")
+    withdrawn_usable = raw_withdrawn is None or isinstance(raw_withdrawn, str)
+    readable = has_fix_oracle(data, ecosystem, name) is not None  # D17: SRC-OSV-4
+    assert (vuln is not None) is (id_valid and published_usable and withdrawn_usable and readable)
     if vuln is None:
         return
     assert vuln.published_at is None or published is not None
@@ -331,7 +545,6 @@ def _check_vuln(data: object, ecosystem: str, name: str) -> None:
     assert vuln.has_fix is bool(vuln.fixed_versions)
     assert vuln.fixed_versions == fixed_versions(data, ecosystem, name)
     assert vuln.has_fix is has_fix_oracle(data, ecosystem, name)
-    raw_withdrawn = data.get("withdrawn")
     assert vuln.withdrawn is (isinstance(raw_withdrawn, str) and raw_withdrawn != "")
 
 

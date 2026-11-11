@@ -820,7 +820,7 @@ def spying(web: FakeWeb, seen: list[str]) -> httpx.MockTransport:
 
 
 @pytest.mark.property
-@settings(deadline=None)
+@settings(deadline=None)  # async body under asyncio.run: wall time varies
 @given(
     ps=package_sets(),
     token=st.sampled_from(TOKENS),

@@ -41,7 +41,7 @@ def test_default_host_policies() -> None:
     assert hosts_["registry.npmjs.org"] == HostPolicy(10, 0.0, 16 * MIB)
     assert hosts_["pypi.org"] == HostPolicy(10, 0.0, 16 * MIB)
     assert hosts_["api.npmjs.org"] == HostPolicy(5, 0.0, 1 * MIB)
-    assert hosts_["pypistats.org"] == HostPolicy(1, 3.0, 1 * MIB)
+    assert hosts_["pypistats.org"] == HostPolicy(1, 1.2, 1 * MIB)
     assert hosts_["api.securityscorecards.dev"] == HostPolicy(4, 0.0, 4 * MIB)
     assert hosts_["api.github.com"] == HostPolicy(1, 0.0, 8 * MIB)
 

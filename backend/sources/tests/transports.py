@@ -268,7 +268,7 @@ def _wrong_type(value: object) -> object:
     return 0  # None
 
 
-def _leaf_paths(document: object) -> list[tuple[str | int, ...]]:
+def leaf_paths(document: object) -> list[tuple[str | int, ...]]:
     """Paths of every leaf (not a dict, not a list) in document order."""
     paths: list[tuple[str | int, ...]] = []
 
@@ -288,7 +288,7 @@ def _leaf_paths(document: object) -> list[tuple[str | int, ...]]:
 
 def _wrong_one_leaf(document: object, leaf: int) -> object:
     """``document`` with the ``leaf``-th leaf swapped for a value of another type."""
-    paths = _leaf_paths(document)
+    paths = leaf_paths(document)
     if not paths:  # {} or []: nothing to damage
         return document
     path = paths[leaf % len(paths)]

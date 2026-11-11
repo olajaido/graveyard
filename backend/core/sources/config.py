@@ -151,7 +151,10 @@ _DEFAULT_HOSTS: Final[Mapping[str, HostPolicy]] = MappingProxyType(
         "registry.npmjs.org": HostPolicy(10, 0.0, 16 * _MIB),
         "pypi.org": HostPolicy(10, 0.0, 16 * _MIB),
         "api.npmjs.org": HostPolicy(5, 0.0, 1 * _MIB),
-        "pypistats.org": HostPolicy(1, 3.0, 1 * _MIB),
+        # Above 2x the 0.5 s safe_interval_seconds measured on 2026-11-11 (pypistats_probe.json).
+        # The host advertises x-ratelimit-limit: 60; read as per minute (the probe does not record
+        # the window length), 1.2 s is at most 50 a minute.
+        "pypistats.org": HostPolicy(1, 1.2, 1 * _MIB),
         "api.securityscorecards.dev": HostPolicy(4, 0.0, 4 * _MIB),
         "api.github.com": HostPolicy(1, 0.0, 8 * _MIB),
     }

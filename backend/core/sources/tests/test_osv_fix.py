@@ -1,9 +1,13 @@
-"""Unit tests for ``core.sources.osv_fix`` (T3.4; SRC-OSV-4, SRC-TEST-3).
+"""Unit tests for ``core.sources.osv_fix`` (T3.4; SRC-OSV-4, D17, SRC-TEST-3).
 
 The documents are hand-built in the shape of the recorded anchors: an express-like npm
 package whose advisories are fixed, a request-like npm package whose advisory has no fix,
 and a pycrypto-like PyPI package with four advisories and no fix. The property version
 (``has_fix`` against the oracle on generated documents) is T3.5. Here every case is named.
+
+``fixed_versions`` returns ``None`` (and ``has_fix`` returns ``None``) for an advisory that
+cannot be read: a present but wrong-typed member in a place that could change the answer for
+this package (D17). Absent and ``null`` are absences and never make an advisory unreadable.
 """
 
 from __future__ import annotations
@@ -99,6 +103,21 @@ def test_git_only_range_has_no_fix() -> None:
     assert has_fix(doc, "npm", "pkg") is False
 
 
+@pytest.mark.parametrize(
+    "git_range",
+    [
+        {"type": "GIT", "events": 5},
+        {"type": "GIT", "events": [3, None, "x", {"fixed": 7, "introduced": []}]},
+        {"type": "GIT", "events": {"fixed": "a"}},
+        {"type": "GIT", "repo": 5, "events": [{"introduced": 0}]},
+        {"type": "GIT"},
+    ],
+)
+def test_a_git_range_keeps_its_own_rules_and_is_not_inspected(git_range: object) -> None:
+    doc = _npm("pkg", git_range, _semver({"fixed": "1.2.3"}))
+    assert fixed_versions(doc, "npm", "pkg") == ("1.2.3",)
+
+
 def test_git_range_is_skipped_but_a_sibling_semver_range_still_counts() -> None:
     doc = _npm(
         "pkg",
@@ -108,11 +127,18 @@ def test_git_range_is_skipped_but_a_sibling_semver_range_still_counts() -> None:
     assert fixed_versions(doc, "npm", "pkg") == ("1.2.3",)
 
 
-@pytest.mark.parametrize("range_type", ["SEMVER", "ECOSYSTEM", None, 5, ""])
-def test_any_range_type_other_than_git_counts(range_type: object) -> None:
+@pytest.mark.parametrize("range_type", ["SEMVER", "ECOSYSTEM", None, "", "git", "GIT "])
+def test_any_range_type_string_other_than_git_counts(range_type: object) -> None:
     assert fixed_versions(_npm("pkg", _range(range_type, {"fixed": "2.0"})), "npm", "pkg") == (
         "2.0",
     )
+
+
+@pytest.mark.parametrize("range_type", [5, 0, 1.5, True, ["GIT"], {"t": "GIT"}])
+def test_a_range_type_of_the_wrong_type_is_unreadable(range_type: object) -> None:
+    # We cannot tell whether it is a GIT range, whose fixed values are not versions.
+    doc = _npm("pkg", _range(range_type, {"fixed": "2.0"}))
+    assert fixed_versions(doc, "npm", "pkg") is None
 
 
 def test_range_without_a_type_key_counts() -> None:
@@ -129,13 +155,23 @@ def test_last_affected_does_not_cancel_a_fixed_event_in_another_range() -> None:
     assert fixed_versions(doc, "npm", "pkg") == ("1.1",)
 
 
-@pytest.mark.parametrize("fixed", [1, 1.5, True, None, ["1.0"], {"v": "1.0"}, ("1.0",)])
-def test_fixed_of_the_wrong_type_is_ignored(fixed: object) -> None:
-    assert fixed_versions(_npm("pkg", _semver({"fixed": fixed})), "npm", "pkg") == ()
+@pytest.mark.parametrize("fixed", [1, 0, 1.5, True, False, ["1.0"], {"v": "1.0"}, ("1.0",)])
+def test_fixed_of_the_wrong_type_makes_the_advisory_unreadable(fixed: object) -> None:
+    doc = _npm("pkg", _semver({"fixed": fixed}))
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
 
 
-def test_empty_fixed_is_ignored() -> None:
-    assert fixed_versions(_npm("pkg", _semver({"fixed": ""})), "npm", "pkg") == ()
+def test_a_null_fixed_is_an_absence_not_a_damage() -> None:
+    doc = _npm("pkg", _semver({"fixed": None}))
+    assert fixed_versions(doc, "npm", "pkg") == ()
+    assert has_fix(doc, "npm", "pkg") is False
+
+
+def test_empty_fixed_is_unreadable() -> None:
+    doc = _npm("pkg", _semver({"fixed": ""}))
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
 
 
 @pytest.mark.parametrize(
@@ -154,8 +190,29 @@ def test_empty_fixed_is_ignored() -> None:
         "a" * 101,
     ],
 )
-def test_fixed_with_unexpected_characters_is_ignored(fixed: str) -> None:
-    assert fixed_versions(_npm("pkg", _semver({"fixed": fixed})), "npm", "pkg") == ()
+def test_fixed_with_unexpected_characters_is_unreadable(fixed: str) -> None:
+    # SRC-OSV-4: a string outside the version pattern is damage, like a wrong type. Reading
+    # it as "no fix" would turn a fixable advisory into a Cursed one with no warning.
+    doc = _npm("pkg", _semver({"fixed": fixed}))
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
+
+
+def test_a_bad_fixed_string_in_a_git_range_is_not_looked_at() -> None:
+    doc = _npm(
+        "pkg", {"type": "GIT", "events": [{"fixed": "not a version"}]}, _semver({"fixed": "1.4.0"})
+    )
+    assert fixed_versions(doc, "npm", "pkg") == ("1.4.0",)
+
+
+def test_a_bad_fixed_string_in_an_entry_for_another_package_is_ignored() -> None:
+    other = {
+        "package": {"ecosystem": "npm", "name": "other"},
+        "ranges": [_semver({"fixed": "not a version"})],
+    }
+    doc = _npm("pkg", _semver({"fixed": "1.4.0"}))
+    doc["affected"].append(other)
+    assert fixed_versions(doc, "npm", "pkg") == ("1.4.0",)
 
 
 @pytest.mark.parametrize(
@@ -165,9 +222,17 @@ def test_fixed_with_the_allowed_characters_counts(fixed: str) -> None:
     assert fixed_versions(_npm("pkg", _semver({"fixed": fixed})), "npm", "pkg") == (fixed,)
 
 
-def test_a_bad_fixed_does_not_hide_a_good_one() -> None:
-    doc = _npm("pkg", _semver({"fixed": "bad value"}, {"fixed": 3}, {"fixed": "1.4.0"}))
-    assert fixed_versions(doc, "npm", "pkg") == ("1.4.0",)
+def test_a_bad_fixed_string_poisons_the_advisory_even_next_to_a_good_one() -> None:
+    doc = _npm("pkg", _semver({"fixed": "bad value"}, {"fixed": "1.4.0"}))
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
+
+
+def test_a_damaged_fixed_makes_the_advisory_unreadable_even_next_to_a_good_one() -> None:
+    # The good fix is not trusted on its own: the advisory as a whole is unreadable.
+    doc = _npm("pkg", _semver({"fixed": 3}, {"fixed": "1.4.0"}))
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
 
 
 def test_fixed_versions_are_sorted_and_unique() -> None:
@@ -267,64 +332,44 @@ def test_a_matching_entry_with_only_a_git_range_does_not_borrow_a_sibling_fix() 
 @pytest.mark.parametrize(
     "doc", [None, [], [{"affected": []}], "affected", 5, 1.5, True, b"x", set()]
 )
-def test_non_mapping_input_has_no_fix(doc: object) -> None:
-    assert fixed_versions(doc, "npm", "pkg") == ()
-    assert has_fix(doc, "npm", "pkg") is False
+def test_non_mapping_input_is_unreadable(doc: object) -> None:
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
 
 
 FIXED_EVENT = {"fixed": "1.0"}
+OURS = {"ecosystem": "npm", "name": "pkg"}
 
-MALFORMED_DOCS: list[tuple[str, object]] = [
+
+def _entry(package: object = OURS, **members: object) -> dict[str, object]:
+    return {"package": package, **members}
+
+
+# Absent or null is an absence (D17): the advisory is readable and nothing in it counts.
+ABSENCES: list[tuple[str, object]] = [
     ("no affected", {"id": "X"}),
     ("affected null", {"affected": None}),
-    ("affected a mapping", {"affected": _affected("npm", "pkg", _semver(FIXED_EVENT))}),
-    ("affected a string", {"affected": "npm pkg"}),
     ("affected empty", {"affected": []}),
-    ("entry not a mapping", {"affected": ["x", None, 3, []]}),
     ("no package", {"affected": [{"ranges": [_semver(FIXED_EVENT)]}]}),
-    ("package a string", {"affected": [{"package": "npm/pkg", "ranges": [_semver(FIXED_EVENT)]}]}),
-    (
-        "package a list",
-        {"affected": [{"package": ["npm", "pkg"], "ranges": [_semver(FIXED_EVENT)]}]},
-    ),
+    ("package null", {"affected": [_entry(None, ranges=[_semver(FIXED_EVENT)])]}),
+    ("package empty", {"affected": [_entry({}, ranges=[_semver(FIXED_EVENT)])]}),
     (
         "package without name",
-        {"affected": [{"package": {"ecosystem": "npm"}, "ranges": [_semver(FIXED_EVENT)]}]},
+        {"affected": [_entry({"ecosystem": "npm"}, ranges=[_semver(FIXED_EVENT)])]},
     ),
-    ("package name not a string", {"affected": [_affected("npm", 5, _semver(FIXED_EVENT))]}),
     ("package name null", {"affected": [_affected("npm", None, _semver(FIXED_EVENT))]}),
     (
         "package without ecosystem",
-        {"affected": [{"package": {"name": "pkg"}, "ranges": [_semver(FIXED_EVENT)]}]},
+        {"affected": [_entry({"name": "pkg"}, ranges=[_semver(FIXED_EVENT)])]},
     ),
-    ("ecosystem not a string", {"affected": [_affected(["npm"], "pkg", _semver(FIXED_EVENT))]}),
-    ("no ranges", {"affected": [{"package": {"ecosystem": "npm", "name": "pkg"}}]}),
-    (
-        "ranges null",
-        {"affected": [{"package": {"ecosystem": "npm", "name": "pkg"}, "ranges": None}]},
-    ),
-    (
-        "ranges a mapping",
-        {
-            "affected": [
-                {"package": {"ecosystem": "npm", "name": "pkg"}, "ranges": _semver(FIXED_EVENT)}
-            ]
-        },
-    ),
-    (
-        "range not a mapping",
-        {"affected": [_affected("npm", "pkg", "SEMVER", None, 3, [FIXED_EVENT])]},
-    ),
+    ("ecosystem null", {"affected": [_affected(None, "pkg", _semver(FIXED_EVENT))]}),
+    ("no ranges", {"affected": [_entry()]}),
+    ("ranges null", {"affected": [_entry(ranges=None)]}),
+    ("ranges empty", {"affected": [_entry(ranges=[])]}),
     ("no events", {"affected": [_affected("npm", "pkg", {"type": "SEMVER"})]}),
     ("events null", {"affected": [_affected("npm", "pkg", {"type": "SEMVER", "events": None})]}),
-    (
-        "events a mapping",
-        {"affected": [_affected("npm", "pkg", {"type": "SEMVER", "events": FIXED_EVENT})]},
-    ),
-    (
-        "event not a mapping",
-        {"affected": [_affected("npm", "pkg", _semver("fixed", None, 1, ["fixed", "1.0"]))]},
-    ),
+    ("events empty", {"affected": [_affected("npm", "pkg", _semver())]}),
+    ("introduced null", {"affected": [_affected("npm", "pkg", _semver({"introduced": None}))]}),
     ("fixed outside affected", {"database_specific": _npm("pkg", _semver(FIXED_EVENT))}),
     (
         "fixed at the wrong depth",
@@ -333,26 +378,143 @@ MALFORMED_DOCS: list[tuple[str, object]] = [
 ]
 
 
-@pytest.mark.parametrize(
-    ("label", "doc"), MALFORMED_DOCS, ids=[label for label, _ in MALFORMED_DOCS]
-)
-def test_malformed_documents_have_no_fix_and_do_not_raise(label: str, doc: object) -> None:
+@pytest.mark.parametrize(("label", "doc"), ABSENCES, ids=[label for label, _ in ABSENCES])
+def test_absent_or_null_members_are_absences_with_no_fix(label: str, doc: object) -> None:
     assert fixed_versions(doc, "npm", "pkg") == ()
     assert has_fix(doc, "npm", "pkg") is False
     assert has_fix_oracle(doc, "npm", "pkg") is False
 
 
-def test_malformed_entries_do_not_hide_a_well_formed_one() -> None:
+# Present with the wrong type, in a place that could change the answer: unreadable (D17).
+DAMAGE: list[tuple[str, object]] = [
+    ("affected a mapping", {"affected": _affected("npm", "pkg", _semver(FIXED_EVENT))}),
+    ("affected a string", {"affected": "npm pkg"}),
+    ("affected a number", {"affected": 3}),
+    ("entry a string", {"affected": ["x"]}),
+    ("entry null", {"affected": [None]}),
+    ("entry a list", {"affected": [[]]}),
+    ("package a string", {"affected": [_entry("npm/pkg", ranges=[_semver(FIXED_EVENT)])]}),
+    ("package a list", {"affected": [_entry(["npm", "pkg"], ranges=[_semver(FIXED_EVENT)])]}),
+    ("package a number", {"affected": [_entry(3, ranges=[_semver(FIXED_EVENT)])]}),
+    ("name not a string", {"affected": [_affected("npm", 5, _semver(FIXED_EVENT))]}),
+    ("name a list", {"affected": [_affected("npm", ["pkg"], _semver(FIXED_EVENT))]}),
+    ("ecosystem not a string", {"affected": [_affected(["npm"], "pkg", _semver(FIXED_EVENT))]}),
+    ("ecosystem a number", {"affected": [_affected(7, "pkg", _semver(FIXED_EVENT))]}),
+    ("both identity fields damaged", {"affected": [_affected(7, 8, _semver(FIXED_EVENT))]}),
+    ("ranges a mapping", {"affected": [_entry(ranges=_semver(FIXED_EVENT))]}),
+    ("ranges a string", {"affected": [_entry(ranges="SEMVER")]}),
+    ("range a string", {"affected": [_affected("npm", "pkg", "SEMVER")]}),
+    ("range null", {"affected": [_affected("npm", "pkg", None)]}),
+    ("range a list", {"affected": [_affected("npm", "pkg", [FIXED_EVENT])]}),
+    ("type a number", {"affected": [_affected("npm", "pkg", _range(5, FIXED_EVENT))]}),
+    ("events a mapping", {"affected": [_affected("npm", "pkg", {"events": FIXED_EVENT})]}),
+    ("events a string", {"affected": [_affected("npm", "pkg", {"events": "fixed"})]}),
+    ("event a string", {"affected": [_affected("npm", "pkg", _semver("fixed"))]}),
+    ("event null", {"affected": [_affected("npm", "pkg", _semver(None))]}),
+    ("event a list", {"affected": [_affected("npm", "pkg", _semver(["fixed", "1.0"]))]}),
+    ("introduced a number", {"affected": [_affected("npm", "pkg", _semver({"introduced": 0}))]}),
+    ("introduced a list", {"affected": [_affected("npm", "pkg", _semver({"introduced": ["0"]}))]}),
+    ("fixed a number", {"affected": [_affected("npm", "pkg", _semver({"fixed": 1}))]}),
+    ("fixed a list", {"affected": [_affected("npm", "pkg", _semver({"fixed": ["1.0"]}))]}),
+    ("fixed a mapping", {"affected": [_affected("npm", "pkg", _semver({"fixed": FIXED_EVENT}))]}),
+]
+
+
+@pytest.mark.parametrize(("label", "doc"), DAMAGE, ids=[label for label, _ in DAMAGE])
+def test_a_wrong_typed_member_that_could_matter_makes_the_advisory_unreadable(
+    label: str, doc: object
+) -> None:
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix(doc, "npm", "pkg") is None
+    assert has_fix_oracle(doc, "npm", "pkg") is None
+
+
+def test_damage_dominates_a_well_formed_fix_elsewhere_in_the_advisory() -> None:
     doc = {
         "affected": [
-            "x",
-            {"package": 3},
-            _affected("npm", None, _semver(FIXED_EVENT)),
-            {"package": {"ecosystem": "npm", "name": "pkg"}, "ranges": "SEMVER"},
-            _affected("npm", "pkg", "junk", {"events": "junk"}, _semver(3, {"fixed": "1.0"})),
+            _affected("npm", "pkg", _semver({"fixed": "1.0"})),
+            _affected("npm", "pkg", _semver({"fixed": ["2.0"]})),
+        ]
+    }
+    assert fixed_versions(doc, "npm", "pkg") is None
+
+
+def test_damage_in_an_entry_that_names_another_package_is_ignored() -> None:
+    wrecked_ranges: dict[str, object] = {"ranges": 5}
+    doc = {
+        "affected": [
+            _affected("npm", "pkg", _semver({"fixed": "1.0"})),
+            {"package": {"ecosystem": "npm", "name": "other"}, **wrecked_ranges},
+            {"package": {"ecosystem": "Go", "name": "pkg"}, **wrecked_ranges},
+            {"package": {"ecosystem": "PyPI", "name": "pkg"}, "ranges": ["x", None, 3]},
         ]
     }
     assert fixed_versions(doc, "npm", "pkg") == ("1.0",)
+
+
+@pytest.mark.parametrize(
+    "package",
+    [
+        {
+            "ecosystem": "Go",
+            "name": ["pkg"],
+        },  # name damaged, but the ecosystem proves it is not ours
+        {"ecosystem": 7, "name": "other"},  # ecosystem damaged, but the name proves it
+        {"ecosystem": "Go", "name": 7},
+        {"ecosystem": 7, "name": "other"},
+    ],
+)
+def test_a_damaged_identity_field_is_ignored_when_the_other_one_proves_a_different_package(
+    package: dict[str, object],
+) -> None:
+    doc = {"affected": [_entry(package, ranges=5), _affected("npm", "pkg", _semver(FIXED_EVENT))]}
+    assert fixed_versions(doc, "npm", "pkg") == ("1.0",)
+    assert has_fix_oracle(doc, "npm", "pkg") is True
+
+
+@pytest.mark.parametrize(
+    "package",
+    [
+        {"ecosystem": "npm", "name": ["pkg"]},  # the ecosystem matches: might be ours
+        {"ecosystem": 7, "name": "pkg"},  # the name matches: might be ours
+        {"ecosystem": ["npm"], "name": 5},
+        {"ecosystem": 7},
+        {"name": 7},
+        7,
+    ],
+)
+def test_a_damaged_identity_field_is_unreadable_when_the_entry_might_be_ours(
+    package: object,
+) -> None:
+    doc = {"affected": [_entry(package, ranges=[_semver(FIXED_EVENT)])]}
+    assert fixed_versions(doc, "npm", "pkg") is None
+    assert has_fix_oracle(doc, "npm", "pkg") is None
+
+
+def test_wrong_typed_members_the_answer_does_not_depend_on_are_not_damage() -> None:
+    doc = {
+        "id": 5,
+        "summary": ["x"],
+        "affected": [
+            _entry(
+                versions="1.0",
+                ecosystem_specific=3,
+                database_specific=[],
+                ranges=[
+                    _semver(
+                        {"introduced": "0", "last_affected": 7, "limit": ["*"]},
+                        {"fixed": "1.5"},
+                    )
+                ],
+            )
+        ],
+    }
+    assert fixed_versions(doc, "npm", "pkg") == ("1.5",)
+
+
+def test_a_missing_range_type_still_counts_as_not_git() -> None:
+    doc = _npm("pkg", {"events": [{"introduced": "0"}, {"fixed": "3.0"}]})
+    assert fixed_versions(doc, "npm", "pkg") == ("3.0",)
 
 
 # --- the argument is not modified ------------------------------------------------------------
@@ -360,7 +522,13 @@ def test_malformed_entries_do_not_hide_a_well_formed_one() -> None:
 
 @pytest.mark.parametrize(
     "doc",
-    [*EXPRESS_ADVISORIES, REQUEST_ADVISORY, *PYCRYPTO_ADVISORIES, *(d for _, d in MALFORMED_DOCS)],
+    [
+        *EXPRESS_ADVISORIES,
+        REQUEST_ADVISORY,
+        *PYCRYPTO_ADVISORIES,
+        *(d for _, d in ABSENCES),
+        *(d for _, d in DAMAGE),
+    ],
 )
 def test_the_document_is_not_mutated(doc: object) -> None:
     before = deepcopy(doc)
@@ -387,3 +555,4 @@ def test_has_fix_agrees_with_the_oracle_on_the_anchor_shapes(
     doc: object, ecosystem: str, name: str
 ) -> None:
     assert has_fix(doc, ecosystem, name) is has_fix_oracle(doc, ecosystem, name)
+    assert has_fix(doc, ecosystem, name) is not None

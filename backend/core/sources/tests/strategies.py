@@ -58,6 +58,7 @@ from core.sources.facts import (
 )
 from core.sources.model import EVIDENCE_KEYS, SOURCE_NAMES, WARNING_CODES
 from core.sources.repo_resolve import RESERVED_OWNERS
+from core.sources.urls import strip_userinfo
 
 _ALNUM = string.ascii_letters + string.digits
 _CLASSIC_KINDS = "pousr"
@@ -908,7 +909,10 @@ _URL_STRINGS = st.one_of(
             "https://example.org/a?b=c",
         )
     ),
-    st.text(min_size=1, max_size=30),
+    # Foreign text is allowed, but not text that is only a credential: ``strip_userinfo("@")`` is
+    # "", and a value with no origin would break "a value has a source URL" (SRC-API-3). Every URL
+    # a client passes comes from a ``core.sources.urls`` builder, never such text (SRC-SEC-3).
+    st.text(min_size=1, max_size=30).filter(strip_userinfo),
     token_shapes().map("https://example.org/{}".format),
 )
 

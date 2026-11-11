@@ -1,7 +1,8 @@
 """Independent oracles for the ``core.sources`` property tests.
 
 ``has_fix_oracle`` (SRC-TEST-3, design §6.1) answers the same question as
-``core.sources.osv_fix.has_fix`` by a different method. Instead of looking keys up level
+``core.sources.osv_fix.has_fix`` by a different method (``True``, ``False``, or ``None`` for an
+advisory that cannot be read, D17). Instead of looking keys up level
 by level, it flattens the whole document into ``(path, value)`` pairs and then asks
 "does a path of this shape exist?". A guard that one implementation forgets, such as a
 missing ``type`` or a wrongly typed ``package``, then shows up as a counterexample.
@@ -53,47 +54,106 @@ def flatten_pairs(doc: object) -> list[tuple[Path, object]]:
     return pairs
 
 
-def _is_fixed_path(path: Path) -> bool:
-    """True for ``("affected", i, "ranges", j, "events", k, "fixed")`` with int i, j, k."""
-    return (
-        len(path) == 7
-        and path[0] == "affected"
-        and isinstance(path[1], int)
-        and path[2] == "ranges"
-        and isinstance(path[3], int)
-        and path[4] == "events"
-        and isinstance(path[5], int)
-        and path[6] == "fixed"
+def _children(flat: dict[Path, object], path: Path) -> list[int]:
+    """List positions below ``path``, in order, read off the flattened pairs."""
+    return sorted(
+        step[-1]
+        for step in flat
+        if len(step) == len(path) + 1 and step[: len(path)] == path and isinstance(step[-1], int)
     )
 
 
-def has_fix_oracle(doc: object, ecosystem: str, name: str) -> bool:
-    """True iff ``doc`` has a valid ``fixed`` event for the package outside ``GIT`` ranges.
+def _whose(flat: dict[Path, object], entry: Path, ecosystem: str, wanted: str) -> str:
+    """``"ours"``, ``"other"`` or ``"unreadable"`` for the ``affected`` entry at ``entry``."""
+    package = (*entry, "package")
+    value = flat.get(package)  # a missing key and a null both read as None
+    if value is None:
+        return "other"
+    if not isinstance(value, dict):
+        return "unreadable"
+    eco = flat.get((*package, "ecosystem"))
+    name = flat.get((*package, "name"))
+    if isinstance(eco, str) and eco != ecosystem:
+        return "other"  # provably another package
+    if isinstance(name, str) and _normalise(name) != wanted:
+        return "other"
+    if (eco is not None and not isinstance(eco, str)) or (
+        name is not None and not isinstance(name, str)
+    ):
+        return "unreadable"  # damaged, and nothing says it is not ours
+    if eco is None or name is None:
+        return "other"  # an incomplete identity names nobody
+    return "ours"
 
-    The ``fixed`` event must sit at ``affected[i].ranges[j].events[k].fixed`` where
-    ``affected[i].package.ecosystem`` equals ``ecosystem``, ``affected[i].package.name`` is
-    a ``str`` equal to ``name`` after PEP 503 normalisation, ``affected[i].ranges[j].type``
-    is not ``"GIT"`` (an absent or odd type counts as not ``GIT``), and the value is a
-    ``str`` that matches the version pattern in full.
+
+def has_fix_oracle(doc: object, ecosystem: str, name: str) -> bool | None:
+    """Whether ``doc`` has a valid ``fixed`` event for the package; ``None`` if unreadable.
+
+    The advisory is **unreadable** (D17) when, anywhere, a value is present and of the wrong
+    type in a place that could change the answer for this package: ``doc`` itself, ``affected``
+    or one of its elements; an entry's ``package`` or its ``ecosystem`` / ``name`` unless the
+    other one proves the entry is another package; and, in an entry that names the package,
+    ``ranges``, a range, a range ``type``, ``events``, an event, ``introduced``, or a ``fixed``
+    that is not a string matching the version pattern in full.
+    A ``GIT`` range is skipped without looking inside. ``null`` or absent is never wrong-typed.
+
+    Otherwise the answer is ``True`` iff some event of a non-``GIT`` range of an entry that
+    names the package has a ``fixed`` (an absent or ``null`` ``type`` counts as not ``GIT``).
+    All entries are checked before an answer is given, so damage anywhere makes the whole
+    answer ``None``.
     """
+    if not isinstance(doc, dict):
+        return None
     flat = dict(flatten_pairs(doc))
+    affected = flat.get(("affected",))
+    if affected is None:
+        return False
+    if not isinstance(affected, list):
+        return None
     wanted = _normalise(name)
-    for path, value in flat.items():
-        if not _is_fixed_path(path):
+    found = False
+    for i in _children(flat, ("affected",)):
+        entry = ("affected", i)
+        if not isinstance(flat[entry], dict):
+            return None
+        verdict = _whose(flat, entry, ecosystem, wanted)
+        if verdict == "unreadable":
+            return None
+        if verdict == "other":
             continue
-        if not isinstance(value, str) or _VERSION.fullmatch(value) is None:
+        ranges = flat.get((*entry, "ranges"))
+        if ranges is None:
             continue
-        affected_index, range_index = path[1], path[3]
-        package = ("affected", affected_index, "package")
-        if flat.get((*package, "ecosystem")) != ecosystem:
-            continue
-        package_name = flat.get((*package, "name"))
-        if not isinstance(package_name, str) or _normalise(package_name) != wanted:
-            continue
-        if flat.get(("affected", affected_index, "ranges", range_index, "type")) == "GIT":
-            continue
-        return True
-    return False
+        if not isinstance(ranges, list):
+            return None
+        for j in _children(flat, (*entry, "ranges")):
+            rng = (*entry, "ranges", j)
+            if not isinstance(flat[rng], dict):
+                return None
+            range_type = flat.get((*rng, "type"))
+            if range_type is not None and not isinstance(range_type, str):
+                return None
+            if range_type == "GIT":
+                continue
+            events = flat.get((*rng, "events"))
+            if events is None:
+                continue
+            if not isinstance(events, list):
+                return None
+            for k in _children(flat, (*rng, "events")):
+                event = (*rng, "events", k)
+                if not isinstance(flat[event], dict):
+                    return None
+                introduced = flat.get((*event, "introduced"))
+                if introduced is not None and not isinstance(introduced, str):
+                    return None
+                fixed = flat.get((*event, "fixed"))
+                if fixed is None:
+                    continue
+                if not isinstance(fixed, str) or _VERSION.fullmatch(fixed) is None:
+                    return None
+                found = True
+    return found
 
 
 # --- Kleene logic (SRC-TEST-9, design §9.1) ---------------------------------------------------

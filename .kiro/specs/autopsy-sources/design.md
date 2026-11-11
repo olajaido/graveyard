@@ -227,7 +227,7 @@ The per-request overall deadline uses `asyncio.timeout` (event-loop time, not th
 | `registry.npmjs.org` | 10 | 0 | 16 MiB |
 | `pypi.org` | 10 | 0 | 16 MiB |
 | `api.npmjs.org` | 5 | 0 | 1 MiB |
-| `pypistats.org` | 1 | 3.0 | 1 MiB |
+| `pypistats.org` | 1 | 1.2 (above 2× the measured safe 0.5 s) | 1 MiB |
 | `api.securityscorecards.dev` | 4 | 0 | 4 MiB |
 | `api.github.com` | 1 | 0 | 8 MiB |
 
@@ -382,21 +382,40 @@ S7(pkg) = None if ANY of {chunk, page, unusable entry, detail fetch for one of i
 
 **Malformed `next_page_token` fails closed.** `parse_query_results` returns `None` for the whole chunk when any result's `next_page_token` is present but neither `null` nor a `str` (a number, a list, a mapping, a `bool`). The alternative, treating an unusable token as "no further page", would end paging early: the advisories on the pages we never fetched are silently missing, a package that should read Cursed (a no-fix advisory on page 2) could read clean, and S7 would be a confident `()` or a short list instead of unknown. That is the one error we cannot afford, because S7 distinguishes `None` (unknown) from `()` (known empty) (`mortality-model.md`). Failing the chunk costs a known, visible loss (S7 `None` with a warning for the packages in that chunk, fixable by a retry or a later run) and keeps SRC-OSV-6 true. One bad token also rejects the sibling queries in the same chunk: OSV answers with one `results` array, and a response that breaks the documented shape is not trusted for any of its entries. An absent, `null` or empty-string token still means "no further page", which is what a normal last page looks like. Covered by `test_parse_osv.py` (wrong-type token, sibling rejection) and `test_properties_osv_fix.py` (arbitrary token JSON either is a `str` or rejects the chunk).
 
-`osv_fix.fixed_versions(vuln, ecosystem, name)`:
+`osv_fix.fixed_versions(vuln, ecosystem, name) -> tuple[str, ...] | None` (`None` = unreadable, D17):
 
 ```
-for aff in vuln["affected"] (list of mappings):
-    pkg = aff["package"] (mapping); require pkg.ecosystem == ecosystem and pep503(pkg.name) == pep503(name)
-    for rng in aff["ranges"] (list of mappings):
-        if rng.type == "GIT": continue
-        for ev in rng["events"] (list of mappings):
-            v = ev.get("fixed"); if is_valid_version(v): out.add(v)
+vuln not a mapping                       -> None
+affected: absent/null -> (); not a list  -> None
+for entry in affected:
+    entry not a mapping                  -> None
+    whose(entry):                        # provably another package? ours? cannot tell?
+        package absent/null              -> other  (names nobody)
+        package not a mapping            -> None
+        ecosystem is a str != ours       -> other  (provably another package)
+        name is a str, pep503 != ours    -> other
+        ecosystem or name wrong-typed    -> None   (damaged, and nothing says it is not ours)
+        ecosystem or name absent/null    -> other  (incomplete identity)
+        else                             -> ours
+    other: continue
+    ranges: absent/null -> nothing; not a list -> None
+    for rng in ranges:
+        not a mapping                    -> None
+        type wrong-typed                 -> None   (cannot tell whether it is GIT)
+        type == "GIT"                    -> skip without looking inside
+        events: absent/null -> nothing; not a list -> None
+        for ev in events:
+            not a mapping                -> None
+            introduced present, not str  -> None
+            fixed: absent/null -> nothing; not a str -> None; a str passing is_valid_version -> add
 return sorted(out)
 ```
 
+`parse_vuln` returns `None` when `fixed_versions` does, and so does the client, which fails that package's S7 (SRC-OSV-6). **Why fail closed:** a `fixed` that stops being a string would otherwise turn a fixable advisory into a no-fix one, which can flip Wounded into Cursed with no warning. **Why the identity rule is asymmetric:** a damaged `package.name` cannot be told apart from our package unless `ecosystem` already proves it is another one, so the entry fails the advisory only when it *might* be ours; an entry that is provably another package's cannot concern us and is ignored however damaged it is. **Why `withdrawn` and `published` are in the same family:** read as "absent" they bring a withdrawn advisory back as a live one (`withdrawn`, found by the single-leaf fault property) or hide the date the Cursed rule needs (`published`).
+
 `has_fix = bool(fixed_versions)`. `is_valid_version` is the SRC-SEC-4 pattern; a `fixed` of the wrong type, empty, or with unexpected characters does not count. This is the prototype's logic with the type checks made explicit.
 
-**Independent oracle** (`core/sources/tests/oracles.py`): flattens the document into `(path_tuple, value)` pairs with a manual stack and answers `has_fix` as "exists a path of the form `("affected", i, "ranges", j, "events", k, "fixed")` such that `doc.affected[i].package` matches, `doc.affected[i].ranges[j].type != "GIT"` and the value matches the version pattern". It shares no code with `osv_fix` and uses no nested `.get` chains, so a missing-type guard in one and not the other shows up as a counterexample.
+**Independent oracle** (`core/sources/tests/oracles.py`): flattens the document into `(path_tuple, value)` pairs with a manual stack and answers `has_fix` as "exists a path of the form `("affected", i, "ranges", j, "events", k, "fixed")` such that `doc.affected[i].package` matches and `doc.affected[i].ranges[j].type != "GIT"`; a `fixed` that is not a string matching the version pattern in full makes the answer `None` (unreadable)". It shares no code with `osv_fix` and uses no nested `.get` chains, so a missing-type guard in one and not the other shows up as a counterexample.
 
 ### 6.2 GitHub (`parse/github.py`, `clients/github.py`)
 
@@ -499,7 +518,7 @@ collect(requests):
     osv, npm_dl = await osv_task, await npm_dl_task
     pass1 = {p: assemble(p, facts[p], osv[p], github[p], npm_dl[p], downloads=Deferred if pypi else from npm_dl)}
     candidates = [p for p in unique pypi if is_resting_candidate(pass1[p].signals)]
-    pypi_dl = await pypistats_for(candidates)                               # serial through the 3 s limiter
+    pypi_dl = await pypistats_for(candidates)                               # serial through the 1.2 s limiter
     final = {p: assemble(..., downloads=state(p))}                          # Skipped for non-candidates
     return BatchResult(results in input order, stats)
 ```
@@ -663,6 +682,8 @@ Pure-half tests are in `backend/core/sources/tests/`, I/O-half tests in `backend
 | `test_failures_only_degrade` | SRC-TEST-6 (no exemptions) |
 | `test_one_damaged_github_leaf_only_degrades`, `test_one_damaged_leaf_on_any_host_but_osv_only_degrades` | SRC-TEST-6 with `wrong_one_leaf`, same strict invariant (SRC-GH-9) |
 | `test_repo_page_malformed_matches_oracle`, `test_one_malformed_node_always_makes_s5_unknown` | SRC-GH-9: independent oracle for absent / null / wrong-typed per field and for the history; one damaged node anywhere makes S5 unknown |
+| `test_a_wrong_typed_member_in_an_entry_that_names_the_package_is_unreadable`, `test_damage_that_cannot_concern_the_package_is_ignored` | SRC-OSV-4, D17: damage at each listed site, including a `fixed` string outside the version pattern, makes the advisory unreadable; damage in another package's entry or a `GIT` range changes nothing |
+| `test_leaf_sweep.py` | SRC-TEST-6: exhaustive single-leaf, all-pairs (two small worlds) and release-date pair sweeps with the strict invariant |
 | `test_strip_userinfo_*` | SRC-SEC-3: no `@` left, identity without `@`, any credential spelling removed, built URLs unchanged |
 | `test_batching_and_dedupe` | SRC-TEST-7 |
 | `test_limiter_invariants` | SRC-TEST-8 |
@@ -705,7 +726,7 @@ Run from `backend/`: `GITHUB_TOKEN=… GRAVEYARD_CONTACT=… uv run python ../sc
 
 The cassette entry is `{"request": {"method", "url", "body"}, "response": {"status", "content_type", "retry_after", "body"}}`, sorted by `(url, body hash)` so diffs are stable. Replay answers with exactly those fields, so the clients are tested against the real status, content type and body. If live data changed an anchor's state since the original capture (for example a new OSV advisory for `express@4.17.1`), step 5 stops and reports, and the decision on the expectation is yours.
 
-The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.5 s) for well-known packages, stops at the first `429`, and records status, `Retry-After` and any `x-ratelimit-*` headers per request. `safe_interval_seconds` is the smallest tested interval with no `429`. A unit test then asserts that the default `pypistats.org` interval is at least that value when the file exists, so a measured limit above 3 s cannot be forgotten.
+The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.5 s) for well-known packages, stops at the first `429`, and records status, `Retry-After` and any `x-ratelimit-*` headers per request. `safe_interval_seconds` is the smallest tested interval with no `429`. A unit test (`test_pypistats_probe.py`) then asserts that the default `pypistats.org` interval is at least **twice** that value when the file exists, so a measured limit the default does not respect cannot be forgotten. The probe recorded on 2026-11-11 found a safe interval of 0.5 s (12 requests, no 429), and the default is 1.2 s.
 
 ---
 
@@ -730,19 +751,21 @@ The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.
 | 15 | Partial OSV list possible if a detail fetch is skipped by id regex | Whole S7 `None` on any failed or capped fetch; invalid ids counted in a warning | SRC-OSV-6 |
 | 16 | No `rateLimit` query | `rateLimit { cost remaining resetAt }` and a floor | GitHub 5,000 pts/hr |
 | 17 | One downloads request per package, all ecosystems | npm bulk (128 names), PyPI only for Resting candidates | D14 |
-| 18 | One pypistats request per PyPI package at a 3 s pace | Only candidates; `pycrypto` and `nose` no longer get S9 | D14 |
+| 18 | One pypistats request per PyPI package at a 3 s pace (the prototype's 3× delay) | Only candidates; `pycrypto` and `nose` no longer get S9 | D14 |
 | 19 | Exceptions escape as `FetchError` and abort the package | Outcome values; per-item errors for bad input | D3, D16 |
 | 20 | An unusable entry in OSV `vulns` could be skipped | The package's S7 is `None` + `UNEXPECTED_SHAPE`, never a shorter list | D17, SRC-OSV-3, SRC-OSV-6 |
 | 21 | A history node with a wrong-typed author was skipped; a wrong-typed `hasNextPage` read as "no next page"; a non-object alias was "not found" and cached | Whole page malformed, S5 `None` + warning; alias unusable; nothing cached | D17, SRC-GH-9 |
 | 22 | An OSV `published` of the wrong type became `None` silently | The advisory document is rejected and S7 is `None` + warning; absent or `null` stays an honest `None` | D17, SRC-OSV-5 |
 | 23 | `Failed.url` kept whatever a rejected URL contained | `user:password@` removed from every stored URL, before truncation | SRC-SEC-3 |
+| 24 | A wrong-typed `fixed`, `introduced`, range `type`, `events`, `ranges` or identity field in an OSV `affected` entry, or a string `fixed` outside the version pattern, was ignored, so a fixable advisory could read as no-fix | The advisory is unreadable when the entry might be ours; S7 `None` + `UNEXPECTED_SHAPE` | D17, SRC-OSV-4 |
+| 25 | A wrong-typed OSV `withdrawn`, deps.dev `publishedAt`, npm `time[latest]` or PyPI upload time was read as "absent" | The document is rejected (`UNEXPECTED_SHAPE`, not cached); S2 can no longer vanish silently when its sources are damaged together | D17, SRC-OSV-5, SRC-S2 |
 
 **Risks.**
 
 | Risk | Mitigation |
 |---|---|
 | Per-process limits can exceed a host's real limit when 20 Map branches run at once (D8) | `429` backoff and host penalty; cache; pick the per-host numbers from the recording and load test |
-| Many Resting candidates make the lazy pypistats phase slow (50 candidates × 3 s = 150 s) and a missed S9 downgrades a package from Resting to Ailing | Phase runs last under the 240 s deadline; 7-day cache; the probe measures the real limit; revisit the interval or add a second download source if the load test shows it |
+| Many Resting candidates make the lazy pypistats phase slow (50 candidates × 1.2 s = 60 s, was 150 s at 3 s) and a missed S9 downgrades a package from Resting to Ailing | Phase runs last under the 240 s deadline; 7-day cache; the probe measured a safe interval of 0.5 s, so the default is 1.2 s; the host advertises 60 requests per window, which the 12-request probe cannot confirm over a sustained run, so a 429 is still expected under heavy use and is handled (host penalty, `Retry-After`); revisit the interval or add a second download source if the load test shows it |
 | `is_resting_candidate` depends on first-pass signals; a failed GitHub call lowers confidence and can change who is a candidate | Same inputs the scorer will use; a package missing GitHub data scores on fewer signals and is decided on those |
 | `has_fix` can read fixable when a fix exists only for another major line (D9) | Known limitation, same as the shipped scoring spec; revisit with a version matcher |
 | GitHub `pushedAt` covers all branches, while the PRD says default branch | Same as the prototype; noted in the evidence |
@@ -751,4 +774,40 @@ The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.
 | Live data drift since 3 Nov changes an anchor state | The recorder refuses to write and reports (SRC-REC-4) |
 | The recordings add under 2 MB to the repo (about 0.7 MB abbreviated npm, 0.8 MB express full, 0.1 MB PyPI) | Within the 6 MiB budget; verbatim, no trimming, so tests exercise real bodies |
 | A `backend/sources` package name is generic | Matches `structure.md`; `known-first-party` makes imports unambiguous |
-| **Open decision.** A wrong type inside an advisory's `affected` entries (`package.name`, `package.ecosystem`, `ranges`, `events`, `fixed`) still changes `has_fix` without a warning, as SRC-OSV-4 documents ("does not count"). A `fixed` that stops being a string turns a fixable advisory into a no-fix one, which can flip Wounded to Cursed. Found by `wrong_one_leaf` on an OSV detail (the `published` case was fixed, this one was not). | The single-leaf property excludes OSV for now and says why. Applying D17 here means `osv_fix` returns "malformed" for a present wrong-typed member of an entry that names this package, `parse_vuln` returns `None`, and the oracle in `tests/oracles.py` models it. Decide before T14 |
+| **Deferred (accepted for v1).** Found by the strict sweep. `explained()` in the SRC-TEST-6 property accepts "upstream has nothing" notes (`NOTE_NO_MAINTAINED`, `NOTE_NO_OVERALL`, `NOTE_NO_REPO`) as an explanation, as the requirement allows. In a faulted run the upstream *did* have the value, so with that allowance removed the single-leaf sweep reports two more classes with no warning: (1) a wrong-typed Scorecard `overallScore`, check `name` or check `score` (deps.dev project and Scorecard API) gives S4/S8 `None`; (2) a wrong-typed repo candidate (`info.home_page`, `repository.url`) gives "no GitHub repo resolved", which silently drops S1(github), S3, S5, S6 and S8 | Same mechanism as S2 and OSV: reject the document that carries a damaged field feeding a signal (`parse_project`, `parse_scorecard_api`, the candidate readers). Reproduce with `STRICT=1`: set `_ABSENCE_NOTES` in `test_properties_session.py` to `{NOTE_S9_SKIPPED}` and run `test_leaf_sweep.py`. **Accepted for v1:** it needs corrupted upstream data from Scorecard, deps.dev, npm or PyPI, and the effect is lower confidence (the signal reads as missing), not a different state. Revisit if a later spec needs a verdict that depends on S4, S8 or the repo. |
+
+## 15. Traceability for requirements that tests do not cite by ID (T14.9)
+
+Every requirement ID is either cited in a test docstring or listed here with the test, gate or document that covers it.
+
+| ID | Covered by |
+|---|---|
+| SRC-ANC-2 | `test_anchors_e2e.py::test_state_matches_the_mm_anc_table_and_the_fixture`, `test_the_cassette_serves_every_request` |
+| SRC-ANC-4 | `test_anchors_e2e.py::test_evidence_urls_are_allow_listed_and_times_fall_inside_the_run` |
+| SRC-ANC-5 | `test_anchors_e2e.py::test_batching_in_the_request_log` |
+| SRC-TEST-2 | `core/sources/tests/test_recorded_parsers.py` (expected values from independent walks of the recorded JSON; the recording holds no GitHub follow-up page, so history paging is tested with hand-built pages in `test_parse_github.py` and `test_clients_github.py`) |
+| SRC-REC-2, SRC-REC-4 | `sources/tests/test_record_script.py` (environment read by the script only; refusal on a state change) |
+| SRC-DEP-1, SRC-DEP-2 | T14.6 `git diff --stat` of `pyproject.toml` and `uv.lock` against the commit before the spec; T14.1 and T14.2 |
+| SRC-DEP-3 | `test_purity.py` and `test_silence.py` (imports), `grep core.scoring sources` in T14.7 |
+| SRC-HTTP-4 | `test_gateway.py::test_redirect_is_refused_and_location_is_never_requested`, `test_client_ignores_the_environment_and_never_follows_redirects` |
+| SRC-HTTP-6 | `test_gateway.py::test_declared_content_length_over_the_cap_fails_before_reading` and the chunked oversize tests beside it |
+| SRC-HTTP-9 | `test_gateway.py::test_404_is_not_found_when_the_request_allows_it`, `test_404_is_a_plain_failure_when_the_request_does_not_allow_it`; the non-JSON 404 bodies in `test_recorded_clients.py` |
+| SRC-HTTP-10 | `test_gateway.py::test_get_sends_user_agent_with_contact_and_the_requested_accept` |
+| SRC-RATE-2 | `test_gateway.py::test_a_429_delays_a_sibling_task_on_the_same_host`, `test_limiter.py::test_penalty_delays_a_sibling_task_that_starts_later` |
+| SRC-RATE-3 | `test_limiter.py::test_in_flight_count_never_exceeds_max_concurrency`, `test_properties_session.py` (`max_packages_in_flight`) |
+| SRC-RATE-5 | The module docstring of `sources/limiter.py` (documentation requirement) |
+| SRC-GH-6 | `test_clients_github.py::test_rate_floor_stops_follow_ups_but_keeps_the_other_signals` and the two tests after it; `Limits` validation in `test_config.py` |
+| SRC-OSV-2 | `test_clients_osv.py::test_query_bad_next_page_token_is_unexpected_shape_for_the_open_queries`, `test_query_page_guard_stops_at_twenty_pages` |
+| SRC-S5, SRC-S6, SRC-S7 | Pointer rows: see SRC-GH-4…9 and SRC-OSV-1…7, and the recorded-body tests in `test_recorded_parsers.py` |
+| SRC-API-8 | `test_silence.py` (no clock read in either package); `as_of` enters only through `window` and the GitHub cache subject |
+| SRC-API-9 | `test_session.py::test_stats_count_requests_once_per_source`, `test_anchors_e2e.py::test_stats_count_what_was_skipped` |
+| SRC-SEC-6 | `test_purity.py` (no `subprocess`, `socket`, `os` in `core/sources`); for `sources/`, T14 greps that neither package imports `subprocess`, `socket`, `importlib`, `multiprocessing`, `ctypes`, `pickle` or `marshal` or calls `exec`, `eval` or `__import__` (empty on 10 Nov 2026); the host allow-list holds metadata endpoints only (`test_security.py`) |
+| SRC-NFR-2 | Not asserted in unit tests by design: measured by the manual load test of `testing.md` (W4) |
+| SRC-NFR-3 | Bound by configuration (`max_packages_in_flight`, `max_response_bytes`); `test_security.py` response-size tests |
+
+**Recorded-cassette deviations in the T13 tests.**
+
+| Topic | Behaviour |
+|---|---|
+| Fault property over the cassette (`test_recorded_faults.py`) | A fallback request the cassette lacks is a connection error. Because the cassette key ignores `Accept`, a full-packument request for an anchor whose recorded packument is the abbreviated one is treated as unrecorded too (it has no `time`, and real npm always sends one). |
+| S4 and S8 under a deps.dev project fault | The Scorecard API fallback legitimately gives its own, newer value (express 8.9 against 8.5 from deps.dev). The property accepts exactly that recorded value and nothing else. |
