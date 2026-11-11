@@ -26,18 +26,28 @@ Otherwise it returns one ``OsvQueryResult`` per query, in query order:
   key (OSV's answer for "no advisories") gives ``()``;
 * ``next_page_token``: the token as a ``str``, or ``None`` when absent, ``null`` or empty
   (no further page);
-* ``dropped``: how many ``vulns`` entries were discarded because they were not a mapping,
-  had no ``str`` ``id``, or an ``id`` failing ``is_valid_osv_id`` (SRC-OSV-3). The client
-  sums these into one warning that carries the count and no ids.
+* ``malformed``: true when any ``vulns`` entry of this query was unusable: not a mapping,
+  without a ``str`` ``id``, or with an ``id`` failing ``is_valid_osv_id`` (SRC-OSV-3). An
+  unusable entry is never skipped. What it names might be a no-fix advisory, so a list built
+  without it is incomplete and reading it as complete could hide a Cursed state; the client
+  turns ``malformed`` into ``Failed(UNEXPECTED_SHAPE)`` for that package's S7 (SRC-OSV-6).
+  Other queries of the same response are not affected: each ``results`` element is judged on
+  its own (unlike a wrong ``next_page_token`` or a wrong ``results`` shape, which spoil the
+  whole chunk).
 
 ``parse_vuln`` contract
 -----------------------
-Returns ``None`` when the document is not a mapping or its ``id`` is missing, not a
-``str``, or invalid. ``withdrawn`` is true iff the field is present and a non-empty
-``str`` (OSV's value is a timestamp); the caller skips withdrawn advisories (SRC-OSV-5).
-``published_at`` is ``as_date(published)``: ``None`` when missing or unparsable, and such
-an advisory never satisfies the Cursed age condition. ``fixed_versions`` and ``has_fix``
-come from ``core.sources.osv_fix`` for the queried ``ecosystem`` and ``name``.
+Returns ``None`` when the document is not a mapping, its ``id`` is missing, not a ``str``,
+or invalid, or ``published`` is **present and unusable** (not ``null``, and not a string that
+parses as a date). ``withdrawn`` is true iff the field is present and a non-empty ``str``
+(OSV's value is a timestamp); the caller skips withdrawn advisories (SRC-OSV-5).
+``published_at`` is the date of ``published``, or ``None`` when ``published`` is absent or
+``null`` (an honest unknown: the advisory never satisfies the Cursed age condition). A
+``published`` that is there but unusable is not read as "unknown": the Cursed rule depends on
+that date, and a value that silently became ``None`` would change the verdict with no
+warning, so the document is rejected and the package's S7 is unknown (SRC-OSV-5, SRC-OSV-6).
+``fixed_versions`` and ``has_fix`` come from ``core.sources.osv_fix`` for the queried
+``ecosystem`` and ``name``.
 
 Pure: no I/O, no clock, no environment.
 """
@@ -58,7 +68,7 @@ class OsvQueryResult(NamedTuple):
 
     ids: tuple[str, ...]
     next_page_token: str | None
-    dropped: int
+    malformed: bool
 
 
 def _query_result(item: object) -> OsvQueryResult | None:
@@ -73,7 +83,7 @@ def _query_result(item: object) -> OsvQueryResult | None:
     token = token_raw or None
 
     ids: list[str] = []
-    dropped = 0
+    malformed = False
     if "vulns" in doc and doc["vulns"] is not None:
         vulns = as_list(doc["vulns"])
         if vulns is None:
@@ -83,11 +93,11 @@ def _query_result(item: object) -> OsvQueryResult | None:
             entry_doc = as_mapping(entry)
             vuln_id = as_str(entry_doc.get("id")) if entry_doc is not None else None
             if vuln_id is None or not is_valid_osv_id(vuln_id):
-                dropped += 1
+                malformed = True
             elif vuln_id not in seen:
                 seen.add(vuln_id)
                 ids.append(vuln_id)
-    return OsvQueryResult(ids=tuple(ids), next_page_token=token, dropped=dropped)
+    return OsvQueryResult(ids=tuple(ids), next_page_token=token, malformed=malformed)
 
 
 def parse_query_results(data: object, expected_count: int) -> list[OsvQueryResult] | None:
@@ -120,11 +130,15 @@ def parse_vuln(data: object, ecosystem: str, name: str) -> OsvVuln | None:
     if vuln_id is None or not is_valid_osv_id(vuln_id):
         return None
     withdrawn_raw = as_str(doc.get("withdrawn"))
+    published_raw = doc.get("published")
+    published = as_date(published_raw)
+    if published_raw is not None and published is None:
+        return None  # present but unusable: not an honest "unknown" (SRC-OSV-5)
     fixed = fixed_versions(doc, ecosystem, name)
     return OsvVuln(
         id=vuln_id,
         withdrawn=withdrawn_raw is not None and withdrawn_raw != "",
-        published_at=as_date(doc.get("published")),
+        published_at=published,
         fixed_versions=fixed,
         has_fix=bool(fixed),
     )

@@ -17,8 +17,29 @@ Parsers
 
 ``errors`` next to usable ``data`` is ignored: the usable aliases are kept (SRC-GH-3).
 Whether a failure is a warning, and which one, is the client's decision. This module only
-reports what it found: ``None`` for an alias that is ``null``, missing or malformed, and
-``data_usable`` for the whole response.
+reports what it found.
+
+Absent, null and wrong-typed are three different things (SRC-GH-9)
+    * A field that is **absent or ``null``** is an absence: the value is ``None`` and the
+      evidence says "not reported". Nothing else happens. A ``null`` ``author`` on a commit
+      (a bot or an unlinked commit) is such an absence and the commit is skipped.
+    * A field that is **present with the wrong type** (``isArchived`` that is not a ``bool``,
+      ``pushedAt`` that is not a date string, ``totalCount`` that is not a non-negative ``int``,
+      a history node that is not an object, an ``author`` / ``user`` that is not an object, a
+      ``login`` / ``email`` / ``name`` that is not a ``str``) is **malformed**. The value is
+      ``None`` and the signal key is added to ``GitHubRepoPage.malformed``; the client turns
+      that into an ``UNEXPECTED_SHAPE`` warning. A malformed commit node makes the **whole
+      history page** malformed, so S5 is unknown rather than a count that quietly leaves out
+      the commits we could not read.
+    * The history needs its own members to be counted as complete: ``nodes`` must be a list,
+      ``pageInfo`` an object and ``hasNextPage`` a ``bool``. When ``history`` is an object and
+      any of them is absent, ``null`` or of the wrong type the history is malformed, because
+      without them we cannot know whether the count is complete (the count is not a
+      "not reported" value, it is a claim). ``defaultBranchRef`` / ``target`` / ``history``
+      themselves absent or ``null`` are absences (an empty repository), wrong-typed are
+      malformed.
+    * An alias whose value is missing from ``data`` or is not an object is **unusable**
+      (``FirstPageResult.unusable``); only an explicit ``null`` means "repository not found".
 
 Ported from the prototype's ``build_batch_query``, ``HISTORY_PAGE_QUERY``, ``author_key``
 and ``github_signals`` (``scripts/capture_anchors.py``) with explicit type checks. The one
@@ -33,7 +54,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from types import MappingProxyType
-from typing import Final
+from typing import Final, NamedTuple
 
 from core.sources.accessors import as_bool, as_date, as_int, as_list, as_mapping, as_str
 
@@ -80,13 +101,24 @@ class GitHubHistoryPage:
     end_cursor: str | None
 
 
+SIGNAL_S1: Final = "s1_declared_death"
+SIGNAL_S3: Final = "s3_last_push_at"
+SIGNAL_S5: Final = "s5_committers"
+SIGNAL_S6_OPEN: Final = "s6_open_issues"
+SIGNAL_S6_CLOSED: Final = "s6_closed_issues"
+
+
 @dataclass(frozen=True)
 class GitHubRepoPage:
     """What the first batch response says about one repository.
 
     ``history`` is ``None`` when the repository has no default branch, the branch target
     has no history, or the history is malformed (S5 unknown). The other fields are
-    ``None`` when absent or of the wrong type.
+    ``None`` when absent, ``null`` or of the wrong type.
+
+    ``malformed`` holds the evidence keys (``SIGNAL_*``) of the fields that were present
+    with the wrong type, as opposed to absent or ``null`` (SRC-GH-9). For ``history`` the
+    key is ``SIGNAL_S5``. A key in ``malformed`` always has the matching value ``None``.
     """
 
     is_archived: bool | None
@@ -94,6 +126,7 @@ class GitHubRepoPage:
     open_issues: int | None
     closed_issues: int | None
     history: GitHubHistoryPage | None
+    malformed: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -101,15 +134,18 @@ class FirstPageResult:
     """Parsed batch response.
 
     ``pages`` has exactly the requested aliases as keys. A value is ``None`` when the
-    alias is ``null`` (repository not found), missing, or not an object. ``data_usable``
-    is false when ``data`` is ``null`` or not an object, in which case every value is
-    ``None`` (SRC-GH-3). ``rate_limit_remaining`` is ``rateLimit.remaining`` when it is a
-    non-negative ``int``, else ``None``.
+    alias is ``null`` (repository not found) or ``unusable``. ``unusable`` lists the
+    aliases whose value was missing from ``data`` or not an object; the client treats
+    those as an unexpected shape, never as "not found" (SRC-GH-9). ``data_usable`` is false
+    when ``data`` is ``null`` or not an object, in which case every value is ``None`` and
+    ``unusable`` is empty (SRC-GH-3). ``rate_limit_remaining`` is ``rateLimit.remaining``
+    when it is a non-negative ``int``, else ``None``.
     """
 
     pages: Mapping[str, GitHubRepoPage | None]
     rate_limit_remaining: int | None
     data_usable: bool
+    unusable: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -205,75 +241,194 @@ def batch_variables(repos: Sequence[tuple[str, str]], as_of: date) -> dict[str, 
 # --------------------------------------------------------------------------- #
 # Parsers
 # --------------------------------------------------------------------------- #
+class AuthorInfo(NamedTuple):
+    """What one history node says about its author (see ``commit_author``)."""
+
+    key: str | None
+    malformed: bool
+
+
+def commit_author(node: object) -> AuthorInfo:
+    """Return the identity of a history node's author and whether the node is malformed.
+
+    ``key`` is ``author.user.login``, else the lower-cased ``author.email``, else
+    ``author.name``; an empty candidate is skipped (SRC-GH-4). ``key`` is ``None`` for a node
+    with no author (``author`` absent or ``null``: a bot or an unlinked commit) or whose
+    candidates are all empty or ``null``: that is a legitimate skip.
+
+    ``malformed`` is true when the node is not an object, or ``author`` / ``user`` is present
+    and not an object, or ``login`` / ``email`` / ``name`` is present and not a ``str``
+    (SRC-GH-9). Every one of those members is checked even when an earlier one already gave a
+    key, so a damaged node is never counted as a clean one. A malformed node has ``key``
+    ``None``.
+    """
+    commit = as_mapping(node)
+    if commit is None:
+        return AuthorInfo(None, True)
+    raw_author = commit.get("author")
+    if raw_author is None:
+        return AuthorInfo(None, False)
+    author = as_mapping(raw_author)
+    if author is None:
+        return AuthorInfo(None, True)
+
+    login: str | None = None
+    raw_user = author.get("user")
+    if raw_user is not None:
+        user = as_mapping(raw_user)
+        if user is None:
+            return AuthorInfo(None, True)
+        login, login_ok = _optional_str(user.get("login"))
+        if not login_ok:
+            return AuthorInfo(None, True)
+    email, email_ok = _optional_str(author.get("email"))
+    name, name_ok = _optional_str(author.get("name"))
+    if not (email_ok and name_ok):
+        return AuthorInfo(None, True)
+    if login:
+        return AuthorInfo(login, False)
+    if email:
+        return AuthorInfo(email.lower(), False)
+    if name:
+        return AuthorInfo(name, False)
+    return AuthorInfo(None, False)
+
+
+def _optional_str(value: object) -> tuple[str | None, bool]:
+    """``(value, ok)``: ``(None, True)`` for absent/``null``, ``(text, True)`` for a ``str``,
+    ``(None, False)`` for any other type."""
+    if value is None:
+        return None, True
+    text = as_str(value)
+    return text, text is not None
+
+
 def author_key(node: object) -> str | None:
     """Return the identity of a commit node's author, or ``None`` if it has none.
 
-    The key is ``author.user.login``, else the lower-cased ``author.email``, else
-    ``author.name``; an empty or non-string candidate is skipped (SRC-GH-4).
+    The key is ``commit_author(node).key``. ``None`` means no usable identity; it does not
+    say whether the node was malformed (use ``commit_author`` for that).
     """
-    commit = as_mapping(node)
-    author = as_mapping(commit.get("author")) if commit is not None else None
-    if author is None:
-        return None
-    user = as_mapping(author.get("user"))
-    login = as_str(user.get("login")) if user is not None else None
-    if login:
-        return login
-    email = as_str(author.get("email"))
-    if email:
-        return email.lower()
-    name = as_str(author.get("name"))
-    if name:
-        return name
-    return None
-
-
-def _count_of(connection: object) -> int | None:
-    """``totalCount`` of an issues connection."""
-    doc = as_mapping(connection)
-    return as_int(doc.get("totalCount")) if doc is not None else None
+    return commit_author(node).key
 
 
 def _history_page(history: object) -> GitHubHistoryPage | None:
-    """Reduce a ``history`` object; ``None`` if it is not a usable page."""
+    """Reduce a ``history`` object; ``None`` if it is malformed (SRC-GH-9).
+
+    ``history`` must be an object with ``nodes`` (a list), ``pageInfo`` (an object) and
+    ``pageInfo.hasNextPage`` (a ``bool``); every node must be well formed. Anything else is
+    malformed: without those members the count could not be called complete, and a node we
+    cannot read could be a distinct author.
+    """
     doc = as_mapping(history)
     if doc is None:
         return None
     nodes = as_list(doc.get("nodes"))
-    if nodes is None:
-        # Without the nodes the page cannot be counted; fail closed (S5 unknown).
-        return None
     info = as_mapping(doc.get("pageInfo"))
-    has_next = as_bool(info.get("hasNextPage")) is True if info is not None else False
+    if nodes is None or info is None:
+        return None
+    has_next = as_bool(info.get("hasNextPage"))
+    if has_next is None:
+        return None
     cursor: str | None = None
-    if has_next and info is not None:
+    if has_next:
         raw = as_str(info.get("endCursor"))
         if raw and len(raw) <= _MAX_CURSOR_LENGTH:
             cursor = raw
-    keys = frozenset(key for node in nodes if (key := author_key(node)) is not None)
-    return GitHubHistoryPage(author_keys=keys, has_next_page=has_next, end_cursor=cursor)
+    keys: set[str] = set()
+    for node in nodes:
+        author = commit_author(node)
+        if author.malformed:
+            return None
+        if author.key is not None:
+            keys.add(author.key)
+    return GitHubHistoryPage(author_keys=frozenset(keys), has_next_page=has_next, end_cursor=cursor)
 
 
-def _history_of_repository(repository: object) -> GitHubHistoryPage | None:
-    """Follow ``defaultBranchRef.target.history`` from a repository object."""
+class _History(NamedTuple):
+    """A history found under a repository: the page, and whether it was malformed."""
+
+    page: GitHubHistoryPage | None
+    malformed: bool
+
+
+_NO_HISTORY: Final = _History(None, False)
+
+
+def _history_of_repository(repository: object) -> _History:
+    """Follow ``defaultBranchRef.target.history`` from a repository object.
+
+    A member that is absent or ``null`` ends the walk as an absence (an empty repository, a
+    target that is not a commit). A member that is present and not an object, or a history
+    that is malformed, is reported as ``malformed``.
+    """
     repo = as_mapping(repository)
-    branch = as_mapping(repo.get("defaultBranchRef")) if repo is not None else None
-    target = as_mapping(branch.get("target")) if branch is not None else None
-    if target is None:
-        return None
-    return _history_page(target.get("history"))
+    if repo is None:
+        return _NO_HISTORY
+    node: Mapping[str, object] = repo
+    for member in ("defaultBranchRef", "target"):
+        raw = node.get(member)
+        if raw is None:
+            return _NO_HISTORY
+        child = as_mapping(raw)
+        if child is None:
+            return _History(None, True)
+        node = child
+    raw_history = node.get("history")
+    if raw_history is None:
+        return _NO_HISTORY
+    page = _history_page(raw_history)
+    return _History(page, page is None)
 
 
-def _repo_page(node: object) -> GitHubRepoPage | None:
-    doc = as_mapping(node)
-    if doc is None:
+def _count_of(doc: Mapping[str, object], key: str, signal: str, bad: set[str]) -> int | None:
+    """``totalCount`` of the issues connection ``doc[key]``; wrong types go to ``bad``."""
+    raw = doc.get(key)
+    if raw is None:
         return None
+    connection = as_mapping(raw)
+    if connection is None:
+        bad.add(signal)
+        return None
+    total = connection.get("totalCount")
+    if total is None:
+        return None
+    value = as_int(total)
+    if value is None:
+        bad.add(signal)
+    return value
+
+
+def _repo_page(doc: Mapping[str, object]) -> GitHubRepoPage:
+    bad: set[str] = set()
+
+    archived: bool | None = None
+    raw_archived = doc.get("isArchived")
+    if raw_archived is not None:
+        archived = as_bool(raw_archived)
+        if archived is None:
+            bad.add(SIGNAL_S1)
+
+    pushed: date | None = None
+    raw_pushed = doc.get("pushedAt")
+    if raw_pushed is not None:
+        pushed = as_date(raw_pushed)
+        if pushed is None:
+            bad.add(SIGNAL_S3)
+
+    open_issues = _count_of(doc, "open", SIGNAL_S6_OPEN, bad)
+    closed_issues = _count_of(doc, "closed", SIGNAL_S6_CLOSED, bad)
+
+    found = _history_of_repository(doc)
+    if found.malformed:
+        bad.add(SIGNAL_S5)
     return GitHubRepoPage(
-        is_archived=as_bool(doc.get("isArchived")),
-        pushed_at=as_date(doc.get("pushedAt")),
-        open_issues=_count_of(doc.get("open")),
-        closed_issues=_count_of(doc.get("closed")),
-        history=_history_of_repository(doc),
+        is_archived=archived,
+        pushed_at=pushed,
+        open_issues=open_issues,
+        closed_issues=closed_issues,
+        history=found.page,
+        malformed=frozenset(bad),
     )
 
 
@@ -294,9 +449,22 @@ def parse_first_page(data: object, aliases: Iterable[str]) -> FirstPageResult:
         )
     limit = as_mapping(payload.get("rateLimit"))
     remaining = as_int(limit.get("remaining")) if limit is not None else None
-    pages = {alias: _repo_page(payload.get(alias)) for alias in wanted}
+    pages: dict[str, GitHubRepoPage | None] = {}
+    unusable: set[str] = set()
+    for alias in wanted:
+        raw = payload.get(alias)
+        doc = as_mapping(raw)
+        if doc is not None:
+            pages[alias] = _repo_page(doc)
+            continue
+        pages[alias] = None
+        if raw is not None or alias not in payload:
+            unusable.add(alias)  # missing or not an object; only an explicit null is "not found"
     return FirstPageResult(
-        pages=MappingProxyType(pages), rate_limit_remaining=remaining, data_usable=True
+        pages=MappingProxyType(pages),
+        rate_limit_remaining=remaining,
+        data_usable=True,
+        unusable=frozenset(unusable),
     )
 
 
@@ -304,13 +472,14 @@ def parse_history_page(data: object) -> GitHubHistoryPage | None:
     """Reduce a follow-up response body (``history_page_query``) to its history page.
 
     ``None`` when ``data`` is ``null``, the repository or its default branch is missing,
-    or the history is malformed. The client treats ``None`` as a failed page (SRC-GH-5).
+    or the history is malformed (SRC-GH-9). The client treats ``None`` as a failed page
+    (SRC-GH-5); a follow-up that cannot be read is never counted as an empty page.
     """
     body = as_mapping(data)
     payload = as_mapping(body.get("data")) if body is not None else None
     if payload is None:
         return None
-    return _history_of_repository(payload.get("repository"))
+    return _history_of_repository(payload.get("repository")).page
 
 
 def committers(pages: Sequence[GitHubHistoryPage], cap: int) -> Committers:

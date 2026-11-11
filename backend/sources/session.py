@@ -745,12 +745,7 @@ class _Collect:
         osv_result = osv_phase.value.get(item.key) if osv_phase.value is not None else None
         if osv_phase.internal is not None:
             internal.append(osv_phase.internal)
-        if isinstance(osv_result, Found) and osv_result.value.ignored_ids:
-            # OSV listed entries we could not use (a wrong type or an id that fails the
-            # pattern). What they name might be a no-fix advisory, so the list is incomplete
-            # and S7 is unknown, never a partial list (SRC-OSV-6, SRC-TEST-6).
-            failures.append(asm.Failure("UNEXPECTED_SHAPE", "osv", None, FEEDS["osv"]))
-        elif isinstance(osv_result, Found):
+        if isinstance(osv_result, Found):
             advisories = osv_result.value
             facts = replace(
                 facts,

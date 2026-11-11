@@ -68,14 +68,13 @@ from sources.tests.strategies import (
     package_sets,
     request_batches,
 )
-from sources.tests.transports import fault_transport
+from sources.tests.transports import ALWAYS, Fault, fault_transport
 
 pytestmark = pytest.mark.property
 
 CONTACT: Final = "ops@example.org"
 TOKEN: Final = "tokensentinel-session-7a1c"
 NPM_DOWNLOADS_PREFIX: Final = "/downloads/point/last-week/"
-S5: Final = "s5_committers"
 
 
 # ---------------------------------------------------------------------------- running
@@ -231,18 +230,15 @@ def world_project(web: FakeWeb, purl: str) -> FakeProject:
     return next(p for p in web.projects if p.ecosystem == ecosystem and p.ident == ident)
 
 
-@settings(deadline=None)
-@given(ps=package_sets(), plan=fault_plans())
-def test_failures_only_degrade(ps: PackageSet, plan: FaultPlan) -> None:
-    clean_web = ps.web()
-    inputs = clean_web.inputs
-    clean = run_collect(clean_web.transport, inputs)
-    assert clean_web.unmatched == []
+def assert_only_degrades(
+    faulty_web: FakeWeb, clean: BatchResult, faulty: BatchResult, inputs: Sequence[Any]
+) -> None:
+    """The SRC-TEST-6 invariant: a fault only turns known values into explained ``None``.
 
-    faulty_web = ps.web()
-    faults = plan.resolve(clean_web.request_keys)
-    faulty = run_collect(fault_transport(faulty_web.handler, faults), inputs)
-
+    Every signal of every package is either ``None`` in the faulted run (and then named by a
+    warning or carrying an upstream-absence note), or equal to the clean run. No exemptions:
+    in particular S5 may not become a smaller count (SRC-GH-9).
+    """
     assert faulty_web.unmatched == []
     assert len(faulty.results) == len(clean.results) == len(inputs)
     check_batch(faulty)
@@ -258,14 +254,102 @@ def test_failures_only_degrade(ps: PackageSet, plan: FaultPlan) -> None:
                     assert explained(after, key), (after.input_purl, key, after.evidence[key])
             elif was is None:
                 assert recovered_by_design(faulty_web, before, after, key), where
-            elif key == S5:
-                # Known gap, not hidden: S5 counts the commit authors it can identify and
-                # skips a commit whose author fields are unusable (SRC-GH-4; the parser tests
-                # pin that). A response with damaged author fields therefore counts fewer
-                # authors, possibly none, with no warning. The faulted count is a lower bound.
-                assert now <= was, where
             else:
                 assert now == was, where
+
+
+@settings(deadline=None)
+@given(ps=package_sets(), plan=fault_plans())
+def test_failures_only_degrade(ps: PackageSet, plan: FaultPlan) -> None:
+    clean_web = ps.web()
+    inputs = clean_web.inputs
+    clean = run_collect(clean_web.transport, inputs)
+    assert clean_web.unmatched == []
+
+    faulty_web = ps.web()
+    faults = plan.resolve(clean_web.request_keys)
+    faulty = run_collect(fault_transport(faulty_web.handler, faults), inputs)
+    assert_only_degrades(faulty_web, clean, faulty, inputs)
+
+
+def single_leaf_plan(
+    clean_web: FakeWeb, hosts: frozenset[str], leaves: Sequence[int], times: int
+) -> dict[str, Fault]:
+    """One ``wrong_one_leaf`` fault per chosen leaf, on requests of ``hosts`` only."""
+    keys = sorted({entry.key for entry in clean_web.log if entry.host in hosts})
+    return (
+        {
+            keys[index % len(keys)]: Fault("wrong_one_leaf", times, leaf=leaf)
+            for index, leaf in enumerate(leaves)
+        }
+        if keys
+        else {}
+    )
+
+
+_LEAVES = st.lists(st.integers(0, 10_000), min_size=1, max_size=4)
+_TIMES = st.sampled_from((1, 2, ALWAYS))
+
+
+@settings(deadline=None)
+@given(ps=package_sets(), leaves=_LEAVES, times=_TIMES)
+def test_one_damaged_github_leaf_only_degrades(
+    ps: PackageSet, leaves: list[int], times: int
+) -> None:
+    """**Validates: Requirements SRC-TEST-6, SRC-GH-9**
+
+    One leaf of a GitHub response gets the wrong type (a commit node's login, a count, a date,
+    a flag, ``hasNextPage``). Everything else in the response is readable, so a parser that
+    skipped the damaged value would return a smaller count or a default with no warning. The
+    strict invariant (no S5 exemption) must hold: the faulted value is the clean one or
+    ``None`` with a warning.
+    """
+    clean_web = ps.web()
+    inputs = clean_web.inputs
+    clean = run_collect(clean_web.transport, inputs)
+    assert clean_web.unmatched == []
+
+    faulty_web = ps.web()
+    plan = single_leaf_plan(clean_web, frozenset({"api.github.com"}), leaves, times)
+    faulty = run_collect(fault_transport(faulty_web.handler, plan), inputs)
+    assert_only_degrades(faulty_web, clean, faulty, inputs)
+
+
+# api.osv.dev is left out on purpose: a wrong type inside an advisory's `affected` ranges still
+# changes `has_fix` without a warning (SRC-OSV-4 documents "does not count"). That is an open
+# decision, not a pass; the fixed counterparts are `published` (SRC-OSV-5) and the vulns entries
+# (SRC-OSV-3).
+_SINGLE_LEAF_HOSTS: Final = frozenset(
+    {
+        "api.github.com",
+        "api.deps.dev",
+        "registry.npmjs.org",
+        "pypi.org",
+        "api.npmjs.org",
+        "pypistats.org",
+        "api.securityscorecards.dev",
+    }
+)
+
+
+@settings(deadline=None)
+@given(ps=package_sets(), leaves=_LEAVES, times=_TIMES)
+def test_one_damaged_leaf_on_any_host_but_osv_only_degrades(
+    ps: PackageSet, leaves: list[int], times: int
+) -> None:
+    """**Validates: Requirements SRC-TEST-6**
+
+    The same single-leaf damage on every host except OSV.
+    """
+    clean_web = ps.web()
+    inputs = clean_web.inputs
+    clean = run_collect(clean_web.transport, inputs)
+    assert clean_web.unmatched == []
+
+    faulty_web = ps.web()
+    plan = single_leaf_plan(clean_web, _SINGLE_LEAF_HOSTS, leaves, times)
+    faulty = run_collect(fault_transport(faulty_web.handler, plan), inputs)
+    assert_only_degrades(faulty_web, clean, faulty, inputs)
 
 
 # ------------------------------------------------------------------------ SRC-TEST-7

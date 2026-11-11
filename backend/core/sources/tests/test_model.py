@@ -374,3 +374,47 @@ def test_batch_result_holds_results_as_a_tuple_in_order() -> None:
     assert batch.results == (first, second)
     assert isinstance(batch.results, tuple)
     assert batch.stats is stats
+
+
+# --- userinfo never reaches evidence (SRC-SEC-3) ----------------------------------------------
+
+
+def test_evidence_strips_userinfo_from_every_url() -> None:
+    evidence = Evidence(
+        1,
+        "https://user:password@api.deps.dev/v3/example",
+        NOW,
+        extra_source_urls=(
+            "https://u2:pw2@api.osv.dev/v1/vulns/GHSA-1",
+            "https://api.osv.dev/v1/querybatch",
+        ),
+    )
+    assert evidence.source_url == "https://api.deps.dev/v3/example"
+    assert evidence.extra_source_urls == (
+        "https://api.osv.dev/v1/querybatch",
+        "https://api.osv.dev/v1/vulns/GHSA-1",
+    )
+    text = repr(evidence)
+    for secret in ("user", "password", "u2", "pw2"):
+        assert secret not in text
+
+
+def test_evidence_with_no_value_strips_userinfo_too() -> None:
+    evidence = Evidence(None, "https://user:password@api.deps.dev/x", None)
+    assert evidence.source_url == "https://api.deps.dev/x"
+
+
+def test_evidence_stripping_can_make_an_extra_url_equal_the_primary() -> None:
+    evidence = Evidence(
+        1,
+        "https://api.deps.dev/x",
+        NOW,
+        extra_source_urls=("https://u:p@api.deps.dev/x",),
+    )
+    assert evidence.extra_source_urls == ()
+
+
+def test_evidence_urls_without_userinfo_are_unchanged() -> None:
+    evidence = Evidence(1, URL, NOW, extra_source_urls=("https://registry.npmjs.org/%40a%2Fb",))
+    assert evidence.source_url == URL
+    assert evidence.extra_source_urls == ("https://registry.npmjs.org/%40a%2Fb",)

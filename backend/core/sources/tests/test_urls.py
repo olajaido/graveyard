@@ -26,6 +26,7 @@ from core.sources.urls import (
     pypi_json_url,
     pypistats_recent_url,
     scorecard_url,
+    strip_userinfo,
 )
 
 # --- the named examples ---------------------------------------------------------------------
@@ -198,6 +199,14 @@ def test_non_string_segments_are_rejected(build: Callable[[str], str]) -> None:
         build(bad)
 
 
+def test_a_lone_surrogate_is_a_value_error_not_a_url() -> None:
+    # `parse_purl` rejects these (PV-PURL-13), so a parsed purl cannot carry one; the builder
+    # still fails with a ValueError (UnicodeEncodeError is one) rather than building a URL.
+    for build in (npm_packument_url, pypi_json_url, npm_downloads_single_url):
+        with pytest.raises(ValueError):
+            build("a\ud800b")
+
+
 def test_names_that_merely_contain_dots_are_fine() -> None:
     assert npm_packument_url("a.b") == "https://registry.npmjs.org/a.b"
     assert npm_packument_url("...") == "https://registry.npmjs.org/..."
@@ -260,3 +269,73 @@ def test_allowed_hosts_are_the_eight_expected() -> None:
     }
     assert expected == ALLOWED_HOSTS
     assert isinstance(urls.ALLOWED_HOSTS, frozenset)
+
+
+# --- strip_userinfo (SRC-SEC-3) -------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://user:password@api.osv.dev/v1/querybatch", "https://api.osv.dev/v1/querybatch"),
+        ("https://user@api.osv.dev/v1/querybatch", "https://api.osv.dev/v1/querybatch"),
+        ("https://:password@api.osv.dev/x", "https://api.osv.dev/x"),
+        ("https://tok@api.github.com/graphql", "https://api.github.com/graphql"),
+        ("https://a%40b:pw%40x@h.example/p", "https://h.example/p"),
+        ("https://a@b@c:pw@h.example/p", "https://h.example/p"),
+        ("HTTPS://u:p@H.example/p", "HTTPS://H.example/p"),
+        ("git+ssh://git:secret@github.com/o/r", "git+ssh://github.com/o/r"),
+        # no scheme at all
+        ("user:password@evil.example/x", "evil.example/x"),
+        ("//user:password@evil.example/x", "evil.example/x"),
+        # a credential that contains a character that ends the RFC 3986 authority
+        ("https://u:p/ss@host.example/x", "https://host.example/x"),
+        ("https://u:p?ss@host.example/x", "https://host.example/x"),
+        ("https://u:p#ss@host.example/x", "https://host.example/x"),
+        ("https://u:p\\ss@host.example/x", "https://host.example/x"),
+        # whitespace and control characters in the credential
+        ("https://u: p\n@host.example/x", "https://host.example/x"),
+        # "://" inside the credential must not be mistaken for the scheme end
+        ("https://a://b@host.example/x", "https://host.example/x"),
+        ("user:pw@evil.example/?next=https://x", "evil.example/?next=https://x"),
+    ],
+)
+def test_strip_userinfo_removes_credentials(url: str, expected: str) -> None:
+    assert strip_userinfo(url) == expected
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "",
+        "https://api.deps.dev/v3/systems/npm/packages/express",
+        "https://registry.npmjs.org/%40babel%2Fcore",
+        "https://api.npmjs.org/downloads/point/last-week/a,b,%40s%2Fx",
+        "https://api.github.com/graphql",
+        "not a url",
+        "https://host.example:8443/p?q=1#frag",
+    ],
+)
+def test_strip_userinfo_leaves_urls_without_an_at_sign_alone(url: str) -> None:
+    assert strip_userinfo(url) == url
+
+
+def test_strip_userinfo_is_a_no_op_on_every_builder_output() -> None:
+    built = [
+        npm_packument_url("@babel/core"),
+        pypi_json_url("six"),
+        depsdev_version_url("npm", "@babel/core", "7.0.0"),
+        depsdev_project_url("o", "r"),
+        scorecard_url("o", "r"),
+        npm_downloads_single_url("@babel/core"),
+        npm_downloads_bulk_url(["a", "b"]),
+        pypistats_recent_url("six"),
+        osv_querybatch_url(),
+        osv_vuln_url("GHSA-1"),
+        github_graphql_url(),
+    ]
+    assert [strip_userinfo(url) for url in built] == built
+
+
+def test_strip_userinfo_keeps_the_scheme_of_a_scheme_only_prefix() -> None:
+    assert strip_userinfo("https://@host.example/x") == "https://host.example/x"

@@ -43,9 +43,10 @@ from sources.tests.transports import ALWAYS, Fault, FaultKind
 # ---------------------------------------------------------------------- faults
 
 FAST_FAULT_KINDS: Final[tuple[FaultKind, ...]] = tuple(
-    kind for kind in get_args(FaultKind) if kind != "oversize"
+    kind for kind in get_args(FaultKind) if kind not in ("oversize", "wrong_one_leaf")
 )
-"""Every fault kind except ``oversize``."""
+"""Every fault kind except ``oversize`` (slow) and ``wrong_one_leaf`` (targeted: the dedicated
+single-leaf properties of ``test_properties_session`` use it on chosen hosts)."""
 
 _STATUSES: Final = (404, 429, 500, 502, 503, 504, 401, 403)
 _RETRY_AFTER: Final = (None, "1", "0", "5", "120", "Wed, 21 Oct 2026 07:28:00 GMT", "soon")
@@ -75,6 +76,8 @@ def faults(draw: st.DrawFn, kinds: Sequence[FaultKind] = FAST_FAULT_KINDS) -> Fa
         )
     if kind == "oversize":
         return Fault(kind, times, size=_OVERSIZE_BYTES, chunked=draw(st.booleans()))
+    if kind == "wrong_one_leaf":
+        return Fault(kind, times, leaf=draw(st.integers(0, 10_000)))
     return Fault(kind, times)
 
 

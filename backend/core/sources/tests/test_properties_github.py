@@ -30,6 +30,7 @@ from core.sources.parse.github import (
     batch_aliases,
     batch_variables,
     build_batch_query,
+    commit_author,
     committers,
     parse_first_page,
     window,
@@ -89,26 +90,79 @@ def author_nodes(draw: st.DrawFn) -> Any:
     return draw(_maybe(st.just(node)))
 
 
-def _author_key_oracle(node: Any) -> str | None:
-    """Login, else lower-cased email, else name; empty and non-text candidates are skipped."""
+def _author_oracle(node: Any) -> tuple[str | None, bool]:
+    """``(key, malformed)`` for a history node, written from the rule, not from the parser.
+
+    A node that is not an object, an ``author`` or ``user`` that is present and not an
+    object, or a ``login`` / ``email`` / ``name`` that is present and not a ``str`` makes the
+    node malformed. A ``null`` or absent author is a legitimate skip. Otherwise login, else
+    lower-cased e-mail, else name; empty candidates are skipped.
+    """
     if not isinstance(node, dict):
-        return None
+        return None, True
     author = node.get("author")
+    if author is None:
+        return None, False
     if not isinstance(author, dict):
-        return None
+        return None, True
     user = author.get("user")
-    login = user.get("login") if isinstance(user, dict) else None
-    email = author.get("email")
-    name = author.get("name")
-    candidates = (
-        login if isinstance(login, str) else "",
-        email.lower() if isinstance(email, str) else "",
-        name if isinstance(name, str) else "",
-    )
-    for candidate in candidates:
+    if user is not None and not isinstance(user, dict):
+        return None, True
+    raw = {
+        "login": user.get("login") if isinstance(user, dict) else None,
+        "email": author.get("email"),
+        "name": author.get("name"),
+    }
+    if any(value is not None and not isinstance(value, str) for value in raw.values()):
+        return None, True
+    login, email, name = (raw["login"] or "", raw["email"] or "", raw["name"] or "")
+    for candidate in (login, email.lower(), name):
         if candidate:
-            return candidate
-    return None
+            return candidate, False
+    return None, False
+
+
+def _history_oracle(repository: Any) -> tuple[str, tuple[frozenset[str], bool] | None]:
+    """``("absent" | "malformed" | "ok", (keys, has_next) | None)`` for a repository object."""
+    node: Any = repository
+    for member in ("defaultBranchRef", "target", "history"):
+        child = node.get(member)
+        if child is None:
+            return "absent", None
+        if not isinstance(child, dict):
+            return "malformed", None
+        node = child
+    nodes, info = node.get("nodes"), node.get("pageInfo")
+    if not isinstance(nodes, list) or not isinstance(info, dict):
+        return "malformed", None
+    has_next = info.get("hasNextPage")
+    if not isinstance(has_next, bool):
+        return "malformed", None
+    keys: set[str] = set()
+    for item in nodes:
+        key, malformed = _author_oracle(item)
+        if malformed:
+            return "malformed", None
+        if key:
+            keys.add(key)
+    return "ok", (frozenset(keys), has_next)
+
+
+def _is_count(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _count_oracle(repository: Any, member: str) -> tuple[int | None, bool]:
+    """``(value, malformed)`` for ``open`` / ``closed``."""
+    connection = repository.get(member)
+    if connection is None:
+        return None, False
+    if not isinstance(connection, dict):
+        return None, True
+    total = connection.get("totalCount")
+    if total is None:
+        return None, False
+    return (total, False) if _is_count(total) else (None, True)
 
 
 _KEYS = st.text(alphabet="abcd", max_size=2)
@@ -155,9 +209,19 @@ def _repository_docs(draw: st.DrawFn) -> Any:
         if draw(st.integers(0, 9)) > 0:
             doc[key] = draw(_maybe(strategy))
     if draw(st.integers(0, 9)) > 0:
-        history = st.builds(lambda value: {"history": value}, _maybe(_history_docs()))
-        target = st.builds(lambda value: {"target": value}, _maybe(history))
-        doc["defaultBranchRef"] = draw(_maybe(st.one_of(st.none(), target)))
+        if draw(st.booleans()):
+            # A structurally sound history (pageInfo, nodes, hasNextPage all of the right
+            # type); only the nodes may be damaged. Without this branch a sound history is
+            # about 1 draw in 500 and the node rule would never be exercised.
+            sound: dict[str, Any] = {
+                "pageInfo": {"hasNextPage": draw(st.booleans()), "endCursor": "c"},
+                "nodes": draw(st.lists(author_nodes(), max_size=6)),
+            }
+            doc["defaultBranchRef"] = {"target": {"history": sound}}
+        else:
+            history = st.builds(lambda value: {"history": value}, _maybe(_history_docs()))
+            target = st.builds(lambda value: {"target": value}, _maybe(history))
+            doc["defaultBranchRef"] = draw(_maybe(st.one_of(st.none(), target)))
     return doc
 
 
@@ -280,23 +344,28 @@ def test_variables_roundtrip(repos: list[tuple[str, str]], as_of: date) -> None:
 def test_author_key_total(node: object) -> None:
     """**Validates: Requirements SRC-GH-4, SRC-TEST-4**
 
-    ``author_key`` never raises on arbitrary JSON-like input and returns ``None`` or a
-    non-empty ``str``.
+    ``author_key`` and ``commit_author`` never raise on arbitrary JSON-like input; the key is
+    ``None`` or a non-empty ``str``, and a malformed node never has a key.
     """
     key = author_key(node)
     assert key is None or (isinstance(key, str) and key != "")
+    info = commit_author(node)
+    assert info.key == key
+    assert not (info.malformed and info.key is not None)
 
 
 @given(node=author_nodes())
 def test_author_key_matches_oracle(node: object) -> None:
-    """**Validates: Requirements SRC-GH-4**
+    """**Validates: Requirements SRC-GH-4, SRC-GH-9**
 
     On nodes shaped like the ones GitHub returns, with slots missing, empty or of the wrong
-    type, login beats e-mail (lower-cased) beats name, as an independent oracle says.
+    type: login beats e-mail (lower-cased) beats name, and a wrong type anywhere in the node
+    makes it malformed, as an independent oracle says.
     """
-    key = author_key(node)
-    assert key == _author_key_oracle(node)
-    assert key is None or key != ""
+    info = commit_author(node)
+    assert (info.key, info.malformed) == _author_oracle(node)
+    assert author_key(node) == info.key
+    assert info.key is None or info.key != ""
 
 
 # --------------------------------------------------------------------------- #
@@ -332,6 +401,16 @@ def test_committers_counts_distinct_keys(pages: list[GitHubHistoryPage], cap: in
 # --------------------------------------------------------------------------- #
 # parse_first_page
 # --------------------------------------------------------------------------- #
+_SIGNAL_KEYS = frozenset(
+    {
+        "s1_declared_death",
+        "s3_last_push_at",
+        "s5_committers",
+        "s6_open_issues",
+        "s6_closed_issues",
+    }
+)
+
 _ALIAS_LISTS = st.lists(
     st.one_of(st.sampled_from(("r0", "r1", "r2", "rateLimit", "")), st.text(max_size=6)),
     max_size=8,
@@ -363,10 +442,31 @@ def _check_result(body: object, aliases: list[str]) -> None:
     if not result.data_usable:
         assert all(page is None for page in result.pages.values())
         assert result.rate_limit_remaining is None
+        assert result.unusable == frozenset()
     else:
         assert isinstance(payload, dict)
         for alias, page in result.pages.items():
             assert (page is not None) == isinstance(payload.get(alias), dict)
+            # Only an explicit null means "not found"; missing or non-object is unusable.
+            raw = payload.get(alias)
+            unusable = not isinstance(raw, dict) and (raw is not None or alias not in payload)
+            assert (alias in result.unusable) == unusable
+        assert result.unusable <= set(result.pages)
+    for page in result.pages.values():
+        if page is None:
+            continue
+        assert page.malformed <= _SIGNAL_KEYS
+        # A malformed field is never also a value.
+        if "s1_declared_death" in page.malformed:
+            assert page.is_archived is None
+        if "s3_last_push_at" in page.malformed:
+            assert page.pushed_at is None
+        if "s6_open_issues" in page.malformed:
+            assert page.open_issues is None
+        if "s6_closed_issues" in page.malformed:
+            assert page.closed_issues is None
+        if "s5_committers" in page.malformed:
+            assert page.history is None
 
 
 @given(body=json_like(), aliases=_ALIAS_LISTS)
@@ -397,3 +497,129 @@ def test_parse_first_page_total_on_mostly_valid_shapes(
     aliases = batch_aliases(count)
     body = data.draw(graphql_bodies(aliases))
     _check_result(body, [*aliases, *extra])
+
+
+@given(doc=_repository_docs())
+def test_repo_page_malformed_matches_oracle(doc: Any) -> None:
+    """**Validates: Requirements SRC-GH-9**
+
+    For repository objects with fields absent, ``null``, correct or of the wrong type, a
+    signal is in ``malformed`` exactly when its field was present, not ``null`` and of the
+    wrong type, as an independent oracle says; an absent or ``null`` field is only ``None``.
+    The history is classified as absent, malformed or counted, and a malformed node anywhere
+    in it makes S5 unknown rather than a smaller count.
+    """
+    result = parse_first_page({"data": {"r0": doc}}, ["r0"])
+    page = result.pages["r0"]
+    if not isinstance(doc, dict):
+        assert page is None and result.unusable == frozenset({"r0"})
+        return
+    assert page is not None and result.unusable == frozenset()
+
+    expected: set[str] = set()
+    archived = doc.get("isArchived")
+    if archived is not None and not isinstance(archived, bool):
+        expected.add("s1_declared_death")
+    assert page.is_archived == (archived if isinstance(archived, bool) else None)
+
+    pushed = doc.get("pushedAt")
+    if pushed is not None and (not isinstance(pushed, str) or page.pushed_at is None):
+        expected.add("s3_last_push_at")
+    if pushed is None or not isinstance(pushed, str):
+        assert page.pushed_at is None
+
+    for member, signal, value in (
+        ("open", "s6_open_issues", page.open_issues),
+        ("closed", "s6_closed_issues", page.closed_issues),
+    ):
+        count, bad = _count_oracle(doc, member)
+        assert value == count
+        if bad:
+            expected.add(signal)
+
+    state, found = _history_oracle(doc)
+    if state == "malformed":
+        expected.add("s5_committers")
+        assert page.history is None
+    elif state == "absent":
+        assert page.history is None
+    else:
+        assert found is not None and page.history is not None
+        assert page.history.author_keys == found[0]
+        assert page.history.has_next_page == found[1]
+    assert page.malformed == frozenset(expected)
+
+
+_VALID_NODES = st.sampled_from(
+    [
+        {"author": {"user": {"login": "alice"}}},
+        {"author": {"email": "Bob@Example.COM"}},
+        {"author": {"name": "Carol"}},
+        {"author": None},
+        {"author": {"user": None, "email": None, "name": None}},
+        {},
+    ]
+)
+_BAD_OBJECT_SLOT = st.one_of(  # wrong for a slot that must be an object (author, user)
+    st.integers(),
+    st.booleans(),
+    st.text(max_size=4),
+    st.lists(st.integers(), max_size=2),
+)
+_BAD_TEXT_SLOT = st.one_of(  # wrong for a slot that must be text (login, email, name)
+    st.integers(),
+    st.booleans(),
+    st.lists(st.integers(), max_size=2),
+    st.dictionaries(st.text(max_size=3), st.integers(), max_size=2),
+)
+
+
+@st.composite
+def _damaged_nodes(draw: st.DrawFn) -> Any:
+    """A history node with exactly one wrong-typed member (or a non-object node)."""
+    shape = draw(st.integers(0, 6))
+    if shape == 0:
+        return draw(st.one_of(st.none(), st.text(max_size=4), st.integers(), st.booleans()))
+    if shape == 1:
+        return {"author": draw(_BAD_OBJECT_SLOT)}
+    if shape == 2:
+        return {"author": {"user": draw(_BAD_OBJECT_SLOT)}}
+    bad = draw(_BAD_TEXT_SLOT)
+    if shape == 3:
+        return {"author": {"user": {"login": bad}}}
+    if shape == 4:
+        return {"author": {"email": bad, "user": {"login": "alice"}}}
+    if shape == 5:
+        return {"author": {"name": bad, "email": "a@x.org"}}
+    return {"author": {"user": {"login": "alice", "extra": 1}, "name": bad}}
+
+
+@given(
+    good=st.lists(_VALID_NODES, max_size=5),
+    bad=_damaged_nodes(),
+    position=st.integers(0, 5),
+    has_next=st.booleans(),
+)
+def test_one_malformed_node_always_makes_s5_unknown(
+    good: list[Any], bad: Any, position: int, has_next: bool
+) -> None:
+    """**Validates: Requirements SRC-GH-9**
+
+    A history of readable nodes is counted. Put one damaged node anywhere in it and S5 is
+    unknown (``history`` is ``None``, S5 malformed), never a count missing that commit.
+    """
+
+    def page_for(nodes: list[Any]) -> GitHubRepoPage:
+        history = {"pageInfo": {"hasNextPage": has_next, "endCursor": "c"}, "nodes": nodes}
+        doc = {"defaultBranchRef": {"target": {"history": history}}}
+        page = parse_first_page({"data": {"r0": doc}}, ["r0"]).pages["r0"]
+        assert page is not None
+        return page
+
+    clean = page_for(good)
+    assert clean.history is not None and clean.malformed == frozenset()
+    nodes = list(good)
+    nodes.insert(min(position, len(nodes)), bad)
+    damaged = page_for(nodes)
+    assert damaged.history is None
+    assert damaged.malformed == frozenset({"s5_committers"})

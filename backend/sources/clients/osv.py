@@ -12,9 +12,11 @@
     gives a ``Failed`` to every query of that request that was still open
     (``UNEXPECTED_SHAPE`` / the gateway kind / ``PAGINATION_ABORTED``). Queries answered by
     earlier pages of the same chunk keep nothing: they are open until their last page.
-  * A package is cached only when all of its pages were read and no listed id was dropped as
-    invalid. A result that lost ids is not stored, so the "ignored ids" warning repeats on the
-    next run instead of disappearing behind the cache.
+  * A ``vulns`` entry that is not a mapping, has no ``str`` id or has an id that fails the id
+    pattern makes that package ``Failed(UNEXPECTED_SHAPE)`` and ends its paging (SRC-OSV-3,
+    SRC-OSV-6): what the entry names might be a no-fix advisory, so a list built without it
+    would be incomplete. Only that package fails; the other queries of the request go on.
+  * A package is cached only when all of its pages were read and every listed id was usable.
 
 * ``vuln(ctx, vuln_id, ecosystem, name)``: ``GET /v1/vulns/{id}`` reduced for one package.
   Cache namespace ``osv.vuln``, subject ``<id>#<ecosystem>/<PEP 503 name>``. The subject
@@ -90,13 +92,11 @@ _VULN_CODEC: Final = fact_codec(OsvVuln)
 class PackageIds:
     """The ``query_batch`` answer for one package.
 
-    ``ignored_ids`` counts the listed ids that were dropped for failing the id pattern
-    (SRC-OSV-3). It is 0 for a failure and for a cache hit (a result with dropped ids is
-    never cached).
+    A package whose answer had an unusable ``vulns`` entry is a ``Failed(UNEXPECTED_SHAPE)``
+    (SRC-OSV-3): the ids are never returned with some of them silently left out.
     """
 
     result: Found[OsvIds] | Failed
-    ignored_ids: int = 0
 
 
 @dataclass(frozen=True)
@@ -106,15 +106,13 @@ class OsvAdvisories:
     * ``advisories``: the non-withdrawn advisories as scoring values, sorted by id;
     * ``vulns``: the same advisories as ``OsvVuln`` (the evidence keeps ``fixed_versions``);
     * ``url``: the ``querybatch`` URL;
-    * ``extra_urls``: the detail URL of every id the package listed, sorted;
-    * ``ignored_ids``: ids dropped for failing the id pattern, for one warning (SRC-OSV-3).
+    * ``extra_urls``: the detail URL of every id the package listed, sorted.
     """
 
     advisories: tuple[Advisory, ...]
     vulns: tuple[OsvVuln, ...]
     url: str
     extra_urls: tuple[str, ...]
-    ignored_ids: int
 
 
 type AdvisoryResult = Found[OsvAdvisories] | Failed
@@ -189,13 +187,13 @@ class _Progress:
 
     def __init__(self) -> None:
         self.ids: set[str] = set()
-        self.ignored = 0
+        self.malformed = False
         self.fetched_at: datetime | None = None
         self.token: str | None = None
 
     def absorb(self, result: OsvQueryResult, fetched_at: datetime) -> None:
         self.ids.update(result.ids)
-        self.ignored += result.dropped
+        self.malformed = self.malformed or result.malformed
         if self.fetched_at is None or fetched_at < self.fetched_at:
             self.fetched_at = fetched_at
         self.token = result.next_page_token
@@ -253,7 +251,9 @@ async def _run_chunk(ctx: ClientContext, chunk: list[_Target]) -> dict[str, Pack
         still_open: list[int] = []
         for index, result in zip(pending, results, strict=True):
             progress[index].absorb(result, fetched_at)
-            if progress[index].token is not None:
+            if progress[index].malformed:  # SRC-OSV-3: fail closed, stop asking for more pages
+                failed[index] = Failed("UNEXPECTED_SHAPE", url, None)
+            elif progress[index].token is not None:
                 still_open.append(index)
         pending = still_open
 
@@ -265,16 +265,15 @@ async def _run_chunk(ctx: ClientContext, chunk: list[_Target]) -> dict[str, Pack
         state = progress[index]
         assert state.fetched_at is not None  # at least one page was read
         found = Found(OsvIds(tuple(sorted(state.ids))), state.fetched_at)
-        if state.ignored == 0:
-            await cache_store(
-                ctx.cache,
-                IDS_NAMESPACE,
-                target.key,
-                ctx.policy.default_ttl_seconds,
-                found,
-                _IDS_CODEC,
-            )
-        out[target.key] = PackageIds(found, state.ignored)
+        await cache_store(
+            ctx.cache,
+            IDS_NAMESPACE,
+            target.key,
+            ctx.policy.default_ttl_seconds,
+            found,
+            _IDS_CODEC,
+        )
+        out[target.key] = PackageIds(found)
     return out
 
 
@@ -414,7 +413,6 @@ async def advisories_for(
             _group_of(target.ecosystem, target.name),
             ids,
             listing.fetched_at,
-            listings[key].ignored_ids,
         )
     return {key: results[key] for key in targets}
 
@@ -424,7 +422,6 @@ def _assemble(
     group: _Group,
     ids: tuple[str, ...],
     listed_at: datetime,
-    ignored_ids: int,
 ) -> AdvisoryResult:
     """All-or-nothing S7 input for one package (SRC-OSV-6)."""
     vulns: list[OsvVuln] = []
@@ -444,6 +441,5 @@ def _assemble(
         vulns=live,
         url=osv_querybatch_url(),
         extra_urls=tuple(sorted(osv_vuln_url(vuln_id) for vuln_id in ids)),
-        ignored_ids=ignored_ids,
     )
     return Found(value, min(stamps))

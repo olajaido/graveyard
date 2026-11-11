@@ -131,7 +131,6 @@ def test_query_request_is_a_post_with_the_documented_body() -> None:
     found = run.value[key].result
     assert isinstance(found, Found)
     assert found.value == OsvIds((G1, G2))
-    assert run.value[key].ignored_ids == 0
 
 
 def test_query_uses_osv_ecosystem_names_and_registry_names() -> None:
@@ -242,8 +241,11 @@ def test_query_page_guard_stops_at_twenty_pages() -> None:
     assert run.value[package_key(npm("a"))].result == Failed("PAGINATION_ABORTED", QUERYBATCH, None)
 
 
-def test_query_invalid_ids_are_counted_and_the_result_is_not_cached() -> None:
-    body = {"results": [{"vulns": [{"id": G1}, {"id": "no good!"}, {"nope": 1}]}]}
+@pytest.mark.parametrize("bad", [{"id": "no good!"}, {"nope": 1}, "x", None, 5, [G1]])
+def test_query_an_unusable_vulns_entry_fails_that_package_and_is_not_cached(bad: object) -> None:
+    # SRC-OSV-3 with SRC-OSV-6: what the entry names might be a no-fix advisory, so the
+    # list is not used at all (never a partial list), and the failure is not cached.
+    body = {"results": [{"vulns": [{"id": G1}, bad]}]}
 
     async def scenario(ctx: ClientContext) -> list[dict[str, osv.PackageIds]]:
         return [
@@ -253,9 +255,34 @@ def test_query_invalid_ids_are_counted_and_the_result_is_not_cached() -> None:
 
     run = run_clients(ok(body), scenario)
     key = package_key(npm("a"))
-    assert run.value[0][key].ignored_ids == 2
-    assert run.value[1][key].ignored_ids == 2  # the warning repeats instead of being cached away
-    assert run.seen.total == 2
+    failed = Failed("UNEXPECTED_SHAPE", QUERYBATCH, None)
+    assert run.value[0][key].result == failed
+    assert run.value[1][key].result == failed
+    assert run.seen.total == 2  # asked again: a Failed is not cached (SRC-CACHE-4)
+
+
+def test_query_an_unusable_entry_fails_only_its_own_package() -> None:
+    body = {
+        "results": [
+            {"vulns": [{"id": G1}]},
+            {"vulns": [{"id": G2}, {"id": "no good!"}]},
+            {"vulns": [{"id": G1}, {"id": G2}]},
+        ]
+    }
+    run = run_clients(ok(body), lambda ctx: osv.query_batch(ctx, [npm("a"), npm("b"), npm("c")]))
+    a, b, c = (run.value[package_key(npm(n))].result for n in ("a", "b", "c"))
+    assert isinstance(a, Found) and a.value == OsvIds((G1,))
+    assert b == Failed("UNEXPECTED_SHAPE", QUERYBATCH, None)
+    assert isinstance(c, Found) and c.value == OsvIds((G1, G2))
+    assert run.seen.total == 1
+
+
+def test_query_an_unusable_entry_on_a_later_page_fails_the_package_and_stops_its_paging() -> None:
+    # the second page of `a` carries an unusable id
+    server = FakeOsv({"a": [[G1], [G2, "no good!"], [G1]]})
+    run = run_clients(server, lambda ctx: osv.query_batch(ctx, [npm("a")]))
+    assert run.value[package_key(npm("a"))].result == Failed("UNEXPECTED_SHAPE", QUERYBATCH, None)
+    assert run.seen.total == 2  # the third page is never requested
 
 
 def test_query_requires_a_version() -> None:
@@ -369,7 +396,6 @@ def test_advisories_for_fetches_each_id_once_across_packages() -> None:
     assert a.value.url == QUERYBATCH
     assert a.value.extra_urls == tuple(sorted([osv_vuln_url(G1), osv_vuln_url(G2)]))
     assert [v.id for v in a.value.vulns] == [G1, G2]
-    assert a.value.ignored_ids == 0
 
 
 def test_advisories_for_second_call_is_served_from_the_cache() -> None:

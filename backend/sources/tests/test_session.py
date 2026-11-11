@@ -13,7 +13,7 @@ import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, date, datetime
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 import httpx
@@ -180,7 +180,7 @@ def test_invalid_items_are_per_item_errors_and_valid_items_still_run() -> None:
         (42, AS_OF),
         ("pkg:maven/a/b@1", AS_OF),
     ]
-    batch = collect(web, bad_requests)  # type: ignore[arg-type]
+    batch = collect(web, cast(Any, bad_requests))
 
     codes = [None if r.error is None else r.error.code for r in batch.results]
     assert codes == [

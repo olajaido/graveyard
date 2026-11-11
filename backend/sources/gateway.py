@@ -40,7 +40,7 @@ from core.sources.clock import Clock
 from core.sources.config import SourcesConfig
 from core.sources.model import WARNING_CODES, JsonValue
 from core.sources.secret import SecretToken, redact
-from core.sources.urls import ALLOWED_HOSTS
+from core.sources.urls import ALLOWED_HOSTS, strip_userinfo
 from sources.limiter import HostLimiter
 
 GATEWAY_VERSION: Final = "0.1.0"
@@ -82,7 +82,7 @@ class Ok:
     fetched_at: datetime
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "url", redact(self.url))
+        object.__setattr__(self, "url", redact(strip_userinfo(self.url)))
 
 
 @dataclass(frozen=True)
@@ -93,7 +93,7 @@ class NotFound:
     fetched_at: datetime
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "url", redact(self.url))
+        object.__setattr__(self, "url", redact(strip_userinfo(self.url)))
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,7 @@ class Failed:
     def __post_init__(self) -> None:
         if self.kind not in WARNING_CODES:
             raise ValueError(f"unknown failure kind: {self.kind!r}")
-        object.__setattr__(self, "url", redact(self.url))
+        object.__setattr__(self, "url", redact(strip_userinfo(self.url)))
 
 
 type FetchResult = Ok | NotFound | Failed
@@ -332,8 +332,12 @@ class HttpGateway:
         return host
 
     def _describe_rejected(self, url: object) -> str:
-        """A bounded, control-free, redacted form of a rejected URL for ``Failed.url``."""
-        text = url if isinstance(url, str) else ""
+        """A bounded, control-free, redacted form of a rejected URL for ``Failed.url``.
+
+        The userinfo (``user:password@``) goes first, on the whole text: truncating before
+        stripping could cut the text between a credential and its ``@`` and leave it visible.
+        """
+        text = strip_userinfo(url) if isinstance(url, str) else ""
         text = "".join("?" if ch < " " or ch == "\x7f" else ch for ch in text)
         return redact(text[:_MAX_REJECTED_URL_CHARS], self._token)
 

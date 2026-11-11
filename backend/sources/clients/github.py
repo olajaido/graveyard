@@ -34,7 +34,16 @@ Failure matrix (design §6.2):
 
 * the request fails, or ``data`` is unusable: every repo of the chunk is ``Failed``
   (``UNEXPECTED_SHAPE`` for a body the parser rejects). Nothing is cached;
-* an alias is ``null``: ``found=False``;
+* an alias is ``null``: ``found=False``. An alias that is missing from ``data`` or is not an
+  object is not "not found": it is ``Failed(UNEXPECTED_SHAPE)`` for that repo and nothing is
+  cached (SRC-GH-9);
+* a field that is present with the wrong type (``isArchived`` not a ``bool``, ``pushedAt``
+  not a date string, ``totalCount`` not a non-negative ``int``, a history node or an
+  ``author`` / ``user`` that is not an object, a ``login`` / ``email`` / ``name`` that is not
+  a ``str``, a history without ``nodes`` / ``pageInfo`` / ``hasNextPage``) is ``None`` in the
+  fact and gets one ``Failure("UNEXPECTED_SHAPE")`` naming exactly the affected signals; the
+  other signals are kept and the repo is not cached. A field that is absent or ``null`` is
+  only an absence (SRC-GH-9);
 * no default branch (``defaultBranchRef`` is ``null``): ``committers=None``, the other
   signals kept, no failure and cached (an empty repository is a stable answer);
 * a follow-up page fails or cannot be read, or the cursor is unusable: ``committers=None``
@@ -221,6 +230,9 @@ async def _chunk(
 
     out: dict[str, RepoOutcome] = {}
     for key, alias in zip(keys, aliases, strict=True):
+        if alias in parsed.unusable:  # missing or not an object: not the same as "not found"
+            out[key] = RepoOutcome(Failed("UNEXPECTED_SHAPE", outcome.url, None))
+            continue
         page = parsed.pages[alias]
         out[key] = await _repo(
             ctx, as_of, key, targets[key], page, outcome.fetched_at, limits, state
@@ -249,10 +261,20 @@ async def _repo(
     count: Committers | None = None
     failures: tuple[Failure, ...] = ()
     stamps = [fetched_at]
+    if page.malformed:  # present with the wrong type: the signals are unknown, not absent
+        failures += (
+            Failure(
+                "UNEXPECTED_SHAPE",
+                SOURCE,
+                None,
+                tuple(sorted(page.malformed)),
+                github_graphql_url(),
+            ),
+        )
     if page.history is not None:
         walk = await _walk(ctx, as_of, target, page.history, limits, state)
         count, stamps = walk.committers, [fetched_at, *walk.stamps]
-        failures = () if walk.failure is None else (walk.failure,)
+        failures += () if walk.failure is None else (walk.failure,)
 
     fact = GitHubRepo(
         is_archived=page.is_archived,
@@ -276,6 +298,7 @@ def _is_empty(page: GitHubRepoPage) -> bool:
         and page.open_issues is None
         and page.closed_issues is None
         and page.history is None
+        and not page.malformed
     )
 
 

@@ -15,7 +15,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta, timezone
 from itertools import product
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -561,6 +561,48 @@ def test_github_gaps_have_distinct_notes() -> None:
     assert ev["s5_committers"].note == asm.NOTE_NO_HISTORY
     assert ev["s6_open_issues"].note == asm.NOTE_NOT_REPORTED
     assert signals.s6_closed_issues == 90
+
+
+def test_a_github_unexpected_shape_failure_changes_the_note_and_names_the_signals() -> None:
+    # SRC-GH-9: present-but-wrong-typed is not "not reported". The client records one
+    # UNEXPECTED_SHAPE failure naming the signals; the fact has None for them.
+    facts = PackageFacts(github=github(pushed=None, committers=None, open_issues=None))
+    failure = Failure(
+        "UNEXPECTED_SHAPE",
+        "github",
+        None,
+        ("s3_last_push_at", "s5_committers", "s6_open_issues"),
+        GH_URL,
+    )
+    signals, ev, warnings = run(NPM_PURL, facts, failures=[failure])
+    assert (signals.s3_last_push_at, signals.s5_committers, signals.s6_open_issues) == (
+        None,
+        None,
+        None,
+    )
+    for key in ("s3_last_push_at", "s5_committers", "s6_open_issues"):
+        assert ev[key].note == asm.NOTE_GITHUB_SHAPE
+    assert signals.s6_closed_issues == 90  # the rest is kept
+    assert ev["s6_closed_issues"].note == asm.NOTE_CLOSED
+    [warning] = warnings
+    assert (warning.code, warning.source) == ("UNEXPECTED_SHAPE", "github")
+    assert warning.signals == ("s3_last_push_at", "s5_committers", "s6_open_issues")
+
+
+def test_a_github_absence_without_a_failure_keeps_the_absence_notes() -> None:
+    facts = PackageFacts(github=github(pushed=None, committers=None, open_issues=None))
+    _, ev, warnings = run(NPM_PURL, facts)
+    assert ev["s3_last_push_at"].note == asm.NOTE_NOT_REPORTED
+    assert ev["s5_committers"].note == asm.NOTE_NO_HISTORY
+    assert warnings == ()
+
+
+def test_a_github_failure_for_other_signals_does_not_change_other_notes() -> None:
+    facts = PackageFacts(github=github(committers=None))
+    failure = Failure("UNEXPECTED_SHAPE", "github", None, ("s5_committers",), GH_URL)
+    _, ev, _ = run(NPM_PURL, facts, failures=[failure])
+    assert ev["s5_committers"].note == asm.NOTE_GITHUB_SHAPE
+    assert ev["s6_open_issues"].note == asm.NOTE_OPEN
 
 
 # --- no repo (SRC-REPO-3) -------------------------------------------------------------------
@@ -1219,4 +1261,4 @@ def test_full_npm_package() -> None:
 def test_evidence_mapping_is_read_only() -> None:
     _, ev, _ = run(NPM_PURL)
     with pytest.raises(TypeError):
-        ev["s1_declared_death"] = ev["s2_latest_release_at"]  # type: ignore[index]
+        cast(Any, ev)["s1_declared_death"] = ev["s2_latest_release_at"]

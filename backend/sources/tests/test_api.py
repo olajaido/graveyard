@@ -27,7 +27,7 @@ from sources.tests.test_session import AS_OF, LEFT_PAD, TOKEN_TEXT, Web, left_pa
 REQUESTS = [(LEFT_PAD, AS_OF)]
 
 
-def _kwargs(cfg: SourcesConfig) -> dict[str, object]:
+def _kwargs(cfg: SourcesConfig) -> dict[str, Any]:
     """Fresh transport and clock per call: each run starts from the same state."""
     return {
         "config": cfg,
@@ -83,8 +83,8 @@ def test_autopsy_async_equals_session_collect() -> None:
 
 def test_autopsy_equals_asyncio_run_of_autopsy_async() -> None:
     cfg = config(max_attempts=1)
-    sync = sources.autopsy(REQUESTS, **_kwargs(cfg))  # type: ignore[arg-type]
-    run = asyncio.run(sources.autopsy_async(REQUESTS, **_kwargs(cfg)))  # type: ignore[arg-type]
+    sync = sources.autopsy(REQUESTS, **_kwargs(cfg))
+    run = asyncio.run(sources.autopsy_async(REQUESTS, **_kwargs(cfg)))
     assert sync == run
     assert sync.results[0].signals is not None
 
@@ -94,7 +94,7 @@ def test_autopsy_inside_a_running_loop_raises_runtime_error() -> None:
     cfg = config(max_attempts=1)
 
     async def main() -> None:
-        sources.autopsy(REQUESTS, **_kwargs(cfg))  # type: ignore[arg-type]
+        sources.autopsy(REQUESTS, **_kwargs(cfg))
 
     with pytest.raises(RuntimeError):
         asyncio.run(main())
@@ -122,7 +122,7 @@ def test_autopsy_with_invalid_items_equals_asyncio_run_of_autopsy_async() -> Non
     cfg = config(max_attempts=1)
     requests = _mixed_requests(2)
 
-    def kwargs() -> dict[str, object]:
+    def kwargs() -> dict[str, Any]:
         return {
             "config": cfg,
             "token": SecretToken(TOKEN_TEXT),
@@ -130,8 +130,8 @@ def test_autopsy_with_invalid_items_equals_asyncio_run_of_autopsy_async() -> Non
             "clock": FakeClock(),
         }
 
-    sync = sources.autopsy(requests, **kwargs())  # type: ignore[arg-type]
-    run = asyncio.run(sources.autopsy_async(requests, **kwargs()))  # type: ignore[arg-type]
+    sync = sources.autopsy(requests, **kwargs())
+    run = asyncio.run(sources.autopsy_async(requests, **kwargs()))
     assert sync == run
     assert [r.error is not None for r in sync.results] == [
         True,
@@ -153,7 +153,7 @@ def test_too_many_packages_raises_value_error_and_sends_nothing(use_sync: bool) 
         limits=Limits(max_packages_per_call=1),
     )
     web = Web(left_pad_routes())
-    kwargs: dict[str, object] = {
+    kwargs: dict[str, Any] = {
         "config": cfg,
         "transport": httpx.MockTransport(web),
         "clock": FakeClock(),
@@ -161,9 +161,9 @@ def test_too_many_packages_raises_value_error_and_sends_nothing(use_sync: bool) 
     two = [(LEFT_PAD, AS_OF), ("pkg:npm/other@1.0.0", AS_OF)]
     with pytest.raises(ValueError, match="too many packages"):
         if use_sync:
-            sources.autopsy(two, **kwargs)  # type: ignore[arg-type]
+            sources.autopsy(two, **kwargs)
         else:
-            asyncio.run(sources.autopsy_async(two, **kwargs))  # type: ignore[arg-type]
+            asyncio.run(sources.autopsy_async(two, **kwargs))
     assert web.urls == []
 
 

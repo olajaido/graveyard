@@ -189,6 +189,7 @@ FaultKind = Literal[
     "empty_array",
     "null_body",
     "wrong_field_types",
+    "wrong_one_leaf",
 ]
 FAULT_KINDS: Final[tuple[str, ...]] = get_args(FaultKind)
 
@@ -212,6 +213,10 @@ class Fault:
     * ``empty_object``, ``empty_array``, ``null_body``: ``{}``, ``[]``, ``null``.
     * ``wrong_field_types``: the wrapped handler's JSON with the same structure and every
       leaf replaced by a value of another type.
+    * ``wrong_one_leaf``: the same, for **one** leaf only: the ``leaf``-th leaf in document
+      order (modulo the number of leaves) gets a value of another type and the rest is
+      untouched. Unlike ``wrong_field_types`` it leaves most of a response readable, so a
+      single damaged commit node, count or date can be told apart from a wrecked response.
     """
 
     kind: FaultKind
@@ -221,10 +226,13 @@ class Fault:
     location: str = "https://example.com/elsewhere"
     size: int = _DEFAULT_OVERSIZE_BYTES
     chunked: bool = False
+    leaf: int = 0
 
     def __post_init__(self) -> None:
         if self.kind not in FAULT_KINDS:
             raise ValueError(f"unknown fault kind: {self.kind!r}")
+        if isinstance(self.leaf, bool) or not isinstance(self.leaf, int) or self.leaf < 0:
+            raise ValueError("leaf must be an integer >= 0")
         if isinstance(self.times, bool) or not isinstance(self.times, int) or self.times < 1:
             raise ValueError("times must be an integer >= 1")
         if self.kind == "status":
@@ -258,6 +266,40 @@ def _wrong_type(value: object) -> object:
     if isinstance(value, str):
         return 1
     return 0  # None
+
+
+def _leaf_paths(document: object) -> list[tuple[str | int, ...]]:
+    """Paths of every leaf (not a dict, not a list) in document order."""
+    paths: list[tuple[str | int, ...]] = []
+
+    def walk(node: object, path: tuple[str | int, ...]) -> None:
+        if isinstance(node, dict):
+            for key, item in node.items():
+                walk(item, (*path, key))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                walk(item, (*path, index))
+        else:
+            paths.append(path)
+
+    walk(document, ())
+    return paths
+
+
+def _wrong_one_leaf(document: object, leaf: int) -> object:
+    """``document`` with the ``leaf``-th leaf swapped for a value of another type."""
+    paths = _leaf_paths(document)
+    if not paths:  # {} or []: nothing to damage
+        return document
+    path = paths[leaf % len(paths)]
+    if not path:
+        return _wrong_type(document)
+    copy: Any = json.loads(json.dumps(document))
+    parent: Any = copy
+    for step in path[:-1]:
+        parent = parent[step]
+    parent[path[-1]] = _wrong_type(parent[path[-1]])
+    return copy
 
 
 def _oversize_response(fault: Fault) -> httpx.Response:
@@ -313,14 +355,17 @@ async def _apply(fault: Fault, inner: Handler, request: httpx.Request) -> httpx.
         return json_response([])
     if kind == "null_body":
         return json_response(None)
-    # wrong_field_types: needs the real answer to mutate
+    # wrong_field_types, wrong_one_leaf: need the real answer to mutate
     response = await _call(inner, request)
     try:
         document = json.loads(response.content)
     except Exception:  # streamed, empty or not JSON: nothing to mutate, pass it through
         return response
+    mutated = (
+        _wrong_one_leaf(document, fault.leaf) if kind == "wrong_one_leaf" else _wrong_type(document)
+    )
     return json_response(
-        _wrong_type(document),
+        mutated,
         response.status_code,
         content_type=response.headers.get("content-type"),
     )

@@ -112,6 +112,7 @@ NOTE_NO_REPO: Final = "no GitHub repo resolved"
 NOTE_REPO_NOT_FOUND: Final = "repository not found"
 NOTE_GITHUB_UNAVAILABLE: Final = "GitHub data unavailable"
 NOTE_NOT_REPORTED: Final = "not reported by GitHub"
+NOTE_GITHUB_SHAPE: Final = "GitHub returned an unexpected shape for this field"
 NOTE_NO_HISTORY: Final = "no default-branch history available"
 NOTE_LOWER_BOUND: Final = "lower bound: commit history capped at the page limit"
 NOTE_WINDOW: Final = "distinct commit authors in the 12 months to as_of"
@@ -574,6 +575,13 @@ def assemble(
         else:
             gh, gh_origin = facts.github.fact, _origin(facts.github)
 
+    def wrong_shape(key: str) -> bool:
+        """True if the GitHub client reported a present-but-wrong-typed field for ``key``."""
+        return any(
+            f.source == "github" and f.code == "UNEXPECTED_SHAPE" and key in f.feeds
+            for f in failures
+        )
+
     def github_count(
         key: str, raw: object, note: str, absent_note: str
     ) -> tuple[int | None, Evidence]:
@@ -581,7 +589,7 @@ def assemble(
             return None, _missing(github_gap)
         value = guard.count(raw, (key,), "github")
         if value is None:
-            return None, _missing(absent_note)
+            return None, _missing(NOTE_GITHUB_SHAPE if wrong_shape(key) else absent_note)
         return value, _present(value, [gh_origin], note)
 
     archived = guard.flag(gh.is_archived, (_S1,), "github") if gh is not None else None
@@ -594,7 +602,7 @@ def assemble(
         ev[_S3] = (
             _present(s3.isoformat(), [gh_origin], NOTE_PUSHED)
             if s3 is not None
-            else _missing(NOTE_NOT_REPORTED)
+            else _missing(NOTE_GITHUB_SHAPE if wrong_shape(_S3) else NOTE_NOT_REPORTED)
         )
     s6o, ev[_S6O] = github_count(
         _S6O, gh.open_issues if gh is not None else None, NOTE_OPEN, NOTE_NOT_REPORTED

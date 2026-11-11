@@ -343,6 +343,173 @@ def test_an_alias_without_any_expected_field_is_unexpected_shape() -> None:
     assert run.value[AS_OF][EXPRESS].result == Failed("UNEXPECTED_SHAPE", URL, None)
 
 
+@pytest.mark.parametrize(
+    "data",
+    [{}, {"r0": "x"}, {"r0": []}, {"r0": 7}, {"r0": True}, {"rateLimit": {"remaining": 5000}}],
+    ids=["no-data", "string", "list", "number", "bool", "alias-missing"],
+)
+def test_a_missing_or_non_object_alias_is_unexpected_shape_not_not_found_and_not_cached(
+    data: dict[str, object],
+) -> None:
+    # Only an explicit null means "no such repository" (and is cached for 24 h).
+    async def scenario(ctx: ClientContext) -> list[dict[date, dict[str, github.RepoOutcome]]]:
+        return [
+            await github.repos(ctx, {AS_OF: [EXPRESS]}, Limits(), github_enabled=True)
+            for _ in range(2)
+        ]
+
+    run = run_clients(ok({"data": data}), scenario)
+    for answer in run.value:
+        assert answer[AS_OF][EXPRESS].result == Failed("UNEXPECTED_SHAPE", URL, None)
+    assert run.seen.total == 2
+
+
+def test_an_unusable_alias_does_not_fail_its_neighbours() -> None:
+    body = first_page([repo_node(), "x", None])
+    run = run_clients(
+        ok(body), repos_of({AS_OF: ["github.com/a/a", "github.com/b/b", "github.com/c/c"]})
+    )
+    answer = run.value[AS_OF]
+    assert outcome_fact(answer, "github.com/a/a").found is True
+    assert answer["github.com/b/b"].result == Failed("UNEXPECTED_SHAPE", URL, None)
+    assert outcome_fact(answer, "github.com/c/c").found is False  # the explicit null
+
+
+def mutated(**changes: object) -> dict[str, object]:
+    node = repo_node()
+    node.update(changes)
+    return node
+
+
+def bad_history_node() -> dict[str, object]:
+    return mutated(
+        defaultBranchRef={
+            "target": {
+                "history": {
+                    "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    "nodes": [{"author": {"user": {"login": "ann"}}}, {"author": "bob"}],
+                }
+            }
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("node", "feeds", "expected"),
+    [
+        (mutated(isArchived="no"), ("s1_declared_death",), {"is_archived": None}),
+        (mutated(pushedAt=5), ("s3_last_push_at",), {"pushed_at": None}),
+        (mutated(open={"totalCount": "3"}), ("s6_open_issues",), {"open_issues": None}),
+        (mutated(closed={"totalCount": -1}), ("s6_closed_issues",), {"closed_issues": None}),
+        (mutated(closed=[]), ("s6_closed_issues",), {"closed_issues": None}),
+        (bad_history_node(), ("s5_committers",), {"committers": None}),
+        (mutated(defaultBranchRef="main"), ("s5_committers",), {"committers": None}),
+        (
+            mutated(isArchived=1, pushedAt="soon", open="x"),
+            ("s1_declared_death", "s3_last_push_at", "s6_open_issues"),
+            {"is_archived": None, "pushed_at": None, "open_issues": None},
+        ),
+    ],
+    ids=[
+        "isArchived",
+        "pushedAt",
+        "open",
+        "closed-negative",
+        "closed-not-an-object",
+        "history-node",
+        "branch-not-an-object",
+        "several",
+    ],
+)
+def test_a_wrong_typed_field_is_none_with_one_failure_naming_it_and_is_not_cached(
+    node: dict[str, object], feeds: tuple[str, ...], expected: dict[str, object]
+) -> None:
+    # SRC-GH-9: present with the wrong type is an unexpected shape for exactly those signals.
+    # The other signals are kept, and a problem like this is not stored for 24 hours.
+    async def scenario(ctx: ClientContext) -> list[dict[date, dict[str, github.RepoOutcome]]]:
+        return [
+            await github.repos(ctx, {AS_OF: [EXPRESS]}, Limits(), github_enabled=True)
+            for _ in range(2)
+        ]
+
+    run = run_clients(ok(first_page([node])), scenario)
+    for answer in run.value:
+        outcome = answer[AS_OF][EXPRESS]
+        assert outcome_fact(answer[AS_OF], EXPRESS) == fact(**expected)
+        assert outcome.failures == (Failure("UNEXPECTED_SHAPE", "github", None, feeds, URL),)
+    assert run.seen.total == 2
+    assert run.sent[0].body == run.sent[1].body  # asked again, nothing was cached
+
+
+def test_a_malformed_history_is_not_walked_even_when_it_claims_a_next_page() -> None:
+    history_with_a_bad_node = {
+        "pageInfo": {"hasNextPage": True, "endCursor": "c1"},
+        "nodes": [{"author": {"user": {"login": "ann"}}}, {"author": "bob"}],
+    }
+    node = mutated(defaultBranchRef={"target": {"history": history_with_a_bad_node}})
+    server = FakeGitHub({"expressjs/express": node}, {"c1": follow_up(["zed"])})
+    run = run_clients(server, repos_of({AS_OF: [EXPRESS]}))
+    assert server.follow_ups == []
+    assert outcome_fact(run.value[AS_OF], EXPRESS).committers is None
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        mutated(isArchived=None, pushedAt=None, open={"totalCount": None}, closed={}),
+        mutated(open=None, closed=None),
+    ],
+    ids=["null-fields", "null-connections"],
+)
+def test_null_or_absent_fields_are_only_absences_and_the_result_is_cached(
+    node: dict[str, object],
+) -> None:
+    async def scenario(ctx: ClientContext) -> list[dict[date, dict[str, github.RepoOutcome]]]:
+        return [
+            await github.repos(ctx, {AS_OF: [EXPRESS]}, Limits(), github_enabled=True)
+            for _ in range(2)
+        ]
+
+    run = run_clients(ok(first_page([node])), scenario)
+    outcome = run.value[0][AS_OF][EXPRESS]
+    assert outcome.failures == ()
+    value = outcome_fact(run.value[0][AS_OF], EXPRESS)
+    assert value.found is True and value.committers == 2
+    assert run.value[1] == run.value[0]
+    assert run.seen.total == 1
+
+
+def test_commits_without_an_author_are_skipped_and_do_not_fail_s5() -> None:
+    nodes: list[object] = [
+        {"author": None},
+        {"author": {"user": {"login": "ann"}}},
+        {},
+        {"author": {"user": None, "email": None, "name": None}},
+    ]
+    page = {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": nodes}
+    node = mutated(defaultBranchRef={"target": {"history": page}})
+    run = run_clients(ok(first_page([node])), repos_of({AS_OF: [EXPRESS]}))
+    assert outcome_fact(run.value[AS_OF], EXPRESS).committers == 1
+    assert run.value[AS_OF][EXPRESS].failures == ()
+
+
+def test_a_malformed_node_on_a_follow_up_page_makes_s5_unknown_and_keeps_the_rest() -> None:
+    damaged = {
+        "pageInfo": {"hasNextPage": False, "endCursor": None},
+        "nodes": [{"author": {"user": {"login": "cy"}}}, {"author": 5}],
+    }
+    bad_page = {"data": {"repository": {"defaultBranchRef": {"target": {"history": damaged}}}}}
+    server = FakeGitHub(
+        {"expressjs/express": repo_node(["ann"], next_cursor="c1")}, {"c1": bad_page}
+    )
+    run = run_clients(server, repos_of({AS_OF: [EXPRESS]}))
+    outcome = run.value[AS_OF][EXPRESS]
+    assert outcome_fact(run.value[AS_OF], EXPRESS) == fact(committers=None)
+    assert outcome.failures == (
+        Failure("UNEXPECTED_SHAPE", "github", None, ("s5_committers",), URL),
+    )
+
+
 def test_no_default_branch_keeps_the_other_signals_without_a_failure_and_is_cached() -> None:
     async def scenario(ctx: ClientContext) -> list[dict[date, dict[str, github.RepoOutcome]]]:
         return [

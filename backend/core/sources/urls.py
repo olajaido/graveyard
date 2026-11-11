@@ -42,6 +42,33 @@ _BULK_SAFE: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9._~-]*")
 _OSV_ID: Final = re.compile(r"[A-Za-z0-9_.:-]{1,100}")
 
 
+_SCHEME_PREFIX: Final = re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*://")
+
+
+def strip_userinfo(url: str) -> str:
+    """Return ``url`` without any ``user[:password]@`` part (SRC-SEC-3).
+
+    Applied to every URL before it is stored in a ``Failed``, ``Ok``, ``NotFound`` or an
+    ``Evidence``. The rule is deliberately blunt: everything from the end of the scheme
+    (``scheme://``, if the text starts with one) up to and including the **last** ``@`` is
+    removed. That is stricter than RFC 3986, which ends the authority at the first ``/``,
+    ``?`` or ``#``. A credential that contains one of those characters (``u:p/ss@host``,
+    ``u:p?ss@host``), a second ``@``, a percent-escaped ``@``, a control character, or no
+    scheme at all is therefore removed whole instead of being left half visible.
+
+    Every URL this package builds is free of a raw ``@``: ``urls.py`` quotes each path segment
+    with ``quote(segment, safe="")``, so ``@scope/name`` becomes ``%40scope%2Fname``, and the
+    OSV id pattern has no ``@``. Built URLs are returned unchanged. A foreign URL that
+    carries an ``@`` in its path loses the text before it; that costs a diagnostic detail and
+    never a secret. Call it before any truncation, so a cut cannot leave the credential's
+    start without its ``@``. Never raises for a ``str``.
+    """
+    prefix = _SCHEME_PREFIX.match(url)
+    start = prefix.end() if prefix is not None else 0
+    at = url.rfind("@", start)
+    return url if at == -1 else url[:start] + url[at + 1 :]
+
+
 def is_bulk_safe(name: str) -> bool:
     """True if ``name`` may be one entry of an npm bulk downloads request."""
     return _BULK_SAFE.fullmatch(name) is not None

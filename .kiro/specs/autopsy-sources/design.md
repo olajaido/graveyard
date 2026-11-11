@@ -277,7 +277,7 @@ return Failed(last kind)
 4. Read with `aiter_bytes()` (httpx decodes gzip/deflate/brotli, so the count is of decoded bytes and a compression bomb stops at the cap), appending to a bytearray and aborting at the cap.
 5. `json.loads(bytes.decode("utf-8"), parse_constant=reject)` where `reject` raises `ValueError` for `NaN`, `Infinity`, `-Infinity`. `ValueError`, `UnicodeDecodeError` and `RecursionError` → `INVALID_JSON`.
 
-All `httpx.HTTPError` subclasses map to `TIMEOUT` or `CONNECT_ERROR` by type. `Failed` never carries the exception text. Every string the gateway produces passes `redact()` (§11).
+All `httpx.HTTPError` subclasses map to `TIMEOUT` or `CONNECT_ERROR` by type. `Failed` never carries the exception text. Every string the gateway produces passes `redact()` (§11), and every URL it stores (`Failed`, `Ok`, `NotFound`) has its `user:password@` removed first (`urls.strip_userinfo`, SRC-SEC-3). A rejected URL (`HOST_NOT_ALLOWED`) is the one place an arbitrary caller string reaches `Failed.url`, so it is stripped before it is cut to its length limit.
 
 ### 4.5 `HostLimiter`
 
@@ -337,10 +337,12 @@ async def cached_call(ctx, namespace, subject, ttl, fetch, codec) -> Found[T] | 
 | `downloads.pypistats` | normalised name | 7 d |
 | `scorecard` | `repo_key` | 24 h |
 | `osv.ids` | `package_key` | 24 h |
-| `osv.vuln` | advisory id | 24 h |
+| `osv.vuln` | `<id>#<ecosystem>/<PEP 503 name>` | 24 h |
 | `github.repo` | `repo_key#<as_of>` | 24 h |
 
 `package_key` and `repo_key` come from `core.purl`. The raw purl is never used, because qualifiers and npm name case would split one package into several entries (`core.purl` docstring).
+
+**`osv.vuln` is keyed by advisory *and* package.** The cached `OsvVuln` holds `has_fix` and `fixed_versions`, which are computed for one ecosystem and name (SRC-OSV-4: only the `affected` entries for that package count). A key of the advisory id alone would let the answer for one package be served to another package named by the same advisory (for example `flask-sqlalchemy` and `Flask_SQLAlchemy` normalise to one subject, but `npm/x` and `PyPI/x` do not), and a fixable advisory for one could read as fixed, or unfixed, for the other. The subject uses the PEP 503 normalised name so spellings of one PyPI package share an entry. The advisory is still **fetched once per batch**: the client reads the document once and parses it once per package group that needs it, so the request count stays "one per distinct id" while the cache holds one fact per `(id, package)`.
 
 ---
 
@@ -372,8 +374,9 @@ URL column shows `urls.py` output, with `q()` = `quote(segment, safe="")`. Scope
 query_batch(queries):
     chunks of <= 1000 -> POST; results[i] <-> queries[i]   (length mismatch -> every query in chunk Failed(UNEXPECTED_SHAPE))
     pending = {i : next_page_token}; re-POST only those with page_token; <= 20 rounds else PAGINATION_ABORTED for those
+    a `vulns` entry that is unusable (not a mapping, no str id, invalid id) -> that query Failed(UNEXPECTED_SHAPE), paging stops   # SRC-OSV-3
 ids = union over packages; fetch each once, bounded by Limits; per package: if |ids| > max_vuln_details_per_package -> TOO_MANY_ADVISORIES
-S7(pkg) = None if ANY of {chunk, page, detail fetch for one of its ids} failed or capped     # SRC-OSV-6
+S7(pkg) = None if ANY of {chunk, page, unusable entry, detail fetch for one of its ids} failed or capped     # SRC-OSV-6
         = tuple(sorted(Advisory(id, has_fix, published_at) for vuln in details if not withdrawn))
 ```
 
@@ -424,6 +427,9 @@ Lifted from the prototype; the only addition is `rateLimit`. Batching: group pac
 | Whole request `Failed` | All repos in the chunk: GitHub signals `None`, one warning per affected package |
 | `data` is `null` | Same as above (`UNEXPECTED_SHAPE`) |
 | `r_i` is `null` | That repo: not found, signals `None`, note "repository not found" |
+| `r_i` missing from `data`, or not an object | That repo `Failed(UNEXPECTED_SHAPE)`, not cached. Never "not found" (SRC-GH-9) |
+| A field present with the wrong type (`isArchived`, `pushedAt`, `totalCount`, a history node, `author`, `user`, `login`, `email`, `name`, `hasNextPage`, a missing `nodes` / `pageInfo`) | That signal `None`, one `UNEXPECTED_SHAPE` failure naming exactly those signals, the rest kept, not cached. A malformed node makes the **whole page** malformed, so S5 is `None` (SRC-GH-9) |
+| A field absent or `null` (`isArchived`, `pushedAt`, `totalCount`, `defaultBranchRef`, `target`, `history`, a commit's `author`, `user`, `login`, `email`, `name`) | An absence: `None`, the "not reported" note, no warning, cached. A commit with a `null` author is skipped (bots, unlinked commits) |
 | `defaultBranchRef` is `null` | S5 `None` (empty repo), others kept |
 | Follow-up page fails | S5 `None` + warning, others kept |
 | `remaining < github_rate_floor` | Stop follow-ups, S5 `None` + `RATE_LIMITED`, others kept |
@@ -580,7 +586,7 @@ Evidence notes come from a fixed table (for example `"deps.dev has no scorecard 
 | Per-package source calls | `package_key` | cache subjects, single flight |
 | Repo-level calls | `repo_key` | deps.dev project, Scorecard API, GitHub |
 | OSV queries | `(ecosystem, registry_name, version)` | `osv.query_batch` |
-| OSV details | advisory id | once per batch + cache |
+| OSV details | request: advisory id (once per batch); parsed fact and cache: `<id>#<ecosystem>/<PEP 503 name>` | one request per id, one fact per package group |
 | GitHub history | `repo_key#as_of` | `github.repo` cache |
 | npm downloads | name (ASCII-lower) | once per batch + cache, 128 per request |
 
@@ -589,6 +595,8 @@ Evidence notes come from a fixed table (for example `"deps.dev has no scorecard 
 ## 11. Security design
 
 **Token path.** The caller creates `SecretToken(raw)` and passes it to `autopsy_async`. The session hands it to `HttpGateway`, which stores it and calls `reveal()` in exactly one place, when the host is `api.github.com`. `SecretToken.__repr__`/`__str__` return `SecretToken(***)`, `__reduce__` raises, and the class is not a dataclass so `asdict` cannot reach its field. `redact(text, token)` replaces the exact token and the shapes `gh[pousr]_[A-Za-z0-9]{20,}` and `github_pat_[A-Za-z0-9_]{20,}` (the prototype's `_SECRET_SHAPES`); `Evidence.__post_init__` and `SourceWarning.__post_init__` apply the shape part, so even a bug upstream cannot emit a token-shaped string. The pure half never sees the raw token; the I/O half receives it as an argument and never reads the environment (`test_silence.py`).
+
+**Credentials in URLs.** `strip_userinfo` removes everything between the scheme and the last `@`. That is stricter than the RFC 3986 authority, on purpose: a credential that contains `/`, `?`, `#`, a second `@`, a control character or no scheme is removed whole instead of being left half visible. It runs before truncation in the gateway (a cut could otherwise leave the start of a password without its `@`) and again in `Evidence`, so a URL reaches evidence only if it passed through it. Every URL `urls.py` builds quotes `@` as `%40`, so built URLs are unchanged; a foreign URL with an `@` in its path loses the text before it, which costs a diagnostic detail and never a secret.
 
 **SSRF (T2).** The URL builders accept only typed values that already passed `parse_purl`, `normalise_repo_url` or an id regex. `ApiRequest.url` is validated again at the gateway. Redirects are refused, so no response can steer a request to another host. `trust_env=False` removes proxy and netrc surprises. The bulk-safe name pattern (§6.3) keeps a comma-bearing name from merging lookups.
 
@@ -638,7 +646,7 @@ Pure-half tests are in `backend/core/sources/tests/`, I/O-half tests in `backend
 **Transports (all `httpx.MockTransport`, SRC-TEST-1).**
 
 - `replay_transport(cassette) -> (transport, log)`: the handler hashes `(method, url, canonical body)`, answers with the recorded status, content type, `Retry-After` and JSON body, and appends unmatched requests to `log.unmatched` while raising `httpx.ConnectError`.
-- `fault_transport(inner_handler, plan)`: the handler looks up the request key in the plan and applies the fault for the first `k` attempts, then delegates. Faults: `ReadTimeout`, `ConnectError`, status 429 with `Retry-After` (seconds or date), 500/502/503/504, 3xx with a `Location`, 404, truncated body, a body that is not JSON, a body above the cap, a wrong content type, `{}`/`[]`/`null`, and the right JSON type with wrong field types. The plan is keyed by request key, not call index, so it does not depend on scheduling.
+- `fault_transport(inner_handler, plan)`: the handler looks up the request key in the plan and applies the fault for the first `k` attempts, then delegates. Faults: `ReadTimeout`, `ConnectError`, status 429 with `Retry-After` (seconds or date), 500/502/503/504, 3xx with a `Location`, 404, truncated body, a body that is not JSON, a body above the cap, a wrong content type, `{}`/`[]`/`null`, the right JSON type with **every** leaf of another type (`wrong_field_types`), and the same for **one** leaf (`wrong_one_leaf`, the n-th in document order). The all-leaves kind wrecks `hasNextPage` and every count at once, so it cannot tell a skipped commit node from a rejected response; the one-leaf kind leaves the rest readable and is what shows a parser that skips what it cannot read (found when the S5 exemption was removed). The plan is keyed by request key, not call index, so it does not depend on scheduling.
 - In a faulted run over the cassette, a request the cassette lacks (a fallback endpoint that was not recorded) is logged and answered as a connection error; only clean runs assert `log.unmatched` is empty.
 - A counting handler wraps any handler and exposes per-host and per-endpoint counts.
 - Slow-drip is tested separately with an async-iterator response body and a real short deadline.
@@ -652,7 +660,10 @@ Pure-half tests are in `backend/core/sources/tests/`, I/O-half tests in `backend
 | `test_has_fix_matches_oracle`, `test_has_fix_ignores_git_and_last_affected` | SRC-TEST-3 |
 | `test_parsers_total` | SRC-TEST-4, `json_like()` |
 | `test_signals_always_validate` | SRC-TEST-5 |
-| `test_failures_only_degrade` | SRC-TEST-6 |
+| `test_failures_only_degrade` | SRC-TEST-6 (no exemptions) |
+| `test_one_damaged_github_leaf_only_degrades`, `test_one_damaged_leaf_on_any_host_but_osv_only_degrades` | SRC-TEST-6 with `wrong_one_leaf`, same strict invariant (SRC-GH-9) |
+| `test_repo_page_malformed_matches_oracle`, `test_one_malformed_node_always_makes_s5_unknown` | SRC-GH-9: independent oracle for absent / null / wrong-typed per field and for the history; one damaged node anywhere makes S5 unknown |
+| `test_strip_userinfo_*` | SRC-SEC-3: no `@` left, identity without `@`, any credential spelling removed, built URLs unchanged |
 | `test_batching_and_dedupe` | SRC-TEST-7 |
 | `test_limiter_invariants` | SRC-TEST-8 |
 | `test_kleene_matches_truth_table` | SRC-TEST-9 |
@@ -721,6 +732,10 @@ The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.
 | 17 | One downloads request per package, all ecosystems | npm bulk (128 names), PyPI only for Resting candidates | D14 |
 | 18 | One pypistats request per PyPI package at a 3 s pace | Only candidates; `pycrypto` and `nose` no longer get S9 | D14 |
 | 19 | Exceptions escape as `FetchError` and abort the package | Outcome values; per-item errors for bad input | D3, D16 |
+| 20 | An unusable entry in OSV `vulns` could be skipped | The package's S7 is `None` + `UNEXPECTED_SHAPE`, never a shorter list | D17, SRC-OSV-3, SRC-OSV-6 |
+| 21 | A history node with a wrong-typed author was skipped; a wrong-typed `hasNextPage` read as "no next page"; a non-object alias was "not found" and cached | Whole page malformed, S5 `None` + warning; alias unusable; nothing cached | D17, SRC-GH-9 |
+| 22 | An OSV `published` of the wrong type became `None` silently | The advisory document is rejected and S7 is `None` + warning; absent or `null` stays an honest `None` | D17, SRC-OSV-5 |
+| 23 | `Failed.url` kept whatever a rejected URL contained | `user:password@` removed from every stored URL, before truncation | SRC-SEC-3 |
 
 **Risks.**
 
@@ -736,3 +751,4 @@ The pypistats probe sends 12 sequential requests (3 each at 3.0, 2.0, 1.0 and 0.
 | Live data drift since 3 Nov changes an anchor state | The recorder refuses to write and reports (SRC-REC-4) |
 | The recordings add under 2 MB to the repo (about 0.7 MB abbreviated npm, 0.8 MB express full, 0.1 MB PyPI) | Within the 6 MiB budget; verbatim, no trimming, so tests exercise real bodies |
 | A `backend/sources` package name is generic | Matches `structure.md`; `known-first-party` makes imports unambiguous |
+| **Open decision.** A wrong type inside an advisory's `affected` entries (`package.name`, `package.ecosystem`, `ranges`, `events`, `fixed`) still changes `has_fix` without a warning, as SRC-OSV-4 documents ("does not count"). A `fixed` that stops being a string turns a fixable advisory into a no-fix one, which can flip Wounded to Cursed. Found by `wrong_one_leaf` on an OSV detail (the `published` case was fixed, this one was not). | The single-leaf property excludes OSV for now and says why. Applying D17 here means `osv_fix` returns "malformed" for a present wrong-typed member of an entry that names this package, `parse_vuln` returns `None`, and the oracle in `tests/oracles.py` models it. Decide before T14 |

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, date, datetime
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -21,6 +21,7 @@ from core.sources.parse.github import (
     batch_aliases,
     batch_variables,
     build_batch_query,
+    commit_author,
     committers,
     history_page_query,
     parse_first_page,
@@ -221,7 +222,7 @@ def test_batch_variables_reject_bad_counts_and_types() -> None:
     with pytest.raises(ValueError):
         batch_variables([("o", "n")] * 51, date(2026, 11, 3))
     with pytest.raises(TypeError):
-        batch_variables([("o", 1)], date(2026, 11, 3))  # type: ignore[list-item]
+        batch_variables(cast(Any, [("o", 1)]), date(2026, 11, 3))
     with pytest.raises(TypeError):
         batch_variables([("o", "n")], datetime(2026, 11, 3))
 
@@ -260,27 +261,31 @@ def test_pages_keys_are_exactly_the_requested_aliases() -> None:
 def test_pages_are_read_only() -> None:
     result = parse_first_page(body({"r0": repo()}), ["r0"])
     with pytest.raises(TypeError):
-        result.pages["r1"] = None  # type: ignore[index]
+        cast(Any, result.pages)["r1"] = None
 
 
 def test_null_alias_is_none_and_others_survive() -> None:
+    # An explicit null is GitHub's answer for "no such repository": not unusable.
     result = parse_first_page(body({"r0": None, "r1": repo()}), ["r0", "r1"])
     assert result.data_usable is True
     assert result.pages["r0"] is None
     assert result.pages["r1"] is not None
+    assert result.unusable == frozenset()
 
 
-def test_missing_alias_is_none() -> None:
+def test_missing_alias_is_unusable_not_not_found() -> None:
     result = parse_first_page(body({"r1": repo()}), ["r0", "r1"])
     assert result.pages["r0"] is None
     assert result.pages["r1"] is not None
+    assert result.unusable == frozenset({"r0"})
 
 
 @pytest.mark.parametrize("bad", [[], [repo()], "text", 7, True, 1.5])
-def test_non_mapping_alias_is_none(bad: Any) -> None:
+def test_non_mapping_alias_is_unusable_not_not_found(bad: Any) -> None:
     result = parse_first_page(body({"r0": bad}), ["r0"])
     assert result.data_usable is True
     assert result.pages["r0"] is None
+    assert result.unusable == frozenset({"r0"})
 
 
 def test_null_default_branch_ref_keeps_other_fields() -> None:
@@ -297,21 +302,44 @@ def test_null_default_branch_ref_keeps_other_fields() -> None:
 
 @pytest.mark.parametrize(
     "branch",
-    [
-        {"target": None},
-        {"target": {}},
-        {"target": {"history": None}},
-        {"target": []},
-        [],
-        "main",
-    ],
+    [None, {}, {"target": None}, {"target": {}}, {"target": {"history": None}}],
 )
-def test_missing_or_malformed_branch_chain_gives_no_history(branch: Any) -> None:
+def test_absent_or_null_branch_chain_is_an_absence_not_a_malformation(branch: Any) -> None:
+    # An empty repository, or a target that is not a commit: S5 is simply not reported.
     result = parse_first_page(body({"r0": repo(defaultBranchRef=branch)}), ["r0"])
     r0 = result.pages["r0"]
     assert r0 is not None
     assert r0.history is None
+    assert r0.malformed == frozenset()
     assert r0.open_issues == 12
+
+
+@pytest.mark.parametrize(
+    "branch",
+    [
+        [],
+        "main",
+        7,
+        True,
+        {"target": []},
+        {"target": "abc"},
+        {"target": {"history": []}},
+        {"target": {"history": "x"}},
+        {"target": {"history": 3}},
+    ],
+)
+def test_wrong_typed_branch_chain_is_malformed_for_s5_only(branch: Any) -> None:
+    result = parse_first_page(body({"r0": repo(defaultBranchRef=branch)}), ["r0"])
+    r0 = result.pages["r0"]
+    assert r0 is not None
+    assert r0.history is None
+    assert r0.malformed == frozenset({"s5_committers"})
+    assert (r0.is_archived, r0.pushed_at, r0.open_issues, r0.closed_issues) == (
+        False,
+        date(2026, 10, 30),
+        12,
+        340,
+    )
 
 
 @pytest.mark.parametrize("data", [None, [], "x", 3, True])
@@ -328,6 +356,7 @@ def test_data_null_with_errors() -> None:
     assert result.data_usable is False
     assert result.pages["r0"] is None
     assert result.rate_limit_remaining is None
+    assert result.unusable == frozenset()  # data_usable is false: the caller fails the chunk
 
 
 def test_missing_data_key_is_unusable() -> None:
@@ -436,47 +465,43 @@ def test_no_next_page_drops_the_cursor() -> None:
     assert h.end_cursor is None
 
 
+def malformed_history_page(hist: object) -> GitHubRepoPage:
+    """Parse a repo whose history is ``hist`` and assert S5 (and only S5) is malformed."""
+    doc = repo(defaultBranchRef={"target": {"history": hist}})
+    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
+    assert parsed is not None
+    assert parsed.history is None
+    assert parsed.malformed == frozenset({"s5_committers"})
+    assert parsed.open_issues == 12 and parsed.closed_issues == 340  # the rest is kept
+    return parsed
+
+
 @pytest.mark.parametrize("bad", ["true", 1, None, [], {}])
-def test_wrong_typed_has_next_page_is_false(bad: Any) -> None:
-    h = first_history(has_next=bad, cursor="c")
-    assert h is not None
-    assert h.has_next_page is False
-    assert h.end_cursor is None
+def test_wrong_typed_has_next_page_makes_the_history_malformed(bad: Any) -> None:
+    # Without a usable hasNextPage the count cannot be called complete: S5 is unknown.
+    malformed_history_page(history(has_next=bad, cursor="c"))
 
 
 @pytest.mark.parametrize("info", [None, "x", [], 3])
-def test_bad_page_info_still_counts_the_nodes(info: Any) -> None:
-    hist = {"pageInfo": info, "nodes": [node(login="alice")]}
-    doc = repo(defaultBranchRef={"target": {"history": hist}})
-    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
-    assert parsed is not None
-    assert parsed.history == GitHubHistoryPage(frozenset({"alice"}), False, None)
+def test_bad_page_info_makes_the_history_malformed(info: Any) -> None:
+    malformed_history_page({"pageInfo": info, "nodes": [node(login="alice")]})
 
 
-def test_missing_page_info_key() -> None:
-    hist = {"nodes": [node(login="alice")]}
-    doc = repo(defaultBranchRef={"target": {"history": hist}})
-    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
-    assert parsed is not None
-    assert parsed.history == GitHubHistoryPage(frozenset({"alice"}), False, None)
+def test_missing_page_info_key_makes_the_history_malformed() -> None:
+    malformed_history_page({"nodes": [node(login="alice")]})
+
+
+def test_missing_has_next_page_key_makes_the_history_malformed() -> None:
+    malformed_history_page({"pageInfo": {"endCursor": None}, "nodes": [node(login="alice")]})
 
 
 @pytest.mark.parametrize("bad", [None, "nodes", {}, 3, True])
-def test_nodes_not_a_list_gives_no_history(bad: Any) -> None:
-    hist = {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": bad}
-    doc = repo(defaultBranchRef={"target": {"history": hist}})
-    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
-    assert parsed is not None
-    assert parsed.history is None
-    assert parsed.open_issues == 12
+def test_nodes_not_a_list_makes_the_history_malformed(bad: Any) -> None:
+    malformed_history_page({"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": bad})
 
 
-def test_missing_nodes_key_gives_no_history() -> None:
-    hist = {"pageInfo": {"hasNextPage": False, "endCursor": None}}
-    doc = repo(defaultBranchRef={"target": {"history": hist}})
-    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
-    assert parsed is not None
-    assert parsed.history is None
+def test_missing_nodes_key_makes_the_history_malformed() -> None:
+    malformed_history_page({"pageInfo": {"hasNextPage": False, "endCursor": None}})
 
 
 def test_empty_nodes_is_an_empty_history() -> None:
@@ -484,7 +509,8 @@ def test_empty_nodes_is_an_empty_history() -> None:
     assert h == GitHubHistoryPage(frozenset(), False, None)
 
 
-def test_nodes_are_deduplicated_and_unusable_ones_skipped() -> None:
+def test_nodes_are_deduplicated_and_commits_without_an_author_are_skipped() -> None:
+    # A null author is a legitimate skip (a bot or an unlinked commit), not a malformation.
     nodes = [
         node(login="alice"),
         node(login="alice", email="a@x.org"),
@@ -493,29 +519,95 @@ def test_nodes_are_deduplicated_and_unusable_ones_skipped() -> None:
         node(name="Carol"),
         {"author": None},
         {},
+        {"author": {}},
+        {"author": {"name": None, "email": None, "user": None}},
+        {"author": {"name": "", "email": "", "user": {"login": ""}}},
+        {"author": {"user": {}}},
+    ]
+    h = first_history(nodes=nodes)
+    assert h == GitHubHistoryPage(frozenset({"alice", "bob@example.com", "Carol"}), False, None)
+
+
+@pytest.mark.parametrize(
+    "bad_node",
+    [
         None,
         "x",
         7,
-    ]
-    h = first_history(nodes=nodes)
-    assert h is not None
-    assert h.author_keys == frozenset({"alice", "bob@example.com", "Carol"})
+        True,
+        [],
+        {"author": "alice"},
+        {"author": []},
+        {"author": 3},
+        {"author": True},
+        {"author": {"user": "alice"}},
+        {"author": {"user": []}},
+        {"author": {"user": {"login": 5}}},
+        {"author": {"user": {"login": True}}},
+        {"author": {"user": {"login": ["a"]}}},
+        {"author": {"email": 5}},
+        {"author": {"email": []}},
+        {"author": {"name": 5}},
+        {"author": {"name": {"x": 1}}},
+        # a bad member next to a good one still damages the node
+        {"author": {"user": {"login": "alice"}, "email": 5}},
+        {"author": {"user": {"login": "alice"}, "name": []}},
+        {"author": {"user": {"login": 5}, "email": "a@x.org", "name": "Alice"}},
+    ],
+)
+def test_a_malformed_node_makes_the_whole_history_page_malformed(bad_node: Any) -> None:
+    # S5 must not be a count that quietly leaves out the commits we could not read.
+    malformed_history_page(history(nodes=[node(login="alice"), bad_node, node(login="bob")]))
+
+
+def test_one_good_page_of_many_commits_is_not_malformed_by_null_authors() -> None:
+    h = first_history(nodes=[{"author": None}] * 5 + [node(login="alice")])
+    assert h == GitHubHistoryPage(frozenset({"alice"}), False, None)
 
 
 # --- scalar fields ---------------------------------------------------------- #
-@pytest.mark.parametrize("bad", [True, False, 0, 1, "true", None, []])
-def test_is_archived_wrong_type_is_none_unless_bool(bad: Any) -> None:
+@pytest.mark.parametrize("value", [True, False])
+def test_is_archived_bool_is_kept(value: bool) -> None:
+    parsed = parse_first_page(body({"r0": repo(isArchived=value)}), ["r0"]).pages["r0"]
+    assert parsed is not None
+    assert parsed.is_archived is value
+    assert parsed.malformed == frozenset()
+
+
+def test_is_archived_null_or_absent_is_an_absence() -> None:
+    nulled = parse_first_page(body({"r0": repo(isArchived=None)}), ["r0"]).pages["r0"]
+    doc = repo()
+    del doc["isArchived"]
+    absent = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
+    for parsed in (nulled, absent):
+        assert parsed is not None
+        assert parsed.is_archived is None
+        assert parsed.malformed == frozenset()
+
+
+@pytest.mark.parametrize("bad", [0, 1, "true", "false", [], {}, 1.5])
+def test_is_archived_wrong_type_is_malformed(bad: Any) -> None:
     parsed = parse_first_page(body({"r0": repo(isArchived=bad)}), ["r0"]).pages["r0"]
     assert parsed is not None
-    assert parsed.is_archived == (bad if isinstance(bad, bool) else None)
+    assert parsed.is_archived is None
+    assert parsed.malformed == frozenset({"s1_declared_death"})
+    assert parsed.pushed_at == date(2026, 10, 30)
 
 
-@pytest.mark.parametrize("bad", [None, 20261030, "yesterday", "", [], True, 1.5])
-def test_bad_pushed_at_is_none(bad: Any) -> None:
+@pytest.mark.parametrize("bad", [20261030, "yesterday", "", [], True, 1.5, {}])
+def test_bad_pushed_at_is_malformed(bad: Any) -> None:
     parsed = parse_first_page(body({"r0": repo(pushedAt=bad)}), ["r0"]).pages["r0"]
     assert parsed is not None
     assert parsed.pushed_at is None
+    assert parsed.malformed == frozenset({"s3_last_push_at"})
     assert parsed.is_archived is False
+
+
+def test_null_pushed_at_is_an_absence() -> None:
+    parsed = parse_first_page(body({"r0": repo(pushedAt=None)}), ["r0"]).pages["r0"]
+    assert parsed is not None
+    assert parsed.pushed_at is None
+    assert parsed.malformed == frozenset()
 
 
 def test_pushed_at_is_taken_in_utc() -> None:
@@ -525,14 +617,24 @@ def test_pushed_at_is_taken_in_utc() -> None:
     assert parsed.pushed_at == date(2026, 10, 31)
 
 
-@pytest.mark.parametrize("bad", [True, False, "12", -1, 12.0, 1.5, None])
-def test_wrongly_typed_counts_are_none(bad: Any) -> None:
+@pytest.mark.parametrize("bad", [True, False, "12", -1, 12.0, 1.5, [], {}])
+def test_wrongly_typed_counts_are_malformed(bad: Any) -> None:
     doc = repo(open={"totalCount": bad}, closed={"totalCount": bad})
     parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
     assert parsed is not None
     assert parsed.open_issues is None
     assert parsed.closed_issues is None
+    assert parsed.malformed == frozenset({"s6_open_issues", "s6_closed_issues"})
     assert parsed.is_archived is False
+
+
+def test_null_or_missing_total_count_is_an_absence() -> None:
+    for connection in ({"totalCount": None}, {}):
+        doc = repo(open=connection, closed=connection)
+        parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
+        assert parsed is not None
+        assert (parsed.open_issues, parsed.closed_issues) == (None, None)
+        assert parsed.malformed == frozenset()
 
 
 def test_zero_counts_are_kept() -> None:
@@ -543,13 +645,34 @@ def test_zero_counts_are_kept() -> None:
     assert parsed.closed_issues == 0
 
 
-@pytest.mark.parametrize("bad", [None, [], "x", 3, {}])
-def test_bad_connection_gives_none_for_that_count_only(bad: Any) -> None:
+@pytest.mark.parametrize("bad", [[], "x", 3, True])
+def test_a_connection_that_is_not_an_object_is_malformed_for_that_count_only(bad: Any) -> None:
     doc = repo(open=bad)
     parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
     assert parsed is not None
     assert parsed.open_issues is None
     assert parsed.closed_issues == 340
+    assert parsed.malformed == frozenset({"s6_open_issues"})
+
+
+@pytest.mark.parametrize("bad", [None, {}])
+def test_a_null_or_empty_connection_is_an_absence_for_that_count_only(bad: Any) -> None:
+    doc = repo(open=bad)
+    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
+    assert parsed is not None
+    assert parsed.open_issues is None
+    assert parsed.closed_issues == 340
+    assert parsed.malformed == frozenset()
+
+
+def test_several_wrong_typed_fields_are_all_reported() -> None:
+    doc = repo(isArchived="no", pushedAt=5, open="x", closed={"totalCount": -1})
+    parsed = parse_first_page(body({"r0": doc}), ["r0"]).pages["r0"]
+    assert parsed is not None
+    assert parsed.malformed == frozenset(
+        {"s1_declared_death", "s3_last_push_at", "s6_open_issues", "s6_closed_issues"}
+    )
+    assert parsed.history == GitHubHistoryPage(frozenset({"alice", "bob"}), False, None)
 
 
 def test_repo_with_no_fields_is_all_none() -> None:
@@ -637,16 +760,29 @@ def test_login_keeps_its_case() -> None:
     assert author_key(node(login="Alice")) == "Alice"
 
 
-@pytest.mark.parametrize("empty", ["", None, 5, True, []])
-def test_empty_or_bad_login_falls_through(empty: Any) -> None:
+@pytest.mark.parametrize("empty", ["", None])
+def test_empty_or_null_login_falls_through(empty: Any) -> None:
     n = {"author": {"name": "Alice", "email": "A@X.org", "user": {"login": empty}}}
+    assert commit_author(n) == ("a@x.org", False)
     assert author_key(n) == "a@x.org"
 
 
-@pytest.mark.parametrize("empty", ["", None, 5, True, []])
-def test_empty_or_bad_email_falls_through(empty: Any) -> None:
+@pytest.mark.parametrize("empty", ["", None])
+def test_empty_or_null_email_falls_through(empty: Any) -> None:
     n = {"author": {"name": "Alice", "email": empty, "user": None}}
+    assert commit_author(n) == ("Alice", False)
     assert author_key(n) == "Alice"
+
+
+@pytest.mark.parametrize("bad", [5, True, [], {}, 1.5])
+def test_wrong_typed_login_email_or_name_is_malformed(bad: Any) -> None:
+    # Even when another member would have given a key: the node is damaged.
+    login = {"author": {"name": "Alice", "email": "A@X.org", "user": {"login": bad}}}
+    email = {"author": {"name": "Alice", "email": bad, "user": {"login": "alice"}}}
+    name = {"author": {"name": bad, "email": "A@X.org", "user": {"login": "alice"}}}
+    for n in (login, email, name):
+        assert commit_author(n) == (None, True)
+        assert author_key(n) is None
 
 
 def test_nothing_usable_gives_none() -> None:
@@ -654,30 +790,29 @@ def test_nothing_usable_gives_none() -> None:
     assert author_key(node()) is None
 
 
-def test_user_not_a_mapping_falls_through() -> None:
-    users: list[Any] = ["alice", [], 3, True]
-    for user in users:
-        n = {"author": {"name": "Alice", "email": None, "user": user}}
-        assert author_key(n) == "Alice"
+@pytest.mark.parametrize("user", ["alice", [], 3, True])
+def test_user_not_a_mapping_is_malformed(user: Any) -> None:
+    n = {"author": {"name": "Alice", "email": None, "user": user}}
+    assert commit_author(n) == (None, True)
+
+
+def test_null_or_missing_user_is_fine() -> None:
+    assert commit_author({"author": {"name": "Alice", "user": None}}) == ("Alice", False)
+    assert commit_author({"author": {"name": "Alice"}}) == ("Alice", False)
+
+
+@pytest.mark.parametrize("n", [{}, {"author": None}, {"author": {}}])
+def test_node_without_an_author_is_a_legitimate_skip(n: Any) -> None:
+    assert commit_author(n) == (None, False)
+    assert author_key(n) is None
 
 
 @pytest.mark.parametrize(
     "n",
-    [
-        {},
-        {"author": None},
-        {"author": "alice"},
-        {"author": []},
-        {"author": 3},
-        {"author": {}},
-        None,
-        [],
-        "alice",
-        7,
-        True,
-    ],
+    [{"author": "alice"}, {"author": []}, {"author": 3}, None, [], "alice", 7, True],
 )
-def test_node_without_a_usable_author_gives_none(n: Any) -> None:
+def test_node_or_author_of_the_wrong_type_is_malformed(n: Any) -> None:
+    assert commit_author(n) == (None, True)
     assert author_key(n) is None
 
 

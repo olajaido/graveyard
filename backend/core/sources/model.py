@@ -2,10 +2,11 @@
 
 Every dataclass is frozen. Mappings are read-only ``MappingProxyType`` views.
 ``Evidence`` and ``SourceWarning`` pass every string through the token-shape
-redaction in ``secret.py`` when constructed (SRC-SEC-3), cap ``detail`` at 200
+redaction in ``secret.py`` when constructed (SRC-SEC-3), ``Evidence`` also strips any
+``user:password@`` from its URLs (``urls.strip_userinfo``), cap ``detail`` at 200
 characters (SRC-WARN-3) and sort their collections, so equal inputs give equal
-values. This module does no I/O and imports only ``core.scoring.types.Signals``
-and ``core.sources.secret``.
+values. This module does no I/O and imports only ``core.scoring.types.Signals``,
+``core.sources.secret`` and ``core.sources.urls``.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from typing import Final, Literal
 
 from core.scoring.types import Signals
 from core.sources.secret import redact
+from core.sources.urls import strip_userinfo
 
 type JsonValue = None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
 
@@ -95,6 +97,11 @@ def _clean_text(text: str, limit: int | None = None) -> str:
     return cleaned if limit is None else cleaned[:limit]
 
 
+def _clean_url(url: str) -> str:
+    """Drop any ``user:password@`` first, then redact token shapes (SRC-SEC-3)."""
+    return _clean_text(strip_userinfo(url))
+
+
 def _clean_json(value: JsonValue, depth: int = 0) -> JsonValue:
     """Return ``value`` with every string (and mapping key) redacted.
 
@@ -147,13 +154,13 @@ class Evidence:
             raise ValueError("Evidence with a value needs source_url and fetched_at")
         object.__setattr__(self, "value", _clean_json(self.value))
         if self.source_url is not None:
-            object.__setattr__(self, "source_url", _clean_text(self.source_url))
+            object.__setattr__(self, "source_url", _clean_url(self.source_url))
         # Redaction can make two different URLs equal, so uniqueness and "not the primary URL"
         # are decided after cleaning.
         object.__setattr__(
             self,
             "extra_source_urls",
-            tuple(sorted({_clean_text(url) for url in self.extra_source_urls} - {self.source_url})),
+            tuple(sorted({_clean_url(url) for url in self.extra_source_urls} - {self.source_url})),
         )
         if self.note is not None:
             object.__setattr__(self, "note", _clean_text(self.note))

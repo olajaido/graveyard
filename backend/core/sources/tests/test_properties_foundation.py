@@ -18,7 +18,7 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta, timezone
 from types import MappingProxyType
-from typing import Any, cast
+from typing import Any, Literal, cast
 from urllib.parse import quote, unquote, urlsplit
 
 import pytest
@@ -64,6 +64,7 @@ from core.sources.urls import (
     pypi_json_url,
     pypistats_recent_url,
     scorecard_url,
+    strip_userinfo,
 )
 
 pytestmark = pytest.mark.property
@@ -769,3 +770,64 @@ def test_cassette_roundtrip(entries: list[CassetteEntry], rnd: random.Random) ->
     assert [entry.key for entry in cassette.entries] == [
         entry.key for entry in sorted(unique, key=lambda e: (e.url, e.key))
     ]
+
+
+# ---------------------------------------------------------------------------
+# strip_userinfo (SRC-SEC-3)
+# ---------------------------------------------------------------------------
+
+_SCHEMES = st.sampled_from(["https", "http", "git+ssh", "HTTPS", "ftp"])
+_USERINFO = st.text(min_size=0, max_size=40).filter(lambda s: "@" not in s)
+_NO_AT = st.text(max_size=60).filter(lambda s: "@" not in s)
+
+
+@given(st.text(max_size=120))
+def test_strip_userinfo_leaves_no_at_sign_and_never_grows(text: str) -> None:
+    """**Validates: Requirements SRC-SEC-3**"""
+    out = strip_userinfo(text)
+    assert "@" not in out
+    assert len(out) <= len(text)
+    assert strip_userinfo(out) == out
+
+
+@given(_NO_AT)
+def test_strip_userinfo_is_the_identity_without_an_at_sign(text: str) -> None:
+    """**Validates: Requirements SRC-SEC-3**"""
+    assert strip_userinfo(text) == text
+
+
+@given(_SCHEMES, st.lists(_USERINFO, min_size=1, max_size=3), _NO_AT, _NO_AT)
+def test_strip_userinfo_removes_any_credential_before_the_host(
+    scheme: str, userinfo_parts: list[str], host: str, rest: str
+) -> None:
+    """**Validates: Requirements SRC-SEC-3**
+
+    However the credential is spelled (several ``@``, ``/``, ``?``, ``#``, control
+    characters, ``://`` inside it), what is left is the scheme and what follows the last ``@``.
+    """
+    url = f"{scheme}://" + "@".join(userinfo_parts) + "@" + host + rest
+    assert strip_userinfo(url) == f"{scheme}://" + host + rest
+    for part in userinfo_parts:
+        # a secret must not survive unless it is also a substring of the kept host/rest
+        if part and part not in host + rest and part not in f"{scheme}://":
+            assert part not in strip_userinfo(url)
+
+
+# `parse_purl` rejects a lone surrogate (PV-PURL-13), so no parsed purl reaches a builder with
+# one; `quote` would raise UnicodeEncodeError, a ValueError (see test_urls.py).
+_SURROGATES: list[Literal["Cs"]] = ["Cs"]
+_NAME_TEXT = st.text(
+    alphabet=st.characters(blacklist_characters="@", blacklist_categories=_SURROGATES),
+    max_size=80,
+)
+
+
+@given(_NAME_TEXT)
+def test_every_built_url_is_unchanged(name: str) -> None:
+    """**Validates: Requirements SRC-SEC-3** Quoted segments never contain a raw ``@``."""
+    assume(name not in ("", ".", ".."))
+    for url in (npm_packument_url(name), pypi_json_url(name), npm_downloads_single_url(name)):
+        assert "@" not in url
+        assert strip_userinfo(url) == url
+    scoped = npm_packument_url("@" + name)
+    assert "@" not in scoped and strip_userinfo(scoped) == scoped

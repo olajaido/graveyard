@@ -37,9 +37,9 @@ def _response(*results: object) -> dict[str, Any]:
 
 
 def _result(
-    ids: tuple[str, ...] = (), token: str | None = None, dropped: int = 0
+    ids: tuple[str, ...] = (), token: str | None = None, malformed: bool = False
 ) -> OsvQueryResult:
-    return OsvQueryResult(ids, token, dropped)
+    return OsvQueryResult(ids, token, malformed)
 
 
 def _doc(**fields_: Any) -> dict[str, Any]:
@@ -103,7 +103,7 @@ def test_extra_keys_next_to_results_are_ignored() -> None:
     assert parse_query_results({"results": [{}], "note": "x"}, 1) == [_result()]
 
 
-# --- invalid ids are dropped and counted -----------------------------------------------------
+# --- an unusable vulns entry marks the query malformed (SRC-OSV-3, SRC-OSV-6) ----------------
 
 
 @pytest.mark.parametrize(
@@ -128,9 +128,11 @@ def test_extra_keys_next_to_results_are_ignored() -> None:
         ["A-1"],
     ],
 )
-def test_invalid_entries_are_dropped_and_counted(entry: object) -> None:
+def test_an_unusable_entry_marks_the_query_malformed(entry: object) -> None:
+    # Never skipped: what the entry names might be a no-fix advisory, so a list without it is
+    # incomplete. The valid ids are still reported, the caller decides (it fails the package).
     data = _response({"vulns": [{"id": "GOOD-1"}, entry]})
-    assert parse_query_results(data, 1) == [_result(("GOOD-1",), None, 1)]
+    assert parse_query_results(data, 1) == [_result(("GOOD-1",), None, True)]
 
 
 def test_an_id_of_100_characters_is_valid() -> None:
@@ -143,22 +145,37 @@ def test_every_valid_id_character_is_accepted() -> None:
     assert parse_query_results(_response(_ids(*ids)), 1) == [_result(ids)]
 
 
-def test_dropped_counts_are_per_query() -> None:
+def test_malformed_is_per_query_not_per_response() -> None:
     data = _response(
         {"vulns": [{"id": "bad id"}, {"id": "A-1"}, "x"]},
         _ids("B-1"),
         {"vulns": [{}, {}, {}]},
     )
     assert parse_query_results(data, 3) == [
-        _result(("A-1",), None, 2),
+        _result(("A-1",), None, True),
         _result(("B-1",)),
-        _result((), None, 3),
+        _result((), None, True),
     ]
 
 
-def test_a_dropped_entry_does_not_hide_the_ids_around_it() -> None:
+def test_a_malformed_query_does_not_spoil_its_neighbours() -> None:
+    # Unlike a wrong `results` shape or a wrong-typed token, which reject the whole chunk.
+    data = _response(_ids("A-1"), {"vulns": [None]}, {**_ids("C-1"), "next_page_token": "t"})
+    assert parse_query_results(data, 3) == [
+        _result(("A-1",)),
+        _result((), None, True),
+        _result(("C-1",), "t"),
+    ]
+
+
+def test_the_valid_ids_around_an_unusable_entry_are_kept_in_order() -> None:
     data = _response({"vulns": [{"id": "A-1"}, {"id": "bad id"}, {"id": "B-1"}]})
-    assert parse_query_results(data, 1) == [_result(("A-1", "B-1"), None, 1)]
+    assert parse_query_results(data, 1) == [_result(("A-1", "B-1"), None, True)]
+
+
+def test_a_well_formed_query_is_not_malformed() -> None:
+    result = parse_query_results(_response(_ids("A-1", "A-1", "B-2"), {}), 2)
+    assert result is not None and [r.malformed for r in result] == [False, False]
 
 
 # --- vulns missing, null, empty or of the wrong type -----------------------------------------
@@ -455,9 +472,10 @@ def test_published_is_the_utc_date(published: str, expected: date) -> None:
         "2" * 300,
     ],
 )
-def test_an_unparsable_published_is_none(published: object) -> None:
-    vuln = parse_vuln(_doc(published=published), "npm", "express")
-    assert vuln is not None and vuln.published_at is None
+def test_a_present_but_unusable_published_rejects_the_document(published: object) -> None:
+    # Not an honest unknown: the Cursed rule depends on the date, so the package's S7 must be
+    # unknown (with a warning) rather than an advisory whose date silently became None.
+    assert parse_vuln(_doc(published=published), "npm", "express") is None
 
 
 def test_a_missing_or_null_published_is_none() -> None:
@@ -466,9 +484,9 @@ def test_a_missing_or_null_published_is_none() -> None:
         assert vuln is not None and vuln.published_at is None
 
 
-def test_an_unusable_published_does_not_stop_the_fix_from_being_found() -> None:
-    vuln = parse_vuln(_doc(published="yesterday"), "npm", "express")
-    assert vuln is not None and vuln.has_fix is True
+def test_a_missing_published_does_not_stop_the_fix_from_being_found() -> None:
+    vuln = parse_vuln(_doc(), "npm", "express")
+    assert vuln is not None and vuln.has_fix is True and vuln.published_at is None
 
 
 # --- invalid documents -----------------------------------------------------------------------
@@ -558,6 +576,6 @@ def test_to_advisory_from_a_parsed_document() -> None:
     vuln = parse_vuln(_doc(published="2020-05-01T10:00:00Z"), "npm", "express")
     assert vuln is not None
     assert to_advisory(vuln) == Advisory("GHSA-1111-2222-3333", True, date(2020, 5, 1))
-    unpublished = parse_vuln(_doc(published="soon", affected=[]), "npm", "express")
+    unpublished = parse_vuln(_doc(affected=[]), "npm", "express")
     assert unpublished is not None
     assert to_advisory(unpublished) == Advisory("GHSA-1111-2222-3333", False, None)

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import copy
 import re
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -297,6 +298,19 @@ def test_fixed_versions_sorted_unique_valid(doc: dict[str, Any], pair: tuple[str
 # ---------------------------------------------------------------------------
 
 
+def _parses_as_date(value: object) -> bool:
+    """Independent of ``accessors.as_date``: a short ISO 8601 string ``datetime`` accepts."""
+    if not isinstance(value, str) or len(value) > 64:
+        return False
+    try:
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is not None:
+            parsed.astimezone(UTC)
+    except (ValueError, OverflowError):
+        return False
+    return True
+
+
 def _check_vuln(data: object, ecosystem: str, name: str) -> None:
     vuln = parse_vuln(data, ecosystem, name)
     assert vuln is None or isinstance(vuln, OsvVuln)
@@ -305,9 +319,14 @@ def _check_vuln(data: object, ecosystem: str, name: str) -> None:
         return
     raw_id = data.get("id")
     id_valid = isinstance(raw_id, str) and _OSV_ID.fullmatch(raw_id) is not None
-    assert (vuln is not None) is id_valid
+    # A `published` that is present and unusable rejects the document (SRC-OSV-5): the Cursed
+    # rule depends on it, so it must not silently become "unknown".
+    published = data.get("published")
+    published_usable = published is None or _parses_as_date(published)
+    assert (vuln is not None) is (id_valid and published_usable)
     if vuln is None:
         return
+    assert vuln.published_at is None or published is not None
     assert vuln.id == raw_id
     assert vuln.has_fix is bool(vuln.fixed_versions)
     assert vuln.fixed_versions == fixed_versions(data, ecosystem, name)
@@ -347,23 +366,23 @@ _TOKENS = st.one_of(st.none(), st.just(""), st.text(min_size=1, max_size=12))
 
 
 @st.composite
-def _clean_responses(draw: st.DrawFn) -> tuple[Any, list[tuple[list[str], str | None, int]]]:
+def _clean_responses(draw: st.DrawFn) -> tuple[Any, list[tuple[list[str], str | None, bool]]]:
     """A well-shaped ``querybatch`` response and what ``parse_query_results`` must give.
 
     The expectation is computed here from the id and token lists, not from the parser.
     """
     response_results: list[dict[str, Any]] = []
-    expected: list[tuple[list[str], str | None, int]] = []
+    expected: list[tuple[list[str], str | None, bool]] = []
     for _ in range(draw(st.integers(0, 5))):
         raw_ids = draw(st.lists(_ENTRY_IDS, max_size=6))
         entries: list[Any] = [{"id": raw} for raw in raw_ids]
-        extra_dropped = 0
+        has_junk = False
         junk_values: list[Any] = draw(
             st.lists(st.sampled_from((None, 1, "x", [], {}, {"id": 5})), max_size=2)
         )
         for junk in junk_values:
             entries.insert(draw(st.integers(0, len(entries))), copy.deepcopy(junk))
-            extra_dropped += 1
+            has_junk = True
         result: dict[str, Any] = {}
         has_vulns = draw(st.booleans()) or bool(entries)
         if has_vulns:
@@ -374,31 +393,32 @@ def _clean_responses(draw: st.DrawFn) -> tuple[Any, list[tuple[list[str], str | 
         else:
             token = None
         ids: list[str] = []
-        dropped = extra_dropped
+        malformed = has_junk
         for raw in raw_ids:
             if _OSV_ID.fullmatch(raw) is None:
-                dropped += 1
+                malformed = True
             elif raw not in ids:
                 ids.append(raw)
         response_results.append(result)
-        expected.append((ids, token or None, dropped))
+        expected.append((ids, token or None, malformed))
     return {"results": response_results}, expected
 
 
 @given(case=_clean_responses())
 def test_parse_query_results_on_clean_responses(
-    case: tuple[Any, list[tuple[list[str], str | None, int]]],
+    case: tuple[Any, list[tuple[list[str], str | None, bool]]],
 ) -> None:
     """**Validates: Requirements SRC-OSV-1, SRC-OSV-3**
 
     For a well-shaped response the parser returns one result per query: valid ids in
-    first-seen order without duplicates, the non-empty token or ``None``, and the number
-    of discarded entries.
+    first-seen order without duplicates, the non-empty token or ``None``, and whether any
+    entry was unusable (``malformed``, SRC-OSV-3). The flag is per query: an unusable entry
+    in one query never changes the result of another.
     """
     response, expected = case
     result = parse_query_results(response, len(expected))
     assert result is not None
-    assert [(list(r.ids), r.next_page_token, r.dropped) for r in result] == expected
+    assert [(list(r.ids), r.next_page_token, r.malformed) for r in result] == expected
     assert parse_query_results(response, len(expected) + 1) is None
 
 
@@ -430,7 +450,7 @@ def test_parse_query_results_total(data: object, expected_count: int) -> None:
     """**Validates: Requirements SRC-TEST-4, SRC-OSV-1, SRC-OSV-3**
 
     ``parse_query_results`` never raises. When it returns a list, the list has
-    ``expected_count`` elements, ids are unique and valid, ``dropped`` is not negative, and
+    ``expected_count`` elements, ids are unique and valid, ``malformed`` is a ``bool``, and
     a token is ``None`` or a non-empty ``str``.
     """
     result = parse_query_results(data, expected_count)
@@ -440,7 +460,7 @@ def test_parse_query_results_total(data: object, expected_count: int) -> None:
     for item in result:
         assert len(set(item.ids)) == len(item.ids)
         assert all(_OSV_ID.fullmatch(vuln_id) is not None for vuln_id in item.ids)
-        assert item.dropped >= 0
+        assert isinstance(item.malformed, bool)
         assert item.next_page_token is None or (
             isinstance(item.next_page_token, str) and item.next_page_token != ""
         )

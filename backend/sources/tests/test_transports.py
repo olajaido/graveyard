@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Awaitable
-from typing import Any
+from typing import Any, cast
 
 import httpx
 import pytest
@@ -185,6 +185,7 @@ def test_fault_kinds_are_the_design_list() -> None:
         "empty_array",
         "null_body",
         "wrong_field_types",
+        "wrong_one_leaf",
     }
 
 
@@ -300,6 +301,62 @@ def test_wrong_field_types_fault_keeps_structure_and_changes_every_leaf_type() -
     assert _same_shape_all_leaves_changed(DOC, response.json())
 
 
+def _leaves(value: Any) -> list[Any]:
+    if isinstance(value, dict):
+        return [leaf for item in value.values() for leaf in _leaves(item)]
+    if isinstance(value, list):
+        return [leaf for item in value for leaf in _leaves(item)]
+    return [value]
+
+
+def test_wrong_one_leaf_fault_changes_exactly_one_leaf_to_another_type() -> None:
+    original = _leaves(DOC)
+    assert len(original) > 2
+    for index in range(len(original) + 3):  # wraps around, so every leaf is reached
+        response = _faulted(Fault("wrong_one_leaf", leaf=index))
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/json"
+        changed = _leaves(response.json())
+        assert len(changed) == len(original)
+        differing = [i for i, (a, b) in enumerate(zip(original, changed, strict=True)) if a != b]
+        assert differing == [index % len(original)]
+        assert type(changed[differing[0]]) is not type(original[differing[0]])
+
+
+def test_wrong_one_leaf_keeps_the_structure_and_does_not_mutate_the_wrapped_answer() -> None:
+    before = json.dumps(DOC, sort_keys=True)
+    response = _faulted(Fault("wrong_one_leaf", leaf=1))
+    assert json.dumps(DOC, sort_keys=True) == before
+    assert response.json() != DOC
+
+
+def test_wrong_one_leaf_on_an_empty_document_and_a_bare_leaf() -> None:
+    def empty(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={}, headers={"content-type": "application/json"})
+
+    def bare(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=7, headers={"content-type": "application/json"})
+
+    plan = _plan(Fault("wrong_one_leaf", leaf=5))
+    assert send(fault_transport(empty, plan), A).json() == {}
+    assert send(fault_transport(bare, plan), A).json() == "7"
+
+
+def test_wrong_one_leaf_passes_through_a_body_that_is_not_json() -> None:
+    def text_handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=b"plain", headers={"content-type": "text/plain"})
+
+    transport = fault_transport(text_handler, _plan(Fault("wrong_one_leaf")))
+    assert send(transport, A).content == b"plain"
+
+
+@pytest.mark.parametrize("leaf", [-1, True, 1.5, "1"])
+def test_wrong_one_leaf_needs_a_non_negative_integer_leaf(leaf: Any) -> None:
+    kwargs: dict[str, Any] = {"leaf": leaf}
+    with pytest.raises(ValueError):
+        Fault("wrong_one_leaf", **kwargs)
+
+
 def test_wrong_field_types_passes_through_a_body_that_is_not_json() -> None:
     def text_handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, content=b"plain", headers={"content-type": "text/plain"})
@@ -310,7 +367,7 @@ def test_wrong_field_types_passes_through_a_body_that_is_not_json() -> None:
 
 def test_fault_validation() -> None:
     with pytest.raises(ValueError):
-        Fault("nonsense")  # type: ignore[arg-type]
+        Fault(cast(Any, "nonsense"))
     with pytest.raises(ValueError):
         Fault("status", times=0)
     with pytest.raises(ValueError):

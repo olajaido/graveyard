@@ -13,7 +13,7 @@ import gzip
 import random
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, replace
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from email.utils import format_datetime
 from typing import Any
 
@@ -1027,3 +1027,70 @@ def test_aclose_is_idempotent_and_a_closed_gateway_can_be_used_again() -> None:
     first, second = asyncio.run(main())
     assert_ok(first)
     assert_ok(second)
+
+
+# ------------------------------------------------------------ userinfo (SRC-SEC-3)
+
+CREDENTIAL_URLS = [
+    "https://user:password@api.deps.dev/x",
+    "https://user@api.deps.dev/x",
+    "https://:password@api.deps.dev/x",
+    "https://api.deps.dev@evil.example/x",
+    "https://user:password@evil.example/x",
+    "user:password@evil.example/x",
+    "https://u:pass/word@evil.example/x",
+    "https://u:pass?word@evil.example/x",
+    "https://a%40b:pass%40word@evil.example/x",
+    "https://u:p ass\nword@evil.example/x",
+]
+CREDENTIAL_WORDS = ("password", "pass", "word")
+
+
+@pytest.mark.parametrize("url", CREDENTIAL_URLS)
+def test_rejected_url_is_stored_without_its_credentials(url: str) -> None:
+    run = fetch_one(Script(reply()), get(url))
+    failed = assert_failed(run.value, "HOST_NOT_ALLOWED", None)
+    assert run.seen.total == 0
+    assert "@" not in failed.url
+    for word in CREDENTIAL_WORDS:
+        assert word not in failed.url
+    assert "user" not in failed.url.replace("evil.example", "")
+
+
+def test_a_long_credential_is_stripped_before_the_url_is_cut_short() -> None:
+    # Truncating first would leave the start of the password visible with its "@" cut off.
+    url = "https://user:" + "S3CRET" * 100 + "@evil.example/path"
+    failed = assert_failed(fetch_one(Script(reply()), get(url)).value, "HOST_NOT_ALLOWED", None)
+    assert "S3CRET" not in failed.url
+    assert failed.url == "https://evil.example/path"
+
+
+def test_a_long_credential_with_a_long_tail_is_stripped_and_then_bounded() -> None:
+    url = "https://user:" + "S3CRET" * 100 + "@evil.example/" + "p" * 1000
+    failed = assert_failed(fetch_one(Script(reply()), get(url)).value, "HOST_NOT_ALLOWED", None)
+    assert "S3CRET" not in failed.url and "user" not in failed.url
+    assert failed.url.startswith("https://evil.example/ppp")
+    assert len(failed.url) <= 600
+
+
+def test_the_token_is_still_redacted_when_it_sits_in_the_userinfo() -> None:
+    url = f"https://{TOKEN}@evil.example/x"
+    run = fetch_one(Script(reply()), get(url), token=SecretToken(TOKEN))
+    failed = assert_failed(run.value, "HOST_NOT_ALLOWED", None)
+    assert TOKEN not in failed.url and "@" not in failed.url
+
+
+@pytest.mark.parametrize(
+    "build",
+    [
+        lambda url, now: Failed("HTTP_STATUS", url, 500),
+        lambda url, now: Ok({}, url, now),
+        lambda url, now: NotFound(url, now),
+    ],
+    ids=["Failed", "Ok", "NotFound"],
+)
+def test_result_types_strip_userinfo_whatever_built_them(
+    build: Callable[[str, Any], Any],
+) -> None:
+    result = build("https://user:password@api.deps.dev/x", datetime(2026, 11, 3, tzinfo=UTC))
+    assert result.url == "https://api.deps.dev/x"
