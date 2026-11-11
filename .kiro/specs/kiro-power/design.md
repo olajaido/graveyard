@@ -54,7 +54,8 @@ Three entry points share one pipeline (`cli.pipeline`) and one scorer (`core.sco
 | `core.graph.parse_requirements_txt(text) -> ScopeResult` raises `ValueError` only above `MAX_LOCKFILE_CHARS` (10 000 000). It keeps **only lines pinned with `==`/`===`** and returns them as `direct_scopes` keyed by `package_key` (`pypi/<normalised-name>@<version>`), in file order. It silently skips every line that starts with `-` (so `-r`, `-c`, `-e` and options are ignored, nested `-r` is never followed), and reports URL/path lines (`REQUIREMENT_SKIPPED`, "URL or path requirement") and unpinned lines (`REQUIREMENT_SKIPPED`, "not pinned with == or ===") as warnings. | `core/graph/scopes_requirements.py`, `core/graph/model.py` |
 | `cli/render.py` today: `render_table` shrinks `WHY` first (to 8) and then `PACKAGE` (to 20); `EXPOSURE` never shrinks; `_footer` joins fragments with ` · ` in one f-string; `render_stderr_notes` always appends `; N packages Unknown` to the partial-evidence note, including N = 0. A search of `cli/` and `core/` on 11 Nov 2026 found no source string `·3` or `issuecounts`; `TOKEN_MISSING_DETAIL` in `cli/pipeline.py` contains `issue counts` with a space. | `cli/render.py`, `cli/pipeline.py` |
 | Kiro documents workspace skills in `.kiro/skills/<name>/SKILL.md` (name equals folder; description ≤ 1024 characters matched against the request), `references/` loaded on demand, and the install page accepts `plugin.json` alone for a power. | kiro.dev Skills, Install powers |
-| **Not verified, to be confirmed by tasks:** the shell-tool field name and stdin delivery on this machine's Kiro build (KPW-SPK-1); that `uv` exits 2 on its own failures (KPW-TEST-9 records it); the working directory of an MCP server launched by Kiro; what an unapproved `${VAR}` expands to; what Kiro does when a hook times out. | n/a |
+| **Measured in KP-S1 (`docs/SPIKES.md`), Kiro 1.4.86:** the shell tool's hook payload (`tool_input.command`, envelope `cwd`, `tool_name` `execute_bash`, stdin closed after the write) and that exit 2 with a stderr line blocks the call and reaches the model. | `docs/SPIKES.md` |
+| **Unmeasured (not documented, not measured):** exit 1 behaviour; what Kiro does when a hook times out; what an unapproved `${VAR}` expands to; the working directory of an MCP server launched by Kiro; the types of a non-null `tool_input.cwd`, `timeout`, `description`. **To be confirmed by tasks:** that `uv` exits 2 on its own failures (KPW-TEST-9 records it). | n/a |
 
 ---
 
@@ -281,7 +282,7 @@ Hand-checked examples (these become `test_parse_examples.py`):
 ### 5.1 `core.install.payload.extract_payload`
 
 ```python
-COMMAND_FIELD: Final = "command"        # VALUES ARE SET FROM WHAT THE SPIKE OBSERVED (KPW-SPK-3); "command" / "cwd" are the third-party reading
+COMMAND_FIELD: Final = "command"        # measured in KP-S1 (docs/SPIKES.md), Kiro 1.4.86
 CWD_FIELD: Final = "cwd"
 MAX_PAYLOAD_CHARS = 1_048_576;  MAX_COMMAND_CHARS = 65_536;  MAX_CWD_CHARS = 4_096;  MAX_DEPTH = 16
 
@@ -742,7 +743,7 @@ Strategy: `st.one_of(st.text(), st.binary().map(lambda b: b.decode("utf-8", "rep
 
 | Risk or limit | Effect | Mitigation or statement |
 |---|---|---|
-| The shell-tool field name and stdin delivery are third-party measurements from other IDE builds and another OS | The hook could be inert on this machine | Spike first (KPW-SPK-1); inert means allow, so the failure is silent. The MCP tools and the skills still work. The README says how to check the hook is live. |
+| Payload delivery differs by build in third-party reports (IDE 0.11 sent no stdin). The field names and exit-2 blocking were measured only on Kiro 1.4.86 (KP-S1, `docs/SPIKES.md`) | On an older build the hook could be inert | Inert means allow, so the failure is silent. The MCP tools and the skills still work. The README states the measured build and says how to check the hook is live. |
 | "Any non-zero blocks" (official) versus "only 2 blocks" (measured) | A wrong exit code could block every command | We never return anything but 0 or 2, and the snippet maps every other status to 0 (§7.5, §9.1) |
 | A killed or crashed process | Status 137/139 would be mapped to 0 by the snippet | Covered by the `s=$?` form; tested with a fake that exits 139 |
 | No token in the hook environment (GUI apps often lack the shell environment) | Score-based verdicts are unverified and do not block | Declared-dead and age-cursed packages still block. README states it; the `request` demo works without a token |

@@ -43,9 +43,10 @@ The brief asked for the docs to be read first, for three points, with no Claude 
 | A Pre Tool Use event carries `hook_event_name`, `cwd`, `session_id`, `tool_name` and `tool_input` (an object). The only worked example is an MCP tool. | [Hook types](https://kiro.dev/docs/hooks/types/) (6 Nov 2026) | Documented for the envelope. **The fields of `tool_input` for the built-in shell tool are not listed, so the field holding the shell command is not documented.** |
 | Matcher: a tool ID, a category tag (`read`, `write`, `shell`, `web`, `spec`), a source selector, a regex against the tool ID, or a `*`/`?` wildcard in the JSON file. `shell` means "all built-in shell command-related tools". | Hook types; Hooks | Documented. **Use `"matcher": "shell"`.** |
 | **No documented environment variable or argument carries the pending tool call** (`USER_PROMPT` is documented for Prompt Submit only). PRD H9's `"$COMMAND"` is therefore not a Kiro feature. | Hook types; [Hook actions](https://kiro.dev/docs/hooks/actions/) | Documented by absence |
-| **Measured by a third party:** on IDE 1.0.242 and 1.1.14 the shell tool's Pre Tool Use input is `{command, cwd, run_in_background, timeout}`; the tool is `execute_bash` (`execute_pwsh` on Windows). Delivery differs by build: IDE 0.11 gave a Run Command hook no stdin ([kirodotdev/Kiro#7500](https://github.com/kirodotdev/Kiro/issues/7500)); the 0.12 channel never closed stdin. | [AWS Labs hook-payload reference](https://awslabs.github.io/aidlc-workflows/reference/kiro-ide-hook-payload/) | **Third-party, Windows, not the current build.** Re-measured on this machine by the spike (KPW-SPK-1), which comes first. |
+| **Measured in KP-S1 (`docs/SPIKES.md`), Kiro 1.4.86, macOS, 11 Nov 2026:** the hook receives the payload on stdin as one JSON object with the keys `session_id`, `hook_event_name`, `cwd`, `tool_name`, `tool_input`; `tool_name` is `execute_bash` and the `shell` matcher matched it; `tool_input` has `command` (the full text, multi-line included), `description`, `cwd`, `run_in_background`, `timeout` (the sample had `description`, `cwd` and `timeout` null); the envelope `cwd` equals the workspace root; stdin is closed after the write; no environment variable carries the tool call. | `docs/SPIKES.md` KP-S1 | **Measured.** `COMMAND_FIELD = "command"` (in `tool_input`), `CWD_FIELD = "cwd"` (envelope). The types of a non-null `tool_input.cwd`, `timeout` and `description` are not measured. |
+| Earlier third-party reports (other builds, Windows): IDE 0.11 gave a Run Command hook no stdin ([kirodotdev/Kiro#7500](https://github.com/kirodotdev/Kiro/issues/7500)); the 0.12 channel never closed stdin; 1.0.242 and 1.1.14 used `execute_pwsh` on Windows ([AWS Labs hook-payload reference](https://awslabs.github.io/aidlc-workflows/reference/kiro-ide-hook-payload/)). | Those pages | Background only. Builds older than the one measured are **not covered** by KP-S1; on a build that sends no payload the hook is inert, which means allow. |
 
-**Design consequences.** The hook reads **stdin**, takes `tool_input.command` and the envelope's `cwd`, and treats a missing, empty, unparsable or oversized payload as "nothing to check" (allow). Stdin is read with a bound and a deadline. A positional `COMMAND` is for manual use and tests only. **The field names are constants set from what the spike observes**, and every later task uses the observed names (KPW-SPK-3).
+**Design consequences.** The hook reads **stdin**, takes `tool_input.command` and the envelope's `cwd`, and treats a missing, empty, unparsable or oversized payload as "nothing to check" (allow). Stdin is read with a bound and a deadline. A positional `COMMAND` is for manual use and tests only. **The field names are the constants measured in KP-S1 (`docs/SPIKES.md`): `tool_input.command` and the envelope's `cwd`**, and every later task uses them (KPW-SPK-3).
 
 ### (c) Blocking semantics
 
@@ -53,19 +54,22 @@ The brief asked for the docs to be read first, for three points, with no Claude 
 |---|---|---|
 | For a shell-command action, exit 0 adds stdout to the agent's context. **Any other exit code** sends stderr to the agent, and for **Pre Tool Use** also blocks the tool call. Default timeout 60 s (`timeout`, seconds; 0 disables). | Hook actions (10 Oct 2026); Hooks | Documented. "Any non-zero blocks" is the official reading. |
 | The Pre Compaction trigger documents exit 2 as "cancel". No exit-code table is documented for Pre Tool Use. The `permissionDecision` stdout JSON is not documented. | Hook types | Documented by absence |
-| **Measured on IDE 1.1.14 (third party):** exit 2 with the reason on stderr blocks the tool before the approval card and the model sees the stderr text; **exit 1 did not block**; a reason on stdout at exit 2 was not delivered; `{"decision":"block"}` / `permissionDecision:"deny"` JSON on stdout at exit 0 did not block. On IDE 1.2.37 stdout reaches the agent only for Session Start and Prompt Submit. | AWS Labs reference | **Third-party measurement**; contradicts the official reading for exit 1 and for the stdout of an exit-0 Pre Tool Use hook. |
+| **Measured in KP-S1 (`docs/SPIKES.md`), Kiro 1.4.86:** a Pre Tool Use hook that exited 2 with one line on stderr **blocked** the call (the marker file the command would have created was absent); the model received a message saying the call was intercepted by PreToolUse hooks and not executed, containing the stderr line wrapped in tool text (no stderr label, no exit code); a capture exists for the blocked call. | `docs/SPIKES.md` KP-S1 | **Measured.** Exit 1, the stdout of an exit-0 hook, and the hook timeout were **not** measured. |
+| **Third-party, IDE 1.1.14 (other build, Windows):** exit 2 with the reason on stderr blocks the tool before the approval card and the model sees the stderr text; **exit 1 did not block**; a reason on stdout at exit 2 was not delivered; `{"decision":"block"}` / `permissionDecision:"deny"` JSON on stdout at exit 0 did not block. On IDE 1.2.37 stdout reaches the agent only for Session Start and Prompt Submit. | AWS Labs reference | **Third-party, not measured in KP-S1**; it contradicts the official reading for exit 1 and for the stdout of an exit-0 Pre Tool Use hook. Exit 2 agrees with KP-S1. |
 
-**Correction to the brief.** "Any non-zero blocks" is the documented claim and one measurement contradicts it. "We use exit 2 only" holds under both readings. So exit 2 is the only blocking code, **no path may produce any other non-zero code**, and a stdout note on an allow is best effort (D6). Claude-Code-style stdout decision JSON is not used.
+**Correction to the brief.** "Any non-zero blocks" is the documented claim and one third-party report (exit 1) contradicts it; KP-S1 measured exit 2 only. "We use exit 2 only" holds under both readings. So exit 2 is the only blocking code, **no path may produce any other non-zero code**, and a stdout note on an allow is best effort (D6). Claude-Code-style stdout decision JSON is not used.
 
 ### Verification status
 
 | Point | Status |
 |---|---|
 | Envelope on stdin (`tool_name`, `tool_input`, `cwd`, `session_id`) | Documented |
-| `tool_input.command` and `cwd` as the field names | Third-party; **confirmed or corrected by KPW-SPK-1 before any later task uses them** |
-| Exit 2 + stderr blocks and reaches the model | Third-party + consistent with docs; **confirmed by KPW-SPK-1** |
-| Exit 1 does not block | Third-party only; **not relied on, not measured** (we never exit 1) |
-| Visibility of an exit-0 stdout note to the agent | Documented as visible, measured as not visible; **not relied on** |
+| `tool_input.command` and the envelope `cwd` as the field names; `tool_name` `execute_bash`; stdin closed after the write | **Measured in KP-S1 (`docs/SPIKES.md`)**, Kiro 1.4.86 |
+| Exit 2 + stderr blocks the call and the stderr line reaches the model | **Measured in KP-S1 (`docs/SPIKES.md`)**, Kiro 1.4.86 |
+| Exit 1 does not block | **Unmeasured** (third-party report only; not documented, not measured); not relied on, because we never exit 1 |
+| Visibility of an exit-0 stdout note to the agent | **Unmeasured** (documented as visible, third-party report says not visible); not relied on |
+| Hook timeout behaviour; unapproved `${VAR}` expansion; MCP server working directory | **Unmeasured** (not documented, not measured) |
+| Builds other than Kiro 1.4.86 | Not covered by KP-S1 |
 
 ---
 
@@ -246,6 +250,8 @@ The renderer is `cli/render.py`. These changes **amend** `graveyard-cli` CLI-OUT
 ---
 
 ## Spike KP-S1 (the first task)
+
+**Status: done on 11 Nov 2026 (Kiro 1.4.86).** The results are in `docs/SPIKES.md` under KP-S1; the rows below are kept as the record of what the spike had to do.
 
 | ID | Requirement |
 |----|-------------|
