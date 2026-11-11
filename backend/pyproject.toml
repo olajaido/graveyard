@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "graveyard-backend"
 version = "0.1.0"
@@ -9,6 +13,9 @@ dependencies = [
     "pyyaml==6.0.3",
 ]
 
+[project.scripts]
+graveyard = "cli.__main__:main"
+
 [dependency-groups]
 dev = [
     "pytest==9.2.0",
@@ -19,14 +26,18 @@ dev = [
     "pytest-cov==7.0.0",
 ]
 
-# Not a distributable package; core/ is imported from the backend root.
+[tool.hatch.build.targets.wheel]
+packages = ["core", "sources", "cli"]
+exclude = ["**/tests/**", "**/__pycache__/**"]
+
+# The backend is installed as a package so that the graveyard console script exists; core/, sources/ and cli/ are the wheel's top-level packages.
 [tool.uv]
-package = false
+package = true
 
 [tool.pytest.ini_options]
 addopts = ["--strict-markers"]
 markers = ["property: Hypothesis property-based tests"]
-testpaths = ["core", "sources"]
+testpaths = ["core", "sources", "cli"]
 pythonpath = ["."]
 
 [tool.ruff]
@@ -38,9 +49,9 @@ extend-exclude = [".venv", ".mypy_cache", ".ruff_cache"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["core", "sources"]
+known-first-party = ["core", "sources", "cli"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["core", "sources"]
+files = ["core", "sources", "cli"]

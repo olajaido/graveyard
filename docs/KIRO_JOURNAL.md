@@ -495,3 +495,43 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** a `fixed` string outside the version pattern (empty, spaces, `;`, trailing newline, over 100 characters) now makes the advisory unreadable, like a wrong type, so the package's S7 is `None` + `UNEXPECTED_SHAPE` and a fix can no longer be silently dropped. Mutation check: restoring the old "ignore" fails the oracle, unit, `parse_vuln` and four property tests. A bad string in a `GIT` range or another package's entry is still never looked at.
 - **Decided, not changed:** the Scorecard score and repo-candidate gap found by the `STRICT=1` sweep is deferred and accepted for v1 (it needs corrupted upstream data and lowers confidence, not state). The pypistats default interval is 1.2 s, above twice the measured 0.5 s.
 - **Caveat:** the probe records `x-ratelimit-limit: 60` but not the window length, so "50 a minute" assumes a one-minute window. The probe test pins 1.2 s and the 2x margin, and makes no claim about the window.
+
+### 11 Nov — Spec `graveyard-cli`: T0.7 (wheel check)
+- **Spec/task:** T0.7 manual wheel check (CLI-TEST-12); `uv build --wheel` into a temp dir, then `unzip -l`.
+- **Result:** 70 files. Present: `cli/__main__.py`, `core/scoring/weights.v1.yaml`, 48 `core/` modules, 15 `sources/` modules. Absent: any `/tests/` path and any `__pycache__`.
+- **Kiro got right:** the hatch config from T0.4 needed no fix; the temp dir was deleted and `git status --short` shows no `dist/`.
+
+### 11 Nov — Spec `graveyard-cli`: T0 (Packaging and scaffold)
+- **Spec/task:** T0.1–T0.9: baseline, hatchling pin, `cli/` scaffold, `pyproject.toml` packaging, lock review, wheel check, packaging guard test.
+- **Kiro features:** spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** pinned `hatchling==1.33.0` (matches the design); the only `uv.lock` change is `virtual` to `editable`; no third-party package moved. `graveyard` and `python -m cli` both print the scaffold line.
+- **Corrected:** nothing needed. The 10 packaging tests include bad-case checks (range pin, `package = false`, empty data), so the guard cannot pass vacuously.
+- **Surprise:** the full suite is unchanged by the packaging switch: 4889 passed before, 4899 after (the 10 new tests). Parent `T0` auto-completed when T0.9 finished.
+
+### 11 Nov — Spec `graveyard-cli`: T1 (text, errors, env, purls, args, guards)
+- **Spec/task:** T1.1–T1.10: `sanitise`, exit codes, `CliEnvironment`, `validate_purls`, `args.py`, socket blocker, AST guards, unit and property tests.
+- **Kiro features:** spec task orchestration with one sub-agent per sub-task; PostTaskExec hook for this journal.
+- **Kiro got right:** all modules passed `mypy --strict` and ruff first time; full suite 5108 passed; six property tests pass at 500 examples under the CI profile.
+- **Corrected:** `ExitRequest` gained an `output` field so `--help` and `--version` text can be tested without touching process streams.
+- **Surprise:** npm dedupe by `package_key` lowercases the key but keeps the original-case canonical purl, so `Request` wins over `request` by sort order.
+
+### 11 Nov — Spec `graveyard-cli`: T2 (discover.py, lockfiles.py)
+- **Spec/task:** T2.1–T2.6: ServiceDir/CliWarning model, find_services, read_scopes/merge_scopes, unit and property tests.
+- **Kiro features:** spec task orchestration, sub-agent execution, PostTaskExec hook.
+- **Kiro got right:** lstat-based symlink rejection, size check before read, fixed-template warnings with no exception text, local Scope type since ScopeMap is not in core.graph `__all__`.
+- **Corrected:** nothing needed; no bugs found by the unit or property tests.
+- **Surprise:** CliWarning cannot use order=True (service may be None), so it exposes a sort_key instead.
+
+### 11 Nov — Spec `graveyard-cli`: T3 (fixture project)
+- **Spec/task:** T3.1–T3.7: nine anchor purls, web `package-lock.json`, api `uv.lock`, three Syft-shaped SBOMs, fixture README, integrity and ordering self-check.
+- **Kiro features:** spec task orchestration, one sub-agent per sub-task, PostTaskExec hook.
+- **Kiro got right:** all nine versions matched the anchors; both lockfiles parsed with no warnings; the exposure-weighted order matched design §9.2 first time (150.0, 90.0, 81.0, 72.0, 60.0, 43.72, 4.26, 3.9, 1.5).
+- **Corrected:** nothing needed; the T3.7 stop condition did not fire.
+- **Surprise:** `ScopeResult` merge had to be duplicated inside the test, since the fixture check must not import CLI code.
+
+### 11 Nov — Spec `graveyard-cli`: T4 (test support)
+- **Spec/task:** T4.1–T4.5: stub Syft with six modes, cassette-derived replay transport, `make_source_result`, `FakeClock` re-export, `shape`, and `test_support.py`.
+- **Kiro features:** spec task orchestration, one sub-agent for the shared file, PostTaskExec hook.
+- **Kiro got right:** the OSV answer derived per query from the recorded batch passes the real parser's shape check; unmatched requests are logged and fail with `ConnectError`; the guard glob is unaffected (279 cli tests, mypy and ruff clean).
+- **Corrected:** nothing needed.
+- **Surprise:** the spec did not name `shape`'s scalar types, so it uses `string/number/boolean/null`; T9 may need `integer`.

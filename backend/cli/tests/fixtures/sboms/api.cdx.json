@@ -1,0 +1,112 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:8c47d2e1-6a3b-4f95-b0d8-1e7a9c35f264",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-12T09:00:00Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "author": "anchore",
+          "name": "syft",
+          "version": "1.56.0"
+        }
+      ]
+    },
+    "component": {
+      "bom-ref": "f2084ad6c93b7e15",
+      "type": "file",
+      "name": "fixtures/api"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:pypi/anchors-api@0.0.1?package-id=3a9e5c70d1b84f26",
+      "type": "library",
+      "name": "anchors-api",
+      "version": "0.0.1",
+      "cpe": "cpe:2.3:a:python-anchors-api:python-anchors-api:0.0.1:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/anchors-api@0.0.1",
+      "properties": [
+        { "name": "syft:package:foundBy", "value": "python-package-cataloger" },
+        { "name": "syft:package:language", "value": "python" },
+        { "name": "syft:package:type", "value": "python" },
+        { "name": "syft:package:metadataType", "value": "python-uv-lock-entry" },
+        { "name": "syft:location:0:path", "value": "/uv.lock" }
+      ]
+    },
+    {
+      "bom-ref": "pkg:pypi/nose@1.3.7?package-id=d5176b9e20c4a38f",
+      "type": "library",
+      "name": "nose",
+      "version": "1.3.7",
+      "cpe": "cpe:2.3:a:python-nose:python-nose:1.3.7:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/nose@1.3.7",
+      "properties": [
+        { "name": "syft:package:foundBy", "value": "python-package-cataloger" },
+        { "name": "syft:package:language", "value": "python" },
+        { "name": "syft:package:type", "value": "python" },
+        { "name": "syft:package:metadataType", "value": "python-uv-lock-entry" },
+        { "name": "syft:location:0:path", "value": "/uv.lock" }
+      ]
+    },
+    {
+      "bom-ref": "pkg:pypi/pycrypto@2.6.1?package-id=0e8b4f27a6d93c51",
+      "type": "library",
+      "name": "pycrypto",
+      "version": "2.6.1",
+      "cpe": "cpe:2.3:a:python-pycrypto:python-pycrypto:2.6.1:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/pycrypto@2.6.1",
+      "properties": [
+        { "name": "syft:package:foundBy", "value": "python-package-cataloger" },
+        { "name": "syft:package:language", "value": "python" },
+        { "name": "syft:package:type", "value": "python" },
+        { "name": "syft:package:metadataType", "value": "python-uv-lock-entry" },
+        { "name": "syft:location:0:path", "value": "/uv.lock" }
+      ]
+    },
+    {
+      "bom-ref": "pkg:pypi/six@1.17.0?package-id=a63d90c18e5f2b74",
+      "type": "library",
+      "name": "six",
+      "version": "1.17.0",
+      "cpe": "cpe:2.3:a:python-six:python-six:1.17.0:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/six@1.17.0",
+      "properties": [
+        { "name": "syft:package:foundBy", "value": "python-package-cataloger" },
+        { "name": "syft:package:language", "value": "python" },
+        { "name": "syft:package:type", "value": "python" },
+        { "name": "syft:package:metadataType", "value": "python-uv-lock-entry" },
+        { "name": "syft:location:0:path", "value": "/uv.lock" }
+      ]
+    },
+    {
+      "bom-ref": "81c5e3a7f0924d6b",
+      "type": "file",
+      "name": "/uv.lock",
+      "hashes": [
+        {
+          "alg": "SHA-1",
+          "content": "b94e2d7a1c065f83e0a49d2c7b6153f8e4a0d91c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "2d7f5a90c4e1b836f0a2d9c57e4b1830a6f9e2d4c71b5083e9a4f6d2c0b7185e"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:pypi/anchors-api@0.0.1?package-id=3a9e5c70d1b84f26",
+      "dependsOn": [
+        "pkg:pypi/nose@1.3.7?package-id=d5176b9e20c4a38f",
+        "pkg:pypi/pycrypto@2.6.1?package-id=0e8b4f27a6d93c51",
+        "pkg:pypi/six@1.17.0?package-id=a63d90c18e5f2b74"
+      ]
+    }
+  ]
+}
