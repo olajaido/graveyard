@@ -1,0 +1,153 @@
+{
+ "host": "pypistats.org",
+ "recorded_on": "2026-11-11",
+ "configured_interval_seconds": 3.0,
+ "stopped_at_429": false,
+ "safe_interval_seconds": 0.5,
+ "requests": [
+  {
+   "interval_seconds": 3.0,
+   "package": "requests",
+   "status": 200,
+   "error": null,
+   "retry_after": "1",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "51",
+    "x-ratelimit-reset": "1794394756"
+   }
+  },
+  {
+   "interval_seconds": 3.0,
+   "package": "numpy",
+   "status": 200,
+   "error": null,
+   "retry_after": "1",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "55",
+    "x-ratelimit-reset": "1794394759"
+   }
+  },
+  {
+   "interval_seconds": 3.0,
+   "package": "pandas",
+   "status": 200,
+   "error": null,
+   "retry_after": "1",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "57",
+    "x-ratelimit-reset": "1794394762"
+   }
+  },
+  {
+   "interval_seconds": 2.0,
+   "package": "boto3",
+   "status": 200,
+   "error": null,
+   "retry_after": "1",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "59",
+    "x-ratelimit-reset": "1794394764"
+   }
+  },
+  {
+   "interval_seconds": 2.0,
+   "package": "urllib3",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "51",
+    "x-ratelimit-reset": "1794394765"
+   }
+  },
+  {
+   "interval_seconds": 2.0,
+   "package": "setuptools",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "34",
+    "x-ratelimit-reset": "1794394767"
+   }
+  },
+  {
+   "interval_seconds": 1.0,
+   "package": "certifi",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "32",
+    "x-ratelimit-reset": "1794394768"
+   }
+  },
+  {
+   "interval_seconds": 1.0,
+   "package": "idna",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "40",
+    "x-ratelimit-reset": "1794394769"
+   }
+  },
+  {
+   "interval_seconds": 1.0,
+   "package": "charset-normalizer",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "32",
+    "x-ratelimit-reset": "1794394771"
+   }
+  },
+  {
+   "interval_seconds": 0.5,
+   "package": "typing-extensions",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "45",
+    "x-ratelimit-reset": "1794394771"
+   }
+  },
+  {
+   "interval_seconds": 0.5,
+   "package": "python-dateutil",
+   "status": 200,
+   "error": null,
+   "retry_after": "1",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "59",
+    "x-ratelimit-reset": "1794394773"
+   }
+  },
+  {
+   "interval_seconds": 0.5,
+   "package": "pyyaml",
+   "status": 200,
+   "error": null,
+   "retry_after": "0",
+   "ratelimit_headers": {
+    "x-ratelimit-limit": "60",
+    "x-ratelimit-remaining": "53",
+    "x-ratelimit-reset": "1794394772"
+   }
+  }
+ ]
+}
