@@ -39,7 +39,7 @@ from urllib.parse import urlsplit
 
 import httpx
 import pytest
-from hypothesis import given, settings
+from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
 from core.sources.config import SourcesConfig, Timeouts
@@ -827,6 +827,7 @@ def spying(web: FakeWeb, seen: list[str]) -> httpx.MockTransport:
     malformed=st.booleans(),
     hostile=st.booleans(),
 )
+@example(ps=PackageSet(seed=893395, size=6), token=TOKENS[0], malformed=True, hostile=False)
 def test_adversarial_server_leaks_nothing_through_the_session(
     ps: PackageSet, token: str, malformed: bool, hostile: bool
 ) -> None:

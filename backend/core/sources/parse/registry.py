@@ -33,7 +33,7 @@ from datetime import date
 from typing import Final
 
 from core.sources.accessors import as_date, as_list, as_mapping, as_str
-from core.sources.facts import NpmFull, NpmRegistry, PypiDoc, is_valid_version
+from core.sources.facts import NpmFull, NpmRegistry, PypiDoc, RegistryLatest, is_valid_version
 
 _MAX_CANDIDATE_LENGTH: Final = 2048
 """Longest repo candidate kept. Real repository URLs are far shorter."""
@@ -112,6 +112,24 @@ def parse_npm_abbreviated(data: object, resolved: str) -> NpmRegistry | None:
         resolved_deprecated=_deprecated(versions, resolved),
         resolved_found=resolved in versions,
     )
+
+
+def parse_npm_latest(data: object) -> RegistryLatest | None:
+    """``dist-tags.latest`` of an npm packument (``version`` is ``None`` if unusable)."""
+    doc = as_mapping(data)
+    if doc is None:
+        return None
+    tags = as_mapping(doc.get("dist-tags"))
+    return RegistryLatest(_version(tags.get("latest")) if tags is not None else None)
+
+
+def parse_pypi_latest(data: object) -> RegistryLatest | None:
+    """``info.version`` of a PyPI project document (``version`` is ``None`` if unusable)."""
+    doc = as_mapping(data)
+    if doc is None:
+        return None
+    info = as_mapping(doc.get("info")) or {}
+    return RegistryLatest(_version(info.get("version")))
 
 
 def parse_npm_full(data: object, latest: str | None) -> NpmFull | None:

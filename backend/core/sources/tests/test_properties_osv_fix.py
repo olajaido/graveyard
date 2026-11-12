@@ -41,7 +41,7 @@ from core.sources.tests.strategies import (
 pytestmark = pytest.mark.property
 
 _VERSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+!~-]{0,99}")
-_OSV_ID = re.compile(r"[A-Za-z0-9_.:-]{1,100}")
+_OSV_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}")
 
 _PAIRS = st.one_of(
     st.just((QUERY_ECOSYSTEM, QUERY_NAME)),

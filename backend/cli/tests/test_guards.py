@@ -11,6 +11,9 @@ Rules (CLI-DEP-5):
 3. No ``print``, ``input``, ``logging`` or ``warnings``.
 4. ``httpx``, ``urllib``, ``socket`` and ``requests`` are never imported.
 5. Every module is covered by the glob (``__init__.py``, ``__main__.py``, ``args.py``).
+6. File reads and writes (``open``, ``read_text``, ``read_bytes``, ``write_text``,
+   ``write_bytes``) only in ``lockfiles.py``, ``sbom.py``, ``requirements_file.py`` and the
+   JSON writer (``app.py``); no other module reads a ``-r`` file (KPW-REQ-6).
 
 CLI-DEP-4: ``core`` and ``sources`` never import ``cli``; ``cli`` imports ``core.scoring``
 only for ``score_package``, ``sort_results``, ``ScoringResult``, ``BaseState``, ``Signals``.
@@ -28,6 +31,8 @@ CLI = BACKEND / "cli"
 
 ENV_MODULE = "__main__.py"
 SUBPROCESS_MODULE = "syft.py"
+FILE_IO_MODULES = frozenset({"lockfiles.py", "sbom.py", "requirements_file.py", "app.py"})
+FILE_IO_NAMES = frozenset({"open", "read_text", "read_bytes", "write_text", "write_bytes"})
 ENV_NAMES = frozenset({"environ", "getenv"})
 OS_EXEC_NAMES = frozenset({"system", "popen"})
 FORBIDDEN_CALLS = frozenset({"print", "input"})
@@ -97,6 +102,15 @@ def check_guards(source: str, rel_path: str) -> list[str]:
             problems.append(f"{rel_path}: uses {node.id} (env is __main__ only)")
         if isinstance(node, ast.Call):
             func = node.func
+            io_name = (
+                func.id
+                if isinstance(func, ast.Name)
+                else func.attr
+                if isinstance(func, ast.Attribute)
+                else None
+            )
+            if io_name in FILE_IO_NAMES and rel_path not in FILE_IO_MODULES:
+                problems.append(f"{rel_path}: calls {io_name}() (file I/O is restricted)")
             if isinstance(func, ast.Name) and func.id in FORBIDDEN_CALLS:
                 problems.append(f"{rel_path}: calls {func.id}()")
             problems.extend(
@@ -243,6 +257,24 @@ def test_rule4_network_modules_rejected(module: str, rel_path: str) -> None:
     assert check_guards(f"import {module}\n", rel_path)
     assert check_guards(f"from {module} import x\n", rel_path)
     assert check_guards(f"import {module}.sub\n", rel_path)
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "open('x')\n",
+        "p.open('rb')\n",
+        "p.read_text()\n",
+        "p.read_bytes()\n",
+        "p.write_text('x')\n",
+        "p.write_bytes(b'x')\n",
+    ],
+)
+def test_rule6_file_io_only_in_allowed_modules(source: str) -> None:
+    for rel_path in ("args.py", "gate.py", "discover.py", ENV_MODULE, SUBPROCESS_MODULE):
+        assert any("file I/O" in p for p in check_guards(source, rel_path))
+    for rel_path in sorted(FILE_IO_MODULES):
+        assert check_guards(source, rel_path) == []
 
 
 def test_defining_a_print_method_is_not_a_call() -> None:

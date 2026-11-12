@@ -15,12 +15,19 @@ latest-version fallback (SRC-LAT-3). See ``clients.common`` for the result shape
 from __future__ import annotations
 
 import dataclasses
+import string
 from functools import partial
 from typing import Final
 
-from core.purl import Purl, package_key, registry_name
-from core.sources.facts import NpmFull, NpmRegistry, PypiDoc
-from core.sources.parse.registry import parse_npm_abbreviated, parse_npm_full, parse_pypi
+from core.purl import Purl, normalise_pypi_name, package_key, registry_name
+from core.sources.facts import NpmFull, NpmRegistry, PypiDoc, RegistryLatest
+from core.sources.parse.registry import (
+    parse_npm_abbreviated,
+    parse_npm_full,
+    parse_npm_latest,
+    parse_pypi,
+    parse_pypi_latest,
+)
 from core.sources.urls import npm_packument_url, pypi_json_url
 from sources.cache import fact_codec
 from sources.clients.common import (
@@ -39,6 +46,8 @@ NPM_ABBREVIATED_ACCEPT: Final = "application/vnd.npm.install-v1+json"
 _NPM_CODEC: Final = fact_codec(NpmRegistry)
 _NPM_FULL_CODEC: Final = fact_codec(NpmFull)
 _PYPI_CODEC: Final = fact_codec(PypiDoc)
+_LATEST_CODEC: Final = fact_codec(RegistryLatest)
+_ASCII_LOWER: Final = str.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 
 
 async def npm_abbreviated(ctx: ClientContext, purl: Purl) -> ClientResult[NpmRegistry]:
@@ -71,6 +80,37 @@ async def npm_full(ctx: ClientContext, purl: Purl, latest: str) -> ClientResult[
         request=get_request(NPM_SOURCE, npm_packument_url(registry_name(purl))),
         parse=partial(parse_npm_full, latest=latest),
         codec=_NPM_FULL_CODEC,
+    )
+
+
+async def npm_latest(ctx: ClientContext, purl: Purl) -> ClientResult[RegistryLatest]:
+    """``dist-tags.latest`` of an npm package; ``purl.version`` is not used (KPW-RES-4).
+
+    Own namespace ``registry.npm.latest``, so no existing fact changes shape.
+    """
+    name = registry_name(purl)
+    return await call_source(
+        ctx,
+        namespace="registry.npm.latest",
+        subject=f"npm/{name.translate(_ASCII_LOWER)}",
+        ttl_seconds=ctx.policy.default_ttl_seconds,
+        request=get_request(NPM_SOURCE, npm_packument_url(name), accept=NPM_ABBREVIATED_ACCEPT),
+        parse=parse_npm_latest,
+        codec=_LATEST_CODEC,
+    )
+
+
+async def pypi_latest(ctx: ClientContext, purl: Purl) -> ClientResult[RegistryLatest]:
+    """``info.version`` of a PyPI project; ``purl.version`` is not used (KPW-RES-4)."""
+    name = registry_name(purl)
+    return await call_source(
+        ctx,
+        namespace="registry.pypi.latest",
+        subject=f"pypi/{normalise_pypi_name(name)}",
+        ttl_seconds=ctx.policy.default_ttl_seconds,
+        request=get_request(PYPI_SOURCE, pypi_json_url(name)),
+        parse=parse_pypi_latest,
+        codec=_LATEST_CODEC,
     )
 
 

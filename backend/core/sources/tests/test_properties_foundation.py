@@ -252,7 +252,7 @@ _OWNER_REPOS = st.one_of(
     repo_urls().map(lambda parts: _owner_repo(parts[0])),
     st.tuples(_ADVERSARIAL, _ADVERSARIAL),
 )
-_OSV_IDS = st.from_regex(r"[A-Za-z0-9_.:-]{1,100}", fullmatch=True).filter(
+_OSV_IDS = st.from_regex(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}", fullmatch=True).filter(
     lambda s: s not in _BAD_SEGMENTS
 )
 _BULK_NAMES = st.lists(

@@ -39,7 +39,7 @@ NPM_BULK_MAX: Final = 128
 
 _DEPSDEV_ECOSYSTEMS: Final[frozenset[str]] = frozenset({"npm", "pypi"})
 _BULK_SAFE: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9._~-]*")
-_OSV_ID: Final = re.compile(r"[A-Za-z0-9_.:-]{1,100}")
+_OSV_ID: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}")
 
 
 _SCHEME_PREFIX: Final = re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*://")
@@ -75,7 +75,7 @@ def is_bulk_safe(name: str) -> bool:
 
 
 def is_valid_osv_id(value: str) -> bool:
-    """True if ``value`` matches ``[A-Za-z0-9_.:-]{1,100}`` (SRC-HTTP-3)."""
+    """True if ``value`` matches ``[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}`` (SRC-HTTP-3)."""
     return _OSV_ID.fullmatch(value) is not None
 
 

@@ -110,6 +110,7 @@ def test_extra_keys_next_to_results_are_ignored() -> None:
     "entry",
     [
         {"id": "bad id"},
+        {"id": "-7"},
         {"id": ""},
         {"id": "a" * 101},
         {"id": "x/y"},

@@ -11,7 +11,8 @@ from typing import Any
 PYPROJECT = Path(__file__).resolve().parents[2] / "pyproject.toml"
 
 _HATCHLING_PIN = re.compile(r"^hatchling==\d+(\.\d+)*$")
-_REQUIRED_PACKAGES = ("core", "sources", "cli")
+_REQUIRED_PACKAGES = ("core", "sources", "cli", "mcp_server")
+_MCP_PIN = "mcp==2.3.0"
 
 
 def _table(data: object, *keys: str) -> dict[str, Any]:
@@ -52,16 +53,44 @@ def check_packaging(data: dict[str, Any]) -> list[str]:
         if name not in listed:
             problems.append(f"wheel packages is missing '{name}'")
 
+    if _table(data, "project", "scripts").get("graveyard-mcp") != "mcp_server.__main__:main":
+        problems.append("project.scripts.graveyard-mcp must be 'mcp_server.__main__:main'")
+
+    if _table(data, "project", "optional-dependencies").get("mcp") != [_MCP_PIN]:
+        problems.append(f"optional-dependencies.mcp must be exactly [{_MCP_PIN!r}]")
+
+    dev = _table(data, "dependency-groups").get("dev")
+    if not isinstance(dev, list) or _MCP_PIN not in dev:
+        problems.append(f"dependency-groups.dev must contain {_MCP_PIN!r}")
+
+    testpaths = _table(data, "tool", "pytest", "ini_options").get("testpaths")
+    if not isinstance(testpaths, list) or "tests" not in testpaths:
+        problems.append("pytest testpaths must include 'tests'")
+
     return problems
 
 
 def _good() -> dict[str, Any]:
     return {
         "build-system": {"requires": ["hatchling==1.33.0"], "build-backend": "hatchling.build"},
-        "project": {"scripts": {"graveyard": "cli.__main__:main"}},
+        "project": {
+            "scripts": {
+                "graveyard": "cli.__main__:main",
+                "graveyard-mcp": "mcp_server.__main__:main",
+            },
+            "optional-dependencies": {"mcp": ["mcp==2.3.0"]},
+        },
+        "dependency-groups": {"dev": ["pytest==9.2.0", "mcp==2.3.0"]},
         "tool": {
+            "pytest": {
+                "ini_options": {"testpaths": ["core", "sources", "cli", "mcp_server", "tests"]}
+            },
             "uv": {"package": True},
-            "hatch": {"build": {"targets": {"wheel": {"packages": ["core", "sources", "cli"]}}}},
+            "hatch": {
+                "build": {
+                    "targets": {"wheel": {"packages": ["core", "sources", "cli", "mcp_server"]}}
+                }
+            },
         },
     }
 
@@ -121,4 +150,22 @@ def test_checker_rejects_each_missing_wheel_package() -> None:
 
 
 def test_checker_reports_everything_on_empty_data() -> None:
-    assert len(check_packaging({})) == 7
+    assert len(check_packaging({})) == 12
+
+
+def test_checker_rejects_loose_or_missing_mcp_pin() -> None:
+    data = _good()
+    data["project"]["optional-dependencies"]["mcp"] = ["mcp>=2.3.0"]
+    data["dependency-groups"]["dev"] = ["pytest==9.2.0"]
+    problems = check_packaging(data)
+    assert any("optional-dependencies.mcp" in p for p in problems)
+    assert any("dependency-groups.dev" in p for p in problems)
+
+
+def test_checker_rejects_missing_mcp_script_and_tests_path() -> None:
+    data = _good()
+    del data["project"]["scripts"]["graveyard-mcp"]
+    data["tool"]["pytest"]["ini_options"]["testpaths"] = ["core"]
+    problems = check_packaging(data)
+    assert any("graveyard-mcp" in p for p in problems)
+    assert any("testpaths" in p for p in problems)

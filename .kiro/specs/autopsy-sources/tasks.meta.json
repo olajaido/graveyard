@@ -104,7 +104,7 @@
         "timestamp": 1794311580236
       }
     ],
-    "T1.4 — Implement `clock.py` (the `Clock` Protocol only) and `urls.py`: `ALLOWED_HOSTS`, `NPM_BULK_MAX = 128`, and one builder per endpoint of design §6 (deps.dev version, package, project; Scorecard; npm packument; PyPI JSON; npm downloads single and bulk; pypistats; OSV querybatch and vuln; GitHub GraphQL), each taking validated components and quoting every segment with `quote(..., safe=\"\")`. The bulk builder takes names that already satisfy the bulk-safe pattern and raises `ValueError` otherwise; `is_bulk_safe(name)` is exported. OSV id validation (`[A-Za-z0-9_.:-]{1,100}`) lives here as `is_valid_osv_id`.": [
+    "T1.4 — Implement `clock.py` (the `Clock` Protocol only) and `urls.py`: `ALLOWED_HOSTS`, `NPM_BULK_MAX = 128`, and one builder per endpoint of design §6 (deps.dev version, package, project; Scorecard; npm packument; PyPI JSON; npm downloads single and bulk; pypistats; OSV querybatch and vuln; GitHub GraphQL), each taking validated components and quoting every segment with `quote(..., safe=\"\")`. The bulk builder takes names that already satisfy the bulk-safe pattern and raises `ValueError` otherwise; `is_bulk_safe(name)` is exported. OSV id validation (`[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}`) lives here as `is_valid_osv_id`.": [
       {
         "executionId": "aef16854-5c07-417d-b3e2-d99e48f448da",
         "chatSessionId": "sess_3a9db137-9484-4dd0-b790-3c1491226a01",

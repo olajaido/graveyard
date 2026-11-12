@@ -1,6 +1,6 @@
-"""Tests for the environment handling in ``cli.__main__`` (T8.3; CLI-ENV-1…6, D7).
+"""Tests for the environment handling in ``cli.env`` (T8.3; CLI-ENV-1…6, D7).
 
-``_environment`` is a pure function of a mapping, so these tests pass plain dicts and never
+``environment_from_mapping`` is pure, so these tests pass plain dicts and never
 touch ``os.environ``. The one test of ``main`` patches ``run`` and sets a variable with
 ``monkeypatch``, to prove the wiring reads the process environment at that one place.
 """
@@ -14,14 +14,14 @@ from typing import Any
 import pytest
 
 from cli import __main__ as entry
-from cli.env import CliEnvironment
+from cli.env import CliEnvironment, environment_from_mapping
 from core.sources.secret import SecretToken
 
 TOKEN = "ghp_sentinelTOKENvalue1234567890"
 
 
 def _env(**environ: str) -> CliEnvironment:
-    return entry._environment(environ, 100)
+    return environment_from_mapping(environ, 100)
 
 
 def test_a_valid_token_is_wrapped_and_never_shown() -> None:
@@ -66,6 +66,32 @@ def test_contact_set_blank_and_absent() -> None:
     assert _env().contact is None
 
 
+@pytest.mark.parametrize("name", ["GITHUB_TOKEN", "GRAVEYARD_CONTACT"])
+@pytest.mark.parametrize("value", ["${GITHUB_TOKEN}", "${GRAVEYARD_CONTACT}", " ${_x1} "])
+def test_an_unexpanded_reference_is_absent_not_rejected(name: str, value: str) -> None:
+    env = environment_from_mapping({name: value}, 100)
+    assert env.token is None
+    assert env.token_rejected is False
+    assert env.contact is None
+
+
+@pytest.mark.parametrize("value", ["${}", "${1A}", "$GITHUB_TOKEN", "${A B}", "x${A}"])
+def test_other_dollar_forms_are_not_references(value: str) -> None:
+    env = environment_from_mapping({"GRAVEYARD_CONTACT": value}, 100)
+    assert env.contact == value
+
+
+def test_importing_the_entry_point_does_not_need_mcp(monkeypatch: pytest.MonkeyPatch) -> None:
+    """KPW-DEP-2: the CLI works without the optional ``mcp`` extra."""
+    import importlib
+
+    monkeypatch.setitem(sys.modules, "mcp", None)  # makes ``import mcp`` raise ImportError
+    with pytest.raises(ImportError):
+        importlib.import_module("mcp")
+    module = importlib.reload(entry)
+    assert callable(module.main)
+
+
 def test_syft_environment_is_an_allow_list_plus_the_update_switch() -> None:
     environ = {
         "PATH": "/usr/bin",
@@ -78,7 +104,7 @@ def test_syft_environment_is_an_allow_list_plus_the_update_switch() -> None:
         "GRAVEYARD_CONTACT": "ops@example.org",
         "EDITOR": "vim",
     }
-    env = entry._environment(environ, 100)
+    env = environment_from_mapping(environ, 100)
     assert dict(env.syft_env) == {
         "PATH": "/usr/bin",
         "HOME": "/home/me",
@@ -96,8 +122,8 @@ def test_only_allow_listed_variables_that_are_set_appear() -> None:
 
 
 def test_width_is_passed_through() -> None:
-    assert entry._environment({}, 123).width == 123
-    assert entry._environment({}, 1).width == 1  # clamping is the renderer's business
+    assert environment_from_mapping({}, 123).width == 123
+    assert environment_from_mapping({}, 1).width == 1  # clamping is the renderer's business
 
 
 def test_main_reads_the_process_environment_and_exits_with_the_code(
@@ -136,5 +162,5 @@ def test_environment_accepts_any_mapping() -> None:
         def __len__(self) -> int:
             return 1
 
-    env = entry._environment(Frozen(), 80)
+    env = environment_from_mapping(Frozen(), 80)
     assert env.token is not None

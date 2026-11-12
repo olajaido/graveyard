@@ -7,10 +7,11 @@ The real oracle-versus-implementation properties live in
 from __future__ import annotations
 
 import ast
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from core.graph.tests.oracle import (
@@ -113,6 +114,7 @@ def test_abstract_graph_shape(g: AbstractGraph) -> None:
 
 
 @pytest.mark.property
+@settings(deadline=timedelta(seconds=2))
 @given(g=abstract_graph())
 def test_oracle_helpers_agree_on_generated_graphs(g: AbstractGraph) -> None:
     dists = origin_distances(g.adj, g.sources)

@@ -13,8 +13,11 @@ dependencies = [
     "pyyaml==6.0.3",
 ]
 
+[project.optional-dependencies]
+mcp = ["mcp==2.3.0"]
 [project.scripts]
 graveyard = "cli.__main__:main"
+graveyard-mcp = "mcp_server.__main__:main"
 
 [dependency-groups]
 dev = [
@@ -24,13 +27,14 @@ dev = [
     "mypy==2.4.1",
     "types-pyyaml==6.0.12.20261103",
     "pytest-cov==7.0.0",
+    "mcp==2.3.0",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["core", "sources", "cli"]
+packages = ["core", "sources", "cli", "mcp_server"]
 exclude = ["**/tests/**", "**/__pycache__/**"]
 
-# The backend is installed as a package so that the graveyard console script exists; core/, sources/ and cli/ are the wheel's top-level packages.
+# The backend is installed as a package so that the graveyard console script exists; core/, sources/, cli/ and mcp_server/ are the wheel's top-level packages.
 [tool.uv]
 package = true
 
@@ -40,7 +44,7 @@ markers = [
     "property: Hypothesis property-based tests",
     "syft: contract tests that run the real Syft 1.56.0 binary (skipped when it is not found)",
 ]
-testpaths = ["core", "sources", "cli"]
+testpaths = ["core", "sources", "cli", "mcp_server", "tests"]
 pythonpath = ["."]
 
 [tool.ruff]
@@ -52,9 +56,9 @@ extend-exclude = [".venv", ".mypy_cache", ".ruff_cache"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["core", "sources", "cli"]
+known-first-party = ["core", "sources", "cli", "mcp_server"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["core", "sources", "cli"]
+files = ["core", "sources", "cli", "mcp_server"]

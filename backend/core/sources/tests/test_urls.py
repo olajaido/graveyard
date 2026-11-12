@@ -141,7 +141,22 @@ def test_valid_osv_ids(vuln_id: str) -> None:
 
 @pytest.mark.parametrize(
     "vuln_id",
-    ["", "x" * 101, "GHSA-x\n", "\nGHSA-x", "a/b", "a b", "a?b", "a#b", "é", "a%2Fb", "../x"],
+    [
+        "",
+        "x" * 101,
+        "-7",
+        "-",
+        "-GHSA-x",
+        "GHSA-x\n",
+        "\nGHSA-x",
+        "a/b",
+        "a b",
+        "a?b",
+        "a#b",
+        "é",
+        "a%2Fb",
+        "../x",
+    ],
 )
 def test_invalid_osv_ids(vuln_id: str) -> None:
     assert not is_valid_osv_id(vuln_id)
@@ -151,13 +166,13 @@ def test_invalid_osv_ids(vuln_id: str) -> None:
 
 @pytest.mark.parametrize("vuln_id", [".", ".."])
 def test_osv_vuln_url_rejects_dot_segments(vuln_id: str) -> None:
-    # Both pass the id pattern, so it is the segment rule that rejects them.
-    assert is_valid_osv_id(vuln_id)
+    # The id pattern needs a leading letter or digit, so these fail it before the segment rule.
+    assert not is_valid_osv_id(vuln_id)
     with pytest.raises(ValueError):
         osv_vuln_url(vuln_id)
 
 
-@pytest.mark.parametrize("vuln_id", ["...", ".a", "a.", "a..b"])
+@pytest.mark.parametrize("vuln_id", ["a...", "a.", "a..b"])
 def test_osv_vuln_url_accepts_ids_that_merely_contain_dots(vuln_id: str) -> None:
     assert osv_vuln_url(vuln_id) == f"https://api.osv.dev/v1/vulns/{vuln_id}"
 

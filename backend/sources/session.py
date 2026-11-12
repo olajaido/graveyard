@@ -82,11 +82,13 @@ from core.sources.assemble import FEEDS, PackageFacts, RepoInfo, Sourced, resolv
 from core.sources.clock import Clock
 from core.sources.config import SourcesConfig
 from core.sources.facts import DepsDevProject, DepsDevVersion, Downloads
+from core.sources.latest import pick_latest
 from core.sources.model import (
     EVIDENCE_KEYS,
     BatchResult,
     Evidence,
     ItemError,
+    LatestResult,
     SourceResult,
     SourceStats,
     SourceWarning,
@@ -872,6 +874,31 @@ def _with_internal(
     return (*kept, *extra)
 
 
+def _no_latest(text: str) -> LatestResult:
+    error = ItemError("MISSING_VERSION", "no latest version could be determined")
+    return LatestResult(text, None, None, error)
+
+
+async def _resolve_one(ctx: ClientContext, text: str, purl: Purl) -> LatestResult:
+    """Registry first; deps.dev only after a failure or an unusable answer, never after a 404."""
+    reg = (
+        await registry.npm_latest(ctx, purl)
+        if purl.ecosystem == "npm"
+        else await registry.pypi_latest(ctx, purl)
+    )
+    if isinstance(reg, Absent):
+        return _no_latest(text)
+    registry_version = reg.value.version if isinstance(reg, Found) else None
+    version, via = pick_latest(registry_version, None)
+    if version is None:
+        package = await depsdev.package(ctx, purl)
+        default = package.value.default_version if isinstance(package, Found) else None
+        version, via = pick_latest(None, default)
+    if version is None:
+        return _no_latest(text)
+    return LatestResult(text, version, via)
+
+
 # ---------------------------------------------------------------------------- session
 
 
@@ -946,6 +973,47 @@ class SourceSession:
             raise RuntimeError("SourceSession is not open; use 'async with'")
         run = _Collect(self._config, gateway, self._cache, github_enabled=self._token is not None)
         return await run.run(requests)
+
+    async def resolve_latest(self, purls: Sequence[str]) -> Mapping[str, LatestResult]:
+        """Resolve the latest version of each *versionless* npm or PyPI purl (KPW-RES-1…5).
+
+        The package's own registry first; the deps.dev default version only when the registry
+        failed or named no usable latest, and not when it answered 404 (SRC-LAT-1/3). Returns
+        one entry per distinct input text, in input order. Raises ``ValueError`` (before any
+        I/O) for an invalid purl, a purl with a version, or a count above
+        ``Limits.max_packages_per_call``, and ``RuntimeError`` if the session is not open.
+        Source, network and data problems never raise: they give ``version=None`` and an
+        ``error``.
+        """
+        gateway = self._gateway
+        if gateway is None:
+            raise RuntimeError("SourceSession is not open; use 'async with'")
+        limits = self._config.limits
+        if len(purls) > limits.max_packages_per_call:
+            raise ValueError(
+                f"too many packages in one call (limit {limits.max_packages_per_call})"
+            )
+        parsed: dict[str, Purl] = {}
+        for text in purls:
+            if text in parsed:
+                continue
+            purl = parse_purl(text)  # ValueError on a bad purl or an unsupported ecosystem
+            if purl.version is not None:
+                raise ValueError("resolve_latest takes versionless package URLs")
+            parsed[text] = purl
+        ctx = ClientContext(gateway, self._cache, self._config.cache)
+        slots = asyncio.Semaphore(limits.max_packages_in_flight)
+
+        async def one(text: str, purl: Purl) -> LatestResult:
+            async with slots:
+                try:
+                    return await _resolve_one(ctx, text, purl)
+                except Exception:
+                    return _no_latest(text)
+
+        async with asyncio.TaskGroup() as group:
+            tasks = {text: group.create_task(one(text, purl)) for text, purl in parsed.items()}
+        return {text: task.result() for text, task in tasks.items()}
 
 
 __all__ = ["SourceSession"]

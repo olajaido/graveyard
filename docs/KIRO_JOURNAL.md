@@ -573,3 +573,38 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** the footers stayed byte-identical after the `_join` refactor, checked against the "before" renders.
 - **Corrected:** the task assumed `TOKEN_INVALID_DETAIL` contains `issue counts`; only the missing-token text does.
 - **Surprise:** neither reported join defect (`·3 hidden`, `issuecounts`) reproduced, so likely terminal wrapping.
+
+### 11 Nov — Spec `kiro-power`: T3 (packaging, dependency and environment refactor)
+- **Spec/task:** T3.1 to T3.7 done: `mcp==2.3.0` as extra and dev pin, `graveyard-mcp` script, `mcp_server` package stub, `environment_from_mapping` in `cli/env.py`.
+- **Kiro features:** spec task orchestration with a sub-agent, task hooks, `uv lock` and `pip-audit` on the lock export.
+- **Kiro got right:** the lock gained 26 packages only; `httpx`, `packageurl-python`, `pyyaml` and dev tools kept their versions; gate green (5587 tests).
+- **Corrected:** the property test for env tokens had to filter unexpanded `${...}` values out of its valid-token strategy.
+- **Surprise:** `mcp` 2.3.0 pulls in `httpx2` next to the pinned `httpx`, and the lock also gained a `pywin32` entry.
+
+### 11 Nov — Spec `kiro-power`: T4 (core/install model, payload, segmentation)
+- **Spec/task:** T4.1 to T4.4 done: `model.py`, `payload.py` (`command` / envelope `cwd` from KP-S1), `segments.py`, plus payload, segment and guard tests and property totality tests.
+- **Kiro features:** spec task orchestration with a sub-agent per sub-task, task hooks, Hypothesis CI profile.
+- **Kiro got right:** pinning `shlex` behaviour in tests first showed early that the design's plain `shlex` approach could not work.
+- **Corrected:** `segments.py` uses the design's fallback, a quote-aware operator scanner with `shlex.split` between operators.
+- **Surprise:** a quoted `';'` and a real `;` give the same `shlex` token, and a comment swallows the newline. The CI property run had one unrelated deadline flake in `core/graph` (passes alone).
+
+### 12 Nov — Spec `kiro-power`: T5 (core/install option tables and parse_install)
+- **Spec/task:** T5.1 to T5.5 done: `profiles.py`, `npmish.py`, `pyish.py`, `parse.py`, example tests, property tests and strategies, gate green (6277 tests; 528 CI property tests in `core/install`).
+- **Kiro features:** spec task orchestration with a sub-agent per sub-task, task hooks, Hypothesis CI profile.
+- **Kiro got right:** the option-coverage test is built from `profiles.py` itself, so a table entry that parses differently from its absence fails; PBT found no parser bug.
+- **Corrected:** requirements beat design for caret specs: `typescript@^5` and poetry `requests@^2.0` are `Range` (design §4.5 says `Latest`); `*` and `!=` are allowed in the spec part only.
+- **Surprise:** mutation checks showed `--` handling was untested by the generators, so an example test was added. `npm i -- -x name` yields a target `-x` (fail open).
+
+### 12 Nov — Spec `kiro-power`: T6 (requirements-file loader)
+- **Spec/task:** T6.1 to T6.4: `cli/requirements_file.py` (`load_requirements`, `base_directory`), read-guard bad samples, 33 example tests, 3 property tests, gate green.
+- **Kiro features:** spec task DAG, sub-agent per sub-task, task hooks, Hypothesis CI profile.
+- **Kiro got right:** confinement, size cap and FIFO checks; a `.env`-style file leaks nothing into `repr` or notes; the property tests found no bug.
+- **Corrected:** the loader returned targets in sorted key order; KPW-REQ-3 and design §7.2 say file order. Fixed with a per-line order recovery and a file-order test.
+- **Surprise:** the KPW-REQ-7 fragment text, cross-file de-duplication and the 20-target cap belong to the caller, so they land in T8 and T9 tests.
+
+### 12 Nov — Spec `kiro-power`: T7 (`sources.resolve_latest`)
+- **Spec/task:** T7.1 to T7.3: `LatestResult`, `RegistryLatest`, `pick_latest`, registry latest parsers and clients, `SourceSession.resolve_latest`, cassette replay tests, unit and property tests, gate green (5026 tests).
+- **Kiro features:** spec task DAG, sub-agent per sub-task, task hooks, Hypothesis CI profile.
+- **Kiro got right:** registry 404 never asks deps.dev, a registry failure falls back to the deps.dev default, and `express` resolves to the dist-tag `5.3.0`, not `4.22.3`.
+- **Corrected:** the gate failed on a saved Hypothesis example: a hostile OSV id `-7` passed `is_valid_osv_id`. The validator now needs a leading letter or digit; `_PLAIN_CACHE_TEXT` is unchanged.
+- **Surprise:** the gateway does not coalesce the second registry read (one extra request per unpinned package, accepted by KPW-RES-4). `load_requirements` took 1.37 s on 1 MB, so per-line order recovery is capped at 2,000 lines (re-timed on a 1,048,576-byte, 104,416-line file of short pins: 0.76, 0.84, 0.81 s, down from 1.37 s).

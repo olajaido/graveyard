@@ -62,6 +62,7 @@ from core.sources.facts import (
     PypiDoc,
     is_valid_version,
 )
+from core.sources.latest import pick_latest
 from core.sources.model import (
     EVIDENCE_KEYS,
     SOURCE_NAMES,
@@ -324,13 +325,10 @@ def resolve_latest(ecosystem: str, facts: PackageFacts) -> tuple[str | None, Lat
             registry_latest = facts.registry_npm.fact.latest
     elif facts.registry_pypi is not None:
         registry_latest = facts.registry_pypi.fact.latest
-    if isinstance(registry_latest, str) and is_valid_version(registry_latest):
-        return registry_latest, "registry"
-    if facts.depsdev_package is not None:
-        default: object = facts.depsdev_package.fact.default_version
-        if isinstance(default, str) and is_valid_version(default):
-            return default, "depsdev"
-    return None, None
+    default: object = (
+        facts.depsdev_package.fact.default_version if facts.depsdev_package is not None else None
+    )
+    return pick_latest(registry_latest, default)
 
 
 # --- domain guard ---------------------------------------------------------------------

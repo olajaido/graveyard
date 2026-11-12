@@ -277,6 +277,26 @@ class NpmRegistry:
 
 
 @dataclass(frozen=True)
+class RegistryLatest:
+    """The latest version a registry names (npm ``dist-tags.latest``, PyPI ``info.version``)."""
+
+    version: str | None
+
+    _KEYS: ClassVar[frozenset[str]] = frozenset({"version"})
+
+    def to_json(self) -> dict[str, JsonValue]:
+        return {"version": self.version}
+
+    @classmethod
+    def from_json(cls, obj: object) -> Self | None:
+        try:
+            m = _exact(obj, cls._KEYS)
+            return cls(version=_opt_version(m["version"]))
+        except _Reject:
+            return None
+
+
+@dataclass(frozen=True)
 class NpmFull:
     """The npm full packument, reduced to the fallbacks for S2 and the repo."""
 

@@ -201,6 +201,19 @@ class ItemError:
         object.__setattr__(self, "detail", _clean_text(self.detail, MAX_DETAIL))
 
 
+@dataclass(frozen=True)
+class LatestResult:
+    """The latest version of one unpinned package (KPW-RES-1).
+
+    ``purl`` is the input text. ``error`` is set only when no version could be found.
+    """
+
+    purl: str
+    version: str | None
+    via: Literal["registry", "depsdev"] | None
+    error: ItemError | None = None
+
+
 def _warning_sort_key(warning: SourceWarning) -> tuple[str, str, tuple[str, ...], str, int]:
     status = -1 if warning.status is None else warning.status
     return (warning.code, warning.source, warning.signals, warning.detail, status)
