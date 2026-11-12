@@ -118,10 +118,18 @@ def _parse_timeout(text: str) -> float:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    # Imported here: cli.hook imports cli.model, which imports this module.
+    from cli.hook import HOOK_EXIT_TABLE
+
     parser = _Parser(
         prog="graveyard",
         description="Graveyard: find the dead dependencies in a project.",
-        epilog="exit codes:\n" + EXIT_CODE_TABLE,
+        epilog=(
+            "exit codes (autopsy):\n"
+            + EXIT_CODE_TABLE
+            + "\n\nexit codes (check-install):\n"
+            + HOOK_EXIT_TABLE
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         allow_abbrev=False,
     )
@@ -161,6 +169,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="SECONDS",
         default=None,
         help=f"timeout for each Syft run (default {DEFAULT_SYFT_TIMEOUT:g})",
+    )
+    # Listed for --help only: ``app.run`` dispatches ``check-install`` before parsing.
+    commands.add_parser(
+        "check-install",
+        help="check the packages an install command would add (hook command)",
+        add_help=False,
     )
     return parser
 

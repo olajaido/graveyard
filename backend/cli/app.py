@@ -11,11 +11,12 @@ a completed analysis (0 or 1).
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import UTC
 from pathlib import Path
 from typing import TextIO
 
+from cli import check_install
 from cli.args import build_parser, parse_args
 from cli.env import CliEnvironment
 from cli.errors import CliError, ExitCode, ExitRequest, UsageError
@@ -47,8 +48,13 @@ def run(
     err: TextIO,
     transport: Transport | None = None,
     clock: Clock | None = None,
+    stdin: Callable[[], str | None] | None = None,
 ) -> int:
     """Run the CLI for ``argv`` and return the exit code."""
+    if list(argv[:1]) == ["check-install"]:
+        return check_install.run(
+            list(argv[1:]), env=env, out=out, err=err, stdin=stdin, transport=transport, clock=clock
+        )
     clk: Clock = clock if clock is not None else SystemClock()
     try:
         opts = parse_args(argv, today=clk.now().astimezone(UTC).date())

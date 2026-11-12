@@ -4,6 +4,8 @@
 * ``subset_replay_transport`` replays the recorded cassette and derives the two single-package
   requests that cannot have a recording from the recorded batch answers. It reads only the
   recorded JSON, never the parsers under test.
+* ``version_agnostic_osv`` and ``single_repo_github`` wrap that transport for the
+  ``check-install`` end-to-end tests (KPW-TEST-7, KPW-TEST-8).
 * ``make_source_result``, ``FakeClock`` and ``shape`` are small builders for the other tests.
 
 Not part of the ``cli`` wheel (it lives under ``tests/``). No network, no environment reads.
@@ -49,6 +51,7 @@ from sources.tests.transports import ReplayLog, UnmatchedRequest, json_response,
 __all__ = [
     "DEFAULT_SBOM_DIR",
     "FakeClock",
+    "OsvAgnosticUse",
     "ReplayLog",
     "StubSyft",
     "anchor_signals",
@@ -56,8 +59,11 @@ __all__ = [
     "make_report",
     "make_source_result",
     "make_stub_syft",
+    "recorded_github",
     "shape",
+    "single_repo_github",
     "subset_replay_transport",
+    "version_agnostic_osv",
 ]
 
 DEFAULT_SBOM_DIR: Final = Path(__file__).resolve().parent / "fixtures" / "sboms"
@@ -269,6 +275,130 @@ def subset_replay_transport(cassette: Cassette) -> tuple[httpx.MockTransport, Re
         return unmatched(request, key)
 
     return httpx.MockTransport(handler), log
+
+
+# ------------------------------------------------------------- version-agnostic OSV (KPW-TEST-8)
+
+
+@dataclass
+class OsvAgnosticUse:
+    """What the version-agnostic OSV wrapper did.
+
+    ``rewritten`` holds one ``(package name, asked version, recorded version)`` entry per
+    query that was answered with the recorded answer of another version.
+    """
+
+    rewritten: list[tuple[str, str, str]]
+
+    @property
+    def uses(self) -> int:
+        return len(self.rewritten)
+
+
+def version_agnostic_osv(
+    inner: httpx.MockTransport, cassette: Cassette
+) -> tuple[httpx.MockTransport, OsvAgnosticUse]:
+    """Wrap ``inner`` so an OSV query for a recorded package at another version works.
+
+    Test-only (KPW-TEST-8): the cassette records OSV answers for the recorded versions only,
+    while an unpinned ``npm install express`` resolves to ``express@5.3.0``. A query whose
+    ecosystem and name match a recorded query but whose version differs is rewritten to the
+    recorded query, so ``inner`` answers it with that package's recorded answer. Exact
+    matches, unknown packages and paginated queries pass through untouched. The cassette is
+    never edited. The returned ``OsvAgnosticUse`` counts the rewrites.
+    """
+    osv = _recorded_osv(cassette)
+    exact = [q for q in (osv[0] if osv else ()) if isinstance(q, dict)]
+    recorded: dict[tuple[str, str], dict[str, Any]] = {}
+    for query in exact:
+        package = query.get("package")
+        if isinstance(package, dict):
+            ident = (str(package.get("ecosystem")), str(package.get("name")))
+            recorded.setdefault(ident, query)
+    use = OsvAgnosticUse(rewritten=[])
+
+    def rewrite(query: object) -> object:
+        if not isinstance(query, dict) or "page_token" in query or query in exact:
+            return query
+        package = query.get("package")
+        if not isinstance(package, dict):
+            return query
+        match = recorded.get((str(package.get("ecosystem")), str(package.get("name"))))
+        if match is None:
+            return query
+        use.rewritten.append(
+            (str(package.get("name")), str(query.get("version")), str(match.get("version")))
+        )
+        return match
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "POST" and str(request.url) == _OSV_URL:
+            try:
+                body = json.loads(request.content)
+            except ValueError:
+                body = None
+            queries = body.get("queries") if isinstance(body, dict) else None
+            if isinstance(queries, list):
+                request = httpx.Request(
+                    "POST", request.url, json={"queries": [rewrite(q) for q in queries]}
+                )
+        answer = inner.handler(request)
+        assert isinstance(answer, httpx.Response)  # subset_replay_transport's handler is sync
+        return answer
+
+    return httpx.MockTransport(handler), use
+
+
+# ------------------------------------------------------- single-repository GitHub (KPW-TEST-7)
+
+_GRAPHQL: Final = "https://api.github.com/graphql"
+
+
+def recorded_github(cassette: Cassette) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """The variables and ``data`` of the recorded GitHub batch (read as plain JSON)."""
+    for item in cassette.entries:
+        if item.method == "POST" and item.url == _GRAPHQL:
+            request = thaw_json(item.request_body)
+            response = thaw_json(item.response_body)
+            if isinstance(request, dict) and isinstance(response, dict):
+                variables, data = request.get("variables"), response.get("data")
+                if isinstance(variables, dict) and isinstance(data, dict):
+                    return variables, data
+    return None
+
+
+def single_repo_github(
+    inner: httpx.MockTransport, log: ReplayLog, cassette: Cassette
+) -> httpx.MockTransport:
+    """Answer a one-repository GitHub query from the recorded seven-repository batch.
+
+    A single ``check-install`` target sends a one-repo GraphQL body, which has no recording
+    (same reason as the single-query OSV body, design §9.4). When ``owner/name`` is one of the
+    recorded repositories its recorded ``rN`` object is returned as ``r0``. Anything else is
+    left to ``inner``, which logs it as unmatched. The cassette is not edited.
+    """
+    recorded = recorded_github(cassette)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if recorded is not None and request.method == "POST" and str(request.url) == _GRAPHQL:
+            body = json.loads(request.content)
+            variables = body.get("variables") if isinstance(body, dict) else None
+            if isinstance(variables, dict) and "o1" not in variables and "o0" in variables:
+                rvars, data = recorded
+                for index in range(len(rvars)):
+                    if (rvars.get(f"o{index}"), rvars.get(f"n{index}")) == (
+                        variables["o0"],
+                        variables["n0"],
+                    ) and f"r{index}" in data:
+                        log.matched.append(f"github-single:{variables['o0']}/{variables['n0']}")
+                        return json_response(
+                            {"data": {"rateLimit": data["rateLimit"], "r0": data[f"r{index}"]}}
+                        )
+        answer = inner.handler(request)
+        assert isinstance(answer, httpx.Response)  # the replay handlers are sync
+        return answer
+
+    return httpx.MockTransport(handler)
 
 
 # --------------------------------------------------------------------------------- builders

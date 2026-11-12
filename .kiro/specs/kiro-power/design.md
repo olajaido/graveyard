@@ -431,7 +431,7 @@ def blocks(o: Outcome) -> bool:
     if o.is_range: return o.state is BaseState.DEAD and o.dead_reason == "declared"     # D12
     return o.state is BaseState.DEAD or o.cursed
 
-def decide(outcomes, *, truncated, files) -> Decision
+def decide(outcomes, *, truncated, files, total_targets, budget_seconds=10.0) -> Decision
 ```
 
 `decide`:
@@ -442,7 +442,9 @@ def decide(outcomes, *, truncated, files) -> Decision
   - (3) `Checked` with `is_range`, not blocking, and (`state is DEAD` or `cursed`) → `<name>: range not checked against <version> (<State>[ · Cursed])`;
   - (4) `Checked`, not `is_range`, not blocking, and (`state is DEAD` or `cursed`) (so necessarily not gate-eligible) → `<name>@<version> unverified (no <sources> data), not gated`, with the source labels the table uses (CLI-EVID-5);
   - (5) `files` fragments;
-  - (6) `truncated` → `checked the first 20 of <N> packages`.
+  - (6) `truncated` → `checked the first 20 of <N> packages`, where `<N>` is `total_targets`, the number of distinct targets the caller found before the cap of 20 (when the parser itself stopped at 20 it does not count the rest, so the caller passes at least 21).
+
+In (1) and (6) the noun is singular for a count of 1 (`1 package not checked`, `of 1 package`).
 
 Messages (final text):
 
@@ -705,7 +707,7 @@ Properties: `test_roundtrip` (`parse_install(render(t)).targets == t`), `test_sk
 | `npm install express` | yes | exit 0; stdout and stderr empty; the seam shows `express@5.3.0`, state not Dead, `cursed` false | `dist-tags.latest = 5.3.0` is recorded; the OSV answer comes from the wrapper; the state is read from the `Checked` outcome and pinned once observed (**to be confirmed at implementation**: if 5.3.0 is not Alive the assertion is on "not blocked" and the state is recorded) |
 | `pip install six` | none | exit 0; stdout is exactly `graveyard: six@1.17.0 unverified: no GitHub data; not gated`; stderr empty | CLI-EVID-9: token-less `six` is Dead by score with GitHub signals skipped, so it is unverified |
 
-Plus the range cases (`npm install request@^2` blocks because `request` is declared Dead; `express@^5` allows), the `-r` cases (a temporary file with `six==1.17.0`, `-r other.txt`, a `git+https://` line and an unpinned `requests`: exit 0, one stdout line with the `six` unverified fragment and `requirements.txt: 3 lines not checked (unpinned, URL or path, nested -r)`), and the compound, wrapper and "no network request" cases of KPW-TEST-7. Hook payloads in these tests use the field names recorded by the spike (`COMMAND_FIELD`, `CWD_FIELD`), imported from `core.install.payload`, never typed as literals. `log.unmatched == []` everywhere except the no-network cases, where `log.matched == [] and log.unmatched == []`.
+Plus the range cases (`npm install request@^2` blocks because `request` is declared Dead; `express@^5` allows; `pip install "six<2"` without a token exits 0 with the range fragment `graveyard: six: range not checked against 1.17.0 (Dead)` per KPW-MAP-5 (3), not the "unverified" fragment, which is for non-range targets), the `-r` cases (a temporary file with `six==1.17.0`, `-r other.txt`, a `git+https://` line and an unpinned `requests`: exit 0, one stdout line with the `six` unverified fragment and `requirements.txt: 3 lines not checked (unpinned, URL or path, nested -r)`), and the compound, wrapper and "no network request" cases of KPW-TEST-7. Hook payloads in these tests use the field names recorded by the spike (`COMMAND_FIELD`, `CWD_FIELD`), imported from `core.install.payload`, never typed as literals. `log.unmatched == []` everywhere except the no-network cases, where `log.matched == [] and log.unmatched == []`.
 
 ### 10.4 Never-raises and fault injection (KPW-TEST-6)
 

@@ -13,11 +13,16 @@ import pytest
 from cli.tests.support import (
     DEFAULT_SBOM_DIR,
     STUB_STDERR_SENTINEL,
+    OsvAgnosticUse,
+    ReplayLog,
     StubMode,
     make_source_result,
     make_stub_syft,
+    recorded_github,
     shape,
+    single_repo_github,
     subset_replay_transport,
+    version_agnostic_osv,
 )
 from core.scoring.types import Signals
 from core.sources.cassette import thaw_json
@@ -236,3 +241,101 @@ def test_a_subset_of_the_recorded_bulk_downloads_url_is_derived() -> None:
     with pytest.raises(httpx.ConnectError):
         _get(transport, f"{NPM_LAST_WEEK}express,not-recorded")
     assert [u.url for u in log.unmatched] == [f"{NPM_LAST_WEEK}express,not-recorded"]
+
+
+# ------------------------------------------------------------ version-agnostic OSV wrapper
+
+
+def _agnostic() -> tuple[httpx.MockTransport, OsvAgnosticUse, ReplayLog]:
+    cassette = rec.cassette()
+    inner, log = subset_replay_transport(cassette)
+    wrapped, use = version_agnostic_osv(inner, cassette)
+    return wrapped, use, log
+
+
+def test_agnostic_osv_answers_other_version_with_recorded_answer() -> None:
+    wrapped, use, log = _agnostic()
+    _queries, results = _recorded_batch()
+    other = {"package": {"ecosystem": "npm", "name": "request"}, "version": "9.9.9"}
+    response = _post(wrapped, {"queries": [other]})
+    assert response.json() == {"results": [results[4]]}
+    assert use.uses == 1
+    assert use.rewritten == [("request", "9.9.9", "2.88.2")]
+    assert log.unmatched == []
+
+
+def test_agnostic_osv_leaves_recorded_and_unknown_queries_alone() -> None:
+    wrapped, use, log = _agnostic()
+    queries, results = _recorded_batch()
+    assert _post(wrapped, {"queries": [queries[4]]}).json() == {"results": [results[4]]}
+    assert use.uses == 0
+    unknown = {"package": {"ecosystem": "npm", "name": "nope"}, "version": "1.0.0"}
+    with pytest.raises(httpx.ConnectError):
+        _post(wrapped, {"queries": [unknown]})
+    assert use.uses == 0
+    assert len(log.unmatched) == 1
+
+
+def test_agnostic_osv_does_not_touch_other_requests() -> None:
+    wrapped, use, _log = _agnostic()
+    url = "https://registry.npmjs.org/request"
+    assert _get(wrapped, url).json() == rec.body(url)
+    assert use.uses == 0
+
+
+# ------------------------------------------------------------ single-repository GitHub wrapper
+
+GRAPHQL = "https://api.github.com/graphql"
+
+
+def _github(transport: httpx.MockTransport, variables: dict[str, str]) -> httpx.Response:
+    with httpx.Client(transport=transport) as client:
+        return client.post(GRAPHQL, json={"query": "query", "variables": variables})
+
+
+def _single() -> tuple[httpx.MockTransport, ReplayLog]:
+    cassette = rec.cassette()
+    inner, log = subset_replay_transport(cassette)
+    return single_repo_github(inner, log, cassette), log
+
+
+def test_single_repo_github_returns_the_recorded_object_as_r0() -> None:
+    recorded = recorded_github(rec.cassette())
+    assert recorded is not None
+    rvars, data = recorded
+    index = 3  # any recorded repository; not the first, so r0 is not the identity
+    response = _github(_single()[0], {"o0": rvars[f"o{index}"], "n0": rvars[f"n{index}"]})
+    assert response.status_code == 200
+    assert response.json() == {"data": {"rateLimit": data["rateLimit"], "r0": data[f"r{index}"]}}
+
+
+def test_single_repo_github_logs_the_derived_answer_as_matched() -> None:
+    recorded = recorded_github(rec.cassette())
+    assert recorded is not None
+    rvars, _data = recorded
+    transport, log = _single()
+    _github(transport, {"o0": rvars["o2"], "n0": rvars["n2"]})
+    assert log.matched == [f"github-single:{rvars['o2']}/{rvars['n2']}"]
+    assert log.unmatched == []
+
+
+def test_single_repo_github_unrecorded_repo_falls_through_to_inner() -> None:
+    transport, log = _single()
+    with pytest.raises(httpx.ConnectError):
+        _github(transport, {"o0": "nobody", "n0": "not-recorded"})
+    assert [u.url for u in log.unmatched] == [GRAPHQL]
+    assert log.matched == []
+
+
+def test_single_repo_github_multi_repo_body_falls_through_unchanged() -> None:
+    cassette = rec.cassette()
+    item = next(e for e in cassette.entries if e.method == "POST" and e.url == GRAPHQL)
+    request = thaw_json(item.request_body)
+    response = thaw_json(item.response_body)
+    assert isinstance(request, dict) and isinstance(response, dict)
+    transport, log = _single()
+    with httpx.Client(transport=transport) as client:
+        answer = client.post(GRAPHQL, json=request)
+    assert answer.json() == response  # the recorded batch itself, not rewritten
+    assert log.matched == [log.matched[0]] and not log.matched[0].startswith("github-single")
+    assert log.unmatched == []

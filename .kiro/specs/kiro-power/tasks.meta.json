@@ -688,6 +688,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939061
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794499841938
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794500033200
       }
     ],
     "T8.2 — `cli/stdin.py` per design §5.2 (daemon thread, `read1`, incremental UTF-8 decoder, stop on a complete JSON object, 1 MiB cap, `isatty` shortcut).": [
@@ -695,6 +705,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939138
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794500036638
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794500346021
       }
     ],
     "T8.3 — Tests: `cli/tests/test_hook_decide.py` (exact texts of the block message and every note fragment; one, several and more than ten blocking packages; the 200-character cap; hostile names with control characters, bidi overrides and ANSI sequences; range cases: declared-Dead gate-eligible range blocks, Cursed range and score-Dead range do not and give the `range not checked against` fragment; unverified Dead gives the unverified fragment; timeout > could-not-check > range > unverified > files > truncated ordering in the joined note); `test_hook_property.py` (`@pytest.mark.property`, KPW-MAP-6 against the oracle in design §10.2, including permutation, monotonicity, exit ∈ {0, 2}, one line, `sanitise`-stable); a consistency test that builds real `Report`s from the cassette via `rank` and asserts `decide(...).exit == BLOCK` iff `bool(report.matches)` for non-range targets; `test_stdin.py` (KPW-TEST-10 with `os.pipe()`: closed pipe; never-closed pipe returns the payload; never-written pipe returns `None` after 0.2 s; over 1 MiB; terminal-like stream; invalid UTF-8; a payload split across two writes); a test that `HookExit` equals the exit-code table text used in `--help` (the table is added in T9, so this test lands there).": [
@@ -702,6 +722,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939190
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794500351993
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794501036971
       }
     ],
     "T8.4 — Extend `test_guards.py` for `hook.py` (no I/O, no `asyncio`) and `stdin.py` (`threading` only here). Gate for T8.": [
@@ -709,6 +739,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939244
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794501039785
+      },
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794501944362
       }
     ],
     "T9.1 — Implement `parse_check_args`, `evaluate` and `run` per design §7.1 to §7.3: payload or `COMMAND`, `parse_install`, requirement files, one session, `resolve_latest` for non-pinned targets, one task per target, a single deadline, `Checked` built from `rank` rows (with `dead_reason` and `is_range`), `decide`. Top-level guard exit 0 with the internal-error note.": [
@@ -716,6 +756,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939317
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794503037142
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794503607003
       }
     ],
     "T9.2 — Wire `app.run(..., stdin=None)`: dispatch `check-install` before the `autopsy` parser; `graveyard --help` lists it and shows the check-install exit-code table (generated from `HookExit`); `autopsy --help` unchanged. `cli/__main__.py`: for `check-install`, pass `lambda: read_hook_payload(sys.stdin.buffer)` and wrap the call in the `BaseException` guard of design §7.5 (a `SystemExit` from `--help` is re-raised; everything else prints the internal-error line and exits 0).": [
@@ -723,6 +773,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939405
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794503611077
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794504693094
       }
     ],
     "T9.3 — Tests `cli/tests/test_check_install_cli.py`: option parsing (`--budget` bounds, `--as-of`, two `COMMAND`s, unknown option → exit 0 with the usage note, never exit 2 from a usage error); `--help` / `--version` exit 0; the exit-code table text equals `HookExit` (KPW-TEST-16) and appears in `--help`; `autopsy` exit codes 0 to 4 and its epilog unchanged (KPW-TEST-15); a `COMMAND` argument reads nothing from stdin (stdin callable that fails the test if called); an empty / non-install / no-target payload prints nothing and makes **no network request** (transport that fails the test if called).": [
@@ -730,6 +790,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939470
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794504697179
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794505035532
       }
     ],
     "T9.4 — Budget tests (KPW-BUD-3): a transport whose handler awaits `asyncio.sleep(3600)` with `--budget 0.5` returns exit 0 and the timeout fragment in under 3 s; a two-package command where one package is answered from the cassette (declared Dead, gate-eligible) and one never answers exits 2 and the block message names only the first; resolution timing out leaves pinned targets running.": [
@@ -737,6 +807,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939528
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794505039011
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794505370089
       }
     ],
     "T9.5 — Never-raises tests `test_check_install_never_raises.py` (KPW-TEST-6): arbitrary text / binary-derived / JSON payloads (with `cwd` text) and arbitrary `argv` with a failing transport: exit 0 (or 2 only from a generated block), at most one stdout line of ≤ 200 characters, nothing on stderr unless it is a block; fault injection of `parse_install`, `load_requirements`, `evaluate`, `rank`, `decide` and `clock.now` raising `RuntimeError(\"secret-text\")`: exit 0, the internal-error note, `secret-text` absent from all output; a `KeyboardInterrupt` through the entry point gives exit 0.": [
@@ -744,6 +824,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939573
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794505373937
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794506006295
       }
     ],
     "T9.6 — Red-team test (KPW-SEC-3): package names, commands and requirement-file lines carrying control characters, bidi overrides, ANSI escapes, shell metacharacters and injection phrases; assert no raw control character or URL in any output.": [
@@ -751,6 +841,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939628
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794506010030
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794506373172
       }
     ],
     "T9.7 — Guard tests (KPW-TEST-14): `check_install.py` imports no `subprocess`, `httpx`, `threading`; no `environ`; no `print`/`input`/`logging`. Gate for T9 including `uv run graveyard check-install --help` and `echo '{}' | uv run graveyard check-install; echo $?` (prints nothing, exit 0).": [
@@ -758,6 +858,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939680
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794506376584
+      },
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794507247392
       }
     ],
     "T10.1 — In `cli/tests/support.py` add the version-agnostic OSV wrapper (answers an OSV query for a recorded package at another version with that package's recorded answer; counts uses). Do not touch the cassette. Unit-test the wrapper in `test_support.py`.": [
@@ -765,6 +875,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939739
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794507374735
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794507724605
       }
     ],
     "T10.2 — `cli/tests/test_check_install_e2e.py` through `app.run`, `--as-of 2026-11-03`, `log.unmatched == []`: `npm install request` → 2 (stderr has `npm request@2.88.2`, `Dead`, `Cursed`, `declared dead`; stdout empty); `npm install express` with a token → 0, silent, structured result `express@5.3.0` not blocked (read the actual state from the `Checked` outcome through the `evaluate` seam, record it in the report; if it is not Alive, assert \"not blocked\" and say what it is); `pip install six` without a token → 0 and stdout exactly `graveyard: six@1.17.0 unverified (no GitHub data), not gated`; ranges `npm install request@^2` → 2, `npm install express@^5` → 0, `pip install \"six<2\"` no token → 0; the Cursed / Dead-by-score range case (`pip install \"pycrypto<3\"` with a token if the cassette answers it, otherwise a seam test with a hand-built row; say which); compound (`cd web && npm install request`), `sudo pip install six==1.17.0`, `yarn add request@2.88.2 -D`, `pnpm add -D express`; `-r` cases with files under `tmp_path` and the payload `cwd` set to it (the file holds `six==1.17.0`, `-r other.txt`, a `git+https://…` line, an unpinned `requests`, a comment → exit 0, one stdout line with the `six` fragment and `requirements.txt: 3 lines not checked (unpinned, URL or path, nested -r)`); `-r` pointing outside the base → no read, note `not read (outside)`; non-install / unsupported forms (`npm install`, `npm install ./local`, `npm install git+https://…`, `ls`) → 0, empty stdout, `log.matched == []` and no request.": [
@@ -772,6 +892,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939810
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794507730365
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794508654516
       }
     ],
     "T10.3 — The same three headline commands delivered as the hook payload, built with `COMMAND_FIELD` / `CWD_FIELD` and `tool_name` as observed by T1, through the `stdin` seam; results identical. Determinism: two runs give byte-identical output.": [
@@ -779,6 +909,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939862
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794508658732
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794508974020
       }
     ],
     "T10.4 — Token test (extends CLI-SEC-5 to this command): a distinctive token value appears nowhere in stdout or stderr. Gate for T10.": [
@@ -786,6 +926,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428939939
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794508976605
+      },
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794509976742
       }
     ],
     "T11.1 — Before writing, read the installed SDK (`backend/.venv/.../mcp/server/mcpserver/server.py`, `exceptions.py`) and confirm: the `MCPServer` constructor arguments (`name`, `instructions`), `tool(...)` parameters (`annotations`, `structured_output`), `ToolAnnotations` import path, `ToolError`, the in-memory client/server pairing for tests (name and import path), and what a `dict[str, Any]` return becomes. Record any difference from design §8.1 and adapt.": [
@@ -1003,6 +1153,39 @@
         "executionId": "6791f9c2-1d03-4c0b-9077-90114101a10a",
         "chatSessionId": "sess_20e652b3-3d6b-4097-b880-be0d0787a6a2",
         "timestamp": 1794497449338
+      }
+    ],
+    "T8 — `cli/hook.py` and `cli/stdin.py` (KPW-MAP-1…7, KPW-PAY-1, KPW-PAY-2, KPW-TEST-5, KPW-TEST-10)": [
+      {
+        "executionId": "36ad09f9-e90a-4c09-859c-a79d3c945a17",
+        "chatSessionId": "sess_8f175239-842e-469f-92b6-a209099a3e04",
+        "timestamp": 1794501944490
+      }
+    ],
+    "T9 — `cli/check_install.py`, dispatch, help and entry-point guard (KPW-CMD-1…6, KPW-BUD-1…4, KPW-PAY-1, KPW-TEST-6, KPW-TEST-14…16)": [
+      {
+        "executionId": "056e9698-24cd-4251-84cc-1d00cef07f0f",
+        "chatSessionId": "sess_db0cc342-56f4-4b58-a7e3-86d6ee5b01d1",
+        "timestamp": 1794507247497
+      }
+    ],
+    "T10 — End to end against the recorded cassette (KPW-TEST-7, KPW-TEST-8)": [
+      {
+        "executionId": "611ec166-e53d-4212-8c0c-a71a3e62537f",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794509976820
+      }
+    ],
+    "T10.5 — Follow-ups from the T9/T10 review. (1) Pass the real total target count to `decide` and the note builder as a keyword-only `total_targets`; remove the `max(len(outcomes), 21)` estimate; test with 25 targets; fix singular/plural (\"1 package\") in the timeout and truncated fragments. (2) Correct KPW-TEST-7 and design §10.3: `pip install \"six<2\"` without a token gives the range fragment `six: range not checked against 1.17.0 (Dead)` per KPW-MAP-5 (3). (3) Move `_single_repo_github` from `test_check_install_e2e.py` into `cli/tests/support.py` beside `version_agnostic_osv`, with a unit test in `test_support.py`. (4) Test that the `HookExit` values match the exit-code table printed by `graveyard check-install --help`. Gate: `uv run pytest -q cli`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core sources cli mcp_server`.": [
+      {
+        "executionId": "14bf7f89-088c-468c-bc9c-5549e65d7ecc",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794511053305
+      },
+      {
+        "executionId": "14bf7f89-088c-468c-bc9c-5549e65d7ecc",
+        "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
+        "timestamp": 1794511612674
       }
     ]
   }

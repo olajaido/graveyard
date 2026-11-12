@@ -608,3 +608,26 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** registry 404 never asks deps.dev, a registry failure falls back to the deps.dev default, and `express` resolves to the dist-tag `5.3.0`, not `4.22.3`.
 - **Corrected:** the gate failed on a saved Hypothesis example: a hostile OSV id `-7` passed `is_valid_osv_id`. The validator now needs a leading letter or digit; `_PLAIN_CACHE_TEXT` is unchanged.
 - **Surprise:** the gateway does not coalesce the second registry read (one extra request per unpinned package, accepted by KPW-RES-4). `load_requirements` took 1.37 s on 1 MB, so per-line order recovery is capped at 2,000 lines (re-timed on a 1,048,576-byte, 104,416-line file of short pins: 0.76, 0.84, 0.81 s, down from 1.37 s).
+
+### 12 Nov — Spec `kiro-power`: T8 (`cli/hook.py` and `cli/stdin.py`)
+- **Spec/task:** T8.1 to T8.4: `HookExit`, `decide`, block message and joined note; bounded stdin reader; 54 example tests, 4 property tests; guard tests for both modules; gate green (6423 tests).
+- **Kiro features:** spec task DAG, sub-agent per sub-task, task hooks, Hypothesis CI profile.
+- **Kiro got right:** `blocks` reuses `cli.gate.matches` so hook and gate cannot drift; hostile names, bidi and ANSI stay out of the note; the never-closed pipe returns the payload.
+- **Corrected:** design §5.2 returns the text on EOF without a complete object, KPW-PAY-2 says no payload; the requirement won. `decide` gained a keyword-only `budget_seconds` for the timeout fragment.
+- **Surprise:** the `truncated` fragment needs the total package count, which `decide` is not given; `max(len(outcomes), 21)` can understate it, so T9 should pass it explicitly.
+
+
+### 12 Nov — Spec `kiro-power`: T9 (check-install command, dispatch and guards)
+- **Spec/task:** T9.1–T9.7: `check_install.py` (args, evaluate, run), app dispatch and help, entry-point guard, CLI/budget/never-raises/red-team/guard tests
+- **Kiro features:** spec task orchestration, subagent execution, PostTaskExec hook
+- **Kiro got right:** single-deadline evaluate with one task per target; fail-open guard returning only exit 0 or 2
+- **Corrected:** budget test showed resolve timeout starved pinned targets (pinned now start first); red-team test showed URLs survived `hook._clean` (now neutralised)
+- **Surprise:** both bugs were only visible through tests with a never-answering transport and hostile text, not through the happy-path e2e
+
+### 12 Nov — Spec `kiro-power`: T10 (check-install end to end on the cassette)
+- **Spec/task:** T10.1–T10.4: version-agnostic OSV wrapper, 21-case e2e file, hook-payload parity and determinism, token-leak spy
+- **Kiro features:** spec task orchestration, subagent execution, PostTaskExec hook
+- **Kiro got right:** `express@5.3.0` is Alive and not blocked; `pycrypto<3` runs the real pipeline from the cassette, so no hand-built row was needed
+- **Corrected:** spec text said "unverified" for `pip install "six<2"` with no token; the code gives the range fragment (KPW-MAP-5 (3)), so the test pins that
+- **Surprise:** a token run sends a one-repo GraphQL query the 7-repo cassette cannot answer; a small test-side wrapper derives it from the recorded batch
+- **Follow-up (T10.5):** `total_targets` now reaches `decide`/`note` (no more `max(len, 21)`), "1 package" singular fixed, KPW-TEST-7 and design §10.3 corrected for `six<2`, `single_repo_github` moved to `support.py`, help exit-code table pinned to `HookExit`.

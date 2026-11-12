@@ -15,6 +15,14 @@ Rules (CLI-DEP-5):
    ``write_bytes``) only in ``lockfiles.py``, ``sbom.py``, ``requirements_file.py`` and the
    JSON writer (``app.py``); no other module reads a ``-r`` file (KPW-REQ-6).
 
+7. ``hook.py`` is pure (KPW-MAP): no ``asyncio``, ``threading``, ``os``, ``sys``, ``io``,
+   ``pathlib``, ``shutil`` or ``tempfile`` import, on top of rules 1 to 4 and 6.
+8. ``threading`` is imported only by ``stdin.py`` (KPW-PAY-1); ``stdin.py`` itself obeys
+   rules 1, 3 and 4.
+
+9. ``check_install.py`` imports no ``subprocess``, ``httpx`` or ``threading``, touches no
+   environment and never calls ``print``/``input`` or imports ``logging`` (KPW-TEST-14).
+
 CLI-DEP-4: ``core`` and ``sources`` never import ``cli``; ``cli`` imports ``core.scoring``
 only for ``score_package``, ``sort_results``, ``ScoringResult``, ``BaseState``, ``Signals``.
 """
@@ -38,6 +46,12 @@ OS_EXEC_NAMES = frozenset({"system", "popen"})
 FORBIDDEN_CALLS = frozenset({"print", "input"})
 SILENT_MODULES = frozenset({"logging", "warnings"})
 NETWORK_MODULES = frozenset({"httpx", "urllib", "socket", "requests"})
+HOOK_MODULE = "hook.py"
+STDIN_MODULE = "stdin.py"
+THREADING_MODULE = "stdin.py"
+HOOK_BANNED_MODULES = frozenset(
+    {"asyncio", "threading", "os", "sys", "io", "pathlib", "shutil", "tempfile", "subprocess"}
+)
 ALLOWED_SCORING_NAMES = frozenset(
     {"score_package", "sort_results", "ScoringResult", "BaseState", "Signals"}
 )
@@ -67,6 +81,10 @@ def check_guards(source: str, rel_path: str) -> list[str]:
                     problems.append(f"{rel_path}: imports {name}")
                 if root in NETWORK_MODULES:
                     problems.append(f"{rel_path}: imports {name} (network modules are banned)")
+                if root == "threading" and rel_path != THREADING_MODULE:
+                    problems.append(f"{rel_path}: imports {name} (threading is stdin.py only)")
+                if root in HOOK_BANNED_MODULES and rel_path == HOOK_MODULE:
+                    problems.append(f"{rel_path}: imports {name} (hook.py is pure)")
                 if root == "subprocess" and rel_path != SUBPROCESS_MODULE:
                     problems.append(f"{rel_path}: imports {name} (subprocess is syft.py only)")
             if isinstance(node, ast.ImportFrom):
@@ -275,6 +293,89 @@ def test_rule6_file_io_only_in_allowed_modules(source: str) -> None:
         assert any("file I/O" in p for p in check_guards(source, rel_path))
     for rel_path in sorted(FILE_IO_MODULES):
         assert check_guards(source, rel_path) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import asyncio\n",
+        "from asyncio import sleep\n",
+        "import threading\n",
+        "import os\n",
+        "import sys\n",
+        "from io import StringIO\n",
+        "from pathlib import Path\n",
+        "import subprocess\n",
+    ],
+)
+def test_rule7_hook_is_pure(source: str) -> None:
+    assert any(
+        "hook.py is pure" in p or "subprocess" in p for p in check_guards(source, HOOK_MODULE)
+    )
+    assert not any("hook.py is pure" in p for p in check_guards(source, "args.py"))
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import httpx\n",
+        "import os\nx = os.environ\n",
+        "print('x')\n",
+        "open('x')\n",
+        "p.read_text()\n",
+    ],
+)
+def test_rule7_hook_rejects_io_and_env(source: str) -> None:
+    assert check_guards(source, HOOK_MODULE)
+
+
+@pytest.mark.parametrize("source", ["import threading\n", "from threading import Thread\n"])
+def test_rule8_threading_only_in_stdin(source: str) -> None:
+    assert check_guards(source, STDIN_MODULE) == []
+    for rel_path in ("args.py", HOOK_MODULE, ENV_MODULE, SUBPROCESS_MODULE, "check_install.py"):
+        assert any("threading" in p for p in check_guards(source, rel_path))
+
+
+@pytest.mark.parametrize(
+    "source",
+    ["import httpx\n", "import requests\n", "import os\nx = os.environ\n", "print('x')\n"],
+)
+def test_rule8_stdin_imports_no_http_environ_or_print(source: str) -> None:
+    assert check_guards(source, STDIN_MODULE)
+
+
+CHECK_INSTALL_MODULE = "check_install.py"
+
+
+def test_rule9_check_install_is_covered_by_the_glob() -> None:
+    assert CHECK_INSTALL_MODULE in {p.name for p in CLI_MODULES}
+
+
+@pytest.mark.parametrize(
+    ("source", "needle"),
+    [
+        ("import subprocess\n", "subprocess"),
+        ("from subprocess import run\n", "subprocess"),
+        ("import httpx\n", "httpx"),
+        ("from httpx import AsyncClient\n", "httpx"),
+        ("import threading\n", "threading"),
+        ("from threading import Thread\n", "threading"),
+        ("import os\nx = os.environ\n", "environ"),
+        ("import os\nx = os.getenv('A')\n", "getenv"),
+        ("from os import environ\n", "environ"),
+        ("x = environ['A']\n", "environ"),
+        ("print('x')\n", "print"),
+        ("input()\n", "input"),
+        ("import logging\n", "logging"),
+        ("from logging import getLogger\n", "logging"),
+    ],
+)
+def test_rule9_check_install_bad_samples_rejected(source: str, needle: str) -> None:
+    assert any(needle in p for p in check_guards(source, CHECK_INSTALL_MODULE))
+
+
+def test_rule9_check_install_clean_sample_passes() -> None:
+    assert check_guards("import asyncio\nfrom core import purl\n", CHECK_INSTALL_MODULE) == []
 
 
 def test_defining_a_print_method_is_not_a_call() -> None:
