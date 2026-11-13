@@ -189,3 +189,6 @@ Pool F of Addition 1 was exhausted after batch A7 with `finished-healthy` at 17 
 
 #### Amendment 6 (fixed 13 Nov 2026, after batch B2, before any capture)
 Additions 1 and 2 are exhausted with the effective `finished-healthy` count (rows passing the still-works check) at 19, below 20. This replaces the last sentence of Amendment 1 point 4: one further addition (Addition 3) is built by the Addition 2 method and drawn by the rule in `eval/addition3/README.md`. If the minimum is still not met after Addition 3, the shortfall is reported as a limitation of the set; no minimum is lowered and no further addition is built. No Graveyard output has been seen.
+
+#### Labelling closed (13 Nov 2026, before any capture)
+After batch C1: 125 merged rows; effective `finished-healthy` 20 (22 merged, 2 failed the still-works check: dalton, bravado-falcon). Every section 3 minimum is met on effective counts. Addition 3 ranks 11-15 are not drawn. They are drawn (as batch C2, under the Addition 3 rule) only if review removes a `finished-healthy` row and the effective count falls below 20. No Graveyard output has been seen. From here, rows change only at review (T14), each change logged in section 8.
