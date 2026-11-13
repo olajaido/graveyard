@@ -1,4 +1,4 @@
-.PHONY: eval eval-merge eval-still-works eval-versions eval-verify
+.PHONY: eval eval-merge eval-still-works eval-versions eval-verify eval-apply-review
 eval:
 	cd backend && uv run python -m eval
 
@@ -16,3 +16,7 @@ eval-versions:
 # Read-only HTTPS GETs to each row's evidence_url; checks the quote appears (T14 review).
 eval-verify:
 	python3 scripts/verify_evidence.py $(ARGS)
+
+# Applies eval/review/decisions.tsv to the labelled set; add ARGS=--mark-reviewed to set reviewed=true (T14).
+eval-apply-review:
+	python3 scripts/apply_review.py $(ARGS)

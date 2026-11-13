@@ -1,0 +1,126 @@
+ecosystem	name	label	evidence_kind	status	flags	detail
+npm	request-promise	dead	deprecation_notice	found		matched in raw
+npm	request-promise-native	dead	deprecation_notice	found		matched in raw
+npm	node-sass	dead	deprecation_notice	found		matched in raw
+npm	tslint	dead	deprecation_notice	found		matched in raw
+npm	babel-eslint	dead	deprecation_notice	found		matched in raw
+npm	istanbul	dead	deprecation_notice	found		matched in raw
+npm	phantomjs-prebuilt	dead	deprecation_notice	found		matched in raw
+npm	protractor	dead	deprecation_notice	found		matched in raw
+npm	karma	dead	maintainer_statement	found		matched in raw
+npm	coffee-script	dead	deprecation_notice	found		matched in json
+npm	jade	dead	deprecation_notice	found		matched in raw
+npm	gulp-util	dead	deprecation_notice	found		matched in raw
+npm	uglify-es	dead	deprecation_notice	found		matched in raw
+npm	nomnom	dead	deprecation_notice	found		matched in raw
+npm	querystring	dead	deprecation_notice	found		matched in raw
+npm	har-validator	dead	deprecation_notice	found		matched in raw
+npm	popper.js	dead	deprecation_notice	found		matched in raw
+npm	domexception	dead	deprecation_notice	found		matched in raw
+npm	abab	dead	deprecation_notice	found		matched in raw
+npm	sourcemap-codec	dead	deprecation_notice	found		matched in raw
+npm	q	dead	deprecation_notice	found		matched in raw
+npm	on-finished	alive	release_notes	found		matched in html
+npm	react	alive	release_notes	found		matched in raw
+npm	vite	alive	release_notes	found		matched in raw
+npm	axios	alive	release_notes	found		matched in raw
+npm	prettier	alive	release_notes	not_found		
+npm	commander	alive	release_notes	found		matched in raw
+pypi	sklearn	dead	deprecation_notice	found		matched in raw
+pypi	nose-parameterized	dead	deprecation_notice	found		matched in raw
+pypi	typed-ast	dead	maintainer_statement	found		matched in raw
+pypi	flask-script	ailing	maintainer_statement	found		matched in raw
+pypi	flask-restplus	dead	maintainer_statement	found		matched in html
+pypi	django-rest-swagger	dead	maintainer_statement	found		matched in raw
+pypi	ply	dead	maintainer_statement	found		matched in raw
+pypi	appdirs	dead	deprecation_notice	found		matched in html
+pypi	requests	alive	release_notes	found		matched in raw
+pypi	flask	alive	release_notes	found		matched in raw
+pypi	numpy	alive	release_notes	found		matched in raw
+pypi	pandas	alive	release_notes	found		matched in raw
+pypi	fastapi	alive	release_notes	found		matched in raw
+pypi	pytest	alive	release_notes	found		matched in raw
+pypi	sqlalchemy	alive	release_notes	found		matched in raw
+pypi	attrs	alive	release_notes	found		matched in raw
+pypi	eventlet	ailing	maintainer_statement	found		matched in html
+pypi	nose2	alive	release_notes	found		matched in raw
+pypi	simplejson	alive	release_notes	found		matched in raw
+npm	path-is-absolute	dead	deprecation_notice	found		matched in raw
+pypi	argparse	dead	archived_repo	found		matched in raw
+npm	inflight	dead	deprecation_notice	found		matched in raw
+npm	xmldom	dead	maintainer_statement	found		matched in html
+pypi	pathlib	dead	maintainer_statement	found		matched in raw
+pypi	ansible-bender	ailing	maintainer_statement	found		matched in html
+pypi	auto-resizing-text-edit	finished-healthy	feature_complete_readme	found		matched in raw
+npm	custom-protocol-detection	dead	maintainer_statement	found		matched in raw
+pypi	liionpack	ailing	maintainer_statement	found		matched in raw
+npm	nodejs-mobile-gyp	dead	maintainer_statement	found		matched in raw
+pypi	pysoundanalyser	dead	maintainer_statement	found		matched in raw
+npm	react-hooks-global-state	dead	maintainer_statement	found		matched in raw
+pypi	torf	finished-healthy	feature_complete_readme	found		matched in raw
+npm	vue-formly	ailing	maintainer_statement	found		matched in raw
+pypi	zilch	finished-healthy	feature_complete_readme	found		matched in raw
+npm	animate-components	ailing	maintainer_statement	found		matched in raw
+npm	graphql-list-fields	finished-healthy	feature_complete_readme	found		matched in raw
+npm	react-native-version-check	ailing	maintainer_statement	found		matched in raw
+npm	textlint-plugin-latex2e	ailing	maintainer_statement	found		matched in raw
+pypi	cement	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+pypi	liffile	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+pypi	mastodon-py	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+pypi	rmextract	dead	maintainer_statement	found		matched in raw
+pypi	sen	ailing	maintainer_statement	found		matched in raw
+pypi	windows-curses	ailing	maintainer_statement	found		matched in raw
+pypi	yafowil-plone	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+pypi	zgw-consumers-oas	finished-healthy	feature_complete_readme	found		matched in raw
+npm	aiwg	alive	release_notes	found		matched in raw
+pypi	feedjack	dead	deprecation_notice	found		matched in raw
+pypi	jdxi-editor	alive	release_notes	found		matched in raw
+pypi	maccarone	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	rai-workflow-manager	dead	maintainer_statement	found		matched in raw
+pypi	bravado-falcon	finished-healthy	feature_complete_readme	found	still_works_fail	matched in raw; still-works: fail_install
+pypi	dalton	finished-healthy	feature_complete_readme	found	still_works_fail	matched in raw; still-works: fail_import
+npm	lighthouse	alive	release_notes	found		matched in raw
+npm	material-design-lite	ailing	maintainer_statement	found		matched in raw
+pypi	oirfile	alive	release_notes	found		matched in raw
+pypi	pandoc-mustache	ailing	maintainer_statement	found		matched in raw
+pypi	py-d3	dead	maintainer_statement	found		matched in raw
+pypi	pyutilib	ailing	maintainer_statement	found		matched in raw
+npm	rx-sandbox	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	sacn	ailing	maintainer_statement	found		matched in raw
+npm	serializr	ailing	maintainer_statement	found		matched in raw
+pypi	vizro	alive	release_notes	found		matched in raw
+pypi	cwltool	alive	release_notes	found		matched in html
+npm	aurelia	alive	release_notes	found		matched in raw
+npm	h3-js	alive	release_notes	found		matched in raw
+npm	p-queue	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+npm	react-accessible-details	finished-healthy	feature_complete_readme	found		matched in raw
+npm	stwui	finished-healthy	feature_complete_readme	found		matched in raw
+npm	susy-sass	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	kotti-image-gallery	dead	maintainer_statement	found		matched in raw
+pypi	mkdocs-multirepo-plugin	ailing	maintainer_statement	found		matched in raw
+pypi	oximedia	alive	release_notes	found		matched in raw
+pypi	ydb	alive	release_notes	found	amendment_1_3	matched in raw; quote is a machine timestamp
+pypi	django-context-decorator	finished-healthy	feature_complete_readme	not_found		
+npm	llm-wiki-compiler	alive	release_notes	found		matched in raw
+pypi	celery	alive	release_notes	found		matched in raw
+pypi	obffile	alive	release_notes	found		matched in raw
+pypi	screen3	ailing	maintainer_statement	found		matched in raw
+pypi	opentaxii	finished-healthy	feature_complete_readme	found		matched in html
+npm	codec-detect	dead	deprecation_notice	found		matched in raw
+pypi	mapdamage	ailing	maintainer_statement	found		matched in raw
+pypi	products-zopetree	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	robotframework-angularjs	finished-healthy	feature_complete_readme	not_found		
+pypi	t61codec	finished-healthy	feature_complete_readme	found		matched in raw
+npm	babylonjs-charactercontroller	alive	release_notes	found		matched in raw
+npm	command-line-args	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	fortls	ailing	maintainer_statement	found		matched in html
+npm	grafema	alive	release_notes	found		matched in raw
+npm	please-upgrade-node	finished-healthy	feature_complete_readme	found		matched in html
+pypi	pydora	finished-healthy	feature_complete_readme	found		matched in raw
+npm	content-security-policy-builder	finished-healthy	feature_complete_readme	found		matched in raw
+pypi	s2geometry	alive	release_notes	found		matched in html
+npm	caprine	dead	deprecation_notice	found		matched in raw
+npm	pdfjs	ailing	maintainer_statement	found		matched in raw
+npm	raviger	alive	release_notes	found		matched in raw
+npm	smells-code-analyzer	dead	deprecation_notice	found		matched in raw
+npm	updeep	finished-healthy	feature_complete_readme	found		matched in raw

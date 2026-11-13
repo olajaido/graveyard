@@ -1,0 +1,13 @@
+ecosystem	name	action	reason
+pypi	cement	remove	Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time)
+pypi	liffile	remove	Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time)
+pypi	mastodon-py	remove	Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time)
+pypi	yafowil-plone	remove	Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time)
+npm	p-queue	remove	Amendment 3: only alive evidence is an API record (api.github.com created_at)
+pypi	ydb	remove	Amendment 3: only alive evidence is an API record (api.github.com created_at)
+pypi	dalton	remove	section 1: does not still work (import failed on python:3.12-slim, linux/amd64)
+pypi	bravado-falcon	remove	section 1: does not still work (install failed on python:3.12-slim, linux/amd64)
+pypi	obffile	remove	section 2: alive evidence is a README version field, not release notes
+pypi	django-context-decorator	keep_manual	quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier)
+pypi	robotframework-angularjs	keep_manual	quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier)
+npm	prettier	keep_manual	verified by maintainer in a browser: blog post dated November 11, 2026 announcing Prettier 3.10; the quote spans two page elements
