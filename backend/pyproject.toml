@@ -44,7 +44,7 @@ markers = [
     "property: Hypothesis property-based tests",
     "syft: contract tests that run the real Syft 1.56.0 binary (skipped when it is not found)",
 ]
-testpaths = ["core", "sources", "cli", "mcp_server", "tests"]
+testpaths = ["core", "sources", "cli", "mcp_server", "eval", "tests"]
 pythonpath = ["."]
 
 [tool.ruff]
@@ -56,9 +56,9 @@ extend-exclude = [".venv", ".mypy_cache", ".ruff_cache"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["core", "sources", "cli", "mcp_server"]
+known-first-party = ["core", "sources", "cli", "mcp_server", "eval"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["core", "sources", "cli", "mcp_server"]
+files = ["core", "sources", "cli", "mcp_server", "eval"]

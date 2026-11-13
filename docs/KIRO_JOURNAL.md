@@ -686,3 +686,45 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Gate green after the changes (7031 passed, 803 property tests); pip-audit found 0 known vulnerabilities.
 - **Corrected:** `cli.errors` was missing from the KPW-MCP-10 allowed list; added to the requirement and the checker.
 - **Surprise:** An anchored gitleaks regex never matched, because the finding text includes `TOKEN = `. Hard cap can keep fewer than 50 packages.
+
+### 13 Nov — Spec `eval-harness`: T0 (scaffold, Makefile, guards)
+- **Spec/task:** T0.1 to T0.6: baseline, `backend/eval/` package, pyproject entries, root Makefile and test, AST guard tests.
+- **Kiro features:** spec tasks, sub-agent execution, hooks.
+- **Kiro got right:** Baseline and final gate green (7387 passed); `uv.lock` unchanged; guards read the module glob at collection time so later modules are covered.
+- **Corrected:** Nothing needed.
+- **Surprise:** The task tool lists leaf tasks by their full text, so `taskGet T0` found nothing. The guard checker does not catch aliased imports such as `import time as t`.
+
+### 13 Nov — Spec `eval-harness`: T1 (core/bands.py + tests)
+- **Spec/task:** T1.1 to T1.5: `core/bands.py`, boundary and range unit tests, 64-subset test against the model, property and import-guard tests, final verification.
+- **Kiro features:** spec tasks, sub-agent execution, hooks.
+- **Kiro got right:** 91 tests green, mypy strict clean; `core/bands.py` is the only new file under `core/`; model confidence matched the independent weight-sum for every subset.
+- **Corrected:** Nothing needed.
+- **Surprise:** `score_package` confidence never needed the tolerance for real values; the smallest non-zero confidence is 0.10.
+
+### 13 Nov — Spec `eval-harness`: T2 (labels.py CSV schema, parser, composition check)
+- **Spec/task:** T2.1 to T2.5: `labels.py`, test `support.py`, unit tests, property tests, green gate.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, PBT markers).
+- **Kiro got right:** Error messages carry line and column only and never echo input. Lenient and strict parsers share one validator.
+- **Corrected:** First draft used `urllib.parse.urlsplit`; the T0.5 guard bans `urllib`, so the URL check is hand-written.
+- **Surprise:** Line numbers for rows after a multi-line quoted field needed the reader's `line_num`, not the record index.
+
+### 13 Nov — Spec `eval-harness`: T3 (merge command and data files)
+- **Spec/task:** T3.1 to T3.5: header-only data files, `paths.py`, `merge.py`, unit and property tests, data-file test.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, PBT markers).
+- **Kiro got right:** `plan_merge` is pure and all-or-nothing. Staged line numbers come from raw records, so they stay correct beside invalid rows.
+- **Corrected:** The reviewed=true property test needed non-empty staged batches, since `valid_rows` can return an empty list.
+- **Surprise:** Both data files already existed as header-only, so T3.1 only confirmed their bytes.
+
+### 13 Nov — Spec `eval-harness`: T4 (outcome and metrics)
+- **Spec/task:** T4.1 to T4.5: `outcome.py`, `metrics.py`, unit tests, property tests, green gate.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, PBT markers).
+- **Kiro got right:** Every ratio is `None` on a zero denominator. Hand-computed 20-row table matched the code first time.
+- **Corrected:** Added Ailing and Alive `outcome_from` cases to cover the `partial_evidence` branch.
+- **Surprise:** `band_table` raises on confidence outside [0, 1], so strategies must stay in range.
+
+### 13 Nov — Spec `eval-harness`: T5 (gate and pins)
+- **Spec/task:** T5.1 to T5.6: `gate.yaml`, `FROZEN_WEIGHTS.sha256`, `gate.py`, `test_gate.py`, `test_pins.py`, green gate.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, pinned thresholds).
+- **Kiro got right:** Boundary tables (9/10, 8/10, 2/20, 3/20) pass on exact float comparison. The gate never passes on an empty sample.
+- **Corrected:** Sample checks report the row count as value with `den=None`, since the spec left it open.
+- **Surprise:** `gate.yaml` and the hash file already existed with the right content, so T5.1 and T5.2 only confirmed them.

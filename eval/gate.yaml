@@ -1,0 +1,4 @@
+min_dead_precision: 0.90
+max_finished_healthy_fpr: 0.10
+min_reviewed_dead: 25
+min_reviewed_finished_healthy: 20
