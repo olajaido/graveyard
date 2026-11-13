@@ -146,12 +146,17 @@ Order of use (alternating, npm first; npm continues once PyPI runs out):
 ### Additions
 If the reserve is exhausted and a shortfall remains, a further list will be appended below as a dated addition. Nothing above this heading is edited in place.
 
+
 #### Amendment 1 (fixed 13 Nov 2026, before batch A4)
 Recorded after batch A3, with 78 merged rows and 6 `finished-healthy`; no Graveyard output seen.
 1. The row maximum is raised from 110 to 130. No minimum is lowered.
 2. With `ailing` and the maintainer_statement/eol_announcement `dead` minimum met, Addition 1 draws take 20 from pool F per batch instead of 12. Rank order is unchanged.
 3. Registry metadata timestamps (PyPI `upload_time`, npm `time`) are not `release_notes`. At review, rows whose only `alive` evidence is such a timestamp are removed and logged in section 8 under this rule.
 4. If pool F is exhausted with `finished-healthy` below 20, Addition 2 is built by the Addition 1 method from completeness and stability phrases only, and fixed before any of it is labelled. If the minimum is still not met, the shortfall is reported as a limitation of the set; the minimum is not lowered.
+
+#### Amendment 3 (fixed 13 Nov 2026, before batch A6)
+Amendment 1 point 3 covers any machine metadata timestamp, not only registry fields: API records such as api.github.com release `created_at` are not `release_notes`. Rows whose only `alive` evidence is such a record are removed at review and logged in section 8.
+
 
 #### Addition 1 (fixed 13 Nov 2026, before labelling any of it)
 After batches 1-5 and the full reserve, the set had 51 rows and was short of 90 rows, 20 `finished-healthy`, 10 `ailing`, 30 pypi, and 10 `dead` on `maintainer_statement` or `eol_announcement`. Addition 1 candidates were selected mechanically from GitHub code search for README project-status markers, mapped to PyPI and npm packages whose metadata points at the repo, and ordered by hash. The method, raw search output, pools and draw rule are in `eval/addition1/README.md`. Batches follow that draw rule and stop as soon as every section 3 minimum is met. How a candidate was found is not a label.
