@@ -17,3 +17,7 @@ npm,querystring,0.2.1,dead,deprecation_notice,https://registry.npmjs.org/queryst
 npm,har-validator,5.1.5,dead,deprecation_notice,https://registry.npmjs.org/har-validator/latest,this library is no longer supported,coroner,false
 npm,popper.js,1.16.1,dead,deprecation_notice,https://registry.npmjs.org/popper.js/latest,"You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1",coroner,false
 npm,domexception,4.0.0,dead,deprecation_notice,https://registry.npmjs.org/domexception/latest,Use your platform's native DOMException instead,coroner,false
+npm,abab,2.0.6,dead,deprecation_notice,https://registry.npmjs.org/abab/latest,Use your platform's native atob() and btoa() methods instead,coroner,false
+npm,sourcemap-codec,1.4.8,dead,deprecation_notice,https://registry.npmjs.org/sourcemap-codec/latest,Please use @jridgewell/sourcemap-codec instead,coroner,false
+npm,q,1.5.1,dead,deprecation_notice,https://registry.npmjs.org/q/latest,"You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises.",coroner,false
+npm,on-finished,2.4.2,alive,release_notes,https://github.com/jshttp/on-finished/releases,Release: 2.4.2 by @Phillip9587 in #110,coroner,false
