@@ -115,16 +115,31 @@ The label targets are what the evidence yields. The list does not assign a label
 
 The gate minimums still apply: at least 25 `dead` and at least 20 `finished-healthy`, and every row reviewed. Packages without supporting evidence are skipped and listed as skipped, with the reason.
 
-### Additions
+### Name spelling
+Rows are written in section 3's lowercase form: Theano → theano, Flask-Script → flask-script, Fabric3 → fabric3, M2Crypto → m2crypto. This is spelling normalisation of the same PyPI project, not a change of package, and is not a reason to skip.
 
-If the evidence leaves a shortfall against the gate minimums, a top-up list will be appended below as a dated addition. This plan is never edited in place.
-
-(a) Name spelling: rows are written in section 3's lowercase form. Theano → theano, Flask-Script → flask-script, Fabric3 → fabric3, M2Crypto → m2crypto. This is spelling normalisation of the same PyPI project, not a change of package, and is not a reason to skip.
-
-(b) Reserve list (fixed 13 Nov 2026, before labelling, no labels known). Used only if, after batches 1-5, the reviewed rows fall short of the 90-row window or the gate minimums (25 Dead, 20 finished-healthy). Taken strictly in this order, one at a time, stopping as soon as all three are met; a reserve package may be skipped only under the existing evidence rule. Unused reserve packages are never labelled.
+### Reserve list (fixed 13 Nov 2026, before labelling, no labels known)
+Used only if, after batches 1-5, the rows fall short of any minimum in section 3 (90 rows; 25 `dead`, 20 `finished-healthy`, 10 `alive`, 10 `ailing`; 30 per ecosystem; 10 `dead` on `maintainer_statement` or `eol_announcement`). Taken strictly in the order below, one at a time, stopping as soon as every minimum is met. A reserve package may be skipped only under the existing evidence rule. Unused reserve packages are never labelled.
 
 npm: path-is-absolute, is-number, inflight, mkdirp, xmldom, object-assign, faker, event-stream
-
 PyPI: argparse, idna, unittest2, ordereddict, ipaddress, pathlib, funcsigs
 
-Order of use: alternate npm and PyPI, starting with npm.
+Order of use (alternating, npm first; npm continues once PyPI runs out):
+1. path-is-absolute
+2. argparse
+3. is-number
+4. idna
+5. inflight
+6. unittest2
+7. mkdirp
+8. ordereddict
+9. xmldom
+10. ipaddress
+11. object-assign
+12. pathlib
+13. faker
+14. funcsigs
+15. event-stream
+
+### Additions
+If the reserve is exhausted and a shortfall remains, a further list will be appended below as a dated addition. Nothing above this heading is edited in place.
