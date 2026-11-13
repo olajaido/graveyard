@@ -96,6 +96,7 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 |------|---------|-----------|--------|
 | 2026-11-13 | pypi,pydantic | staged row withheld before merge (never merged) | Evidence page https://pydantic.dev/docs/validation/latest/get-started/changelog/ contained instructions addressed to AI agents. Section 6 requires the candidate to be skipped; the coroner reported it but kept the row. Not a label change. |
 | 2026-11-13 | (addition 1) | n/a | Source lists for addition 1: GitHub code search for repostatus.org badges and README status phrases; see eval/addition1/README.md. |
+| 2026-11-13 | (addition 2) | n/a | Source lists for addition 2: GitHub code search for completeness/stability phrases; see eval/addition2/README.md. |
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
 
@@ -176,3 +177,5 @@ The first still-works run (13 Nov) showed cases where the check did not test wha
 #### Review check for `finished-healthy` (fixed 13 Nov 2026, before any review or capture)
 Section 1 requires that a `finished-healthy` package still works. At review (T14), each `finished-healthy` row's labelled version is installed in a clean environment on a currently supported runtime (Python 3.12 for pypi, Node 22 LTS for npm) and imported or required once. A row that fails is removed from the set and logged in section 8 with the reason "section 1: does not still work (install or import failed on <runtime>)". The check is the same for every row and does not use Graveyard.
 
+#### Addition 2 (fixed 13 Nov 2026, before labelling any of it)
+Pool F of Addition 1 was exhausted after batch A7 with `finished-healthy` at <N> (below 20). Under Amendment 1 point 4, Addition 2 was built by the Addition 1 method from completeness and stability phrases only. The method, raw search output, pool (25) and draw rule are in `eval/addition2/README.md`. How a candidate was found is not a label.

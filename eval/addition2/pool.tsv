@@ -1,0 +1,26 @@
+rank	ecosystem	name	source_query	repo	sha256_prefix
+1	npm	benchee	considered complete [README.md]	planttheidea/benchee	066e8664b68f
+2	npm	grafema	complete and stable [README.md]	Disentinel/grafema	270c72b151c0
+3	npm	skruv	considered complete [README.md]	skruv/skruv	31244bd1e36e
+4	pypi	locketlam	feature-complete python [README.md]	leanhminh2104/locketlam	3b043ebbf556
+5	npm	electron-progressbar	considered complete [README.md]	AndersonMamede/electron-progressbar	4c871ff4c19d
+6	npm	please-upgrade-node	complete and stable [README.md]	typicode/please-upgrade-node	4d73e059faf1
+7	npm	stacks	complete and stable [README.md]	stacksjs/stacks	5205a7b0a2f3
+8	pypi	adventure	feature-complete [README.txt]	brandon-rhodes/python-adventure	5280479105e9
+9	pypi	pydora	stable and complete [README.rst]	mcrute/pydora	58ef19715f93
+10	pypi	django-musicbrainz-connector	feature-complete python [README.md]	mneia-gr/django-musicbrainz-connector	599e26448723
+11	npm	kotlin	complete and stable [README.md]	JetBrains/kotlin	74869844f63b
+12	npm	command-line-args	feature-complete library [README.md]	75lb/command-line-args	8330b072ac16
+13	npm	babylonjs-charactercontroller	considered complete [README.md]	ssatguru/BabylonJS-CharacterController	94d56bb5850d
+14	pypi	vodbot	considered complete [README.md]	FriendTeamInc/VodBot	a9e5482ec9a3
+15	npm	json-schema-to-es-mapping	feature complete library [README.md]	kristianmandrup/json-schema-to-es-mapping	bbd793736178
+16	pypi	adventure-anywhere	feature-complete [README.txt]	zhammer/adventure-anywhere	c43310a19318
+17	pypi	n2yo-api-wrapper	feature-complete python [README.md]	g1ampy/n2yo-api-wrapper	ca52b08a92ee
+18	pypi	openedx-completion-aggregator	considered complete [README.rst]	open-craft/openedx-completion-aggregator	cf5789fca0bb
+19	pypi	fortls	complete and stable [README.md]	fortran-lang/fortls	d2a8d49153d1
+20	pypi	quorin	feature-complete library [README.md]	MahinAshraful/Quorin	e2196a908dee
+21	npm	pugit	feature-complete library [README.md]	mavieth/pugit	e52c644a25bc
+22	npm	react-pin-field	considered complete [README.md]	soywod/react-pin-field	e80e4b25eb35
+23	npm	content-security-policy-builder	considered complete [README.md]	helmetjs/content-security-policy-builder	fda3f9656aea
+24	pypi	django-tour	considered complete [README.md]	ambitioninc/django-tour	fdd7ec9cb890
+25	pypi	s2geometry	complete and stable [README.md]	google/s2geometry	fe0777d49d1a

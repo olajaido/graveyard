@@ -1,0 +1,18 @@
+q1	feature-complete pip install	README.md	0
+q2	feature-complete npm install	README.md	0
+q3	feature complete pip install	README.md	0
+q4	feature complete npm install	README.md	0
+q5	feature-complete pip install	README.rst	0
+q6	feature complete pip install	README.rst	0
+q7	stable and complete	README.rst	3
+q8	complete and stable	README.md	99
+q9	complete and stable	README.rst	7
+q10	considered complete	README.md	100
+q11	considered complete	README.rst	4
+q12	feature-complete python	README.md	14
+q13	feature-complete javascript	README.md	2
+q14	feature complete python	README.md	2
+q15	feature complete library	README.md	12
+q16	feature-complete library	README.md	70
+q17	feature complete	README	100
+q18	feature-complete	README.txt	94

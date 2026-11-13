@@ -1,0 +1,12 @@
+BareConductive/mpr121
+BareConductive/wiringpi-mpr121
+PistonDevelopers/graphics
+ShanderYO/parkpass_backend
+TheLorax1337/Bodenklavier_Code
+akaylyn/simon
+applibgroup/PinchToZoom
+bvssvni/rust-idris-fs
+kristianmandrup/json-schema-to-es-mapping
+martinwithaar/PinchToZoom
+sdwru/awx-v2
+xenosun/OpenXLSX
