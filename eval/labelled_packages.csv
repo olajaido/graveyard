@@ -111,3 +111,9 @@ pypi,mapdamage,2.2.3,ailing,maintainer_statement,https://pypi.org/pypi/mapdamage
 pypi,products-zopetree,3.4.0,finished-healthy,feature_complete_readme,https://github.com/jugmac00/Products.ZopeTree,The package is considered feature-complete.,coroner,false
 pypi,robotframework-angularjs,1.0.0,finished-healthy,feature_complete_readme,https://pypi.org/project/robotframework-angularjs/,This library is considered mature and feature complete.,coroner,false
 pypi,t61codec,3.0.0,finished-healthy,feature_complete_readme,https://github.com/exhuma/t61codec,"The codec implements a fixed standard (ITU-T T.61, 1988) and is feature-complete.",coroner,false
+npm,babylonjs-charactercontroller,0.4.7,alive,release_notes,https://github.com/ssatguru/BabylonJS-CharacterController/blob/master/changelog.md,06/11/2026 0.4.7-alpha11,coroner,false
+npm,command-line-args,6.0.2,finished-healthy,feature_complete_readme,https://github.com/75lb/command-line-args,"A mature, feature-complete library to parse command-line options.",coroner,false
+pypi,fortls,3.2.2,ailing,maintainer_statement,https://github.com/fortran-lang/fortls,We will keep fortls in active maintenance mode with bug fixes and new features from volunteer contributors,coroner,false
+npm,grafema,0.4.1,alive,release_notes,https://github.com/Disentinel/grafema/blob/main/CHANGELOG.md,[0.4.1] - 2026-06-14,coroner,false
+npm,please-upgrade-node,3.2.0,finished-healthy,feature_complete_readme,https://github.com/typicode/please-upgrade-node,This project is considered feature complete and stable.,coroner,false
+pypi,pydora,2.3.2,finished-healthy,feature_complete_readme,https://github.com/mcrute/pydora,the author considers it to be both stable and complete,coroner,false
