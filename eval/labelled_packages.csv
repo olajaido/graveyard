@@ -26,3 +26,10 @@ npm,vite,8.3.8,alive,release_notes,https://raw.githubusercontent.com/vitejs/vite
 npm,axios,1.21.1,alive,release_notes,https://github.com/axios/axios/releases,"v1.21.1 — November 9, 2026",coroner,false
 npm,prettier,3.10.1,alive,release_notes,https://prettier.io/blog/,"November 11, 2026 · 31 min readWe're excited to announce Prettier 3.10!",coroner,false
 npm,commander,15.1.0,alive,release_notes,https://raw.githubusercontent.com/tj/commander.js/master/CHANGELOG.md,## [15.1.0] (2026-11-07),coroner,false
+pypi,sklearn,0.0.post12,dead,deprecation_notice,https://pypi.org/pypi/sklearn/json,"deprecated sklearn package, use scikit-learn instead",coroner,false
+pypi,nose-parameterized,0.6.0,dead,deprecation_notice,https://pypi.org/pypi/nose-parameterized/json,The ``nose-parameterized`` package is deprecated and has been renamed to ``parameterized``.,coroner,false
+pypi,typed-ast,1.5.5,dead,maintainer_statement,https://pypi.org/pypi/typed-ast/json,This project is no longer maintained.,coroner,false
+pypi,flask-script,2.0.6,ailing,maintainer_statement,https://github.com/smurfix/flask-script,"While the maintainers are willing to merge PR's, they are not actively developing features.",coroner,false
+pypi,flask-restplus,0.13.0,dead,maintainer_statement,https://github.com/noirbizarre/flask-restplus,Flask-RESTPlus should be considered unmaintained.,coroner,false
+pypi,django-rest-swagger,2.2.0,dead,maintainer_statement,https://github.com/marcgibbons/django-rest-swagger,This project is no longer being maintained.,coroner,false
+pypi,ply,3.11,dead,maintainer_statement,https://github.com/dabeaz/ply,"After 25 years, I've decided to abandon the PLY project.",coroner,false
