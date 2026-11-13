@@ -38,7 +38,7 @@ Semver/PEP 440 range matching has no required properties: OSV `querybatch` match
 | Layer | Tooling | Gate |
 |---|---|---|
 | Lint/format | Ruff, mypy (strict on `core`), ESLint, Prettier, tflint, terraform fmt, hadolint, actionlint | CI fail |
-| Unit | pytest, Vitest | 85% line coverage on `backend/core`, `backend/rites`, `backend/cli` |
+| Unit | pytest, Vitest | 85% line coverage on `backend/core` (incl. `backend/core/install`), `backend/rites`, `backend/cli`, `backend/mcp_server` |
 | Property | Hypothesis, fast-check | `max_examples=500` in CI |
 | Integration | pytest with recorded HTTP fixtures (VCR-style) for every source; LocalStack optional | CI fail |
 | Contract | Schemathesis against `openapi.yaml` on dev stage | Deploy gate |

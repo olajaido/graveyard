@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "graveyard": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--project",
+        "backend",
+        "--extra",
+        "mcp",
+        "graveyard-mcp"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GRAVEYARD_CONTACT": "${GRAVEYARD_CONTACT}"
+      },
+      "autoApprove": [
+        "autopsy_package",
+        "autopsy_project"
+      ]
+    }
+  }
+}

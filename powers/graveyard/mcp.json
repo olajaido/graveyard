@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "graveyard": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "graveyard-backend[mcp] @ git+https://github.com/olajaido/graveyard.git@<COMMIT_SHA>#subdirectory=backend", "graveyard-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GRAVEYARD_CONTACT": "${GRAVEYARD_CONTACT}",
+        "GRAVEYARD_MCP_ROOT": "${GRAVEYARD_MCP_ROOT}"
+      }
+    }
+  }
+}

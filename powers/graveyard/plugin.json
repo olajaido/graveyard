@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "graveyard",
+  "version": "0.1.0",
+  "description": "Check whether an npm or PyPI package is abandoned, deprecated or has an unfixable vulnerability before it is added to a project, and block installs of packages that are provably dead.",
+  "author": { "name": "Graveyard", "url": "https://github.com/olajaido/graveyard" },
+  "keywords": ["dependency", "package", "install", "npm", "pip", "library", "deprecated", "abandoned", "pnpm", "yarn", "uv", "poetry", "unmaintained"],
+  "homepage": "https://github.com/olajaido/graveyard",
+  "repository": "https://github.com/olajaido/graveyard",
+  "license": "Apache-2.0"
+}

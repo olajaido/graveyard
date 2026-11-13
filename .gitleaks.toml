@@ -1,0 +1,17 @@
+title = "Graveyard gitleaks config"
+
+[extend]
+useDefault = true
+
+# Two placeholder tokens used by tests. Each regex is the literal string (with its quotes),
+# matched against the finding itself, not a path, so any other secret in the same files is
+# still reported.
+[[allowlists]]
+description = "Placeholder token in backend/sources/tests/test_gateway.py"
+regexTarget = "match"
+regexes = ['''"tok-secret-0123456789"''']
+
+[[allowlists]]
+description = "Placeholder token in backend/sources/tests/test_record_script.py"
+regexTarget = "match"
+regexes = ['''"tok-record-secret-9f3a1c77"''']

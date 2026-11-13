@@ -13,12 +13,14 @@ graveyard/
 │   ├── steering/*.md
 │   ├── hooks/*.json
 │   ├── agents/*.json
+│   ├── skills/                  # copies of powers/graveyard/skills (written by scripts/hooks/sync-power.py)
 │   └── settings/mcp.json
-├── powers/graveyard/            # Kiro Power: POWER.md, mcp.json, steering/, hooks
+├── powers/graveyard/            # Kiro Power (Agent Plugins): plugin.json, mcp.json, skills/ (incl. hook template); source of the .kiro copies
 ├── backend/
 │   ├── pyproject.toml          # uv-managed; Python 3.12; pytest, ruff, mypy config
 │   ├── core/                    # pure logic: purl, versions, scoring, graph, sources (PBT heavy)
 │   │   ├── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
+│   │   ├── install/             # pure: install-command parser and hook payload extractor (no I/O)
 │   │   └── sources/             # pure half of the source clients: parsers, has_fix, repo resolution, signal assembly
 │   │       └── tests/fixtures/recorded/   # recorded HTTP cassette shared with backend/sources/tests
 │   ├── sources/                 # I/O half of the source clients: async gateway, per-source clients, cache, session (imports core.sources)
@@ -26,8 +28,8 @@ graveyard/
 │   ├── api/                     # handlers + openapi.yaml
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
 │   ├── narrate/                 # Bedrock prompts + validators
-│   ├── mcp/                     # graveyard-mcp server
-│   ├── cli/                     # graveyard CLI (autopsy; later check-install, scan)
+│   ├── mcp_server/              # graveyard-mcp server (not mcp/: it would shadow the SDK)
+│   ├── cli/                     # graveyard CLI (autopsy, check-install; later scan); may import core.install
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/
@@ -38,7 +40,7 @@ graveyard/
 ├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
 ├── eval/                        # labelled set + harness
 ├── docs/{PRD.md,KIRO_JOURNAL.md,ARCHITECTURE.md,runbooks/}
-├── scripts/hooks/
+├── scripts/hooks/               # incl. sync-power.py (writes the .kiro copies of the Power; --check mode)
 ├── .github/workflows/{ci.yml,deploy.yml,vigil.yml}
 ├── LICENSE (Apache-2.0)  NOTICE  README.md  SECURITY.md
 ```

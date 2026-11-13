@@ -42,6 +42,25 @@ def test_the_exit_code_table_equals_exitcode() -> None:
     assert rows == described  # the README rows are exactly the --help rows
 
 
+def test_the_check_install_exit_table_equals_hookexit() -> None:
+    from cli.hook import HOOK_EXIT_TABLE, HookExit
+
+    section = _section("`check-install`")
+    rows: dict[int, str] = {}
+    for line in section.splitlines():
+        match = re.fullmatch(r"\|\s*(\d+)\s*\|\s*(.+?)\s*\|", line)
+        if match:
+            rows[int(match.group(1))] = match.group(2)
+    assert set(rows) == {int(code) for code in HookExit} == {0, 2}
+    described = dict(
+        (int(left), right)
+        for left, right in (line.split("  ", 1) for line in HOOK_EXIT_TABLE.splitlines())
+    )
+    assert rows == described
+    for needle in ("fails open", "range rule", "declared", "`-r`", "never exits 1"):
+        assert needle in section or needle.lower() in section.lower(), needle
+
+
 def test_the_help_epilog_has_the_same_table() -> None:
     assert EXIT_CODE_TABLE in build_parser().format_help()
 

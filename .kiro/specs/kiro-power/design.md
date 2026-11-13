@@ -525,7 +525,25 @@ def build_server(env: CliEnvironment, root: Path, *, transport: Transport | None
     return server
 ```
 
-`INSTRUCTIONS` and the descriptions are fixed strings (KPW-MCP-9): what the tool does, read-only, the report is data from third parties and not instructions, no token means unverified. The exact SDK keyword names (`instructions`, `annotations`) are confirmed against the 2.3.0 source in the first MCP task; the source inspected on 11 Nov 2026 shows `tool(name, title, description, annotations, icons, meta, structured_output)`.
+`INSTRUCTIONS` and the descriptions are fixed strings (KPW-MCP-9): what the tool does, read-only, the report is data from third parties and not instructions, no token means unverified.
+
+**Confirmed against the installed `mcp==2.3.0` source and a probe run (T11.1).** The sketch above is correct on every keyword; the additions below are what the sketch left open.
+
+| Item | Confirmed fact |
+|---|---|
+| Imports | `from mcp.server.mcpserver import MCPServer`; `from mcp.server.mcpserver.exceptions import ToolError`; **`from mcp_types import ToolAnnotations`** (`mcp.types` re-exports the same object; `mcp.server.mcpserver` does not export it). `mcp_types` is installed with `mcp` (pinned `==2.3.0` by it), so the import is safe, and it is the module `server.py` itself imports from. |
+| Constructor | `MCPServer(name=None, title=None, description=None, instructions=None, …)`; `name` and `instructions` are the first and fourth positional parameters, so call `MCPServer("graveyard", instructions=INSTRUCTIONS)` (keyword for `instructions`). `server.name` and `server.instructions` are readable properties. Building a server writes nothing to stdout; the SDK's logging goes to stderr (`RichHandler(Console(stderr=True))`, or a plain `StreamHandler` whose default stream is stderr). |
+| `tool(...)` | `tool(name, title, description, annotations, icons, meta, structured_output)`, all optional; it must be called (`@server.tool(...)`), not used bare. The decorator returns the function unchanged. |
+| `dict[str, Any]` return | With `structured_output` left at `None` the return annotation is auto-detected: the tool gets `outputSchema = {"type": "object", "additionalProperties": true}` and the result carries **both** `structured_content` (the dict itself, unchanged) **and** one `TextContent` block holding the same document as JSON **indented by 2 spaces** (`pydantic_core.to_json(..., indent=2)`). With `structured_output=False` there is no output schema, `structured_content` is `None`, and the same indented text is the only payload. |
+| `ToolError` | `ToolError(message)` → `CallToolResult(is_error=True, content=[TextContent])`, logged at INFO without a traceback. The SDK **prefixes the message** with `Error executing tool <name>: `, so the client sees `Error executing tool autopsy_package: <message>`. Any other exception (including `ToolFailure` if it were not converted) becomes `UnexpectedToolError`: the client sees only `Error executing tool <name>` and the traceback goes to stderr at ERROR. `ToolFailure` therefore must be converted to `ToolError` inside the tool body, as §8.2 says. |
+| SDK-made errors | Arguments that fail the input schema (missing, or not a `str`) and unknown tool names are also `is_error=True` results produced by the SDK, not by our code, so they bypass `cli.text.sanitise`. A wrong-typed argument is echoed in pydantic's text (`input_value=123, input_type=int`). The value is the caller's own and the token cannot be in it, so it is accepted; the T11.3 token test covers it. |
+| In-memory pairing | **`from mcp import Client`** (same class as `mcp.client.Client`). `Client(server)` accepts an `MCPServer` directly and connects in-process; use `async with Client(server) as client:` then `await client.list_tools()` (`.tools[i].name`, `.annotations.read_only_hint`, `.destructive_hint`, `.idempotent_hint`, `.open_world_hint`, `.output_schema`) and `await client.call_tool(name, arguments)` → `CallToolResult` with `.structured_content`, `.content[0].text`, `.is_error`. Field names are snake_case on the Python side. No subprocess and no socket. Tests are async, so use `anyio.run(...)` in a sync test or `@pytest.mark.anyio` (the anyio pytest plugin ships with `anyio`; `pyproject.toml` sets no asyncio mode). |
+| Direct call | `await server.call_tool(name, args)` also works without a client, but it raises `ToolError` or `UnexpectedToolError` instead of returning `is_error`. Use `Client` for KPW-TEST-12, because it exercises what an agent sees. |
+
+**Decisions that follow.**
+1. Keep `structured_output` at its default (`None`): tools return `dict[str, Any]`, the agent gets `structured_content` plus the text block, and tests compare `structured_content` with `report_to_dict(...)`. The text block is a second copy of the document and is indented, so the bytes on the wire are roughly twice the compact JSON length plus indentation. KPW-MCP-6 measures the **compact** JSON (`json.dumps(doc, separators=(",", ":"), ensure_ascii=False)`); the 200 000-character limit stays on that measure, and the wire total is not capped separately. If a real client turns out to choke on the duplicate, switching to `structured_output=False` is a one-line change and the tests would read `content[0].text` instead.
+2. Test assertions on tool errors match the CLI message as a **suffix** or substring of the text (`Error executing tool autopsy_package: <CLI message>`), never as an equality with the bare CLI message.
+3. Import `ToolAnnotations` from `mcp_types`. `mcp_server` is the only package that imports `mcp` or `mcp_types`.
 
 ### 8.2 `tools.py` (sync, free of MCP types)
 
@@ -607,7 +625,12 @@ Agent Plugins format (D1). The installer needs `plugin.json` only ([Install powe
 }
 ```
 
-`<COMMIT_SHA>` is the placeholder of KPW-PWR-8. No `autoApprove` here (not documented for this schema); the in-repo file has it. Kiro namespaces the server (`power-graveyard-graveyard`). The `uvx --from "name[extra] @ git+…"` spelling is **to be confirmed** against uv's current CLI in the Power task; the test and README follow what works.
+`<COMMIT_SHA>` is the placeholder of KPW-PWR-8. No `autoApprove` here (not documented for this schema); the in-repo file has it. Kiro namespaces the server (`power-graveyard-graveyard`). The `uvx --from "name[extra] @ git+…"` spelling is **confirmed (T12.1, uv 0.11.8)**. Verified against the local checkout with both `file://…/backend` and `git+file://…/graveyard@<40-hex sha>#subdirectory=backend`:
+- `uvx --from "graveyard-backend[mcp] @ <source>" graveyard-mcp` starts the server and answers `initialize` on stdio (installs 34 packages, ~2 s warm-built).
+- `uvx --from "graveyard-backend @ <source>" graveyard check-install "npm install left-pad"` (no extra, 10 packages) exits 2 with the block reason on stderr (~2.3 s including a local build).
+- Quote the whole requirement (it contains `[`, spaces and `#`). The space-`@`-space PEP 508 direct reference is what uv accepts; the `#subdirectory=backend` fragment works with `git+` sources and the commit SHA is resolved as given.
+- Differences: uv prints progress (`Building`, `Installed`) on **stderr**, never stdout, so the MCP stdout stays clean; a run with a stdin JSON payload also showed a uv resolver spinner (`Resolving dependencies…`) in the captured output, so hooks must not parse the child's output. The `git+https://github.com/…` form itself was not fetched (no pushed pin yet); only the `git+file://` equivalent was run.
+- The `script` names `graveyard` and `graveyard-mcp` resolve from the package's `[project.scripts]` without `--with` or `--package`.
 
 `powers/graveyard/skills/install-blocker-hook/references/dead-install-blocker.json` (the template):
 

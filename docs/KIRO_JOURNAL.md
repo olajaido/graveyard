@@ -631,3 +631,58 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Corrected:** spec text said "unverified" for `pip install "six<2"` with no token; the code gives the range fragment (KPW-MAP-5 (3)), so the test pins that
 - **Surprise:** a token run sends a one-repo GraphQL query the 7-repo cassette cannot answer; a small test-side wrapper derives it from the recorded batch
 - **Follow-up (T10.5):** `total_targets` now reaches `decide`/`note` (no more `max(len, 21)`), "1 package" singular fixed, KPW-TEST-7 and design §10.3 corrected for `six<2`, `single_repo_github` moved to `support.py`, help exit-code table pinned to `HookExit`.
+
+### 12 Nov — Spec `kiro-power`: T11 (mcp_server)
+- **Spec/task:** T11.1 to T11.4: SDK check, `paths`/`output`/`tools`/`server`/`__main__`, tests with bad samples, real stdio run under a no-network sandbox
+- **Kiro features:** spec task orchestration, sub-agent execution, PostTaskExec hook
+- **Kiro got right:** design §8.1 matched mcp 2.3.0 on every keyword; the in-memory `Client` pairing made KPW-TEST-12 cheap; the real server degraded to `Unknown` offline, kept stdout to protocol frames and exited 0 on stdin close
+- **Corrected:** `ToolAnnotations` comes from `mcp_types` (snake_case keywords); tool errors arrive prefixed `Error executing tool <name>: `, so tests match a suffix; `anyio.Semaphore` instead of `asyncio.Semaphore`
+- **Surprise:** `trust_env=False` in the gateway ignores proxy variables, so the offline run needed `sandbox-exec`; an all-sources-failed result still has `gate_eligible: true`, which the skills must say to read with `summary.degraded`
+
+### 12 Nov — Spec `kiro-power`: T12 (Power and dogfood install)
+- **Spec/task:** T12.1 to T12.6: uvx spellings, Power files and README, `sync-power.py`, package/hook/drift tests, live dry run
+- **Kiro features:** spec task orchestration, sub-agent execution, PostTaskExec hook
+- **Kiro got right:** both `uvx` spellings worked first time with uv 0.11.8; the sync script kept `kiro-journal.json` untouched; live `npm install request` blocked in about 1.1 s with no token
+- **Corrected:** the hook runs the venv executable, not `uv run`, so a uv failure cannot read as a block
+- **Surprise:** real offline `uv run` of a missing program exits 2, which confirms D4; the `git+https` form was only checked via `git+file`
+
+### 12 Nov — Spec `kiro-power`: T1–T13 (dead-install blocker and Power)
+- **Spec/task:** T1–T13: spike KP-S1, renderer polish (T2), `core.install` parser, `check-install`, `mcp_server`, Power and `sync-power.py`, docs and amendments
+- **Kiro features:** spec task orchestration, subagent execution, PostTaskExec hook, `createHook` for the throwaway probe, PreToolUse command hook
+- **Kiro got right:** KP-S1 measured the payload (`tool_input.command`, top-level `cwd`, stdin closed) and that exit 2 blocks with the stderr line reaching the model (`docs/SPIKES.md`), so D3 held before any code was built on it
+- **Corrected:** T2 reordered the shrink (`EXPOSURE`, then `PACKAGE`, then `WHY`) and dropped the `0 packages Unknown` clause; the two reported glued strings were not reproduced
+- **Decisions:** `-r` files are read in `cli/requirements_file.py` with a confined read (D19, reversing the earlier "Belongs elsewhere" row); only a declared Dead blocks a version range, as Cursed and score verdicts belong to one version (D12)
+- **Surprise:** the unmeasured items (exit 1, hook timeout, unapproved `${VAR}`, MCP server cwd) stay "not documented, not measured" in KP-S1
+
+### 12 Nov — Spec `kiro-power`: T14.1 (live smoke timings) *(manual)*
+- **Spec/task:** T14.1, KPW-TEST-17: ten timed runs each of `.venv/bin/graveyard check-install "npm install request"` and `"npm install express"` from `backend/`, with the network, against the 10 s budget. `GITHUB_TOKEN` set: no.
+- **`npm install request`:** exit 2 on all 10 runs. Wall times (s): 1.09, 0.72, 0.78, 0.71, 0.76, 0.77, 0.74, 0.79, 0.86, 0.85. p50 0.77 s, p95 1.09 s (nearest rank; with 10 runs p95 is the maximum).
+- **`npm install express`:** exit 0 on all 10 runs, no output. Wall times (s): 0.50, 0.49, 0.52, 0.50, 0.49, 0.49, 0.49, 0.68, 0.53, 0.49. p50 0.49 s, p95 0.68 s.
+- **Result:** both p95 values are far inside the 10 s budget; `request` blocks (`Dead · Cursed: declared dead; 1 advisory with no fix`) and `express` is allowed, as KPW-TEST-17 expects. The first `request` run was the slowest (cold start).
+- **Not verified:** runs were sequential from one machine and network; timings include process start.
+
+### 12 Nov — Spec `kiro-power`: T14 (live smoke and in-Kiro observation)
+- **Spec/task:** T14.1 timings, T14.2 in-session block, T14.3 no-token observations (KPW-TEST-17, manual).
+- **Kiro features:** PreToolUse command hook on the agent's own shell tool, subagent task execution, PostTaskExec hook
+- **Kiro got right:** the hook blocked `npm install --prefix /tmp/kp-live request` before it ran and the model saw the full reason; nothing was installed
+- **Corrected:** nothing needed; p95 was 1.09 s (`request`) and 0.68 s (`express`) against the 10 s budget
+- **Surprise:** `npm` was not on the agent shell's PATH, so the allowed `express` call ended in exit 127 rather than an install
+- **Not measured:** whether a GUI-launched hook inherits `GITHUB_TOKEN` and `PATH`, exit 1, hook timeout (`docs/SPIKES.md`)
+
+### 13 Nov — Spec `kiro-power`: T15 (final gate)
+- **Spec/task:** T15.1 to T15.7: ruff, mypy strict, pytest (7003 passed), property profile (802 passed), coverage, requirements trace, not-verified report.
+- **Kiro features:** spec task orchestration, sub-agent execution, hooks.
+- **Kiro got right:** Every gate passed on the first run; new-module coverage 98.4% total, lowest module `cli/requirements_file.py` at 88%.
+- **Corrected:** Nothing needed fixing; no code changes in the gate.
+- **Surprise:** No KPW-MCP-10 import-direction test existed; `pip-audit` outcome from T3.4 was never recorded.
+
+### 13 Nov — Spec `kiro-power`: dependency audit record (T16.1)
+- **pip-audit (2026-11-13):** `uv export --frozen --no-hashes --all-groups --all-extras --no-emit-project -o req.txt` in `backend/`, then `uvx pip-audit -r req.txt --no-deps --disable-pip` (pip-audit 2.10.1, PyPI advisory data): 141-line export, no known vulnerabilities found (0). The tool version was not pinned (`uvx` default).
+- **Close-out (2026-11-13):** KPW-MCP-10 import-direction test with bad samples (`cli.errors` added to the allowed list because `tools.py` needs it), hard MCP size cap with property test, `.gitleaks.toml` literal allowlist for the two placeholder tokens, skill/README/requirement wording fixes and power sync; the full gate passed.
+
+### 13 Nov — Spec `kiro-power`: T16 (close-out)
+- **Spec/task:** T16.1: KPW-MCP-10 import test, pip-audit re-run, gitleaks allowlist, hard MCP size cap, skill and README notes, full gate.
+- **Kiro features:** spec tasks, sub-agent execution, hooks.
+- **Kiro got right:** Gate green after the changes (7031 passed, 803 property tests); pip-audit found 0 known vulnerabilities.
+- **Corrected:** `cli.errors` was missing from the KPW-MCP-10 allowed list; added to the requirement and the checker.
+- **Surprise:** An anchored gitleaks regex never matched, because the finding text includes `TOKEN = `. Hard cap can keep fewer than 50 packages.

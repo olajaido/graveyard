@@ -1,0 +1,10 @@
+{
+  "$comment": "What the MCP tools add to the graveyard.autopsy v1 shape (KPW-MCP-6, design 8.2). 'always' keys end every result, in this order. 'when_truncated' keys follow them only when truncated is true. The base shape is cli/tests/fixtures/report_v1_shape.json, which stays unchanged: the CLI output has no 'truncated'. Adding keys keeps schema_version 1.",
+  "always": {
+    "truncated": ["boolean"]
+  },
+  "when_truncated": {
+    "packages_total": ["integer"],
+    "packages_returned": ["integer"]
+  }
+}

@@ -1,1 +1,1 @@
-"""Graveyard MCP server (stdio). Tools are added in later tasks."""
+"""Graveyard MCP server (stdio): the read-only tools autopsy_package and autopsy_project."""

@@ -146,3 +146,26 @@ Other observations:
 - Unapproved `${VAR}` expansion: not documented, not measured.
 - MCP server working directory: not documented, not measured.
 - Types of non-null `tool_input.cwd`, `tool_input.timeout` and `tool_input.description`: not documented, not measured.
+
+### Live smoke, 2026-11-12 (kiro-power T14.2, T14.3)
+In-session block (T14.2). In this Kiro session the `PreToolUse` hook blocked `npm install --prefix /tmp/kp-live request`. The model received this text, and nothing was installed:
+```text
+graveyard: blocked: 1 dead or cursed package in this install command
+  npm request@2.88.2: Dead · Cursed: declared dead; 1 advisory with no fix
+The install was not run. Choose a maintained alternative, or ask the user how to proceed; do not retry the install through another package manager.
+```
+`npm install --prefix /tmp/kp-live express` was not intercepted. The shell then reported `npm` not found (exit 127). That is a PATH limitation of the agent's shell tool, not a hook problem.
+
+No token (T14.3). `GITHUB_TOKEN` was unset (checked by name only) in the agent's shell tool, and in the shell used for T14.1. Whether the hook process launched by Kiro sees the same environment is not measured: the hook's environment was not captured. Runs from `backend/` with `env -u GITHUB_TOKEN .venv/bin/graveyard check-install`:
+
+| Command | Exit | Output |
+|---|---|---|
+| `npm install request` | 2 | the three-line block text above |
+| `pip install six` | 0 | `graveyard: six@1.17.0 unverified (no GitHub data), not gated` |
+| `npm install express` | 0 | none |
+
+Reading: without a token, `request` still blocks because "declared dead" is gate-eligible on registry data alone. Score-based verdicts are reported as unverified on one line and are not gated, so the install proceeds.
+
+Still unmeasured after this smoke:
+- Whether a hook launched from a GUI-started IDE inherits the shell environment, including `GITHUB_TOKEN` and `PATH`.
+- Exit 1 behaviour and hook timeout behaviour (as listed above).

@@ -126,6 +126,34 @@ Top-level keys, in order: `schema`, `schema_version`, `model_version`, `as_of`, 
 
 **Versioning rule.** Adding a key keeps `schema_version` at 1. Renaming, removing or retyping a key, or changing what a value means, requires version 2 and a migration note here. `tests/fixtures/report_v1_shape.json` records the shape and a test fails on any drift.
 
+## `check-install`
+
+`graveyard check-install` is the command behind the Kiro PreToolUse hook. It reads a hook payload on stdin (or takes the shell command as one `COMMAND` argument), finds the packages an `npm`, `pnpm`, `yarn`, `pip`, `uv` or `poetry` install command would add, checks each one with the same pipeline as `autopsy --purl`, and answers with an exit code the hook can use directly. It runs nothing from the command it reads: the command text is only tokenised.
+
+```
+graveyard check-install [COMMAND] [--budget SECONDS] [--as-of YYYY-MM-DD]
+echo '{"tool_input":{"command":"npm install request"}}' | graveyard check-install
+```
+
+`--budget` is the time limit for the whole check, 0.5 to 60 seconds (default 10). `--as-of` scores as of a date and is meant for tests. At most 20 distinct packages are checked per command; the note says when the rest were not.
+
+**Exit codes of the hook.** The hook returns only two codes. The table is generated from `HookExit` in `cli/hook.py`, is the one `graveyard --help` prints, and a test keeps this README in step with it.
+
+| Code | Meaning |
+|---|---|
+| 0 | allow: nothing to check, nothing to block, or the check could not finish |
+| 2 | block: a dead or cursed package is in the install command |
+
+**It fails open.** Every failure, including an unreadable payload, a timeout, an unresolvable package, unavailable sources and an internal error, exits 0, with at most one line on stdout saying what was not checked. It never exits 1, 3 or 4. Exit 2 is returned only when a gate-eligible package is known to be dead or cursed (the `--fail-on dead,cursed` gate of `autopsy`, reused). An agent cannot tell a failed check from a safe package, so a block means "known dead" and an allow is no guarantee of "healthy". The hook is a guard rail, not a gate. A block writes the reason to stderr and nothing to stdout.
+
+**The range rule.** A package pinned to an exact version is judged on that version. A package with no version, `latest`, `*` or a lone `>=V` is judged on the latest version, because that is what the manager installs. For any other range (`^1.2`, `~=2.0`, `<3`), the installed version may differ from the latest, so only a package that is *declared* Dead (deprecated or archived by its maintainers) may block. A range target that is Cursed, or Dead only by score, never blocks; it appears in the note as `range not checked against <range>`.
+
+**`-r` requirements files.** For `pip install -r FILE`, `python -m pip install -r`, `uv pip install -r` and `uv add -r` (also `--requirement`), the pinned lines of the file are checked as exact versions. No other manager reads a file. `cli/requirements_file.py` is the only module that reads one.
+
+- **Confinement.** The base directory is the payload's `cwd` when it is an absolute path to an existing directory, otherwise the process working directory. A relative path is joined to the base; an absolute path must resolve inside it. Symlinks are followed and the result must still be inside the base and be a regular file. Paths containing `~`, `$`, a glob character or `://` are refused. A directory or a FIFO is never opened.
+- **Caps.** At most 5 files per command, at most 1 MiB per file (never read past the cap), and the file targets share the 20-package limit, after the targets on the command line, de-duplicated.
+- **Skipped lines are counted, not shown.** Nested `-r` and `-c` lines are not followed. URL or path lines and lines not pinned with `==` are skipped. The note reports `<file>: N lines not checked (unpinned, URL or path, nested -r)`, or `<file>: not read (<reason>)` when the file could not be read. No line of a file is ever printed.
+
 ## Use from a hook
 
 The install-time hook asks one question per package: is it dead or cursed?

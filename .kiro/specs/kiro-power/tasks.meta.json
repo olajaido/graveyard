@@ -943,6 +943,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940162
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794511919287
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794512032813
       }
     ],
     "T11.2 — Implement `paths.py` (`confine`), `output.py` (`sanitise_tree`, `cap_packages` with the always-present `truncated`), `tools.py` (`run_package`, `run_project`, `ToolFailure`), `server.py` (`build_server`, semaphore, `anyio.to_thread`), `__main__.py` (the only `os.environ` reader; `environment_from_mapping`; `GRAVEYARD_MCP_ROOT` rules; stdio run).": [
@@ -950,6 +960,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940246
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794512037151
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794513982415
       }
     ],
     "T11.3 — Tests `mcp_server/tests/`: `test_paths.py` (inside, outside, `..`, escaping symlink, file, missing, unreadable; the error never contains the path); `test_output.py` (sanitising of keys and values, bidi / control characters, `truncated: false` shape, `truncated: true` with the first 50 packages in rank order, counts, `summary` kept; under the limit the document equals the CLI's plus `truncated`); `test_tools.py` (invalid, versionless, `pkg:maven/…` purls give the CLI messages; internal-error text has no exception text; token never in any result or error); `test_server_inmemory.py` (exactly two tools with the read-only annotations; `autopsy_package(\"pkg:npm/request@2.88.2\")` through the in-memory pair with the cassette transport equals `report_to_dict` plus `truncated: false` and passes the committed shape file extended with `truncated`; `autopsy_project` on the anchors project with the stub Syft returns the nine packages; two concurrent calls are serialised; `${GITHUB_TOKEN}` literal treated as absent); `test_guards.py` (environment only in `__main__.py`; no `subprocess`; no file writes), each with a bad-sample test.": [
@@ -957,6 +977,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940327
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794513986847
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794514848190
       }
     ],
     "T11.4 — Start the real server over stdio from a scratch script (not committed): send `initialize`, `tools/list` and one `tools/call` for `autopsy_package` with the cassette transport unavailable, so expect a degraded result or a tool error and not a crash; report what happened. Gate for T11: ruff, format, mypy strict including `mcp_server`, pytest green.": [
@@ -964,6 +994,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940395
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794514851334
+      },
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794520980776
       }
     ],
     "T12.1 — Confirm the `uvx --from \"graveyard-backend[mcp] @ git+…@<sha>#subdirectory=backend\" graveyard-mcp` spelling with uv's current CLI against the **local checkout** (`--from \"graveyard-backend[mcp] @ file://…/backend\"` stands in for the git URL); and the bare form without the extra for `graveyard check-install`. Record what works; adapt design §9.1 and the README.": [
@@ -971,6 +1011,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940471
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521443854
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521627990
       }
     ],
     "T12.2 — Create `powers/graveyard/plugin.json`, `mcp.json`, `skills/check-before-adding-dependency/SKILL.md`, `skills/reading-a-verdict/SKILL.md`, `skills/install-blocker-hook/SKILL.md` and `references/dead-install-blocker.json` per design §9.1 and §9.2 (final wording; the pin is the placeholder of KPW-PWR-8). **Do not create `POWER.md`.** Skill names equal their folders; descriptions ≤ 1 024 characters; no skill states a weight, threshold or percentage of the model.": [
@@ -978,6 +1028,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940544
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521631363
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521683923
       }
     ],
     "T12.3 — `powers/graveyard/README.md` (KPW-PWR-7): clone + *Import power from a folder* (documented path), *Import power from GitHub* (sub-folder URL not documented), `GITHUB_TOKEN` approval, the hook through the skill, the dry-run check (`graveyard check-install \"npm install request\"` exits 2), the exit-code table, and every limit: token, Windows, build-dependent payload delivery (cite the spike result), the stdout note, the latest-version approximation and the range rule, redirections, `-r` handling and its confinement, fail open, `uv tool install` advice. Cite the Install-powers page for \"`plugin.json` alone suffices\".": [
@@ -985,6 +1045,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940619
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521687382
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521762173
       }
     ],
     "T12.4 — `scripts/hooks/sync-power.py` (stdlib only; `--check`; table in design §9.3; merges into an existing `.kiro/settings/mcp.json`). Run it to create `.kiro/hooks/dead-install-blocker.json`, `.kiro/skills/check-before-adding-dependency/SKILL.md`, `.kiro/skills/reading-a-verdict/SKILL.md` and `.kiro/settings/mcp.json`. Check `git status`: no other `.kiro` file changed; `kiro-journal.json` untouched.": [
@@ -992,6 +1062,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940695
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521765474
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521884272
       }
     ],
     "T12.5 — Tests `backend/tests/integration/test_power_package.py`, `test_power_hook_command.py`, `test_power_drift.py` (KPW-TEST-9, KPW-TEST-13, KPW-INST-4, KPW-INST-5): `plugin.json` fields and keyword set; no `POWER.md`; `mcp.json` rules (references only, pinned, no `autoApprove`, no token-like literal, `RELEASE_PIN_REQUIRED` constant); skill front matter and size; hook template and in-repo hook schema fields (`trigger == \"PreToolUse\"`, `matcher == \"shell\"`, `timeout == 20`); the hook command strings run through `sh -c` with fakes exiting 0, 1, 2, 3, 126, 127, 139 and a missing executable (2 only for 2; missing → 0; output passes through; stdin reaches the fake) and a fake `uv run` that exits 2 (documents D4; if real `uv run` can be shown offline to exit 2 on a failure, record it); drift test (`sync-power.py --check`); README mentions each limit.": [
@@ -999,6 +1079,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940755
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794521888203
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794522483761
       }
     ],
     "T12.6 — Dry-run the installed pieces by hand from `backend/`: `echo '{\"tool_input\":{\"<COMMAND_FIELD>\":\"npm install request\"}}' | .venv/bin/graveyard check-install` with the **network available** and no token: report the exit code (expected 2 if the live registry still marks `request` deprecated; if it is 0, say why) and the elapsed time. Gate for T12.": [
@@ -1006,6 +1096,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940838
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794522503677
+      },
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794523234352
       }
     ],
     "T13.1 — `cli/README.md`: add `check-install` (usage, exit-code table from `HookExit`, the fail-open statement, the range rule, `-r` handling). A test (extends `test_readme.py`) compares the table with `HookExit`.": [
@@ -1013,6 +1113,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940911
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794523604540
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524262471
       }
     ],
     "T13.2 — Edit, and list in the report with the old and new sentence: `docs/PRD.md` (H9 command and description: stdin payload, no `\"$COMMAND\"`, mapping now in the snippet and `check-install`; KP-1/KP-2/KP-3 and §14: `mcp_server/`, Agent Plugins format with skills, hook template; mark H9 implemented), `.kiro/steering/structure.md` (`mcp_server/`, `core/install/`, `cli` may import `core.install`, `powers/graveyard/`, `.kiro/skills/`, `scripts/hooks/sync-power.py`), `.kiro/steering/testing.md` (coverage gate adds the new modules), `.kiro/specs/graveyard-cli/requirements.md` (\"Belongs elsewhere\" rows for *Hook exit-code mapping*, *check-install and scan*, *Rename* marked done by `kiro-power`, with the spike result). **Do not edit anything else.**": [
@@ -1020,6 +1130,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428940979
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524266654
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524342773
       }
     ],
     "T13.3 — `README.md` (repository root): a short \"Kiro Power\" install section pointing at `powers/graveyard/README.md` (KP-4).": [
@@ -1027,6 +1147,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941037
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524345285
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524375548
       }
     ],
     "T13.4 — `docs/KIRO_JOURNAL.md`: the entry for this spec's parent tasks in the format of the existing `kiro-journal` hook (use `date +%F`), noting the spike, the polish, the `-r` decision and the range rule. Gate for T13: markdown links resolve (`grep` for paths), the README table test passes.": [
@@ -1034,6 +1164,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941105
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524379419
+      },
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524691263
       }
     ],
     "T14.1 — With the network and the hook installed from T12, from `backend/`: ten timed runs of `.venv/bin/graveyard check-install \"npm install request\"` and ten of `\"npm install express\"`; record exit codes, p50 and p95 against the 10 s budget in `docs/KIRO_JOURNAL.md`. If p95 exceeds 10 s, report the dominant source from the autopsy stats and stop to ask.": [
@@ -1041,6 +1181,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941155
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525083217
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525330262
       }
     ],
     "T14.2 — In Kiro, in a scratch directory outside the repository, ask the agent to run `npm install request` (the hook is workspace-level, so run it in this workspace's terminal tool with a throw-away `--prefix /tmp/kp-live` command: `npm install --prefix /tmp/kp-live request`). Observe: the call is blocked, the model sees the reason, nothing is installed. Then `npm install --prefix /tmp/kp-live express` is allowed. **Do not actually install `request`: if the first call is not blocked, stop immediately and report.** Delete `/tmp/kp-live` afterwards.": [
@@ -1048,6 +1198,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941220
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525333506
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525371527
       }
     ],
     "T14.3 — Observe and record what the hook does when no token is set in the IDE's environment (expected: `request` still blocks; score-based verdicts are unverified). Record the observations in `docs/SPIKES.md` under KP-S1.": [
@@ -1055,6 +1215,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941295
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525374211
+      },
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525423697
       }
     ],
     "T15.1 — `uv run ruff check` and `uv run ruff format --check` clean.": [
@@ -1062,6 +1232,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941411
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794525587340
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794525599313
       }
     ],
     "T15.2 — `uv run mypy --strict core sources cli mcp_server` clean, no blanket `type: ignore`.": [
@@ -1069,6 +1249,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941589
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794525602339
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794525623510
       }
     ],
     "T15.3 — `uv run pytest -q` green (including `tests/`), and `uv run pytest -m \"not syft\" -q` green.": [
@@ -1076,6 +1266,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428941906
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794525626106
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794526206093
       }
     ],
     "T15.4 — `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q` green.": [
@@ -1083,6 +1283,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428942080
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794526208572
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794526782298
       }
     ],
     "T15.5 — **Coverage:** `uv run pytest --cov=core.install --cov=cli.hook --cov=cli.check_install --cov=cli.requirements_file --cov=cli.stdin --cov=mcp_server --cov-report=term-missing --cov-fail-under=85` passes; report the per-module percentages (KPW-TEST-18). The existing `cli` and `core` gates still pass: `uv run pytest cli --cov=cli --cov-fail-under=85`.": [
@@ -1090,6 +1300,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428942194
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794526785138
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794527607885
       }
     ],
     "T15.6 — Requirements check: for every `KPW-*` ID, name the test or task that covers it (a table in the report); list every ID with no test and why. Confirm: `POWER.md` absent; `.kiro/hooks/` holds `dead-install-blocker.json` and `kiro-journal.json` only (no probe); `git status` shows no `dist/`, no `.hypothesis` additions committed, no secrets (`gitleaks` if installed).": [
@@ -1097,6 +1317,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428942304
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794527610669
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794528060347
       }
     ],
     "T15.7 — Report what was **not** verified: anything marked \"to be confirmed\" in the design that T1, T4.2, T11.1 or T12.1 did not settle, the unmeasured items of the spike, the live-smoke results if T14 was not run, and `pip-audit` if it could not run.": [
@@ -1104,6 +1334,16 @@
         "executionId": "7b374da1-bca8-4c2b-8f47-3e3fd1805a73",
         "chatSessionId": "sess_4bacb3bf-cbc6-426c-9d9c-df3e1678d8a6",
         "timestamp": 1794428942387
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794528062964
+      },
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794528125256
       }
     ],
     "T1 — Spike KP-S1: what a Pre Tool Use hook really receives and whether exit 2 blocks (KPW-SPK-1, KPW-SPK-2, KPW-SPK-3)": [
@@ -1186,6 +1426,60 @@
         "executionId": "14bf7f89-088c-468c-bc9c-5549e65d7ecc",
         "chatSessionId": "sess_4a637152-a4f9-4ff6-89dd-44f19a315596",
         "timestamp": 1794511612674
+      }
+    ],
+    "T11 — `mcp_server` (D9, D10, D17, D20; KPW-MCP-1…10, KPW-TEST-12)": [
+      {
+        "executionId": "bdcb1db8-e1bf-4c08-942e-a986e79dbbe5",
+        "chatSessionId": "sess_63ca4832-d744-4b20-b3d6-37b2e146b425",
+        "timestamp": 1794520980883
+      }
+    ],
+    "T12 — The Power, the dogfood install and their tests (D1; KPW-PWR-1…8, KPW-INST-1…6, KPW-TEST-9, KPW-TEST-13)": [
+      {
+        "executionId": "d3a9fa78-26cd-4ef0-9926-12a57a52783d",
+        "chatSessionId": "sess_1c55c1a9-8642-4f5f-b9eb-8d517b77e765",
+        "timestamp": 1794523234466
+      }
+    ],
+    "T13 — Documentation and amendments (KPW-INST-6, KPW-TEST-16; \"Belongs elsewhere\" edit row)": [
+      {
+        "executionId": "bbf44f81-80c5-4ba0-b52c-5e999a305e01",
+        "chatSessionId": "sess_be48b1b4-ab28-44ad-9d92-a92e899bf62a",
+        "timestamp": 1794524691361
+      }
+    ],
+    "T14 — Live smoke and in-Kiro observation (manual, not CI; KPW-TEST-17)": [
+      {
+        "executionId": "bd4a9bf9-a033-4ce4-ab58-d25081553565",
+        "chatSessionId": "sess_432f9ca4-219b-439a-9f91-c036b25d6de2",
+        "timestamp": 1794525423810
+      }
+    ],
+    "T15 — Final gate (all `KPW-*`; coverage ≥ 85 % on the new modules). Run from `backend/`; fix and re-run until all pass.": [
+      {
+        "executionId": "214bffde-310b-488c-b671-4d178c1aa93e",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794528125348
+      }
+    ],
+    "T16.1 — Close-out: add the KPW-MCP-10 import-direction test with bad-sample tests; re-run pip-audit on an export of the current `uv.lock` and record it in the journal; add a `.gitleaks.toml` allowlist matching exactly the two placeholder token strings and re-run gitleaks on the full repo; make the MCP size cap hard (KPW-MCP-6) with a property test; update the reading-a-verdict skill (state with `summary.degraded`), README and mcp.json notes (autopsy_project needs syft on PATH), KPW-MCP-1 wording, and the root README (\"Import power from a folder\"); run the full gate and add one journal line.": [
+      {
+        "executionId": "7364507f-7ae0-4357-a555-c2ae82b35f7d",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794561797696
+      },
+      {
+        "executionId": "7364507f-7ae0-4357-a555-c2ae82b35f7d",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794563053147
+      }
+    ],
+    "T16 — Close-out (KPW-MCP-1, KPW-MCP-6, KPW-MCP-10, KPW-SEC-6, KPW-SEC-1)": [
+      {
+        "executionId": "7364507f-7ae0-4357-a555-c2ae82b35f7d",
+        "chatSessionId": "sess_4796b654-ac12-4a16-9751-b880636d01e4",
+        "timestamp": 1794563053330
       }
     ]
   }

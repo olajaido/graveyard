@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "dead-install-blocker",
+      "description": "Blocks an npm, pnpm, yarn, pip, uv or poetry install of a package Graveyard can show is Dead or Cursed. Fails open.",
+      "trigger": "PreToolUse",
+      "matcher": "shell",
+      "timeout": 20,
+      "action": {
+        "type": "command",
+        "command": "if command -v uvx >/dev/null 2>&1; then uvx --from \"graveyard-backend @ git+https://github.com/olajaido/graveyard.git@<COMMIT_SHA>#subdirectory=backend\" graveyard check-install; s=$?; [ \"$s\" -eq 2 ] && exit 2; fi; exit 0"
+      }
+    }
+  ]
+}

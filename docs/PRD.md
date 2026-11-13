@@ -386,17 +386,17 @@ Priority: **P0** = must ship for the demo, **P1** = should, **P2** = stretch.
 
 **User story:** As a developer using an AI agent, I want the agent to be *unable* to bring a dead package into my project.
 
-- **KP-1** THE SYSTEM SHALL ship a **Graveyard MCP server** (Python, stdio via `uvx graveyard-mcp`; P1: remote streamable HTTP) with these tools:
+- **KP-1** THE SYSTEM SHALL ship a **Graveyard MCP server** (Python, stdio via `uvx graveyard-mcp`, package `backend/mcp_server/` so it does not shadow the `mcp` SDK; P1: remote streamable HTTP) with these tools:
   - `autopsy_package(purl)`
   - `scan_lockfile(path)`
   - `find_alternatives(purl)`
   - `check_install_command(command)`, which parses `npm/pnpm/yarn add`, `pip/uv add/install` and returns a verdict.
-- **KP-2** THE SYSTEM SHALL ship a **Kiro Power** (`powers/graveyard/`) containing:
-  - `POWER.md` (keywords: dependency, package, install, npm, pip, library, deprecated, abandoned);
+- **KP-2** THE SYSTEM SHALL ship a **Kiro Power** (`powers/graveyard/`) in the Agent Plugins format, containing:
+  - `plugin.json` (keywords: dependency, package, install, npm, pip, library, deprecated, abandoned; no `POWER.md`);
   - `mcp.json`;
-  - steering on dependency hygiene;
-  - a hook.
-- **KP-3** The Power's hook SHALL be a **PreToolUse** hook on shell-execution tools that runs `graveyard check-install "<command>"`. It exits non-zero, blocking the tool call, WHEN the package is Dead or Cursed, and prints the alternative. 🔍 SPIKE KP-S1: confirm the matcher syntax and blocking semantics for PreToolUse on the shell tool in the current Kiro hook schema (`.kiro/hooks/*.json`, `version: "v1"`).
+  - skills (`skills/`) carrying the dependency-hygiene guidance that steering would otherwise hold;
+  - the hook, as a template carried in a skill (`install-blocker-hook`).
+- **KP-3** The Power's hook SHALL be a **PreToolUse** hook on shell-execution tools (matcher `shell`) that runs `graveyard check-install`, which reads the pending command from the stdin payload (`tool_input.command`). It exits 2, blocking the tool call, WHEN the package is Dead or Cursed, and prints the alternative; every other outcome exits 0. ✅ SPIKE KP-S1 done (Kiro 1.4.86, `docs/SPIKES.md`): the matcher `shell` matches `execute_bash`, the payload carries `tool_input.command` and the envelope `cwd`, and exit 2 blocks.
 - **KP-4** THE SYSTEM SHALL publish the Power from the main repo, with install instructions, so judges and users can install it from GitHub.
 
 ### 8.7 F7 — Vigil (CI and monitoring) · P1 · spec: `vigil`
@@ -653,7 +653,7 @@ Use several inclusion modes deliberately:
 | H6 | `dogfood-autopsy` | File save `**/package-lock.json`, `**/uv.lock` | command: `graveyard autopsy . --fail-on dead,cursed` (scans the `web/` and `backend/` services) | Graveyard guards its own dependencies |
 | H7 | `a11y-review` | File save `web/components/**/*.tsx` | agent prompt: review against `ui-theme.md` accessibility checklist | Design-score insurance |
 | H8 | `stop-lint` | Stop (agent turn complete) | command: `ruff check && mypy backend && pnpm -C web lint && pnpm -C web typecheck` | No broken turns left behind |
-| H9 | `dead-install-blocker` | PreToolUse shell **blocking** | command: `graveyard check-install "$COMMAND"` (parses the install command, then runs `graveyard autopsy --purl <purl> --fail-on dead,cursed`; a wrapper maps CLI exit 1 to hook exit 2 and any CLI error to allow with a notice) | **The demo moment**; also shipped inside the Power |
+| H9 | `dead-install-blocker` | PreToolUse shell **blocking** | command: `graveyard check-install` (reads the hook payload JSON from stdin, `tool_input.command` and the envelope `cwd`, per spike KP-S1; no `"$COMMAND"`; parses the install command, then checks each package as `graveyard autopsy --purl <purl> --fail-on dead,cursed` does). The exit-code mapping lives in the hook's guarded shell snippet and in `check-install`: it blocks with exit 2 only when `check-install` exits exactly 2, and every other status or error allows with a notice | **The demo moment**; implemented (`.kiro/hooks/dead-install-blocker.json`, spec `kiro-power`); also shipped inside the Power as a template in a skill |
 | H10 | `component-scaffold` | File create `web/components/**/*.tsx` | agent prompt: scaffold a typed component, a Vitest test and an a11y checklist per `ui-theme.md` | Consistency from the first line |
 | H11 | `stale-import-sweep` | File delete `backend/**/*.py`, `web/**/*.ts*` | agent prompt: find and remove imports of the deleted module, then run typecheck | Prevents broken builds after refactors |
 | H12 | `post-write-format` | PostToolUse (file write) | command: `ruff format` / `prettier --write` on the written path | Agent output is always formatted |
@@ -834,7 +834,7 @@ graveyard/
 │   ├── hooks/*.json
 │   ├── agents/*.json
 │   └── settings/mcp.json
-├── powers/graveyard/            # Kiro Power: POWER.md, mcp.json, steering/, hooks
+├── powers/graveyard/            # Kiro Power (Agent Plugins): plugin.json, mcp.json, skills/ (incl. hook template)
 ├── backend/
 │   ├── core/                    # pure logic: purl, versions, scoring, graph (PBT heavy)
 │   ├── sources/                 # osv, depsdev, scorecard, npm, pypi, github clients
@@ -842,8 +842,8 @@ graveyard/
 │   ├── api/                     # handlers + openapi.yaml
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
 │   ├── narrate/                 # Bedrock prompts + validators
-│   ├── mcp/                     # graveyard-mcp server
-│   ├── cli/                     # graveyard CLI (autopsy; later check-install, scan)
+│   ├── mcp_server/              # graveyard-mcp server (not mcp/: it would shadow the SDK)
+│   ├── cli/                     # graveyard CLI (autopsy, check-install; later scan)
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/
