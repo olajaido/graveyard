@@ -37,13 +37,21 @@ TAIL_LINES = 20
 RUNTIMES = {"pypi": "python:3.12-slim", "npm": "node:22-slim"}
 
 PASS = "pass"
+# Amendment 4.1: npm package whose entry point is not JavaScript; installed only.
+PASS_INSTALL_ONLY = "pass_install_only"
 FAIL_INSTALL = "fail_install"
 FAIL_IMPORT = "fail_import"
 TIMEOUT = "timeout"
-RESULTS = (PASS, FAIL_INSTALL, FAIL_IMPORT, TIMEOUT)
+RESULTS = (PASS, PASS_INSTALL_ONLY, FAIL_INSTALL, FAIL_IMPORT, TIMEOUT)
+PASSING = (PASS, PASS_INSTALL_ONLY)
 
 # Printed by the container once the install step has succeeded.
 IMPORT_MARKER = "GRAVEYARD_PHASE=import"
+# Printed by the container when a refinement of Amendment 4 applied.
+REFINEMENT_PREFIX = "GRAVEYARD_REFINEMENT="
+INSTALL_ONLY_MARKER = REFINEMENT_PREFIX + "install_only"
+# Amendment 4.2: applied to every npm install.
+NPM_ALWAYS_REFINEMENT = "legacy-peer-deps"
 
 _NAME = re.compile(r"^[A-Za-z0-9@][A-Za-z0-9._/~-]*$")
 _VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+!-]*$")
@@ -128,7 +136,42 @@ def classify(returncode: int | None, output: str, timed_out: bool) -> str:
         return TIMEOUT
     if IMPORT_MARKER not in output:
         return FAIL_INSTALL
-    return PASS if returncode == 0 else FAIL_IMPORT
+    if returncode != 0:
+        return FAIL_IMPORT
+    return PASS_INSTALL_ONLY if INSTALL_ONLY_MARKER in output else PASS
+
+
+def refinements_applied(eco: str, output: str) -> list[str]:
+    """Amendment 4 refinements that applied to one check, for the detail column."""
+    found: list[str] = [NPM_ALWAYS_REFINEMENT] if eco == "npm" else []
+    for line in output.splitlines():
+        line = line.strip()
+        if line.startswith(REFINEMENT_PREFIX):
+            value = line[len(REFINEMENT_PREFIX) :].strip()
+            if value and value not in found:
+                found.append(value)
+    return found
+
+
+def qt_toolkit_to_install(missing: list[str]) -> str | None:
+    """The one GUI toolkit that may be installed for a failed import, else ``None``.
+
+    ``missing`` holds top-level names of ModuleNotFoundError failures. Only when they
+    are exactly one distinct name from the fixed list is that name returned; any
+    other missing module means nothing is installed. Self-contained on purpose: its
+    source is shipped into the container.
+    """
+    toolkits = ("PyQt5", "PyQt6", "PySide2", "PySide6")
+    distinct = {m for m in missing if m}
+    if len(distinct) == 1:
+        only = next(iter(distinct))
+        if only in toolkits:
+            return only
+    return None
+
+
+def format_refinements(refinements: list[str]) -> str:
+    return "refinements: " + (", ".join(refinements) if refinements else "none")
 
 
 def format_detail(output: str) -> str:
@@ -150,7 +193,8 @@ def summarise(results: list[str]) -> str:
 # Container scripts (run inside docker; arguments are positional: name version code)
 # --------------------------------------------------------------------------- #
 _PY_DRIVER = """
-import importlib, importlib.metadata as md, sys
+import importlib, importlib.metadata as md, os, subprocess, sys
+APT = ["libgl1", "libglib2.0-0", "libxkbcommon0", "libdbus-1-3", "libfontconfig1"]
 name = sys.argv[1]
 dist = md.distribution(name)
 names = derive_import_names(dist.read_text("top_level.txt"), dist.read_text("RECORD"))
@@ -158,25 +202,112 @@ print("import names:", names)
 if not names:
     print("no importable top-level names found")
     sys.exit(1)
-failed = 0
-for n in names:
-    try:
-        importlib.import_module(n)
-        print("imported", n)
-    except BaseException as exc:
-        failed += 1
-        print("FAILED", n, type(exc).__name__, exc)
-sys.exit(1 if failed else 0)
+
+def try_imports():
+    failures = []
+    for n in names:
+        try:
+            importlib.import_module(n)
+            print("imported", n)
+        except BaseException as exc:
+            print("FAILED", n, type(exc).__name__, exc)
+            failures.append(exc)
+    return failures
+
+failures = try_imports()
+missing = [
+    (e.name or "").split(".")[0] for e in failures if isinstance(e, ModuleNotFoundError)
+]
+toolkit = qt_toolkit_to_install(missing) if failures else None
+if toolkit:
+    print("GRAVEYARD_REFINEMENT=qt_toolkit:" + toolkit)
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    steps = [
+        ["apt-get", "update"],
+        ["apt-get", "install", "-y", "--no-install-recommends"] + APT,
+        [sys.executable, "-m", "pip", "install", "--no-cache-dir", toolkit],
+    ]
+    ready = True
+    for step in steps:
+        res = subprocess.run(step, capture_output=True, text=True)
+        if res.returncode != 0:
+            print("toolkit setup failed:", " ".join(step), (res.stderr or res.stdout)[-300:])
+            ready = False
+            break
+    if ready:
+        importlib.invalidate_caches()
+        for mod in list(sys.modules):
+            if any(mod == n or mod.startswith(n + ".") for n in names):
+                del sys.modules[mod]
+        failures = try_imports()
+sys.exit(1 if failures else 0)
 """
 
-PY_CODE = inspect.getsource(derive_import_names) + _PY_DRIVER
+PY_CODE = (
+    inspect.getsource(derive_import_names) + inspect.getsource(qt_toolkit_to_install) + _PY_DRIVER
+)
 
 PY_SHELL = (
     'pip install --no-cache-dir "$1==$2" && echo ' + IMPORT_MARKER + ' && python -c "$3" "$1"'
 )
 
-NODE_CODE = """
+# Amendment 4.1: does the installed package have a resolvable JavaScript entry point?
+NODE_ENTRY_JS = """
+const fs = require('fs');
+const path = require('path');
+const JS_EXT = new Set(['.js', '.cjs', '.mjs', '.json']);
+function exportTargets(exp) {
+  const out = [];
+  const walk = (v) => {
+    if (typeof v === 'string') out.push(v);
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') {
+      for (const [k, x] of Object.entries(v)) if (k !== 'types') walk(x);
+    }
+  };
+  const subpaths = exp && typeof exp === 'object' && !Array.isArray(exp)
+    && Object.keys(exp).some((k) => k.startsWith('.'));
+  walk(subpaths ? exp['.'] : exp);
+  return out;
+}
+function resolveFile(dir, rel, loose) {
+  const base = path.join(dir, rel);
+  const tries = loose
+    ? [base, base + '.js', base + '.json', path.join(base, 'index.js'),
+       path.join(base, 'index.json')]
+    : [base];
+  return tries.find((f) => fs.existsSync(f) && fs.statSync(f).isFile()) || null;
+}
+function hasJsEntry(dir, pkg) {
+  let found;
+  if (pkg.exports !== undefined && pkg.exports !== null) {
+    found = exportTargets(pkg.exports).map((t) => resolveFile(dir, t, false));
+  } else if (typeof pkg.main === 'string' && pkg.main) {
+    found = [resolveFile(dir, pkg.main, true)];
+  } else {
+    found = [resolveFile(dir, 'index', true)];
+  }
+  return found.some((f) => f && JS_EXT.has(path.extname(f)));
+}
+"""
+
+NODE_CODE = (
+    NODE_ENTRY_JS
+    + """
 const name = process.argv[1];
+const pkgDir = path.join(process.cwd(), 'node_modules', name);
+let entryOk = false;
+try {
+  entryOk = hasJsEntry(pkgDir, JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'))));
+} catch (e) {
+  entryOk = false;
+}
+if (!entryOk) {
+  console.log('"""
+    + INSTALL_ONLY_MARKER
+    + """: no resolvable .js/.cjs/.mjs/.json entry point');
+  process.exit(0);
+}
 try {
   require(name);
   console.log('required', name);
@@ -189,9 +320,11 @@ try {
   }
 }
 """
+)
 
 NODE_SHELL = (
-    'mkdir /tmp/work && cd /tmp/work && npm install --no-audit --no-fund "$1@$2" && echo '
+    "mkdir /tmp/work && cd /tmp/work && "
+    'npm install --legacy-peer-deps --no-audit --no-fund "$1@$2" && echo '
     + IMPORT_MARKER
     + ' && node -e "$3" "$1"'
 )
@@ -262,7 +395,7 @@ def run_check(eco: str, name: str, version: str) -> Outcome:
             timeout=60,
         )
     result = classify(code, output, timed_out)
-    detail = format_detail(output)
+    detail = format_refinements(refinements_applied(eco, output)) + " | " + format_detail(output)
     if timed_out:
         detail = f"timed out after {TIMEOUT_SECONDS}s | {detail}".rstrip(" |")
     return Outcome(result, detail)
@@ -290,13 +423,13 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         results.append(outcome.result)
         lines.append(tsv_line([eco, name, version, outcome.result, RUNTIMES[eco], outcome.detail]))
-        print(f"{outcome.result:13} {eco}/{name}@{version}")
+        print(f"{outcome.result:17} {eco}/{name}@{version}")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(summarise(results))
     print(f"wrote {args.out}")
-    return 0 if all(r == PASS for r in results) else 1
+    return 0 if all(r in PASSING for r in results) else 1
 
 
 if __name__ == "__main__":
