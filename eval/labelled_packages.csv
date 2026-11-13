@@ -117,3 +117,5 @@ pypi,fortls,3.2.2,ailing,maintainer_statement,https://github.com/fortran-lang/fo
 npm,grafema,0.4.1,alive,release_notes,https://github.com/Disentinel/grafema/blob/main/CHANGELOG.md,[0.4.1] - 2026-06-14,coroner,false
 npm,please-upgrade-node,3.2.0,finished-healthy,feature_complete_readme,https://github.com/typicode/please-upgrade-node,This project is considered feature complete and stable.,coroner,false
 pypi,pydora,2.3.2,finished-healthy,feature_complete_readme,https://github.com/mcrute/pydora,the author considers it to be both stable and complete,coroner,false
+npm,content-security-policy-builder,2.3.0,finished-healthy,feature_complete_readme,https://github.com/helmetjs/content-security-policy-builder,This module is considered complete.,coroner,false
+pypi,s2geometry,0.14.0,alive,release_notes,https://github.com/google/s2geometry/releases,Update to 2025-12-24 google3 version by @jmr in #506,coroner,false
