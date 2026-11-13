@@ -1,0 +1,96 @@
+{
+  "package": "inflight",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/inflight@1.0.6",
+  "resolved_version": "1.0.6",
+  "latest_version": "1.0.6",
+  "repo": "github.com/npm/inflight",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/inflight/versions/1.0.6",
+      "fetched_at": "2026-11-13T22:30:24Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/inflight/versions/1.0.6",
+      "fetched_at": "2026-11-13T22:30:24Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/inflight/versions/1.0.6"
+      ],
+      "note": "resolved 1.0.6: True; latest 1.0.6: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2016-10-13",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/inflight/versions/1.0.6",
+      "fetched_at": "2026-11-13T22:30:24Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-05-23",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for npm/inflight"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnpm%2Finflight",
+      "fetched_at": "2026-11-13T22:30:25Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for npm/inflight"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for npm/inflight"
+    },
+    "s6_closed_issues": {
+      "value": 6,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for npm/inflight"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:25Z",
+      "note": "querybatch for npm:inflight@1.0.6; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnpm%2Finflight",
+      "fetched_at": "2026-11-13T22:30:25Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 123774820,
+      "source": "https://api.npmjs.org/downloads/point/last-week/inflight",
+      "fetched_at": "2026-11-13T22:30:25Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/inflight/versions/1.0.6",
+      "fetched_at": "2026-11-13T22:30:24Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for npm/inflight"
+    }
+  }
+}

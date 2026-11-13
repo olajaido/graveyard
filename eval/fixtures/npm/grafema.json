@@ -1,0 +1,100 @@
+{
+  "package": "grafema",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/grafema@0.4.1",
+  "resolved_version": "0.4.1",
+  "latest_version": "0.4.1",
+  "repo": "github.com/disentinel/grafema",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/grafema/versions/0.4.1",
+      "fetched_at": "2026-11-13T22:31:46Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/grafema/versions/0.4.1",
+      "fetched_at": "2026-11-13T22:31:46Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/grafema/versions/0.4.1"
+      ],
+      "note": "resolved 0.4.1: False; latest 0.4.1: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-06-14",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/grafema/versions/0.4.1",
+      "fetched_at": "2026-11-13T22:31:46Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-08-24",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for disentinel/grafema"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/disentinel/grafema",
+      "fetched_at": "2026-11-13T22:31:47Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/disentinel/grafema",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:13Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for disentinel/grafema; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for disentinel/grafema"
+    },
+    "s6_closed_issues": {
+      "value": 13,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for disentinel/grafema"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:47Z",
+      "note": "querybatch for npm:grafema@0.4.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/disentinel/grafema",
+      "fetched_at": "2026-11-13T22:31:47Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/disentinel/grafema",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 4,
+      "source": "https://api.npmjs.org/downloads/point/last-week/grafema",
+      "fetched_at": "2026-11-13T22:31:47Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/grafema/versions/0.4.1",
+      "fetched_at": "2026-11-13T22:31:46Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for disentinel/grafema"
+    }
+  }
+}

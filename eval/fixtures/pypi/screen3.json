@@ -1,0 +1,91 @@
+{
+  "package": "screen3",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/screen3@0.1.2",
+  "resolved_version": "0.1.2",
+  "latest_version": "0.1.2",
+  "repo": "github.com/zmoon/screen3",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/screen3/json",
+      "fetched_at": "2026-11-13T22:13:45Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-11-01",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/screen3/versions/0.1.2",
+      "fetched_at": "2026-11-13T22:13:45Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-08-03",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for zmoon/screen3"
+    },
+    "s4_maintained": {
+      "value": 1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fzmoon%2Fscreen3",
+      "fetched_at": "2026-11-13T22:13:46Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for zmoon/screen3"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for zmoon/screen3"
+    },
+    "s6_closed_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for zmoon/screen3"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:46Z",
+      "note": "querybatch for PyPI:screen3@0.1.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fzmoon%2Fscreen3",
+      "fetched_at": "2026-11-13T22:13:46Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 10,
+      "source": "https://pypistats.org/api/packages/screen3/recent",
+      "fetched_at": "2026-11-13T22:13:47Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for zmoon/screen3"
+    }
+  }
+}

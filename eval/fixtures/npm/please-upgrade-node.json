@@ -1,0 +1,96 @@
+{
+  "package": "please-upgrade-node",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/please-upgrade-node@3.2.0",
+  "resolved_version": "3.2.0",
+  "latest_version": "3.2.0",
+  "repo": "github.com/typicode/please-upgrade-node",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/please-upgrade-node/versions/3.2.0",
+      "fetched_at": "2026-11-13T22:14:12Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/please-upgrade-node/versions/3.2.0",
+      "fetched_at": "2026-11-13T22:14:12Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/please-upgrade-node/versions/3.2.0"
+      ],
+      "note": "resolved 3.2.0: False; latest 3.2.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2019-08-08",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/please-upgrade-node/versions/3.2.0",
+      "fetched_at": "2026-11-13T22:14:12Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-02-28",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for typicode/please-upgrade-node"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftypicode%2Fplease-upgrade-node",
+      "fetched_at": "2026-11-13T22:14:13Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for typicode/please-upgrade-node"
+    },
+    "s6_open_issues": {
+      "value": 5,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for typicode/please-upgrade-node"
+    },
+    "s6_closed_issues": {
+      "value": 6,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for typicode/please-upgrade-node"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:14:13Z",
+      "note": "querybatch for npm:please-upgrade-node@3.2.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftypicode%2Fplease-upgrade-node",
+      "fetched_at": "2026-11-13T22:14:13Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 5504139,
+      "source": "https://api.npmjs.org/downloads/point/last-week/please-upgrade-node",
+      "fetched_at": "2026-11-13T22:14:14Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/please-upgrade-node/versions/3.2.0",
+      "fetched_at": "2026-11-13T22:14:12Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for typicode/please-upgrade-node"
+    }
+  }
+}

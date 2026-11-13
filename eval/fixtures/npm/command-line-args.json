@@ -1,0 +1,96 @@
+{
+  "package": "command-line-args",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/command-line-args@6.0.2",
+  "resolved_version": "6.0.2",
+  "latest_version": "6.0.2",
+  "repo": "github.com/75lb/command-line-args",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/command-line-args/versions/6.0.2",
+      "fetched_at": "2026-11-13T22:14:06Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/command-line-args/versions/6.0.2",
+      "fetched_at": "2026-11-13T22:14:06Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/command-line-args/versions/6.0.2"
+      ],
+      "note": "resolved 6.0.2: False; latest 6.0.2: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-03-23",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/command-line-args/versions/6.0.2",
+      "fetched_at": "2026-11-13T22:14:06Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-09-16",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for 75lb/command-line-args"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2F75lb%2Fcommand-line-args",
+      "fetched_at": "2026-11-13T22:14:07Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for 75lb/command-line-args"
+    },
+    "s6_open_issues": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for 75lb/command-line-args"
+    },
+    "s6_closed_issues": {
+      "value": 103,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for 75lb/command-line-args"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:14:07Z",
+      "note": "querybatch for npm:command-line-args@6.0.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2F75lb%2Fcommand-line-args",
+      "fetched_at": "2026-11-13T22:14:07Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 8450910,
+      "source": "https://api.npmjs.org/downloads/point/last-week/command-line-args",
+      "fetched_at": "2026-11-13T22:14:08Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/command-line-args/versions/6.0.2",
+      "fetched_at": "2026-11-13T22:14:06Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for 75lb/command-line-args"
+    }
+  }
+}

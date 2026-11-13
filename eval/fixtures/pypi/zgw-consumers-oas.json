@@ -1,0 +1,95 @@
+{
+  "package": "zgw-consumers-oas",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/zgw-consumers-oas@1.1.0",
+  "resolved_version": "1.1.0",
+  "latest_version": "1.1.0",
+  "repo": "github.com/maykinmedia/zgw-consumers-oas",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/zgw-consumers-oas/json",
+      "fetched_at": "2026-11-13T22:30:45Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-05-27",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/zgw-consumers-oas/versions/1.1.0",
+      "fetched_at": "2026-11-13T22:30:45Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-05-27",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for maykinmedia/zgw-consumers-oas"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/maykinmedia/zgw-consumers-oas",
+      "fetched_at": "2026-11-13T22:30:46Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/maykinmedia/zgw-consumers-oas",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for maykinmedia/zgw-consumers-oas"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for maykinmedia/zgw-consumers-oas"
+    },
+    "s6_closed_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for maykinmedia/zgw-consumers-oas"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:46Z",
+      "note": "querybatch for PyPI:zgw-consumers-oas@1.1.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/maykinmedia/zgw-consumers-oas",
+      "fetched_at": "2026-11-13T22:30:46Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/maykinmedia/zgw-consumers-oas",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 940,
+      "source": "https://pypistats.org/api/packages/zgw-consumers-oas/recent",
+      "fetched_at": "2026-11-13T22:30:48Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for maykinmedia/zgw-consumers-oas"
+    }
+  }
+}

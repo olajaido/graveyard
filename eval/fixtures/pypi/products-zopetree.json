@@ -1,0 +1,91 @@
+{
+  "package": "products-zopetree",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/products-zopetree@3.4.0",
+  "resolved_version": "3.4.0",
+  "latest_version": "3.4.0",
+  "repo": "github.com/jugmac00/products.zopetree",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/products-zopetree/json",
+      "fetched_at": "2026-11-13T22:13:55Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2022-11-21",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/products-zopetree/versions/3.4.0",
+      "fetched_at": "2026-11-13T22:13:55Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jugmac00/products.zopetree"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjugmac00%2Fproducts.zopetree",
+      "fetched_at": "2026-11-13T22:13:56Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jugmac00/products.zopetree"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jugmac00/products.zopetree"
+    },
+    "s6_closed_issues": {
+      "value": 6,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jugmac00/products.zopetree"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:56Z",
+      "note": "querybatch for PyPI:products-zopetree@3.4.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjugmac00%2Fproducts.zopetree",
+      "fetched_at": "2026-11-13T22:13:56Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 8,
+      "source": "https://pypistats.org/api/packages/products-zopetree/recent",
+      "fetched_at": "2026-11-13T22:13:57Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jugmac00/products.zopetree"
+    }
+  }
+}

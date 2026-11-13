@@ -1,0 +1,91 @@
+{
+  "package": "django-rest-swagger",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/django-rest-swagger@2.2.0",
+  "resolved_version": "2.2.0",
+  "latest_version": "2.2.0",
+  "repo": "github.com/marcgibbons/django-rest-swagger",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/django-rest-swagger/json",
+      "fetched_at": "2026-11-13T22:29:48Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-04-30",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/django-rest-swagger/versions/2.2.0",
+      "fetched_at": "2026-11-13T22:29:48Z"
+    },
+    "s3_last_push_at": {
+      "value": "2020-12-14",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for marcgibbons/django-rest-swagger"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmarcgibbons%2Fdjango-rest-swagger",
+      "fetched_at": "2026-11-13T22:29:49Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for marcgibbons/django-rest-swagger"
+    },
+    "s6_open_issues": {
+      "value": 130,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for marcgibbons/django-rest-swagger"
+    },
+    "s6_closed_issues": {
+      "value": 366,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for marcgibbons/django-rest-swagger"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:50Z",
+      "note": "querybatch for PyPI:django-rest-swagger@2.2.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmarcgibbons%2Fdjango-rest-swagger",
+      "fetched_at": "2026-11-13T22:29:49Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 50036,
+      "source": "https://pypistats.org/api/packages/django-rest-swagger/recent",
+      "fetched_at": "2026-11-13T22:29:51Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for marcgibbons/django-rest-swagger"
+    }
+  }
+}

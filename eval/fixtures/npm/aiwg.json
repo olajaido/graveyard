@@ -1,0 +1,100 @@
+{
+  "package": "aiwg",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/aiwg@2026.11.5",
+  "resolved_version": "2026.11.5",
+  "latest_version": "2026.11.5",
+  "repo": "github.com/jmagly/aiwg",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/aiwg/versions/2026.11.5",
+      "fetched_at": "2026-11-13T22:30:48Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/aiwg/versions/2026.11.5",
+      "fetched_at": "2026-11-13T22:30:48Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/aiwg/versions/2026.11.5"
+      ],
+      "note": "resolved 2026.11.5: False; latest 2026.11.5: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-11",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/aiwg/versions/2026.11.5",
+      "fetched_at": "2026-11-13T22:30:48Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for jmagly/aiwg"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/jmagly/aiwg",
+      "fetched_at": "2026-11-13T22:30:49Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/jmagly/aiwg",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 4,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:31Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jmagly/aiwg; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for jmagly/aiwg"
+    },
+    "s6_closed_issues": {
+      "value": 242,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for jmagly/aiwg"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:50Z",
+      "note": "querybatch for npm:aiwg@2026.11.5; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/jmagly/aiwg",
+      "fetched_at": "2026-11-13T22:30:49Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/jmagly/aiwg",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 12484,
+      "source": "https://api.npmjs.org/downloads/point/last-week/aiwg",
+      "fetched_at": "2026-11-13T22:30:50Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/aiwg/versions/2026.11.5",
+      "fetched_at": "2026-11-13T22:30:48Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for jmagly/aiwg"
+    }
+  }
+}

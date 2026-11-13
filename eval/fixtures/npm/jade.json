@@ -1,0 +1,96 @@
+{
+  "package": "jade",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/jade@1.11.0",
+  "resolved_version": "1.11.0",
+  "latest_version": "1.11.0",
+  "repo": "github.com/jadejs/jade",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/jade/versions/1.11.0",
+      "fetched_at": "2026-11-13T22:09:58Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/jade/versions/1.11.0",
+      "fetched_at": "2026-11-13T22:09:58Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/jade/versions/1.11.0"
+      ],
+      "note": "resolved 1.11.0: True; latest 1.11.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2015-06-12",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/jade/versions/1.11.0",
+      "fetched_at": "2026-11-13T22:09:58Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-03-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jadejs/jade"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjadejs%2Fjade",
+      "fetched_at": "2026-11-13T22:09:59Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jadejs/jade"
+    },
+    "s6_open_issues": {
+      "value": 300,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jadejs/jade"
+    },
+    "s6_closed_issues": {
+      "value": 2289,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jadejs/jade"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:00Z",
+      "note": "querybatch for npm:jade@1.11.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjadejs%2Fjade",
+      "fetched_at": "2026-11-13T22:09:59Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 443136,
+      "source": "https://api.npmjs.org/downloads/point/last-week/jade",
+      "fetched_at": "2026-11-13T22:10:00Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/jade/versions/1.11.0",
+      "fetched_at": "2026-11-13T22:09:58Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jadejs/jade"
+    }
+  }
+}

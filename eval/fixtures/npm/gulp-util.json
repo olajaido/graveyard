@@ -1,0 +1,96 @@
+{
+  "package": "gulp-util",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/gulp-util@3.0.8",
+  "resolved_version": "3.0.8",
+  "latest_version": "3.0.8",
+  "repo": "github.com/gulpjs/gulp-util",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/gulp-util/versions/3.0.8",
+      "fetched_at": "2026-11-13T22:10:00Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/gulp-util/versions/3.0.8",
+      "fetched_at": "2026-11-13T22:10:00Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/gulp-util/versions/3.0.8"
+      ],
+      "note": "resolved 3.0.8: True; latest 3.0.8: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2016-12-26",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/gulp-util/versions/3.0.8",
+      "fetched_at": "2026-11-13T22:10:00Z"
+    },
+    "s3_last_push_at": {
+      "value": "2020-10-31",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for gulpjs/gulp-util"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgulpjs%2Fgulp-util",
+      "fetched_at": "2026-11-13T22:10:01Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for gulpjs/gulp-util"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for gulpjs/gulp-util"
+    },
+    "s6_closed_issues": {
+      "value": 88,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for gulpjs/gulp-util"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:02Z",
+      "note": "querybatch for npm:gulp-util@3.0.8; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgulpjs%2Fgulp-util",
+      "fetched_at": "2026-11-13T22:10:01Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 977156,
+      "source": "https://api.npmjs.org/downloads/point/last-week/gulp-util",
+      "fetched_at": "2026-11-13T22:10:02Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/gulp-util/versions/3.0.8",
+      "fetched_at": "2026-11-13T22:10:00Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for gulpjs/gulp-util"
+    }
+  }
+}

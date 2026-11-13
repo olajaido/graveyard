@@ -1,0 +1,211 @@
+{
+  "package": "xmldom",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/xmldom@0.6.0",
+  "resolved_version": "0.6.0",
+  "latest_version": "0.6.0",
+  "repo": "github.com/xmldom/xmldom",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/xmldom/versions/0.6.0",
+      "fetched_at": "2026-11-13T22:11:32Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/xmldom/versions/0.6.0",
+      "fetched_at": "2026-11-13T22:11:32Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/xmldom/versions/0.6.0"
+      ],
+      "note": "resolved 0.6.0: False; latest 0.6.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2021-04-17",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/xmldom/versions/0.6.0",
+      "fetched_at": "2026-11-13T22:11:32Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-11",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for xmldom/xmldom"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fxmldom%2Fxmldom",
+      "fetched_at": "2026-11-13T22:11:33Z"
+    },
+    "s5_committers": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for xmldom/xmldom"
+    },
+    "s6_open_issues": {
+      "value": 40,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for xmldom/xmldom"
+    },
+    "s6_closed_issues": {
+      "value": 159,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for xmldom/xmldom"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-27p8-2357-5qqv",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-2v35-w6hq-6mfw",
+          "has_fix": false,
+          "published_at": "2026-04-22",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-4w3w-2rp5-g8jm",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-5fg8-2547-mr8q",
+          "has_fix": false,
+          "published_at": "2021-08-03",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-6gmq-8vp8-gcm6",
+          "has_fix": false,
+          "published_at": "2026-09-02",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-6h8r-xr42-gp59",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-8344-3jmq-59r6",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-93r5-fhx6-vmg9",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-965w-775f-mr7g",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-c7q8-3ch8-vqpv",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-crh6-fp67-6883",
+          "has_fix": false,
+          "published_at": "2022-11-01",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-f6ww-3ggp-fr8h",
+          "has_fix": false,
+          "published_at": "2026-04-22",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-j759-j44w-7fr8",
+          "has_fix": false,
+          "published_at": "2026-04-22",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-w2rr-34g9-rvrj",
+          "has_fix": false,
+          "published_at": "2026-09-08",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-wh4c-j3r5-mjhp",
+          "has_fix": false,
+          "published_at": "2026-04-01",
+          "fixed_versions": []
+        },
+        {
+          "id": "GHSA-x6wf-f3px-wcqx",
+          "has_fix": false,
+          "published_at": "2026-04-22",
+          "fixed_versions": []
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:11:34Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-27p8-2357-5qqv",
+        "https://api.osv.dev/v1/vulns/GHSA-2v35-w6hq-6mfw",
+        "https://api.osv.dev/v1/vulns/GHSA-4w3w-2rp5-g8jm",
+        "https://api.osv.dev/v1/vulns/GHSA-5fg8-2547-mr8q",
+        "https://api.osv.dev/v1/vulns/GHSA-6gmq-8vp8-gcm6",
+        "https://api.osv.dev/v1/vulns/GHSA-6h8r-xr42-gp59",
+        "https://api.osv.dev/v1/vulns/GHSA-8344-3jmq-59r6",
+        "https://api.osv.dev/v1/vulns/GHSA-93r5-fhx6-vmg9",
+        "https://api.osv.dev/v1/vulns/GHSA-965w-775f-mr7g",
+        "https://api.osv.dev/v1/vulns/GHSA-c7q8-3ch8-vqpv",
+        "https://api.osv.dev/v1/vulns/GHSA-crh6-fp67-6883",
+        "https://api.osv.dev/v1/vulns/GHSA-f6ww-3ggp-fr8h",
+        "https://api.osv.dev/v1/vulns/GHSA-j759-j44w-7fr8",
+        "https://api.osv.dev/v1/vulns/GHSA-w2rr-34g9-rvrj",
+        "https://api.osv.dev/v1/vulns/GHSA-wh4c-j3r5-mjhp",
+        "https://api.osv.dev/v1/vulns/GHSA-x6wf-f3px-wcqx"
+      ],
+      "note": "querybatch for npm:xmldom@0.6.0; 16 advisories"
+    },
+    "s8_overall": {
+      "value": 7.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fxmldom%2Fxmldom",
+      "fetched_at": "2026-11-13T22:11:33Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1603567,
+      "source": "https://api.npmjs.org/downloads/point/last-week/xmldom",
+      "fetched_at": "2026-11-13T22:11:50Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/xmldom/versions/0.6.0",
+      "fetched_at": "2026-11-13T22:11:32Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for xmldom/xmldom"
+    }
+  }
+}

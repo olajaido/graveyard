@@ -1,0 +1,96 @@
+{
+  "package": "q",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/q@1.5.1",
+  "resolved_version": "1.5.1",
+  "latest_version": "1.5.1",
+  "repo": "github.com/kriskowal/q",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/q/versions/1.5.1",
+      "fetched_at": "2026-11-13T22:29:35Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/q/versions/1.5.1",
+      "fetched_at": "2026-11-13T22:29:35Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/q/versions/1.5.1"
+      ],
+      "note": "resolved 1.5.1: True; latest 1.5.1: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-10-19",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/q/versions/1.5.1",
+      "fetched_at": "2026-11-13T22:29:35Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-11-08",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for kriskowal/q"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkriskowal%2Fq",
+      "fetched_at": "2026-11-13T22:29:36Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for kriskowal/q"
+    },
+    "s6_open_issues": {
+      "value": 101,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for kriskowal/q"
+    },
+    "s6_closed_issues": {
+      "value": 459,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for kriskowal/q"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:36Z",
+      "note": "querybatch for npm:q@1.5.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkriskowal%2Fq",
+      "fetched_at": "2026-11-13T22:29:36Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 13617279,
+      "source": "https://api.npmjs.org/downloads/point/last-week/q",
+      "fetched_at": "2026-11-13T22:29:36Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/q/versions/1.5.1",
+      "fetched_at": "2026-11-13T22:29:35Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for kriskowal/q"
+    }
+  }
+}

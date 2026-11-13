@@ -1,0 +1,96 @@
+{
+  "package": "abab",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/abab@2.0.6",
+  "resolved_version": "2.0.6",
+  "latest_version": "2.0.6",
+  "repo": "github.com/jsdom/abab",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/abab/versions/2.0.6",
+      "fetched_at": "2026-11-13T22:10:15Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/abab/versions/2.0.6",
+      "fetched_at": "2026-11-13T22:10:15Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/abab/versions/2.0.6"
+      ],
+      "note": "resolved 2.0.6: True; latest 2.0.6: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2022-04-17",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/abab/versions/2.0.6",
+      "fetched_at": "2026-11-13T22:10:15Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-11-26",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jsdom/abab"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjsdom%2Fabab",
+      "fetched_at": "2026-11-13T22:10:16Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jsdom/abab"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jsdom/abab"
+    },
+    "s6_closed_issues": {
+      "value": 24,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jsdom/abab"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:16Z",
+      "note": "querybatch for npm:abab@2.0.6; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjsdom%2Fabab",
+      "fetched_at": "2026-11-13T22:10:16Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 25776738,
+      "source": "https://api.npmjs.org/downloads/point/last-week/abab",
+      "fetched_at": "2026-11-13T22:10:17Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/abab/versions/2.0.6",
+      "fetched_at": "2026-11-13T22:10:15Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jsdom/abab"
+    }
+  }
+}

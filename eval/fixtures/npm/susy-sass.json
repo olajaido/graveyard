@@ -1,0 +1,100 @@
+{
+  "package": "susy-sass",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/susy-sass@2.4.0",
+  "resolved_version": "2.4.0",
+  "latest_version": "2.4.0",
+  "repo": "github.com/takuhii/susy-sass",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/susy-sass/versions/2.4.0",
+      "fetched_at": "2026-11-13T22:31:22Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/susy-sass/versions/2.4.0",
+      "fetched_at": "2026-11-13T22:31:22Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/susy-sass/versions/2.4.0"
+      ],
+      "note": "resolved 2.4.0: False; latest 2.4.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-09-01",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/susy-sass/versions/2.4.0",
+      "fetched_at": "2026-11-13T22:31:22Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-09-01",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for takuhii/susy-sass"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/takuhii/susy-sass",
+      "fetched_at": "2026-11-13T22:31:23Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/takuhii/susy-sass",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for takuhii/susy-sass"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for takuhii/susy-sass"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for takuhii/susy-sass"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:23Z",
+      "note": "querybatch for npm:susy-sass@2.4.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/takuhii/susy-sass",
+      "fetched_at": "2026-11-13T22:31:23Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/takuhii/susy-sass",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 6,
+      "source": "https://api.npmjs.org/downloads/point/last-week/susy-sass",
+      "fetched_at": "2026-11-13T22:31:23Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/susy-sass/versions/2.4.0",
+      "fetched_at": "2026-11-13T22:31:22Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for takuhii/susy-sass"
+    }
+  }
+}

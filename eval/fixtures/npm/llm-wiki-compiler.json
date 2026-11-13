@@ -1,0 +1,100 @@
+{
+  "package": "llm-wiki-compiler",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/llm-wiki-compiler@1.5.0",
+  "resolved_version": "1.5.0",
+  "latest_version": "1.5.0",
+  "repo": "github.com/atomicstrata/llm-wiki-compiler",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/llm-wiki-compiler/versions/1.5.0",
+      "fetched_at": "2026-11-13T22:31:35Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/llm-wiki-compiler/versions/1.5.0",
+      "fetched_at": "2026-11-13T22:31:35Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/llm-wiki-compiler/versions/1.5.0"
+      ],
+      "note": "resolved 1.5.0: False; latest 1.5.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-19",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/llm-wiki-compiler/versions/1.5.0",
+      "fetched_at": "2026-11-13T22:31:35Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-11",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for atomicstrata/llm-wiki-compiler"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/atomicstrata/llm-wiki-compiler",
+      "fetched_at": "2026-11-13T22:31:36Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/atomicstrata/llm-wiki-compiler",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 18,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:04Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for atomicstrata/llm-wiki-compiler"
+    },
+    "s6_open_issues": {
+      "value": 10,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for atomicstrata/llm-wiki-compiler"
+    },
+    "s6_closed_issues": {
+      "value": 36,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for atomicstrata/llm-wiki-compiler"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:36Z",
+      "note": "querybatch for npm:llm-wiki-compiler@1.5.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/atomicstrata/llm-wiki-compiler",
+      "fetched_at": "2026-11-13T22:31:36Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/atomicstrata/llm-wiki-compiler",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 4640,
+      "source": "https://api.npmjs.org/downloads/point/last-week/llm-wiki-compiler",
+      "fetched_at": "2026-11-13T22:31:36Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/llm-wiki-compiler/versions/1.5.0",
+      "fetched_at": "2026-11-13T22:31:35Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for atomicstrata/llm-wiki-compiler"
+    }
+  }
+}

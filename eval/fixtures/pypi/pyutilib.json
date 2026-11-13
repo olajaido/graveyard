@@ -1,0 +1,91 @@
+{
+  "package": "pyutilib",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/pyutilib@6.0.0",
+  "resolved_version": "6.0.0",
+  "latest_version": "6.0.0",
+  "repo": "github.com/pyutilib/pyutilib",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/pyutilib/json",
+      "fetched_at": "2026-11-13T22:31:10Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-06-19",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/pyutilib/versions/6.0.0",
+      "fetched_at": "2026-11-13T22:31:10Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-10-28",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for pyutilib/pyutilib"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpyutilib%2Fpyutilib",
+      "fetched_at": "2026-11-13T22:31:11Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for pyutilib/pyutilib"
+    },
+    "s6_open_issues": {
+      "value": 29,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for pyutilib/pyutilib"
+    },
+    "s6_closed_issues": {
+      "value": 13,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for pyutilib/pyutilib"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:11Z",
+      "note": "querybatch for PyPI:pyutilib@6.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpyutilib%2Fpyutilib",
+      "fetched_at": "2026-11-13T22:31:11Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 4433,
+      "source": "https://pypistats.org/api/packages/pyutilib/recent",
+      "fetched_at": "2026-11-13T22:31:13Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for pyutilib/pyutilib"
+    }
+  }
+}

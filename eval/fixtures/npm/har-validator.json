@@ -1,0 +1,96 @@
+{
+  "package": "har-validator",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/har-validator@5.1.5",
+  "resolved_version": "5.1.5",
+  "latest_version": "5.1.5",
+  "repo": "github.com/ahmadnassri/node-har-validator",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/har-validator/versions/5.1.5",
+      "fetched_at": "2026-11-13T22:10:09Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/har-validator/versions/5.1.5",
+      "fetched_at": "2026-11-13T22:10:09Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/har-validator/versions/5.1.5"
+      ],
+      "note": "resolved 5.1.5: True; latest 5.1.5: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-07-30",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/har-validator/versions/5.1.5",
+      "fetched_at": "2026-11-13T22:10:09Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-05-18",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for ahmadnassri/node-har-validator"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fahmadnassri%2Fnode-har-validator",
+      "fetched_at": "2026-11-13T22:10:10Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for ahmadnassri/node-har-validator"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for ahmadnassri/node-har-validator"
+    },
+    "s6_closed_issues": {
+      "value": 23,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for ahmadnassri/node-har-validator"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:10Z",
+      "note": "querybatch for npm:har-validator@5.1.5; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fahmadnassri%2Fnode-har-validator",
+      "fetched_at": "2026-11-13T22:10:10Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 13534088,
+      "source": "https://api.npmjs.org/downloads/point/last-week/har-validator",
+      "fetched_at": "2026-11-13T22:10:11Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/har-validator/versions/5.1.5",
+      "fetched_at": "2026-11-13T22:10:09Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for ahmadnassri/node-har-validator"
+    }
+  }
+}

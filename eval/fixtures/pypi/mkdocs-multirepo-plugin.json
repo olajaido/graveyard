@@ -1,0 +1,95 @@
+{
+  "package": "mkdocs-multirepo-plugin",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/mkdocs-multirepo-plugin@0.8.3",
+  "resolved_version": "0.8.3",
+  "latest_version": "0.8.3",
+  "repo": "github.com/jdoiro3/mkdocs-multirepo-plugin",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/mkdocs-multirepo-plugin/json",
+      "fetched_at": "2026-11-13T22:31:26Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-08-13",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/mkdocs-multirepo-plugin/versions/0.8.3",
+      "fetched_at": "2026-11-13T22:31:26Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-03-19",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for jdoiro3/mkdocs-multirepo-plugin"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/jdoiro3/mkdocs-multirepo-plugin",
+      "fetched_at": "2026-11-13T22:31:27Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/jdoiro3/mkdocs-multirepo-plugin",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jdoiro3/mkdocs-multirepo-plugin"
+    },
+    "s6_open_issues": {
+      "value": 62,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for jdoiro3/mkdocs-multirepo-plugin"
+    },
+    "s6_closed_issues": {
+      "value": 56,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for jdoiro3/mkdocs-multirepo-plugin"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:27Z",
+      "note": "querybatch for PyPI:mkdocs-multirepo-plugin@0.8.3; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/jdoiro3/mkdocs-multirepo-plugin",
+      "fetched_at": "2026-11-13T22:31:27Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/jdoiro3/mkdocs-multirepo-plugin",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 16387,
+      "source": "https://pypistats.org/api/packages/mkdocs-multirepo-plugin/recent",
+      "fetched_at": "2026-11-13T22:31:29Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for jdoiro3/mkdocs-multirepo-plugin"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "package": "mapdamage",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/mapdamage@2.2.3",
+  "resolved_version": "2.2.3",
+  "latest_version": "2.2.3",
+  "repo": "github.com/ginolhac/mapdamage",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/mapdamage/json",
+      "fetched_at": "2026-11-13T22:31:37Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-07-13",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/mapdamage/versions/2.2.3",
+      "fetched_at": "2026-11-13T22:31:37Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-07-14",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for ginolhac/mapdamage"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/ginolhac/mapdamage",
+      "fetched_at": "2026-11-13T22:31:38Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/ginolhac/mapdamage",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for ginolhac/mapdamage"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for ginolhac/mapdamage"
+    },
+    "s6_closed_issues": {
+      "value": 55,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for ginolhac/mapdamage"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:38Z",
+      "note": "querybatch for PyPI:mapdamage@2.2.3; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/ginolhac/mapdamage",
+      "fetched_at": "2026-11-13T22:31:38Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/ginolhac/mapdamage",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 32,
+      "source": "https://pypistats.org/api/packages/mapdamage/recent",
+      "fetched_at": "2026-11-13T22:31:38Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for ginolhac/mapdamage"
+    }
+  }
+}

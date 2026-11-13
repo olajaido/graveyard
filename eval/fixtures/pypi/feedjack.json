@@ -1,0 +1,91 @@
+{
+  "package": "feedjack",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/feedjack@16.8.1",
+  "resolved_version": "16.8.1",
+  "latest_version": "16.8.1",
+  "repo": "github.com/mk-fg/feedjack",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/feedjack/json",
+      "fetched_at": "2026-11-13T22:30:50Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2016-08-02",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/feedjack/versions/16.8.1",
+      "fetched_at": "2026-11-13T22:30:50Z"
+    },
+    "s3_last_push_at": {
+      "value": "2016-08-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for mk-fg/feedjack"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmk-fg%2Ffeedjack",
+      "fetched_at": "2026-11-13T22:30:51Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for mk-fg/feedjack"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for mk-fg/feedjack"
+    },
+    "s6_closed_issues": {
+      "value": 4,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for mk-fg/feedjack"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:51Z",
+      "note": "querybatch for PyPI:feedjack@16.8.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmk-fg%2Ffeedjack",
+      "fetched_at": "2026-11-13T22:30:51Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 12,
+      "source": "https://pypistats.org/api/packages/feedjack/recent",
+      "fetched_at": "2026-11-13T22:30:52Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for mk-fg/feedjack"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "package": "coffee-script",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/coffee-script@1.12.7",
+  "resolved_version": "1.12.7",
+  "latest_version": "1.12.7",
+  "repo": "github.com/jashkenas/coffeescript",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/coffee-script/versions/1.12.7",
+      "fetched_at": "2026-11-13T22:09:56Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/coffee-script/versions/1.12.7",
+      "fetched_at": "2026-11-13T22:09:56Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/coffee-script/versions/1.12.7"
+      ],
+      "note": "resolved 1.12.7: True; latest 1.12.7: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-07-17",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/coffee-script/versions/1.12.7",
+      "fetched_at": "2026-11-13T22:09:56Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-10-25",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jashkenas/coffeescript"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjashkenas%2Fcoffeescript",
+      "fetched_at": "2026-11-13T22:09:57Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jashkenas/coffeescript"
+    },
+    "s6_open_issues": {
+      "value": 75,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jashkenas/coffeescript"
+    },
+    "s6_closed_issues": {
+      "value": 4097,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jashkenas/coffeescript"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:09:57Z",
+      "note": "querybatch for npm:coffee-script@1.12.7; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjashkenas%2Fcoffeescript",
+      "fetched_at": "2026-11-13T22:09:57Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 851656,
+      "source": "https://api.npmjs.org/downloads/point/last-week/coffee-script",
+      "fetched_at": "2026-11-13T22:09:58Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/coffee-script/versions/1.12.7",
+      "fetched_at": "2026-11-13T22:09:56Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jashkenas/coffeescript"
+    }
+  }
+}

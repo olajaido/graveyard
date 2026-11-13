@@ -1,0 +1,96 @@
+{
+  "package": "path-is-absolute",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/path-is-absolute@2.0.0",
+  "resolved_version": "2.0.0",
+  "latest_version": "2.0.0",
+  "repo": "github.com/sindresorhus/path-is-absolute",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/path-is-absolute/versions/2.0.0",
+      "fetched_at": "2026-11-13T22:30:22Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/path-is-absolute/versions/2.0.0",
+      "fetched_at": "2026-11-13T22:30:22Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/path-is-absolute/versions/2.0.0"
+      ],
+      "note": "resolved 2.0.0: True; latest 2.0.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-11-08",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/path-is-absolute/versions/2.0.0",
+      "fetched_at": "2026-11-13T22:30:22Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-01-24",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for sindresorhus/path-is-absolute"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fsindresorhus%2Fpath-is-absolute",
+      "fetched_at": "2026-11-13T22:30:23Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for sindresorhus/path-is-absolute"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for sindresorhus/path-is-absolute"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for sindresorhus/path-is-absolute"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:23Z",
+      "note": "querybatch for npm:path-is-absolute@2.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fsindresorhus%2Fpath-is-absolute",
+      "fetched_at": "2026-11-13T22:30:23Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 125938643,
+      "source": "https://api.npmjs.org/downloads/point/last-week/path-is-absolute",
+      "fetched_at": "2026-11-13T22:30:23Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/path-is-absolute/versions/2.0.0",
+      "fetched_at": "2026-11-13T22:30:22Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for sindresorhus/path-is-absolute"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "nose2",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/nose2@0.16.0",
+  "resolved_version": "0.16.0",
+  "latest_version": "0.16.0",
+  "repo": "github.com/nose-devs/nose2",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/nose2/json",
+      "fetched_at": "2026-11-13T22:30:15Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-03-02",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/nose2/versions/0.16.0",
+      "fetched_at": "2026-11-13T22:30:15Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-11",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for nose-devs/nose2"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnose-devs%2Fnose2",
+      "fetched_at": "2026-11-13T22:30:17Z"
+    },
+    "s5_committers": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for nose-devs/nose2"
+    },
+    "s6_open_issues": {
+      "value": 44,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for nose-devs/nose2"
+    },
+    "s6_closed_issues": {
+      "value": 230,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for nose-devs/nose2"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:17Z",
+      "note": "querybatch for PyPI:nose2@0.16.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 5.3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnose-devs%2Fnose2",
+      "fetched_at": "2026-11-13T22:30:17Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 155935,
+      "source": "https://pypistats.org/api/packages/nose2/recent",
+      "fetched_at": "2026-11-13T22:30:18Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for nose-devs/nose2"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "requests",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/requests@2.34.2",
+  "resolved_version": "2.34.2",
+  "latest_version": "2.34.2",
+  "repo": "github.com/psf/requests",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/requests/json",
+      "fetched_at": "2026-11-13T22:29:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-05-14",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/requests/versions/2.34.2",
+      "fetched_at": "2026-11-13T22:29:51Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for psf/requests"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpsf%2Frequests",
+      "fetched_at": "2026-11-13T22:29:52Z"
+    },
+    "s5_committers": {
+      "value": 24,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:19Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for psf/requests"
+    },
+    "s6_open_issues": {
+      "value": 163,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for psf/requests"
+    },
+    "s6_closed_issues": {
+      "value": 4028,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for psf/requests"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:53Z",
+      "note": "querybatch for PyPI:requests@2.34.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 8.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpsf%2Frequests",
+      "fetched_at": "2026-11-13T22:29:52Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 341774853,
+      "source": "https://pypistats.org/api/packages/requests/recent",
+      "fetched_at": "2026-11-13T22:29:54Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for psf/requests"
+    }
+  }
+}

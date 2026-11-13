@@ -1,0 +1,96 @@
+{
+  "package": "request-promise",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/request-promise@4.2.6",
+  "resolved_version": "4.2.6",
+  "latest_version": "4.2.6",
+  "repo": "github.com/request/request-promise",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:06:55Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise/versions/4.2.6",
+      "fetched_at": "2026-11-13T22:06:50Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise/versions/4.2.6",
+      "fetched_at": "2026-11-13T22:06:50Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/request-promise/versions/4.2.6"
+      ],
+      "note": "resolved 4.2.6: True; latest 4.2.6: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-07-22",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise/versions/4.2.6",
+      "fetched_at": "2026-11-13T22:06:50Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-01-31",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "pushedAt for request/request-promise"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frequest%2Frequest-promise",
+      "fetched_at": "2026-11-13T22:06:51Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for request/request-promise"
+    },
+    "s6_open_issues": {
+      "value": 59,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "all-time open issues for request/request-promise"
+    },
+    "s6_closed_issues": {
+      "value": 244,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "all-time closed issues for request/request-promise"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:06:52Z",
+      "note": "querybatch for npm:request-promise@4.2.6; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frequest%2Frequest-promise",
+      "fetched_at": "2026-11-13T22:06:51Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1240801,
+      "source": "https://api.npmjs.org/downloads/point/last-week/request-promise",
+      "fetched_at": "2026-11-13T22:06:52Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise/versions/4.2.6",
+      "fetched_at": "2026-11-13T22:06:50Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "isArchived for request/request-promise"
+    }
+  }
+}

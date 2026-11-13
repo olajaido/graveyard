@@ -1,0 +1,96 @@
+{
+  "package": "rx-sandbox",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/rx-sandbox@2.0.5",
+  "resolved_version": "2.0.5",
+  "latest_version": "2.0.5",
+  "repo": "github.com/kwonoj/rx-sandbox",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/rx-sandbox/versions/2.0.5",
+      "fetched_at": "2026-11-13T22:31:13Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/rx-sandbox/versions/2.0.5",
+      "fetched_at": "2026-11-13T22:31:13Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/rx-sandbox/versions/2.0.5"
+      ],
+      "note": "resolved 2.0.5: False; latest 2.0.5: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2023-07-24",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/rx-sandbox/versions/2.0.5",
+      "fetched_at": "2026-11-13T22:31:13Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-10-20",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for kwonoj/rx-sandbox"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkwonoj%2Frx-sandbox",
+      "fetched_at": "2026-11-13T22:31:14Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for kwonoj/rx-sandbox"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for kwonoj/rx-sandbox"
+    },
+    "s6_closed_issues": {
+      "value": 34,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for kwonoj/rx-sandbox"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:14Z",
+      "note": "querybatch for npm:rx-sandbox@2.0.5; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkwonoj%2Frx-sandbox",
+      "fetched_at": "2026-11-13T22:31:14Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 4423,
+      "source": "https://api.npmjs.org/downloads/point/last-week/rx-sandbox",
+      "fetched_at": "2026-11-13T22:31:14Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/rx-sandbox/versions/2.0.5",
+      "fetched_at": "2026-11-13T22:31:13Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for kwonoj/rx-sandbox"
+    }
+  }
+}

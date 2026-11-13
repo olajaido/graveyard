@@ -1,0 +1,96 @@
+{
+  "package": "karma",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/karma@6.4.4",
+  "resolved_version": "6.4.4",
+  "latest_version": "6.4.4",
+  "repo": "github.com/karma-runner/karma",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/karma/versions/6.4.4",
+      "fetched_at": "2026-11-13T22:09:54Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/karma/versions/6.4.4",
+      "fetched_at": "2026-11-13T22:09:54Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/karma/versions/6.4.4"
+      ],
+      "note": "resolved 6.4.4: False; latest 6.4.4: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-07-29",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/karma/versions/6.4.4",
+      "fetched_at": "2026-11-13T22:09:54Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-06-10",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for karma-runner/karma"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkarma-runner%2Fkarma",
+      "fetched_at": "2026-11-13T22:09:55Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for karma-runner/karma"
+    },
+    "s6_open_issues": {
+      "value": 351,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for karma-runner/karma"
+    },
+    "s6_closed_issues": {
+      "value": 1714,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for karma-runner/karma"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:09:55Z",
+      "note": "querybatch for npm:karma@6.4.4; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkarma-runner%2Fkarma",
+      "fetched_at": "2026-11-13T22:09:55Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 3642501,
+      "source": "https://api.npmjs.org/downloads/point/last-week/karma",
+      "fetched_at": "2026-11-13T22:09:56Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/karma/versions/6.4.4",
+      "fetched_at": "2026-11-13T22:09:54Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for karma-runner/karma"
+    }
+  }
+}

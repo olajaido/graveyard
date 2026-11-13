@@ -1,0 +1,96 @@
+{
+  "package": "lighthouse",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/lighthouse@13.6.0",
+  "resolved_version": "13.6.0",
+  "latest_version": "13.6.0",
+  "repo": "github.com/googlechrome/lighthouse",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/lighthouse/versions/13.6.0",
+      "fetched_at": "2026-11-13T22:12:46Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/lighthouse/versions/13.6.0",
+      "fetched_at": "2026-11-13T22:12:46Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/lighthouse/versions/13.6.0"
+      ],
+      "note": "resolved 13.6.0: False; latest 13.6.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-27",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/lighthouse/versions/13.6.0",
+      "fetched_at": "2026-11-13T22:12:46Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for googlechrome/lighthouse"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgooglechrome%2Flighthouse",
+      "fetched_at": "2026-11-13T22:12:47Z"
+    },
+    "s5_committers": {
+      "value": 32,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:58Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for googlechrome/lighthouse"
+    },
+    "s6_open_issues": {
+      "value": 390,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for googlechrome/lighthouse"
+    },
+    "s6_closed_issues": {
+      "value": 8965,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for googlechrome/lighthouse"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:12:47Z",
+      "note": "querybatch for npm:lighthouse@13.6.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 5.8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgooglechrome%2Flighthouse",
+      "fetched_at": "2026-11-13T22:12:47Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 7312877,
+      "source": "https://api.npmjs.org/downloads/point/last-week/lighthouse",
+      "fetched_at": "2026-11-13T22:12:48Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/lighthouse/versions/13.6.0",
+      "fetched_at": "2026-11-13T22:12:46Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for googlechrome/lighthouse"
+    }
+  }
+}

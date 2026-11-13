@@ -1,0 +1,96 @@
+{
+  "package": "uglify-es",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/uglify-es@3.3.9",
+  "resolved_version": "3.3.9",
+  "latest_version": "3.3.9",
+  "repo": "github.com/mishoo/uglifyjs2",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uglify-es/versions/3.3.9",
+      "fetched_at": "2026-11-13T22:29:31Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uglify-es/versions/3.3.9",
+      "fetched_at": "2026-11-13T22:29:31Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/uglify-es/versions/3.3.9"
+      ],
+      "note": "resolved 3.3.9: True; latest 3.3.9: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-01-27",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uglify-es/versions/3.3.9",
+      "fetched_at": "2026-11-13T22:29:31Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-11-22",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for mishoo/uglifyjs2"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmishoo%2Fuglifyjs2",
+      "fetched_at": "2026-11-13T22:29:32Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for mishoo/uglifyjs2"
+    },
+    "s6_open_issues": {
+      "value": 33,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for mishoo/uglifyjs2"
+    },
+    "s6_closed_issues": {
+      "value": 2894,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for mishoo/uglifyjs2"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:32Z",
+      "note": "querybatch for npm:uglify-es@3.3.9; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmishoo%2Fuglifyjs2",
+      "fetched_at": "2026-11-13T22:29:32Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 741942,
+      "source": "https://api.npmjs.org/downloads/point/last-week/uglify-es",
+      "fetched_at": "2026-11-13T22:29:32Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/uglify-es/versions/3.3.9",
+      "fetched_at": "2026-11-13T22:29:31Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for mishoo/uglifyjs2"
+    }
+  }
+}

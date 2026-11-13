@@ -1,0 +1,91 @@
+{
+  "package": "torf",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/torf@4.3.1",
+  "resolved_version": "4.3.1",
+  "latest_version": "4.3.1",
+  "repo": "github.com/rndusr/torf",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/torf/json",
+      "fetched_at": "2026-11-13T22:30:33Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-01-13",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/torf/versions/4.3.1",
+      "fetched_at": "2026-11-13T22:30:33Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-07-04",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for rndusr/torf"
+    },
+    "s4_maintained": {
+      "value": 1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frndusr%2Ftorf",
+      "fetched_at": "2026-11-13T22:30:34Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for rndusr/torf"
+    },
+    "s6_open_issues": {
+      "value": 5,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for rndusr/torf"
+    },
+    "s6_closed_issues": {
+      "value": 42,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for rndusr/torf"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:34Z",
+      "note": "querybatch for PyPI:torf@4.3.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frndusr%2Ftorf",
+      "fetched_at": "2026-11-13T22:30:34Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 4843,
+      "source": "https://pypistats.org/api/packages/torf/recent",
+      "fetched_at": "2026-11-13T22:30:36Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for rndusr/torf"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "package": "sklearn",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/sklearn@0.0.post12",
+  "resolved_version": "0.0.post12",
+  "latest_version": "0.0.post12",
+  "repo": null,
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:06:55Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/sklearn/json",
+      "fetched_at": "2026-11-13T22:06:52Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2023-12-01",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/sklearn/versions/0.0.post12",
+      "fetched_at": "2026-11-13T22:06:52Z"
+    },
+    "s3_last_push_at": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:52Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s5_committers": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_open_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_closed_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:06:53Z",
+      "note": "querybatch for PyPI:sklearn@0.0.post12; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:52Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s9_weekly_downloads": {
+      "value": 367129,
+      "source": "https://pypistats.org/api/packages/sklearn/recent",
+      "fetched_at": "2026-11-13T22:06:54Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:06:55Z",
+      "note": "no GitHub repo resolved"
+    }
+  }
+}

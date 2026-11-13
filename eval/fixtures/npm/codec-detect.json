@@ -1,0 +1,96 @@
+{
+  "package": "codec-detect",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/codec-detect@1.3.0",
+  "resolved_version": "1.3.0",
+  "latest_version": "1.3.0",
+  "repo": "github.com/jansensan/codec-detect",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/codec-detect/versions/1.3.0",
+      "fetched_at": "2026-11-13T22:13:50Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/codec-detect/versions/1.3.0",
+      "fetched_at": "2026-11-13T22:13:50Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/codec-detect/versions/1.3.0"
+      ],
+      "note": "resolved 1.3.0: True; latest 1.3.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-01-26",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/codec-detect/versions/1.3.0",
+      "fetched_at": "2026-11-13T22:13:50Z"
+    },
+    "s3_last_push_at": {
+      "value": "2016-10-09",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jansensan/codec-detect"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjansensan%2Fcodec-detect",
+      "fetched_at": "2026-11-13T22:13:51Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jansensan/codec-detect"
+    },
+    "s6_open_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jansensan/codec-detect"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jansensan/codec-detect"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:52Z",
+      "note": "querybatch for npm:codec-detect@1.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjansensan%2Fcodec-detect",
+      "fetched_at": "2026-11-13T22:13:51Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2,
+      "source": "https://api.npmjs.org/downloads/point/last-week/codec-detect",
+      "fetched_at": "2026-11-13T22:13:52Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/codec-detect/versions/1.3.0",
+      "fetched_at": "2026-11-13T22:13:50Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jansensan/codec-detect"
+    }
+  }
+}

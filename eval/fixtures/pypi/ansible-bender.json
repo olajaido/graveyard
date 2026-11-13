@@ -1,0 +1,91 @@
+{
+  "package": "ansible-bender",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/ansible-bender@0.10.1",
+  "resolved_version": "0.10.1",
+  "latest_version": "0.10.1",
+  "repo": "github.com/ansible-community/ansible-bender",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/ansible-bender/json",
+      "fetched_at": "2026-11-13T22:11:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2023-02-06",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/ansible-bender/versions/0.10.1",
+      "fetched_at": "2026-11-13T22:11:51Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-01-07",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for ansible-community/ansible-bender"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fansible-community%2Fansible-bender",
+      "fetched_at": "2026-11-13T22:11:52Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for ansible-community/ansible-bender"
+    },
+    "s6_open_issues": {
+      "value": 40,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for ansible-community/ansible-bender"
+    },
+    "s6_closed_issues": {
+      "value": 111,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for ansible-community/ansible-bender"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:11:53Z",
+      "note": "querybatch for PyPI:ansible-bender@0.10.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fansible-community%2Fansible-bender",
+      "fetched_at": "2026-11-13T22:11:52Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1200,
+      "source": "https://pypistats.org/api/packages/ansible-bender/recent",
+      "fetched_at": "2026-11-13T22:11:54Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for ansible-community/ansible-bender"
+    }
+  }
+}

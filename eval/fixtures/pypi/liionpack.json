@@ -1,0 +1,91 @@
+{
+  "package": "liionpack",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/liionpack@0.4.0",
+  "resolved_version": "0.4.0",
+  "latest_version": "0.4.0",
+  "repo": "github.com/pybamm-team/liionpack",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/liionpack/json",
+      "fetched_at": "2026-11-13T22:30:28Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-01-20",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/liionpack/versions/0.4.0",
+      "fetched_at": "2026-11-13T22:30:28Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-09",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for pybamm-team/liionpack"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpybamm-team%2Fliionpack",
+      "fetched_at": "2026-11-13T22:30:29Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for pybamm-team/liionpack"
+    },
+    "s6_open_issues": {
+      "value": 24,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for pybamm-team/liionpack"
+    },
+    "s6_closed_issues": {
+      "value": 111,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for pybamm-team/liionpack"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:29Z",
+      "note": "querybatch for PyPI:liionpack@0.4.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpybamm-team%2Fliionpack",
+      "fetched_at": "2026-11-13T22:30:29Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 83,
+      "source": "https://pypistats.org/api/packages/liionpack/recent",
+      "fetched_at": "2026-11-13T22:30:30Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for pybamm-team/liionpack"
+    }
+  }
+}

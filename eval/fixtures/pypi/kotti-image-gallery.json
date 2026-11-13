@@ -1,0 +1,95 @@
+{
+  "package": "kotti-image-gallery",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/kotti-image-gallery@0.3.2",
+  "resolved_version": "0.3.2",
+  "latest_version": "0.3.2",
+  "repo": "github.com/disko/kotti_image_gallery",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/kotti-image-gallery/json",
+      "fetched_at": "2026-11-13T22:31:24Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2012-05-04",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/kotti-image-gallery/versions/0.3.2",
+      "fetched_at": "2026-11-13T22:31:24Z"
+    },
+    "s3_last_push_at": {
+      "value": "2012-06-20",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for disko/kotti_image_gallery"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/disko/kotti_image_gallery",
+      "fetched_at": "2026-11-13T22:31:25Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/disko/kotti_image_gallery",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for disko/kotti_image_gallery"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for disko/kotti_image_gallery"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for disko/kotti_image_gallery"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:25Z",
+      "note": "querybatch for PyPI:kotti-image-gallery@0.3.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/disko/kotti_image_gallery",
+      "fetched_at": "2026-11-13T22:31:25Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/disko/kotti_image_gallery",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 1,
+      "source": "https://pypistats.org/api/packages/kotti-image-gallery/recent",
+      "fetched_at": "2026-11-13T22:31:26Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for disko/kotti_image_gallery"
+    }
+  }
+}

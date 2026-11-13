@@ -1,0 +1,96 @@
+{
+  "package": "pdfjs",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/pdfjs@2.5.4",
+  "resolved_version": "2.5.4",
+  "latest_version": "2.5.4",
+  "repo": "github.com/rkusa/pdfjs",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/pdfjs/versions/2.5.4",
+      "fetched_at": "2026-11-13T22:31:52Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/pdfjs/versions/2.5.4",
+      "fetched_at": "2026-11-13T22:31:52Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/pdfjs/versions/2.5.4"
+      ],
+      "note": "resolved 2.5.4: False; latest 2.5.4: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-07-01",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/pdfjs/versions/2.5.4",
+      "fetched_at": "2026-11-13T22:31:52Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-07-01",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for rkusa/pdfjs"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frkusa%2Fpdfjs",
+      "fetched_at": "2026-11-13T22:31:53Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for rkusa/pdfjs"
+    },
+    "s6_open_issues": {
+      "value": 69,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for rkusa/pdfjs"
+    },
+    "s6_closed_issues": {
+      "value": 160,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for rkusa/pdfjs"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:53Z",
+      "note": "querybatch for npm:pdfjs@2.5.4; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frkusa%2Fpdfjs",
+      "fetched_at": "2026-11-13T22:31:53Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 138640,
+      "source": "https://api.npmjs.org/downloads/point/last-week/pdfjs",
+      "fetched_at": "2026-11-13T22:31:53Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/pdfjs/versions/2.5.4",
+      "fetched_at": "2026-11-13T22:31:52Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for rkusa/pdfjs"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "package": "prettier",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/prettier@3.10.1",
+  "resolved_version": "3.10.1",
+  "latest_version": "3.10.1",
+  "repo": "github.com/prettier/prettier",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/prettier/versions/3.10.1",
+      "fetched_at": "2026-11-13T22:29:39Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/prettier/versions/3.10.1",
+      "fetched_at": "2026-11-13T22:29:39Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/prettier/versions/3.10.1"
+      ],
+      "note": "resolved 3.10.1: False; latest 3.10.1: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-12",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/prettier/versions/3.10.1",
+      "fetched_at": "2026-11-13T22:29:39Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for prettier/prettier"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fprettier%2Fprettier",
+      "fetched_at": "2026-11-13T22:29:40Z"
+    },
+    "s5_committers": {
+      "value": 83,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:18Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for prettier/prettier; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 1144,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for prettier/prettier"
+    },
+    "s6_closed_issues": {
+      "value": 6257,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for prettier/prettier"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:40Z",
+      "note": "querybatch for npm:prettier@3.10.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 6.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fprettier%2Fprettier",
+      "fetched_at": "2026-11-13T22:29:40Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 181019260,
+      "source": "https://api.npmjs.org/downloads/point/last-week/prettier",
+      "fetched_at": "2026-11-13T22:29:40Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/prettier/versions/3.10.1",
+      "fetched_at": "2026-11-13T22:29:39Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for prettier/prettier"
+    }
+  }
+}

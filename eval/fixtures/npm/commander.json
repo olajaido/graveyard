@@ -1,0 +1,96 @@
+{
+  "package": "commander",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/commander@15.1.0",
+  "resolved_version": "15.1.0",
+  "latest_version": "15.1.0",
+  "repo": "github.com/tj/commander.js",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/commander/versions/15.1.0",
+      "fetched_at": "2026-11-13T22:10:31Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/commander/versions/15.1.0",
+      "fetched_at": "2026-11-13T22:10:31Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/commander/versions/15.1.0"
+      ],
+      "note": "resolved 15.1.0: False; latest 15.1.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-07",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/commander/versions/15.1.0",
+      "fetched_at": "2026-11-13T22:10:31Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-07",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for tj/commander.js"
+    },
+    "s4_maintained": {
+      "value": 9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftj%2Fcommander.js",
+      "fetched_at": "2026-11-13T22:10:32Z"
+    },
+    "s5_committers": {
+      "value": 15,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for tj/commander.js"
+    },
+    "s6_open_issues": {
+      "value": 7,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for tj/commander.js"
+    },
+    "s6_closed_issues": {
+      "value": 1165,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for tj/commander.js"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:33Z",
+      "note": "querybatch for npm:commander@15.1.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 7.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftj%2Fcommander.js",
+      "fetched_at": "2026-11-13T22:10:32Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 729688290,
+      "source": "https://api.npmjs.org/downloads/point/last-week/commander",
+      "fetched_at": "2026-11-13T22:10:33Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/commander/versions/15.1.0",
+      "fetched_at": "2026-11-13T22:10:31Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for tj/commander.js"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "package": "custom-protocol-detection",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/custom-protocol-detection@1.0.1",
+  "resolved_version": "1.0.1",
+  "latest_version": "1.0.1",
+  "repo": "github.com/ismailhabib/custom-protocol-detection",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/custom-protocol-detection/versions/1.0.1",
+      "fetched_at": "2026-11-13T22:11:57Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/custom-protocol-detection/versions/1.0.1",
+      "fetched_at": "2026-11-13T22:11:57Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/custom-protocol-detection/versions/1.0.1"
+      ],
+      "note": "resolved 1.0.1: False; latest 1.0.1: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-05-07",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/custom-protocol-detection/versions/1.0.1",
+      "fetched_at": "2026-11-13T22:11:57Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-05-30",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for ismailhabib/custom-protocol-detection"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fismailhabib%2Fcustom-protocol-detection",
+      "fetched_at": "2026-11-13T22:11:58Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for ismailhabib/custom-protocol-detection"
+    },
+    "s6_open_issues": {
+      "value": 22,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for ismailhabib/custom-protocol-detection"
+    },
+    "s6_closed_issues": {
+      "value": 13,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for ismailhabib/custom-protocol-detection"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:11:58Z",
+      "note": "querybatch for npm:custom-protocol-detection@1.0.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fismailhabib%2Fcustom-protocol-detection",
+      "fetched_at": "2026-11-13T22:11:58Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 20132,
+      "source": "https://api.npmjs.org/downloads/point/last-week/custom-protocol-detection",
+      "fetched_at": "2026-11-13T22:11:59Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/custom-protocol-detection/versions/1.0.1",
+      "fetched_at": "2026-11-13T22:11:57Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for ismailhabib/custom-protocol-detection"
+    }
+  }
+}

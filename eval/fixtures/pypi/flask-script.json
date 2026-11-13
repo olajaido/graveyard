@@ -1,0 +1,91 @@
+{
+  "package": "flask-script",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/flask-script@2.0.6",
+  "resolved_version": "2.0.6",
+  "latest_version": "2.0.6",
+  "repo": "github.com/smurfix/flask-script",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/flask-script/json",
+      "fetched_at": "2026-11-13T22:29:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-09-06",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/flask-script/versions/2.0.6",
+      "fetched_at": "2026-11-13T22:29:44Z"
+    },
+    "s3_last_push_at": {
+      "value": "2020-03-09",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for smurfix/flask-script"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fsmurfix%2Fflask-script",
+      "fetched_at": "2026-11-13T22:29:45Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for smurfix/flask-script"
+    },
+    "s6_open_issues": {
+      "value": 27,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for smurfix/flask-script"
+    },
+    "s6_closed_issues": {
+      "value": 84,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for smurfix/flask-script"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:45Z",
+      "note": "querybatch for PyPI:flask-script@2.0.6; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fsmurfix%2Fflask-script",
+      "fetched_at": "2026-11-13T22:29:45Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 75886,
+      "source": "https://pypistats.org/api/packages/flask-script/recent",
+      "fetched_at": "2026-11-13T22:29:45Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for smurfix/flask-script"
+    }
+  }
+}

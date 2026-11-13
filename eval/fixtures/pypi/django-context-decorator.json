@@ -1,0 +1,91 @@
+{
+  "package": "django-context-decorator",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/django-context-decorator@1.6.1",
+  "resolved_version": "1.6.1",
+  "latest_version": "1.6.1",
+  "repo": "github.com/rixx/django-context-decorator",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/django-context-decorator/json",
+      "fetched_at": "2026-11-13T22:31:32Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-03-07",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/django-context-decorator/versions/1.6.1",
+      "fetched_at": "2026-11-13T22:31:32Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-03-07",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for rixx/django-context-decorator"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frixx%2Fdjango-context-decorator",
+      "fetched_at": "2026-11-13T22:31:33Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for rixx/django-context-decorator"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for rixx/django-context-decorator"
+    },
+    "s6_closed_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for rixx/django-context-decorator"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:33Z",
+      "note": "querybatch for PyPI:django-context-decorator@1.6.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 1.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frixx%2Fdjango-context-decorator",
+      "fetched_at": "2026-11-13T22:31:33Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 9495,
+      "source": "https://pypistats.org/api/packages/django-context-decorator/recent",
+      "fetched_at": "2026-11-13T22:31:35Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for rixx/django-context-decorator"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "package": "jdxi-editor",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/jdxi-editor@0.9.9",
+  "resolved_version": "0.9.9",
+  "latest_version": "0.9.9",
+  "repo": "github.com/markxbrooks/jdxi-editor",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/jdxi-editor/json",
+      "fetched_at": "2026-11-13T22:30:52Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-07",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/jdxi-editor/versions/0.9.9",
+      "fetched_at": "2026-11-13T22:30:52Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-10",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for markxbrooks/jdxi-editor"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/markxbrooks/jdxi-editor",
+      "fetched_at": "2026-11-13T22:30:53Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/markxbrooks/jdxi-editor",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:40Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for markxbrooks/jdxi-editor; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for markxbrooks/jdxi-editor"
+    },
+    "s6_closed_issues": {
+      "value": 8,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for markxbrooks/jdxi-editor"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:54Z",
+      "note": "querybatch for PyPI:jdxi-editor@0.9.9; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/markxbrooks/jdxi-editor",
+      "fetched_at": "2026-11-13T22:30:53Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/markxbrooks/jdxi-editor",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 111,
+      "source": "https://pypistats.org/api/packages/jdxi-editor/recent",
+      "fetched_at": "2026-11-13T22:30:55Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for markxbrooks/jdxi-editor"
+    }
+  }
+}

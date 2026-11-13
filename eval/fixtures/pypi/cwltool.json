@@ -1,0 +1,91 @@
+{
+  "package": "cwltool",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/cwltool@3.3.20261106131234",
+  "resolved_version": "3.3.20261106131234",
+  "latest_version": "3.3.20261106131234",
+  "repo": "github.com/common-workflow-language/cwltool",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/cwltool/json",
+      "fetched_at": "2026-11-13T22:13:13Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-06",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/cwltool/versions/3.3.20261106131234",
+      "fetched_at": "2026-11-13T22:13:13Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-12",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for common-workflow-language/cwltool"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fcommon-workflow-language%2Fcwltool",
+      "fetched_at": "2026-11-13T22:13:14Z"
+    },
+    "s5_committers": {
+      "value": 19,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:35Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for common-workflow-language/cwltool"
+    },
+    "s6_open_issues": {
+      "value": 450,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for common-workflow-language/cwltool"
+    },
+    "s6_closed_issues": {
+      "value": 400,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for common-workflow-language/cwltool"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:14Z",
+      "note": "querybatch for PyPI:cwltool@3.3.20261106131234; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fcommon-workflow-language%2Fcwltool",
+      "fetched_at": "2026-11-13T22:13:14Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 38461,
+      "source": "https://pypistats.org/api/packages/cwltool/recent",
+      "fetched_at": "2026-11-13T22:13:16Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for common-workflow-language/cwltool"
+    }
+  }
+}

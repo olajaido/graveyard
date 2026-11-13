@@ -1,0 +1,96 @@
+{
+  "package": "protractor",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/protractor@7.0.0",
+  "resolved_version": "7.0.0",
+  "latest_version": "7.0.0",
+  "repo": "github.com/angular/protractor",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/protractor/versions/7.0.0",
+      "fetched_at": "2026-11-13T22:09:52Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/protractor/versions/7.0.0",
+      "fetched_at": "2026-11-13T22:09:52Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/protractor/versions/7.0.0"
+      ],
+      "note": "resolved 7.0.0: True; latest 7.0.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-05-13",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/protractor/versions/7.0.0",
+      "fetched_at": "2026-11-13T22:09:52Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-05-24",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for angular/protractor"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fangular%2Fprotractor",
+      "fetched_at": "2026-11-13T22:09:53Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for angular/protractor"
+    },
+    "s6_open_issues": {
+      "value": 620,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for angular/protractor"
+    },
+    "s6_closed_issues": {
+      "value": 3426,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for angular/protractor"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:09:53Z",
+      "note": "querybatch for npm:protractor@7.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fangular%2Fprotractor",
+      "fetched_at": "2026-11-13T22:09:53Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 597492,
+      "source": "https://api.npmjs.org/downloads/point/last-week/protractor",
+      "fetched_at": "2026-11-13T22:09:54Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/protractor/versions/7.0.0",
+      "fetched_at": "2026-11-13T22:09:52Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for angular/protractor"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "s2geometry",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/s2geometry@0.14.0",
+  "resolved_version": "0.14.0",
+  "latest_version": "0.14.0",
+  "repo": "github.com/google/s2geometry",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/s2geometry/json",
+      "fetched_at": "2026-11-13T22:14:18Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-04-23",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/s2geometry/versions/0.14.0",
+      "fetched_at": "2026-11-13T22:14:18Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-10-27",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for google/s2geometry"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgoogle%2Fs2geometry",
+      "fetched_at": "2026-11-13T22:14:19Z"
+    },
+    "s5_committers": {
+      "value": 10,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:55Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for google/s2geometry"
+    },
+    "s6_open_issues": {
+      "value": 64,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for google/s2geometry"
+    },
+    "s6_closed_issues": {
+      "value": 220,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for google/s2geometry"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:14:20Z",
+      "note": "querybatch for PyPI:s2geometry@0.14.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgoogle%2Fs2geometry",
+      "fetched_at": "2026-11-13T22:14:19Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2993,
+      "source": "https://pypistats.org/api/packages/s2geometry/recent",
+      "fetched_at": "2026-11-13T22:14:20Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for google/s2geometry"
+    }
+  }
+}

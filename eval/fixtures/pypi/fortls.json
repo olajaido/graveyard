@@ -1,0 +1,95 @@
+{
+  "package": "fortls",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/fortls@3.2.2",
+  "resolved_version": "3.2.2",
+  "latest_version": "3.2.2",
+  "repo": "github.com/fortran-lang/fortls",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/fortls/json",
+      "fetched_at": "2026-11-13T22:31:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-03-16",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/fortls/versions/3.2.2",
+      "fetched_at": "2026-11-13T22:31:44Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for fortran-lang/fortls"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/fortran-lang/fortls",
+      "fetched_at": "2026-11-13T22:31:45Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/fortran-lang/fortls",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 10,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for fortran-lang/fortls"
+    },
+    "s6_open_issues": {
+      "value": 55,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for fortran-lang/fortls"
+    },
+    "s6_closed_issues": {
+      "value": 139,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for fortran-lang/fortls"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:45Z",
+      "note": "querybatch for PyPI:fortls@3.2.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/fortran-lang/fortls",
+      "fetched_at": "2026-11-13T22:31:45Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/fortran-lang/fortls",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 5255,
+      "source": "https://pypistats.org/api/packages/fortls/recent",
+      "fetched_at": "2026-11-13T22:31:45Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for fortran-lang/fortls"
+    }
+  }
+}

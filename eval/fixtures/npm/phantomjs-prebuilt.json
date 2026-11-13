@@ -1,0 +1,96 @@
+{
+  "package": "phantomjs-prebuilt",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/phantomjs-prebuilt@2.1.16",
+  "resolved_version": "2.1.16",
+  "latest_version": "2.1.16",
+  "repo": "github.com/medium/phantomjs",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/phantomjs-prebuilt/versions/2.1.16",
+      "fetched_at": "2026-11-13T22:29:29Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/phantomjs-prebuilt/versions/2.1.16",
+      "fetched_at": "2026-11-13T22:29:29Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/phantomjs-prebuilt/versions/2.1.16"
+      ],
+      "note": "resolved 2.1.16: True; latest 2.1.16: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-11-02",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/phantomjs-prebuilt/versions/2.1.16",
+      "fetched_at": "2026-11-13T22:29:29Z"
+    },
+    "s3_last_push_at": {
+      "value": "2019-07-23",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for medium/phantomjs"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmedium%2Fphantomjs",
+      "fetched_at": "2026-11-13T22:29:30Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for medium/phantomjs"
+    },
+    "s6_open_issues": {
+      "value": 161,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for medium/phantomjs"
+    },
+    "s6_closed_issues": {
+      "value": 457,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for medium/phantomjs"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:30Z",
+      "note": "querybatch for npm:phantomjs-prebuilt@2.1.16; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fmedium%2Fphantomjs",
+      "fetched_at": "2026-11-13T22:29:30Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 362365,
+      "source": "https://api.npmjs.org/downloads/point/last-week/phantomjs-prebuilt",
+      "fetched_at": "2026-11-13T22:29:30Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/phantomjs-prebuilt/versions/2.1.16",
+      "fetched_at": "2026-11-13T22:29:29Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for medium/phantomjs"
+    }
+  }
+}

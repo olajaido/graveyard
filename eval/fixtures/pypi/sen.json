@@ -1,0 +1,91 @@
+{
+  "package": "sen",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/sen@0.8.1",
+  "resolved_version": "0.8.1",
+  "latest_version": "0.8.1",
+  "repo": "github.com/tomastomecek/sen",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/sen/json",
+      "fetched_at": "2026-11-13T22:12:24Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-08-11",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/sen/versions/0.8.1",
+      "fetched_at": "2026-11-13T22:12:24Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-09",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for tomastomecek/sen"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftomastomecek%2Fsen",
+      "fetched_at": "2026-11-13T22:12:25Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for tomastomecek/sen"
+    },
+    "s6_open_issues": {
+      "value": 34,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for tomastomecek/sen"
+    },
+    "s6_closed_issues": {
+      "value": 93,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for tomastomecek/sen"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:12:26Z",
+      "note": "querybatch for PyPI:sen@0.8.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Ftomastomecek%2Fsen",
+      "fetched_at": "2026-11-13T22:12:25Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 299,
+      "source": "https://pypistats.org/api/packages/sen/recent",
+      "fetched_at": "2026-11-13T22:12:27Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for tomastomecek/sen"
+    }
+  }
+}

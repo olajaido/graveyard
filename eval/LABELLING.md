@@ -110,6 +110,7 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-13 | pypi,django-context-decorator | finished-healthy → kept, checked by hand | quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier) |
 | 2026-11-13 | pypi,robotframework-angularjs | finished-healthy → kept, checked by hand | quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier) |
 | 2026-11-13 | npm,prettier | alive → kept, checked by hand | verified by maintainer in a browser: blog post dated November 11, 2026 announcing Prettier 3.10; the quote spans two page elements |
+| 2026-11-13 | (capture) | n/a | Full capture, as_of 2026-11-13. GitHub GraphQL batches returned HTTP 502, leaving 64 packages with GitHub or Scorecard signals unavailable. The capture script was changed to split failing batches, and those 64 were re-captured the same evening with --refetch-unavailable, before any result was seen (T13.3). After re-capture every GitHub signal is present. 24 packages keep s4_maintained and s8_overall unavailable: OpenSSF Scorecard returns 404 for their repos (never scanned, or the repo moved: react/react, fastapi/fastapi). A 404 is not transient, so these were not re-run. |
 
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)

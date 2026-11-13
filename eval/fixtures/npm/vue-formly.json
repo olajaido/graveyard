@@ -1,0 +1,96 @@
+{
+  "package": "vue-formly",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/vue-formly@2.5.9",
+  "resolved_version": "2.5.9",
+  "latest_version": "2.5.9",
+  "repo": "github.com/formly-js/vue-formly",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-formly/versions/2.5.9",
+      "fetched_at": "2026-11-13T22:12:10Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-formly/versions/2.5.9",
+      "fetched_at": "2026-11-13T22:12:10Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/vue-formly/versions/2.5.9"
+      ],
+      "note": "resolved 2.5.9: False; latest 2.5.9: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-08-02",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-formly/versions/2.5.9",
+      "fetched_at": "2026-11-13T22:12:10Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-01-12",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for formly-js/vue-formly"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fformly-js%2Fvue-formly",
+      "fetched_at": "2026-11-13T22:12:11Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for formly-js/vue-formly"
+    },
+    "s6_open_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for formly-js/vue-formly"
+    },
+    "s6_closed_issues": {
+      "value": 26,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for formly-js/vue-formly"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:12:11Z",
+      "note": "querybatch for npm:vue-formly@2.5.9; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fformly-js%2Fvue-formly",
+      "fetched_at": "2026-11-13T22:12:11Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 139,
+      "source": "https://api.npmjs.org/downloads/point/last-week/vue-formly",
+      "fetched_at": "2026-11-13T22:12:11Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-formly/versions/2.5.9",
+      "fetched_at": "2026-11-13T22:12:10Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for formly-js/vue-formly"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "opentaxii",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/opentaxii@0.9.3",
+  "resolved_version": "0.9.3",
+  "latest_version": "0.9.3",
+  "repo": "github.com/eclecticiq/opentaxii",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/opentaxii/json",
+      "fetched_at": "2026-11-13T22:13:47Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2022-10-11",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/opentaxii/versions/0.9.3",
+      "fetched_at": "2026-11-13T22:13:47Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-03-12",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for eclecticiq/opentaxii"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Feclecticiq%2Fopentaxii",
+      "fetched_at": "2026-11-13T22:13:48Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:45Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for eclecticiq/opentaxii"
+    },
+    "s6_open_issues": {
+      "value": 8,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for eclecticiq/opentaxii"
+    },
+    "s6_closed_issues": {
+      "value": 138,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for eclecticiq/opentaxii"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:49Z",
+      "note": "querybatch for PyPI:opentaxii@0.9.3; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Feclecticiq%2Fopentaxii",
+      "fetched_at": "2026-11-13T22:13:48Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 160,
+      "source": "https://pypistats.org/api/packages/opentaxii/recent",
+      "fetched_at": "2026-11-13T22:13:50Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for eclecticiq/opentaxii"
+    }
+  }
+}

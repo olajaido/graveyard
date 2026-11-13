@@ -1,0 +1,91 @@
+{
+  "package": "numpy",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/numpy@2.5.4",
+  "resolved_version": "2.5.4",
+  "latest_version": "2.5.4",
+  "repo": "github.com/numpy/numpy",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/numpy/json",
+      "fetched_at": "2026-11-13T22:29:58Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-10",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/numpy/versions/2.5.4",
+      "fetched_at": "2026-11-13T22:29:58Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for numpy/numpy"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnumpy%2Fnumpy",
+      "fetched_at": "2026-11-13T22:29:59Z"
+    },
+    "s5_committers": {
+      "value": 123,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:00Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for numpy/numpy; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 1921,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for numpy/numpy"
+    },
+    "s6_closed_issues": {
+      "value": 12265,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for numpy/numpy"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:59Z",
+      "note": "querybatch for PyPI:numpy@2.5.4; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 7.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnumpy%2Fnumpy",
+      "fetched_at": "2026-11-13T22:29:59Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 270336645,
+      "source": "https://pypistats.org/api/packages/numpy/recent",
+      "fetched_at": "2026-11-13T22:30:00Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for numpy/numpy"
+    }
+  }
+}

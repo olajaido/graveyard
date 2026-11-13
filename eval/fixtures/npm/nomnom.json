@@ -1,0 +1,96 @@
+{
+  "package": "nomnom",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/nomnom@1.8.1",
+  "resolved_version": "1.8.1",
+  "latest_version": "1.8.1",
+  "repo": "github.com/harthur/nomnom",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nomnom/versions/1.8.1",
+      "fetched_at": "2026-11-13T22:10:05Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nomnom/versions/1.8.1",
+      "fetched_at": "2026-11-13T22:10:05Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/nomnom/versions/1.8.1"
+      ],
+      "note": "resolved 1.8.1: True; latest 1.8.1: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2014-11-07",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nomnom/versions/1.8.1",
+      "fetched_at": "2026-11-13T22:10:05Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-09-01",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for harthur/nomnom"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fharthur%2Fnomnom",
+      "fetched_at": "2026-11-13T22:10:06Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for harthur/nomnom"
+    },
+    "s6_open_issues": {
+      "value": 36,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for harthur/nomnom"
+    },
+    "s6_closed_issues": {
+      "value": 8,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for harthur/nomnom"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:06Z",
+      "note": "querybatch for npm:nomnom@1.8.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fharthur%2Fnomnom",
+      "fetched_at": "2026-11-13T22:10:06Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 618960,
+      "source": "https://api.npmjs.org/downloads/point/last-week/nomnom",
+      "fetched_at": "2026-11-13T22:10:07Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nomnom/versions/1.8.1",
+      "fetched_at": "2026-11-13T22:10:05Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for harthur/nomnom"
+    }
+  }
+}

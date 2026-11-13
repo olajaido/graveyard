@@ -1,0 +1,96 @@
+{
+  "package": "request-promise-native",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/request-promise-native@1.0.9",
+  "resolved_version": "1.0.9",
+  "latest_version": "1.0.9",
+  "repo": "github.com/request/request-promise-native",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise-native/versions/1.0.9",
+      "fetched_at": "2026-11-13T22:29:23Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise-native/versions/1.0.9",
+      "fetched_at": "2026-11-13T22:29:23Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/request-promise-native/versions/1.0.9"
+      ],
+      "note": "resolved 1.0.9: True; latest 1.0.9: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-07-22",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise-native/versions/1.0.9",
+      "fetched_at": "2026-11-13T22:29:23Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-05-05",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for request/request-promise-native"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frequest%2Frequest-promise-native",
+      "fetched_at": "2026-11-13T22:29:24Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for request/request-promise-native"
+    },
+    "s6_open_issues": {
+      "value": 13,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for request/request-promise-native"
+    },
+    "s6_closed_issues": {
+      "value": 39,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for request/request-promise-native"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:29:24Z",
+      "note": "querybatch for npm:request-promise-native@1.0.9; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Frequest%2Frequest-promise-native",
+      "fetched_at": "2026-11-13T22:29:24Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 3008423,
+      "source": "https://api.npmjs.org/downloads/point/last-week/request-promise-native",
+      "fetched_at": "2026-11-13T22:29:24Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/request-promise-native/versions/1.0.9",
+      "fetched_at": "2026-11-13T22:29:23Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for request/request-promise-native"
+    }
+  }
+}

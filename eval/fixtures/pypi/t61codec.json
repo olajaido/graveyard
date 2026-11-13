@@ -1,0 +1,91 @@
+{
+  "package": "t61codec",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/t61codec@3.0.0",
+  "resolved_version": "3.0.0",
+  "latest_version": "3.0.0",
+  "repo": "github.com/exhuma/t61codec",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/t61codec/json",
+      "fetched_at": "2026-11-13T22:14:00Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-22",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/t61codec/versions/3.0.0",
+      "fetched_at": "2026-11-13T22:14:00Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-01",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for exhuma/t61codec"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fexhuma%2Ft61codec",
+      "fetched_at": "2026-11-13T22:14:01Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for exhuma/t61codec"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for exhuma/t61codec"
+    },
+    "s6_closed_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for exhuma/t61codec"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:14:02Z",
+      "note": "querybatch for PyPI:t61codec@3.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fexhuma%2Ft61codec",
+      "fetched_at": "2026-11-13T22:14:01Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 65266,
+      "source": "https://pypistats.org/api/packages/t61codec/recent",
+      "fetched_at": "2026-11-13T22:14:03Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for exhuma/t61codec"
+    }
+  }
+}

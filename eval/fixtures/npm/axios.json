@@ -1,0 +1,96 @@
+{
+  "package": "axios",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/axios@1.21.1",
+  "resolved_version": "1.21.1",
+  "latest_version": "1.21.1",
+  "repo": "github.com/axios/axios",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/axios/versions/1.21.1",
+      "fetched_at": "2026-11-13T22:10:27Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/axios/versions/1.21.1",
+      "fetched_at": "2026-11-13T22:10:27Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/axios/versions/1.21.1"
+      ],
+      "note": "resolved 1.21.1: False; latest 1.21.1: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-09",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/axios/versions/1.21.1",
+      "fetched_at": "2026-11-13T22:10:27Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-11",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for axios/axios"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Faxios%2Faxios",
+      "fetched_at": "2026-11-13T22:10:28Z"
+    },
+    "s5_committers": {
+      "value": 161,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:28Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for axios/axios"
+    },
+    "s6_open_issues": {
+      "value": 50,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for axios/axios"
+    },
+    "s6_closed_issues": {
+      "value": 5044,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for axios/axios"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:28Z",
+      "note": "querybatch for npm:axios@1.21.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 7.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Faxios%2Faxios",
+      "fetched_at": "2026-11-13T22:10:28Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 141449384,
+      "source": "https://api.npmjs.org/downloads/point/last-week/axios",
+      "fetched_at": "2026-11-13T22:10:29Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/axios/versions/1.21.1",
+      "fetched_at": "2026-11-13T22:10:27Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for axios/axios"
+    }
+  }
+}

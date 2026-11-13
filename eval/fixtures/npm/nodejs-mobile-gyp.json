@@ -1,0 +1,96 @@
+{
+  "package": "nodejs-mobile-gyp",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/nodejs-mobile-gyp@0.4.0",
+  "resolved_version": "0.4.0",
+  "latest_version": "0.4.0",
+  "repo": "github.com/janeasystems/nodejs-mobile-gyp",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nodejs-mobile-gyp/versions/0.4.0",
+      "fetched_at": "2026-11-13T22:12:01Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nodejs-mobile-gyp/versions/0.4.0",
+      "fetched_at": "2026-11-13T22:12:01Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/nodejs-mobile-gyp/versions/0.4.0"
+      ],
+      "note": "resolved 0.4.0: False; latest 0.4.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-02-21",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nodejs-mobile-gyp/versions/0.4.0",
+      "fetched_at": "2026-11-13T22:12:01Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-01-23",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for janeasystems/nodejs-mobile-gyp"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjaneasystems%2Fnodejs-mobile-gyp",
+      "fetched_at": "2026-11-13T22:12:02Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for janeasystems/nodejs-mobile-gyp"
+    },
+    "s6_open_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for janeasystems/nodejs-mobile-gyp"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for janeasystems/nodejs-mobile-gyp"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:12:02Z",
+      "note": "querybatch for npm:nodejs-mobile-gyp@0.4.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjaneasystems%2Fnodejs-mobile-gyp",
+      "fetched_at": "2026-11-13T22:12:02Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1545,
+      "source": "https://api.npmjs.org/downloads/point/last-week/nodejs-mobile-gyp",
+      "fetched_at": "2026-11-13T22:12:03Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/nodejs-mobile-gyp/versions/0.4.0",
+      "fetched_at": "2026-11-13T22:12:01Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for janeasystems/nodejs-mobile-gyp"
+    }
+  }
+}

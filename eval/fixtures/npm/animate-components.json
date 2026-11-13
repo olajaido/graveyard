@@ -1,0 +1,96 @@
+{
+  "package": "animate-components",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/animate-components@1.4.8",
+  "resolved_version": "1.4.8",
+  "latest_version": "1.4.8",
+  "repo": "github.com/nitin42/animate-components",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/animate-components/versions/1.4.8",
+      "fetched_at": "2026-11-13T22:30:36Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/animate-components/versions/1.4.8",
+      "fetched_at": "2026-11-13T22:30:36Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/animate-components/versions/1.4.8"
+      ],
+      "note": "resolved 1.4.8: False; latest 1.4.8: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-09-27",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/animate-components/versions/1.4.8",
+      "fetched_at": "2026-11-13T22:30:36Z"
+    },
+    "s3_last_push_at": {
+      "value": "2018-05-20",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for nitin42/animate-components"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnitin42%2Fanimate-components",
+      "fetched_at": "2026-11-13T22:30:37Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for nitin42/animate-components"
+    },
+    "s6_open_issues": {
+      "value": 5,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for nitin42/animate-components"
+    },
+    "s6_closed_issues": {
+      "value": 17,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for nitin42/animate-components"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:38Z",
+      "note": "querybatch for npm:animate-components@1.4.8; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 1.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnitin42%2Fanimate-components",
+      "fetched_at": "2026-11-13T22:30:37Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 166,
+      "source": "https://api.npmjs.org/downloads/point/last-week/animate-components",
+      "fetched_at": "2026-11-13T22:30:38Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/animate-components/versions/1.4.8",
+      "fetched_at": "2026-11-13T22:30:36Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for nitin42/animate-components"
+    }
+  }
+}

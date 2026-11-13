@@ -1,0 +1,91 @@
+{
+  "package": "attrs",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/attrs@26.1.0",
+  "resolved_version": "26.1.0",
+  "latest_version": "26.1.0",
+  "repo": "github.com/python-attrs/attrs",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/attrs/json",
+      "fetched_at": "2026-11-13T22:30:12Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-03-19",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/attrs/versions/26.1.0",
+      "fetched_at": "2026-11-13T22:30:12Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "pushedAt for python-attrs/attrs"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpython-attrs%2Fattrs",
+      "fetched_at": "2026-11-13T22:30:14Z"
+    },
+    "s5_committers": {
+      "value": 20,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:28Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for python-attrs/attrs"
+    },
+    "s6_open_issues": {
+      "value": 136,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time open issues for python-attrs/attrs"
+    },
+    "s6_closed_issues": {
+      "value": 663,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "all-time closed issues for python-attrs/attrs"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:14Z",
+      "note": "querybatch for PyPI:attrs@26.1.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 8.8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fpython-attrs%2Fattrs",
+      "fetched_at": "2026-11-13T22:30:14Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 214073412,
+      "source": "https://pypistats.org/api/packages/attrs/recent",
+      "fetched_at": "2026-11-13T22:30:15Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:51Z",
+      "note": "isArchived for python-attrs/attrs"
+    }
+  }
+}

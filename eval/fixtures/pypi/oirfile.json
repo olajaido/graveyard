@@ -1,0 +1,95 @@
+{
+  "package": "oirfile",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/oirfile@2026.10.22",
+  "resolved_version": "2026.10.22",
+  "latest_version": "2026.10.22",
+  "repo": "github.com/cgohlke/oirfile",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/oirfile/json",
+      "fetched_at": "2026-11-13T22:31:01Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-10-22",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/oirfile/versions/2026.10.22",
+      "fetched_at": "2026-11-13T22:31:01Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-10-22",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for cgohlke/oirfile"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/cgohlke/oirfile",
+      "fetched_at": "2026-11-13T22:31:02Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/cgohlke/oirfile",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for cgohlke/oirfile"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for cgohlke/oirfile"
+    },
+    "s6_closed_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for cgohlke/oirfile"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:02Z",
+      "note": "querybatch for PyPI:oirfile@2026.10.22; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/cgohlke/oirfile",
+      "fetched_at": "2026-11-13T22:31:02Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/cgohlke/oirfile",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 244,
+      "source": "https://pypistats.org/api/packages/oirfile/recent",
+      "fetched_at": "2026-11-13T22:31:04Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for cgohlke/oirfile"
+    }
+  }
+}

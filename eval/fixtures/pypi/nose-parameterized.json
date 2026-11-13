@@ -1,0 +1,91 @@
+{
+  "package": "nose-parameterized",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/nose-parameterized@0.6.0",
+  "resolved_version": "0.6.0",
+  "latest_version": "0.6.0",
+  "repo": "github.com/wolever/parameterized",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/nose-parameterized/json",
+      "fetched_at": "2026-11-13T22:10:33Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-03-21",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/nose-parameterized/versions/0.6.0",
+      "fetched_at": "2026-11-13T22:10:33Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-08-18",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for wolever/parameterized"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fwolever%2Fparameterized",
+      "fetched_at": "2026-11-13T22:10:34Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for wolever/parameterized"
+    },
+    "s6_open_issues": {
+      "value": 33,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for wolever/parameterized"
+    },
+    "s6_closed_issues": {
+      "value": 75,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for wolever/parameterized"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:35Z",
+      "note": "querybatch for PyPI:nose-parameterized@0.6.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fwolever%2Fparameterized",
+      "fetched_at": "2026-11-13T22:10:34Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 3323,
+      "source": "https://pypistats.org/api/packages/nose-parameterized/recent",
+      "fetched_at": "2026-11-13T22:10:36Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for wolever/parameterized"
+    }
+  }
+}

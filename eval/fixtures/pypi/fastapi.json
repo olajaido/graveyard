@@ -1,0 +1,95 @@
+{
+  "package": "fastapi",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/fastapi@0.162.7",
+  "resolved_version": "0.162.7",
+  "latest_version": "0.162.7",
+  "repo": "github.com/fastapi/fastapi",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/fastapi/json",
+      "fetched_at": "2026-11-13T22:30:03Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-11-13",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/fastapi/versions/0.162.7",
+      "fetched_at": "2026-11-13T22:30:03Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for fastapi/fastapi"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/fastapi/fastapi",
+      "fetched_at": "2026-11-13T22:30:05Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/fastapi/fastapi",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 23,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:22Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for fastapi/fastapi; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for fastapi/fastapi"
+    },
+    "s6_closed_issues": {
+      "value": 3554,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for fastapi/fastapi"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:05Z",
+      "note": "querybatch for PyPI:fastapi@0.162.7; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/fastapi/fastapi",
+      "fetched_at": "2026-11-13T22:30:05Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/fastapi/fastapi",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 128344058,
+      "source": "https://pypistats.org/api/packages/fastapi/recent",
+      "fetched_at": "2026-11-13T22:30:07Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:34:44Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for fastapi/fastapi"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "zilch",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/zilch@0.1.3",
+  "resolved_version": "0.1.3",
+  "latest_version": "0.1.3",
+  "repo": "github.com/bbangert/zilch",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/zilch/json",
+      "fetched_at": "2026-11-13T22:12:12Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2012-01-13",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/zilch/versions/0.1.3",
+      "fetched_at": "2026-11-13T22:12:12Z"
+    },
+    "s3_last_push_at": {
+      "value": "2012-01-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for bbangert/zilch"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbbangert%2Fzilch",
+      "fetched_at": "2026-11-13T22:12:13Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for bbangert/zilch"
+    },
+    "s6_open_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for bbangert/zilch"
+    },
+    "s6_closed_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for bbangert/zilch"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:12:13Z",
+      "note": "querybatch for PyPI:zilch@0.1.3; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbbangert%2Fzilch",
+      "fetched_at": "2026-11-13T22:12:13Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1,
+      "source": "https://pypistats.org/api/packages/zilch/recent",
+      "fetched_at": "2026-11-13T22:12:13Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for bbangert/zilch"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "package": "pathlib",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/pathlib@1.0.1",
+  "resolved_version": "1.0.1",
+  "latest_version": "1.0.1",
+  "repo": null,
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/pathlib/json",
+      "fetched_at": "2026-11-13T22:11:50Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2022-05-04",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/pathlib/versions/1.0.1",
+      "fetched_at": "2026-11-13T22:11:50Z"
+    },
+    "s3_last_push_at": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:11:50Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s5_committers": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_open_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_closed_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:11:51Z",
+      "note": "querybatch for PyPI:pathlib@1.0.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:11:50Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s9_weekly_downloads": {
+      "value": 952762,
+      "source": "https://pypistats.org/api/packages/pathlib/recent",
+      "fetched_at": "2026-11-13T22:11:51Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "no GitHub repo resolved"
+    }
+  }
+}

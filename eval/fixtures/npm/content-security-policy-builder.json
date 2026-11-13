@@ -1,0 +1,96 @@
+{
+  "package": "content-security-policy-builder",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/content-security-policy-builder@2.3.0",
+  "resolved_version": "2.3.0",
+  "latest_version": "2.3.0",
+  "repo": "github.com/helmetjs/content-security-policy-builder",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/content-security-policy-builder/versions/2.3.0",
+      "fetched_at": "2026-11-13T22:14:16Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/content-security-policy-builder/versions/2.3.0",
+      "fetched_at": "2026-11-13T22:14:16Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/content-security-policy-builder/versions/2.3.0"
+      ],
+      "note": "resolved 2.3.0: False; latest 2.3.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-03-28",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/content-security-policy-builder/versions/2.3.0",
+      "fetched_at": "2026-11-13T22:14:16Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-08-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for helmetjs/content-security-policy-builder"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fhelmetjs%2Fcontent-security-policy-builder",
+      "fetched_at": "2026-11-13T22:14:17Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for helmetjs/content-security-policy-builder"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for helmetjs/content-security-policy-builder"
+    },
+    "s6_closed_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for helmetjs/content-security-policy-builder"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:14:17Z",
+      "note": "querybatch for npm:content-security-policy-builder@2.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fhelmetjs%2Fcontent-security-policy-builder",
+      "fetched_at": "2026-11-13T22:14:17Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 827366,
+      "source": "https://api.npmjs.org/downloads/point/last-week/content-security-policy-builder",
+      "fetched_at": "2026-11-13T22:14:18Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/content-security-policy-builder/versions/2.3.0",
+      "fetched_at": "2026-11-13T22:14:16Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for helmetjs/content-security-policy-builder"
+    }
+  }
+}

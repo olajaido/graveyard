@@ -1,0 +1,96 @@
+{
+  "package": "istanbul",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/istanbul@0.4.5",
+  "resolved_version": "0.4.5",
+  "latest_version": "0.4.5",
+  "repo": "github.com/gotwarlost/istanbul",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/istanbul/versions/0.4.5",
+      "fetched_at": "2026-11-13T22:09:47Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/istanbul/versions/0.4.5",
+      "fetched_at": "2026-11-13T22:09:47Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/istanbul/versions/0.4.5"
+      ],
+      "note": "resolved 0.4.5: True; latest 0.4.5: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2016-08-21",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/istanbul/versions/0.4.5",
+      "fetched_at": "2026-11-13T22:09:47Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-12-08",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for gotwarlost/istanbul"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgotwarlost%2Fistanbul",
+      "fetched_at": "2026-11-13T22:09:48Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for gotwarlost/istanbul"
+    },
+    "s6_open_issues": {
+      "value": 359,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for gotwarlost/istanbul"
+    },
+    "s6_closed_issues": {
+      "value": 351,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for gotwarlost/istanbul"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:09:49Z",
+      "note": "querybatch for npm:istanbul@0.4.5; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fgotwarlost%2Fistanbul",
+      "fetched_at": "2026-11-13T22:09:48Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 834695,
+      "source": "https://api.npmjs.org/downloads/point/last-week/istanbul",
+      "fetched_at": "2026-11-13T22:09:49Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/istanbul/versions/0.4.5",
+      "fetched_at": "2026-11-13T22:09:47Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for gotwarlost/istanbul"
+    }
+  }
+}

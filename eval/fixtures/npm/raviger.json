@@ -1,0 +1,96 @@
+{
+  "package": "raviger",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/raviger@5.3.0",
+  "resolved_version": "5.3.0",
+  "latest_version": "5.3.0",
+  "repo": "github.com/kyeotic/raviger",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/raviger/versions/5.3.0",
+      "fetched_at": "2026-11-13T22:31:54Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/raviger/versions/5.3.0",
+      "fetched_at": "2026-11-13T22:31:54Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/raviger/versions/5.3.0"
+      ],
+      "note": "resolved 5.3.0: False; latest 5.3.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-03-10",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/raviger/versions/5.3.0",
+      "fetched_at": "2026-11-13T22:31:54Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-03-24",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for kyeotic/raviger"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkyeotic%2Fraviger",
+      "fetched_at": "2026-11-13T22:31:55Z"
+    },
+    "s5_committers": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for kyeotic/raviger"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for kyeotic/raviger"
+    },
+    "s6_closed_issues": {
+      "value": 71,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for kyeotic/raviger"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:55Z",
+      "note": "querybatch for npm:raviger@5.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkyeotic%2Fraviger",
+      "fetched_at": "2026-11-13T22:31:55Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 5022,
+      "source": "https://api.npmjs.org/downloads/point/last-week/raviger",
+      "fetched_at": "2026-11-13T22:31:55Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/raviger/versions/5.3.0",
+      "fetched_at": "2026-11-13T22:31:54Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for kyeotic/raviger"
+    }
+  }
+}

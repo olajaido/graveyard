@@ -1,0 +1,96 @@
+{
+  "package": "h3-js",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/h3-js@4.5.0",
+  "resolved_version": "4.5.0",
+  "latest_version": "4.5.0",
+  "repo": "github.com/uber/h3-js",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/h3-js/versions/4.5.0",
+      "fetched_at": "2026-11-13T22:13:21Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/h3-js/versions/4.5.0",
+      "fetched_at": "2026-11-13T22:13:21Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/h3-js/versions/4.5.0"
+      ],
+      "note": "resolved 4.5.0: False; latest 4.5.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-07-01",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/h3-js/versions/4.5.0",
+      "fetched_at": "2026-11-13T22:13:21Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for uber/h3-js"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fuber%2Fh3-js",
+      "fetched_at": "2026-11-13T22:13:22Z"
+    },
+    "s5_committers": {
+      "value": 9,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for uber/h3-js"
+    },
+    "s6_open_issues": {
+      "value": 9,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for uber/h3-js"
+    },
+    "s6_closed_issues": {
+      "value": 76,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for uber/h3-js"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:13:22Z",
+      "note": "querybatch for npm:h3-js@4.5.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 6.4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fuber%2Fh3-js",
+      "fetched_at": "2026-11-13T22:13:22Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2090878,
+      "source": "https://api.npmjs.org/downloads/point/last-week/h3-js",
+      "fetched_at": "2026-11-13T22:13:23Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/h3-js/versions/4.5.0",
+      "fetched_at": "2026-11-13T22:13:21Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for uber/h3-js"
+    }
+  }
+}

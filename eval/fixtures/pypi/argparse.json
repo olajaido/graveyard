@@ -1,0 +1,91 @@
+{
+  "package": "argparse",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/argparse@1.4.0",
+  "resolved_version": "1.4.0",
+  "latest_version": "1.4.0",
+  "repo": "github.com/thomaswaldmann/argparse",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/argparse/json",
+      "fetched_at": "2026-11-13T22:11:28Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2015-09-14",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/argparse/versions/1.4.0",
+      "fetched_at": "2026-11-13T22:11:28Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-05-13",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "pushedAt for thomaswaldmann/argparse"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fthomaswaldmann%2Fargparse",
+      "fetched_at": "2026-11-13T22:11:29Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for thomaswaldmann/argparse"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time open issues for thomaswaldmann/argparse"
+    },
+    "s6_closed_issues": {
+      "value": 101,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "all-time closed issues for thomaswaldmann/argparse"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:11:29Z",
+      "note": "querybatch for PyPI:argparse@1.4.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 1.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fthomaswaldmann%2Fargparse",
+      "fetched_at": "2026-11-13T22:11:29Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2382836,
+      "source": "https://pypistats.org/api/packages/argparse/recent",
+      "fetched_at": "2026-11-13T22:11:29Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-13T22:17:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:17:10Z",
+      "note": "isArchived for thomaswaldmann/argparse"
+    }
+  }
+}

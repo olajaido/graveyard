@@ -1,0 +1,96 @@
+{
+  "package": "babylonjs-charactercontroller",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/babylonjs-charactercontroller@0.4.7",
+  "resolved_version": "0.4.7",
+  "latest_version": "0.4.7",
+  "repo": "github.com/ssatguru/babylonjs-charactercontroller",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babylonjs-charactercontroller/versions/0.4.7",
+      "fetched_at": "2026-11-13T22:31:42Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babylonjs-charactercontroller/versions/0.4.7",
+      "fetched_at": "2026-11-13T22:31:42Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/babylonjs-charactercontroller/versions/0.4.7"
+      ],
+      "note": "resolved 0.4.7: False; latest 0.4.7: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2026-06-21",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babylonjs-charactercontroller/versions/0.4.7",
+      "fetched_at": "2026-11-13T22:31:42Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-10-20",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "pushedAt for ssatguru/babylonjs-charactercontroller"
+    },
+    "s4_maintained": {
+      "value": 4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fssatguru%2Fbabylonjs-charactercontroller",
+      "fetched_at": "2026-11-13T22:31:43Z"
+    },
+    "s5_committers": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for ssatguru/babylonjs-charactercontroller"
+    },
+    "s6_open_issues": {
+      "value": 10,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time open issues for ssatguru/babylonjs-charactercontroller"
+    },
+    "s6_closed_issues": {
+      "value": 29,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "all-time closed issues for ssatguru/babylonjs-charactercontroller"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:43Z",
+      "note": "querybatch for npm:babylonjs-charactercontroller@0.4.7; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.6,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fssatguru%2Fbabylonjs-charactercontroller",
+      "fetched_at": "2026-11-13T22:31:43Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 16,
+      "source": "https://api.npmjs.org/downloads/point/last-week/babylonjs-charactercontroller",
+      "fetched_at": "2026-11-13T22:31:43Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babylonjs-charactercontroller/versions/0.4.7",
+      "fetched_at": "2026-11-13T22:31:42Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:34:38Z",
+      "note": "isArchived for ssatguru/babylonjs-charactercontroller"
+    }
+  }
+}

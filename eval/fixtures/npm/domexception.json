@@ -1,0 +1,96 @@
+{
+  "package": "domexception",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/domexception@4.0.0",
+  "resolved_version": "4.0.0",
+  "latest_version": "4.0.0",
+  "repo": "github.com/jsdom/domexception",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/domexception/versions/4.0.0",
+      "fetched_at": "2026-11-13T22:10:13Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/domexception/versions/4.0.0",
+      "fetched_at": "2026-11-13T22:10:13Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/domexception/versions/4.0.0"
+      ],
+      "note": "resolved 4.0.0: True; latest 4.0.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2021-10-06",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/domexception/versions/4.0.0",
+      "fetched_at": "2026-11-13T22:10:13Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-11-26",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for jsdom/domexception"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjsdom%2Fdomexception",
+      "fetched_at": "2026-11-13T22:10:14Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for jsdom/domexception"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for jsdom/domexception"
+    },
+    "s6_closed_issues": {
+      "value": 3,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for jsdom/domexception"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:10:14Z",
+      "note": "querybatch for npm:domexception@4.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjsdom%2Fdomexception",
+      "fetched_at": "2026-11-13T22:10:14Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 26748944,
+      "source": "https://api.npmjs.org/downloads/point/last-week/domexception",
+      "fetched_at": "2026-11-13T22:10:15Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/domexception/versions/4.0.0",
+      "fetched_at": "2026-11-13T22:10:13Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for jsdom/domexception"
+    }
+  }
+}

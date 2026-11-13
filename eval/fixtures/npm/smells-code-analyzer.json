@@ -1,0 +1,100 @@
+{
+  "package": "smells-code-analyzer",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/smells-code-analyzer@0.1.1",
+  "resolved_version": "0.1.1",
+  "latest_version": "0.1.1",
+  "repo": "github.com/artawower/smells-code-analyzer",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/smells-code-analyzer/versions/0.1.1",
+      "fetched_at": "2026-11-13T22:31:56Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/smells-code-analyzer/versions/0.1.1",
+      "fetched_at": "2026-11-13T22:31:56Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/smells-code-analyzer/versions/0.1.1"
+      ],
+      "note": "resolved 0.1.1: False; latest 0.1.1: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-10-15",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/smells-code-analyzer/versions/0.1.1",
+      "fetched_at": "2026-11-13T22:31:56Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-10-31",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for artawower/smells-code-analyzer"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/artawower/smells-code-analyzer",
+      "fetched_at": "2026-11-13T22:31:57Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/artawower/smells-code-analyzer",
+      "unavailable": true
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for artawower/smells-code-analyzer"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for artawower/smells-code-analyzer"
+    },
+    "s6_closed_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for artawower/smells-code-analyzer"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:31:57Z",
+      "note": "querybatch for npm:smells-code-analyzer@0.1.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": "https://api.securityscorecards.dev/projects/github.com/artawower/smells-code-analyzer",
+      "fetched_at": "2026-11-13T22:31:57Z",
+      "note": "scorecard unavailable: 404 from https://api.securityscorecards.dev/projects/github.com/artawower/smells-code-analyzer",
+      "unavailable": true
+    },
+    "s9_weekly_downloads": {
+      "value": 11,
+      "source": "https://api.npmjs.org/downloads/point/last-week/smells-code-analyzer",
+      "fetched_at": "2026-11-13T22:31:57Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/smells-code-analyzer/versions/0.1.1",
+      "fetched_at": "2026-11-13T22:31:56Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for artawower/smells-code-analyzer"
+    }
+  }
+}

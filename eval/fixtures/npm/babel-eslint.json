@@ -1,0 +1,96 @@
+{
+  "package": "babel-eslint",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/babel-eslint@10.1.0",
+  "resolved_version": "10.1.0",
+  "latest_version": "10.1.0",
+  "repo": "github.com/babel/babel-eslint",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:17:20Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babel-eslint/versions/10.1.0",
+      "fetched_at": "2026-11-13T22:09:45Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babel-eslint/versions/10.1.0",
+      "fetched_at": "2026-11-13T22:09:45Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/babel-eslint/versions/10.1.0"
+      ],
+      "note": "resolved 10.1.0: True; latest 10.1.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-02-26",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babel-eslint/versions/10.1.0",
+      "fetched_at": "2026-11-13T22:09:45Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-08-18",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "pushedAt for babel/babel-eslint"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbabel%2Fbabel-eslint",
+      "fetched_at": "2026-11-13T22:09:46Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for babel/babel-eslint"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time open issues for babel/babel-eslint"
+    },
+    "s6_closed_issues": {
+      "value": 492,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "all-time closed issues for babel/babel-eslint"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:09:46Z",
+      "note": "querybatch for npm:babel-eslint@10.1.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbabel%2Fbabel-eslint",
+      "fetched_at": "2026-11-13T22:09:46Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 3467538,
+      "source": "https://api.npmjs.org/downloads/point/last-week/babel-eslint",
+      "fetched_at": "2026-11-13T22:09:47Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/babel-eslint/versions/10.1.0",
+      "fetched_at": "2026-11-13T22:09:45Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:15:20Z",
+      "note": "isArchived for babel/babel-eslint"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "package": "react-native-version-check",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/react-native-version-check@3.5.0",
+  "resolved_version": "3.5.0",
+  "latest_version": "3.5.0",
+  "repo": "github.com/kimxogus/react-native-version-check",
+  "as_of": "2026-11-13",
+  "captured_at": "2026-11-13T22:34:44Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/react-native-version-check/versions/3.5.0",
+      "fetched_at": "2026-11-13T22:30:38Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/react-native-version-check/versions/3.5.0",
+      "fetched_at": "2026-11-13T22:30:38Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/react-native-version-check/versions/3.5.0"
+      ],
+      "note": "resolved 3.5.0: False; latest 3.5.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2025-05-02",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/react-native-version-check/versions/3.5.0",
+      "fetched_at": "2026-11-13T22:30:38Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-01-21",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "pushedAt for kimxogus/react-native-version-check"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkimxogus%2Freact-native-version-check",
+      "fetched_at": "2026-11-13T22:30:39Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "distinct commit authors 2025-11-13..2026-11-13 for kimxogus/react-native-version-check"
+    },
+    "s6_open_issues": {
+      "value": 42,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time open issues for kimxogus/react-native-version-check"
+    },
+    "s6_closed_issues": {
+      "value": 93,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "all-time closed issues for kimxogus/react-native-version-check"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-13T22:30:40Z",
+      "note": "querybatch for npm:react-native-version-check@3.5.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.7,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fkimxogus%2Freact-native-version-check",
+      "fetched_at": "2026-11-13T22:30:39Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 95024,
+      "source": "https://api.npmjs.org/downloads/point/last-week/react-native-version-check",
+      "fetched_at": "2026-11-13T22:30:40Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/react-native-version-check/versions/3.5.0",
+      "fetched_at": "2026-11-13T22:30:38Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-13T22:33:02Z",
+      "note": "isArchived for kimxogus/react-native-version-check"
+    }
+  }
+}
