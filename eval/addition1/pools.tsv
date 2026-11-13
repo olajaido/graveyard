@@ -1,0 +1,207 @@
+rank	pool	ecosystem	name	source_query	repo	sha256_prefix
+1	F	pypi	ttrss-python	phrase:feature complete (rst)	Vassius/ttrss-python	0252bebb034a
+2	F	pypi	torf	phrase:feature complete (rst)	rndusr/torf	044568c1bfc1
+3	F	pypi	zilch	phrase:feature-complete (rst)	bbangert/zilch	045310dd16b9
+4	F	pypi	daemail	badge:inactive	jwodder/daemail	0672af9e0ea3
+5	F	pypi	smartystreets-py	phrase:feature complete (rst)	bennylope/smartystreets.py	088219ec5aca
+6	F	pypi	outgoing	badge:inactive	jwodder/outgoing	0a7a79764454
+7	F	pypi	txtble	badge:inactive	jwodder/txtble	0b561eb1ae92
+8	F	pypi	opencamlib	phrase:feature complete (rst)	aewallin/opencamlib	0b66c9be09ba
+9	F	pypi	auto-resizing-text-edit	phrase:feature-complete (rst)	cameel/auto-resizing-text-edit	146ba367ddea
+10	F	pypi	sppas	phrase:feature-complete (rst)	brigitte-bigi/sppas	1672c9841325
+11	F	pypi	github-backup	phrase:feature complete (rst)	josegonzalez/python-github-backup	17a043ec30ee
+12	F	pypi	mdorrst	phrase:feature-complete (rst)	JulienPalard/mdorrst	1bfbe774f3af
+13	F	pypi	yafowil-plone	phrase:feature complete (rst)	bluedynamics/yafowil.plone	1ead4d810097
+14	F	pypi	rsrtools	phrase:feature complete (rst)	BuongiornoTexas/rsrtools	2038962b0c79
+15	F	pypi	nanomongo	phrase:feature-complete (rst)	eguven/nanomongo	22eb37248f2a
+16	F	pypi	cement	phrase:stable and complete	datafolklabs/cement	22f9810ca9cb
+17	F	pypi	mastodon-py	phrase:feature complete (rst)	halcy/Mastodon.py	289276527c57
+18	F	npm	tennu	phrase:feature complete	Tennu/tennu	2a2391b062df
+19	F	pypi	calmjs-parse	phrase:feature complete (rst)	calmjs/calmjs.parse	31f9d2b23910
+20	F	npm	graphql-list-fields	phrase:considered done	jakepusateri/graphql-list-fields	321735bd72a3
+21	F	npm	pcre-to-regexp	phrase:feature-complete	TooTallNate/pcre-to-regexp	333b4b9f4053
+22	F	pypi	zgw-consumers-oas	phrase:feature complete (rst)	maykinmedia/zgw-consumers-oas	336e72d7d3d1
+23	F	pypi	liffile	phrase:feature-complete (rst)	cgohlke/liffile	352984dd5b68
+24	F	pypi	rmextract	phrase:no further development	lofar-astron/RMextract	36167c94b276
+25	F	npm	aiwg	phrase:considered done	jmagly/aiwg	369a51c4e801
+26	F	pypi	simple-wbd	phrase:feature complete (rst)	zidarsk8/simple_wbd	3854d2b4fa09
+27	F	pypi	snug	phrase:feature complete (rst)	ariebovenberg/snug	390f3a580773
+28	F	pypi	piereling	badge:inactive	proycon/piereling	3a8a42daee5f
+29	F	npm	async-redis-mock	phrase:feature complete	vergesense/async-redis-mock	3ad095191b93
+30	F	pypi	feedjack	phrase:feature-complete (rst)	mk-fg/feedjack	40939e1728e9
+31	F	pypi	pdfje	phrase:feature-complete (rst)	ariebovenberg/pdfje	46f87db32b5c
+32	F	pypi	maccarone	phrase:feature-complete	bsilverthorn/maccarone	47f4ee02ab08
+33	F	pypi	h11	phrase:feature complete (rst)	python-hyper/h11	48165ab10b99
+34	F	pypi	rai-workflow-manager	badge:inactive	RelationalAI/rai-workflow-manager	4a5a59a3b0a3
+35	F	pypi	jdxi-editor	phrase:feature-complete (rst)	markxbrooks/JDXI-Editor	4bac83a59cfb
+36	F	pypi	visions	phrase:feature complete	dylan-profiler/visions	4c7e62ef4c6b
+37	F	npm	material-design-lite	phrase:no further development	google/material-design-lite	4d7db099367c
+38	F	pypi	deezer-downloader	phrase:feature complete	kmille/deezer-downloader	526d0589f08a
+39	F	pypi	sacn	badge:inactive	Hundemeier/sacn	54cb8094bac9
+40	F	pypi	tipp3	phrase:feature complete (rst)	c5shen/TIPP3	552969421e45
+41	F	pypi	bravado-falcon	phrase:feature-complete (rst)	butla/bravado-falcon	5606452ee731
+42	F	npm	lighthouse	phrase:considered done	GoogleChrome/lighthouse	58eb5ca26242
+43	F	npm	bunview	phrase:feature-complete	theseyan/bunview	595b3cdb6a9e
+44	F	pypi	cwltool	phrase:feature complete (rst)	common-workflow-language/cwltool	59e6e0caf757
+45	F	pypi	transplant	phrase:feature-complete (rst)	bastibe/transplant	5c1a419b4af7
+46	F	pypi	py-d3	phrase:feature-complete	ResidentMario/py_d3	5d3cb80e0c04
+47	F	pypi	pycrunchbase	phrase:feature-complete (rst)	ngzhian/pycrunchbase	60c23dfdc0d9
+48	F	npm	serializr	phrase:feature complete	mobxjs/serializr	66752e1d6c47
+49	F	npm	rx-sandbox	phrase:feature complete	kwonoj/rx-sandbox	67ad7cc9be00
+50	F	pypi	ndio	phrase:considered stable	neurodata/ndio	6936e0ea1859
+51	F	pypi	vizro	phrase:no further development	mckinsey/vizro	6c56497a04de
+52	F	pypi	pyutilib	badge:inactive	PyUtilib/pyutilib	6ed5ccd8ee10
+53	F	pypi	oirfile	phrase:feature-complete (rst)	cgohlke/oirfile	71086aedb44a
+54	F	pypi	dalton	phrase:feature-complete (rst)	bbangert/Dalton	75412c1a2df0
+55	F	pypi	lrvx	phrase:no further development	lrvx/lrvx	75b8aa53df70
+56	F	pypi	pandoc-mustache	badge:inactive	michaelstepner/pandoc-mustache	7c6888c79da0
+57	F	npm	grunt-refactor	phrase:feature complete	jonschlinkert/grunt-refactor	7f9a6576fe45
+58	F	pypi	ydb	phrase:stable and complete	ydb-platform/ydb	808d7f79db55
+59	F	pypi	cantal	phrase:feature complete (rst)	tailhook/cantal	8348965c50dd
+60	F	pypi	mkdocs-multirepo-plugin	badge:inactive	jdoiro3/mkdocs-multirepo-plugin	86cc70090959
+61	F	npm	stwui	phrase:feature-complete	N00nDay/stwui	87821a6d55db
+62	F	pypi	oximedia	phrase:feature-complete	cool-japan/oximedia	878a0a622f55
+63	F	pypi	suplemon	phrase:considered stable	richrd/suplemon	8ef0edcfd524
+64	F	pypi	pyfunctional	phrase:feature complete	EntilZha/PyFunctional	91241741ed39
+65	F	npm	gherkin-testcafe	phrase:considered done	Arthy000/gherkin-testcafe	912db613b42d
+66	F	npm	a2a-ai-provider	phrase:feature complete	DracoBlue/a2a-ai-provider	9132f95dfb5d
+67	F	npm	react-accessible-details	phrase:stable and complete	springload/react-accessible-details	91679d9ee047
+68	F	pypi	immagine	phrase:feature complete (rst)	mfnch/immagine	9514cab7bddd
+69	F	npm	h3-js	phrase:considered stable	uber/h3-js	997856fc1639
+70	F	pypi	bore	phrase:feature-complete (rst)	ltiao/bore	9aa184b515f8
+71	F	pypi	project-quickstart	badge:inactive	antoniojbt/project_quickstart	9d25f3f9374e
+72	F	pypi	kotti-image-gallery	phrase:feature complete (rst)	disko/kotti_image_gallery	a0bcb07b7f3e
+73	F	pypi	timeflux-ui	phrase:feature-complete (rst)	timeflux/timeflux_ui	a324f2ef6d84
+74	F	npm	susy-sass	phrase:stable and complete	takuhii/susy-sass	a3cf8d71737d
+75	F	npm	aurelia	phrase:no further development	aurelia/aurelia	a7a4acf5c53a
+76	F	npm	p-queue	phrase:feature complete	sindresorhus/p-queue	a8fe2b813600
+77	F	npm	markdown-it-attrs	phrase:considered done	arve0/markdown-it-attrs	ac9a3e498e37
+78	F	npm	ember-test-waiters	phrase:considered done	emberjs/ember-test-waiters	afcb429e5267
+79	F	pypi	python-fedora	phrase:feature complete (rst)	fedora-infra/python-fedora	b0cb4ea71144
+80	F	pypi	screen3	badge:inactive	zmoon/screen3	b16273b80c24
+81	F	pypi	celery	phrase:feature complete (rst)	celery/celery	b40d49f4c0bc
+82	F	pypi	obffile	phrase:feature-complete (rst)	cgohlke/obffile	b6ac4323cfa5
+83	F	pypi	autoregistry	phrase:feature-complete (rst)	BrianPugh/autoregistry	b6b1eb5045bc
+84	F	pypi	kotti-multilingual	phrase:feature complete (rst)	Kotti/kotti_multilingual	b8317ae3a75a
+85	F	pypi	websocat	phrase:considered stable	vi/websocat	bd59bede9e57
+86	F	npm	jsreport	phrase:considered done	jsreport/jsreport	bdb3a870269d
+87	F	npm	llm-wiki-compiler	phrase:considered done	atomicstrata/llm-wiki-compiler	c084d1b1303b
+88	F	pypi	opentaxii	phrase:feature-complete	eclecticiq/OpenTAXII	c2a3850e2f20
+89	F	pypi	yfinhanced	phrase:feature complete (rst)	ME-64/yfinhanced	cdff3b827ded
+90	F	npm	pod	phrase:considered stable	yyx990803/pod	d0e422416821
+91	F	pypi	django-context-decorator	phrase:feature complete (rst)	rixx/django-context-decorator	d20fad222f88
+92	F	pypi	aioscryfall	phrase:feature complete (rst)	gwax/aioscryfall	d684c17b7696
+93	F	npm	movie-trailer	phrase:feature-complete	lacymorrow/movie-trailer	d77f84b1891d
+94	F	pypi	sht-sensor	phrase:feature-complete (rst)	kizniche/sht-sensor	d7b0d8715855
+95	F	npm	pkl-typescript	phrase:feature-complete	pkl-community/pkl-typescript	daaae3d64882
+96	F	npm	jira-agile-velocity	phrase:considered done	Fgerthoffert/jira-agile-velocity	dc548c516999
+97	F	pypi	connectomics	phrase:considered stable	google-research/connectomics	dc79c304f597
+98	F	pypi	pyintervals	phrase:feature complete (rst)	serkankalay/pyintervals	de6d8b38fad0
+99	F	npm	react-timeago	phrase:feature complete	nmn/react-timeago	debccce41b88
+100	F	pypi	robotframework-angularjs	phrase:feature complete (rst)	MarketSquare/robotframework-angularjs	e03433b1dcbf
+101	F	npm	zx-vibes	phrase:considered done	Alvaromah/zx-vibes	e221c1f6e334
+102	F	pypi	substreams	phrase:feature complete	messari/substreams	e3a4771cfd63
+103	F	pypi	angr-utils	phrase:considered stable	axt/angr-utils	e54f9e4c5ad8
+104	F	pypi	mapdamage	badge:inactive	ginolhac/mapDamage	e6fbd6d93ef5
+105	F	npm	mapeo-desktop	phrase:considered stable	digidem/mapeo-desktop	eb3f0794c00c
+106	F	pypi	mf2	badge:inactive	sjvrijn/mf2	eca12bb1ab77
+107	F	pypi	pybootd	phrase:feature-complete (rst)	eblot/pybootd	edfed3624672
+108	F	npm	codec-detect	badge:inactive	jansensan/codec-detect	ef73386a839c
+109	F	pypi	thoraxe	badge:inactive	PhyloSofS-Team/thoraxe	ef784dc86b39
+110	F	pypi	t61codec	phrase:feature-complete (rst)	exhuma/t61codec	f475fd81b515
+111	F	npm	analytics.js-integrations	phrase:no further development	segmentio/analytics.js-integrations	fa049ede000b
+112	F	pypi	products-zopetree	phrase:feature-complete (rst)	jugmac00/Products.ZopeTree	fff358b27cad
+1	A	npm	nodejs-mobile-gyp	badge:unsupported	JaneaSystems/nodejs-mobile-gyp	046274afecd5
+2	A	pypi	ansible-bender	phrase:looking for maintainers	ansible-community/ansible-bender	0b99dc5d7bac
+3	A	npm	vue-formly	phrase:looking for maintainers	formly-js/vue-formly	0d3db0265a4d
+4	A	npm	homebridge-harmonyhub-plugin	badge:unsupported	materik/homebridge-harmonyhub-plugin	11c1453b1c7d
+5	A	pypi	liionpack	phrase:"maintenance mode"	pybamm-team/liionpack	1547f7529eb7
+6	A	pypi	pysoundanalyser	badge:unsupported	sam81/pysoundanalyser	177c99540d1b
+7	A	npm	textlint-plugin-latex2e	phrase:maintainers wanted	textlint/textlint-plugin-latex2e	1999e2dc4826
+8	A	pypi	windows-curses	phrase:maintainers wanted	zephyrproject-rtos/windows-curses	1babddadac96
+9	A	npm	raspi	phrase:maintenance mode	nebrius/raspi	1cfe03e8de1b
+10	A	pypi	sen	phrase:maintenance mode	TomasTomecek/sen	1d624219de07
+11	A	npm	react-native-version-check	phrase:looking for maintainers	kimxogus/react-native-version-check	23c90cc4c92c
+12	A	npm	animate-components	phrase:looking for maintainers	nitin42/animate-components	2703b0e9263e
+13	A	pypi	razer-cli	phrase:maintainers wanted	LoLei/razer-cli	2bba9d2925bc
+14	A	npm	react-native-auto-height-image	phrase:maintainers wanted	vivaxy/react-native-auto-height-image	2f497e1e2b7b
+15	A	pypi	iotedgehubdev	phrase:maintenance mode	Azure/iotedgehubdev	360963a32472
+16	A	npm	html5-qrcode	phrase:maintenance mode	mebjas/html5-qrcode	36449927d8a2
+17	A	npm	react-autosuggest	phrase:looking for maintainers	moroshko/react-autosuggest	3892e80f07eb
+18	A	pypi	django-maintenance-mode	phrase:maintenance mode	fabiocaccamo/django-maintenance-mode	4118b59b5045
+19	A	npm	react-native-sideswipe	phrase:looking for maintainers	kkemple/react-native-sideswipe	41b7b1de771b
+20	A	npm	wintrchess	phrase:looking for maintainers	WintrCat/wintrchess	42ce644fd6f3
+21	A	pypi	pizero-gpslog	badge:unsupported	jantman/pizero-gpslog	46150b0423de
+22	A	npm	meteor-job	phrase:"maintenance mode"	vsivsi/meteor-job	4733c7d17a1d
+23	A	npm	rxviz	phrase:looking for maintainers	moroshko/rxviz	474c9a5eb1f0
+24	A	npm	nodejs-mobile-cordova	badge:unsupported	JaneaSystems/nodejs-mobile-cordova	515c4ea45b98
+25	A	pypi	tablesnap	phrase:maintainers wanted	JeremyGrosser/tablesnap	51cfc20bf79c
+26	A	npm	cordova-plugin-app-version	phrase:looking for maintainers	sampart/cordova-plugin-app-version	534e945b1068
+27	A	npm	serverless-google-cloudfunctions	phrase:looking for maintainers	serverless/serverless-google-cloudfunctions	562dd461f1b1
+28	A	npm	percircle	phrase:maintainers wanted	teobais/percircle	5df59fb184a3
+29	A	pypi	proxlb	phrase:maintenance mode	credativ/ProxLB	5e563eb89caf
+30	A	pypi	python-awair	phrase:"maintenance mode"	ahayworth/python_awair	5ef449e6be2e
+31	A	npm	workerloader-jest-transformer	phrase:maintainers wanted	astagi/workerloader-jest-transformer	5f8bc2161556
+32	A	pypi	django-sysconfig	phrase:"maintenance mode"	krishnamodepalli/django-sysconfig	612ec0ea21f2
+33	A	npm	electron-webpack	phrase:maintainers wanted	electron-userland/electron-webpack	62cf27d37fc9
+34	A	npm	meteor-azure	badge:unsupported	fractal-code/meteor-azure	62e21fbb50f9
+35	A	npm	ngx-drag-scroll	phrase:maintainers wanted	bfwg/ngx-drag-scroll	6903208dfabd
+36	A	pypi	ihatemoney	phrase:"maintenance mode"	spiral-project/ihatemoney	6939b6d41e83
+37	A	pypi	chalice-jwt	phrase:maintainers wanted	marktennyson/chalice-jwt	711bcebc2af2
+38	A	pypi	img2num	phrase:maintainers wanted	Ryan-Millard/Img2Num	71eb4bca5cc9
+39	A	npm	vue-cli	phrase:maintenance mode	vuejs/vue-cli	722d30810879
+40	A	npm	react-native-hole-view	phrase:maintainers wanted	ibitcy/react-native-hole-view	73d8da5d760b
+41	A	npm	reactjs-popup	phrase:looking for maintainers	yjose/reactjs-popup	7e1de824ef5b
+42	A	pypi	rust-ethernet-ip	phrase:"maintenance mode"	sergiogallegos/rust-ethernet-ip	80dc641c88e5
+43	A	npm	ng-admin	phrase:maintenance mode	marmelab/ng-admin	846e69a42c05
+44	A	npm	semantic-ui-vue	phrase:looking for maintainers	Semantic-UI-Vue/Semantic-UI-Vue	85a6119458be
+45	A	npm	img2num	phrase:maintainers wanted	Ryan-Millard/Img2Num	879a31a94923
+46	A	npm	react-native-modal	phrase:looking for maintainers	react-native-modal/react-native-modal	8cc59dcfa14b
+47	A	npm	react-native-sglistview	phrase:looking for maintainers	sghiassy/react-native-sglistview	8cf8bd1ef3f0
+48	A	pypi	text-fabric	badge:unsupported	annotation/text-fabric	95081090c827
+49	A	npm	babel-plugin-react-css-modules	phrase:looking for maintainers	gajus/babel-plugin-react-css-modules	9873cefd9ea6
+50	A	npm	jquery-backstretch	phrase:looking for maintainers	jquery-backstretch/jquery-backstretch	99093accd010
+51	A	npm	serverless-plugin-scripts	phrase:maintenance mode	mvila/serverless-plugin-scripts	9a97eef7ada8
+52	A	npm	nextron	phrase:looking for maintainers	saltyshiomix/nextron	9b1e90aaffc2
+53	A	npm	api-mock	phrase:maintainers wanted	localmed/api-mock	9e171e74a5fc
+54	A	npm	react-spreadsheet-component	phrase:maintainers wanted	felixrieseberg/React-Spreadsheet-Component	9ed5ff1af5d4
+55	A	npm	overlay-locker	phrase:"maintenance mode"	egokiemute/overlay-locker	a0218660fbe5
+56	A	npm	react-native-oauth	phrase:looking for maintainers	fullstackreact/react-native-oauth	a497ea06c41d
+57	A	npm	pbkit	phrase:"maintenance mode"	pbkit/pbkit	a4a2f45069f4
+58	A	npm	bull	phrase:maintenance mode	OptimalBits/bull	a77a8cc66eb0
+59	A	npm	react-native-azure-auth	phrase:maintainers wanted	vmurin/react-native-azure-auth	adb9c3699410
+60	A	pypi	audiobook-dl	phrase:looking for maintainers	jo1gi/audiobook-dl	b54371d73b4b
+61	A	pypi	autosimulationcraft	badge:unsupported	jantman/autosimulationcraft	b8ceac731256
+62	A	npm	tcomb-form-native	phrase:looking for maintainers	gcanti/tcomb-form-native	c1bf8bc7da3c
+63	A	npm	react-d3-components	phrase:looking for maintainers	codesuki/react-d3-components	c7b92b5a4c9f
+64	A	pypi	nnaudio	phrase:maintainers wanted	KinWaiCheuk/nnAudio	cdd7690d8be7
+65	A	npm	lrm-graphhopper	phrase:maintainers wanted	perliedman/lrm-graphhopper	d15368a3d21f
+66	A	npm	jquery-modal	phrase:maintainers wanted	kylefox/jquery-modal	d51a61ee3144
+67	A	npm	firebase-on-error	badge:unsupported	pkaminski/firebase-on-error	d53b97ccb7a9
+68	A	npm	react-flip-move	phrase:looking for maintainers	joshwcomeau/react-flip-move	d702911b8af7
+69	A	npm	swup	phrase:looking for maintainers	swup/swup	d928fe8a6f94
+70	A	pypi	django-maintenancemode-2	phrase:"maintenance mode"	alsoicode/django-maintenancemode-2	de96c4c86a71
+71	A	npm	vite-plugin-istanbul	phrase:maintainers wanted	iFaxity/vite-plugin-istanbul	e70718d5becb
+72	A	npm	pizzicato	phrase:looking for maintainers	alemangui/pizzicato	e7bfc1503fe0
+73	A	npm	react-infinite-calendar	phrase:looking for maintainers	clauderic/react-infinite-calendar	eb89d2b686b7
+74	A	pypi	laygo2	phrase:"maintenance mode"	niftylab/laygo2	efc08da8391e
+75	A	npm	ng-polymer-elements	phrase:looking for maintainers	GabiAxel/ng-polymer-elements	f16fb3ece8aa
+76	A	pypi	pybdf	badge:unsupported	sam81/pybdf	f8307ac03c57
+77	A	npm	vue-js-modal	phrase:looking for maintainers	euvl/vue-js-modal	fad0ba4542a6
+78	A	npm	jquery-tablesort	phrase:maintainers wanted	kylefox/jquery-tablesort	faf14df85b3a
+79	A	pypi	pychoacoustics	badge:unsupported	sam81/pychoacoustics	fdc2d5827539
+1	D	npm	react-hooks-global-state	phrase:no longer maintained	dai-shi/react-hooks-global-state	006943dd0dd0
+2	D	npm	custom-protocol-detection	phrase:no longer maintained	ismailhabib/custom-protocol-detection	12d2afea1284
+3	D	pypi	pyopenkeyval	badge:abandoned	marcuse/pyopenkeyval	3a5352979c64
+4	D	pypi	bump2version	phrase:no longer maintained	c4urself/bump2version	45efb8dd0330
+5	D	pypi	garminexport	phrase:no longer maintained	petergardfjall/garminexport	4718408a30df
+6	D	npm	wmr	phrase:no longer maintained	preactjs/wmr	681c8e8cb574
+7	D	npm	podcast-maker	phrase:no longer maintained	FelippeChemello/podcast-maker	7fc1dab6b8ad
+8	D	pypi	hetzner	phrase:no longer maintained	aszlig/hetzner	8c021f2703e6
+9	D	npm	backbone.layoutmanager	phrase:no longer maintained	tbranyen/backbone.layoutmanager	a9aca5c7bc03
+10	D	npm	easyeda2kicad	phrase:no longer maintained	wokwi/easyeda2kicad	a9b8ff5affc8
+11	D	npm	bootstrap-wysiwyg	phrase:no longer maintained	steveathon/bootstrap-wysiwyg	addedfede965
+12	D	npm	react-intercom	phrase:no longer maintained	nhagen/react-intercom	b73e87486205
+13	D	pypi	pyheif-pillow-opener	badge:moved	ciotto/pyheif-pillow-opener	c56859a2c8c6
+14	D	npm	eslint-config-tribou	badge:moved	tribou/eslint-config-tribou	dee4ee4db942
+15	D	npm	coffee-react-transform	phrase:no longer maintained	jsdf/coffee-react-transform	e24378aab495

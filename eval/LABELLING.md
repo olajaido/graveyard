@@ -93,7 +93,9 @@ These are known and accepted. The controls stop the coroner from reading outputs
 A later change to a label or its evidence is logged here, with a reason. "The model disagreed" is not a valid reason. Add the source lists used for each batch as well.
 
 | date | row key | old → new | reason |
+|------|---------|-----------|--------|
 | 2026-11-13 | pypi,pydantic | staged row withheld before merge (never merged) | Evidence page https://pydantic.dev/docs/validation/latest/get-started/changelog/ contained instructions addressed to AI agents. Section 6 requires the candidate to be skipped; the coroner reported it but kept the row. Not a label change. |
+| 2026-11-13 | (addition 1) | n/a | Source lists for addition 1: GitHub code search for repostatus.org badges and README status phrases; see eval/addition1/README.md. |
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
 
@@ -143,3 +145,6 @@ Order of use (alternating, npm first; npm continues once PyPI runs out):
 
 ### Additions
 If the reserve is exhausted and a shortfall remains, a further list will be appended below as a dated addition. Nothing above this heading is edited in place.
+
+#### Addition 1 (fixed 13 Nov 2026, before labelling any of it)
+After batches 1-5 and the full reserve, the set had 51 rows and was short of 90 rows, 20 `finished-healthy`, 10 `ailing`, 30 pypi, and 10 `dead` on `maintainer_statement` or `eol_announcement`. Addition 1 candidates were selected mechanically from GitHub code search for README project-status markers, mapped to PyPI and npm packages whose metadata points at the repo, and ordered by hash. The method, raw search output, pools and draw rule are in `eval/addition1/README.md`. Batches follow that draw rule and stop as soon as every section 3 minimum is met. How a candidate was found is not a label.
