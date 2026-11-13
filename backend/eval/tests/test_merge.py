@@ -288,3 +288,13 @@ def test_plan_merge_collects_every_error() -> None:
         "staging: line 2, reviewed: must be false in staging",
         "staging: line 3, labelled_by: must be coroner in staging",
     )
+
+
+def test_bom_in_staging_rejects_batch_and_changes_nothing(tmp_path: Path) -> None:
+    labelled, staging = setup(tmp_path, STAGED[:1])
+    staging.write_bytes(b"\xef\xbb\xbf" + staging.read_bytes())
+    before = (labelled.read_bytes(), staging.read_bytes())
+    code, out, err = run(tmp_path)
+    assert (code, out) == (3, "")
+    assert "staging: line 1, header" in err
+    assert (labelled.read_bytes(), staging.read_bytes()) == before

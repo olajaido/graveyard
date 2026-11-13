@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from hypothesis import strategies as st
 
-from eval.labels import ALLOWED_EVIDENCE_KINDS, Label, LabelRow
+from eval.labels import ALLOWED_EVIDENCE_KINDS, Ecosystem, Label, LabelRow
 from eval.outcome import Outcome, Predicted
 
 _NAME = st.from_regex(r"[a-z0-9][a-z0-9._-]{0,15}", fullmatch=True)
@@ -22,19 +24,21 @@ QUOTES = st.text(_QUOTE_CHARS, min_size=1, max_size=200).filter(
     lambda q: not q.startswith(("=", "+", "-", "@"))
 )
 
+_ECOSYSTEMS: list[Ecosystem] = ["npm", "pypi"]
+_DEAD_REASONS: list[Literal["declared", "score"]] = ["declared", "score"]
 _LABELS: list[Label] = ["dead", "finished-healthy", "alive", "ailing"]
 
 
 @st.composite
 def label_rows(
-    draw: st.DrawFn, *, name: str | None = None, ecosystem: str | None = None
+    draw: st.DrawFn, *, name: str | None = None, ecosystem: Ecosystem | None = None
 ) -> LabelRow:
     label = draw(st.sampled_from(_LABELS))
     kind = draw(st.sampled_from(sorted(ALLOWED_EVIDENCE_KINDS[label])))
     host = draw(_HOST)
     path = draw(_PATH)
     return LabelRow(
-        ecosystem=draw(st.sampled_from(["npm", "pypi"])) if ecosystem is None else ecosystem,  # type: ignore[arg-type]
+        ecosystem=draw(st.sampled_from(_ECOSYSTEMS)) if ecosystem is None else ecosystem,
         name=draw(_NAME) if name is None else name,
         version=draw(_VERSION),
         label=label,
@@ -51,7 +55,7 @@ def valid_rows(draw: st.DrawFn, *, max_size: int = 12) -> list[LabelRow]:
     """Rows with unique ``(ecosystem, name)`` keys, allowed kinds per label, printable quotes."""
     keys = draw(
         st.lists(
-            st.tuples(st.sampled_from(["npm", "pypi"]), _NAME),
+            st.tuples(st.sampled_from(_ECOSYSTEMS), _NAME),
             unique=True,
             max_size=max_size,
         )
@@ -69,7 +73,7 @@ def outcome(draw: st.DrawFn) -> Outcome:
     """One outcome: dead_reason only when predicted is dead; kind allowed for the label."""
     label = draw(st.sampled_from(_LABELS))
     predicted = draw(st.sampled_from(_PREDICTED))
-    reason = draw(st.sampled_from(["declared", "score"])) if predicted == "dead" else None
+    reason = draw(st.sampled_from(_DEAD_REASONS)) if predicted == "dead" else None
     missing = tuple(sorted(draw(st.sets(st.sampled_from(_RISKS)))))
     return Outcome(
         ecosystem=draw(st.sampled_from(["npm", "pypi"])),
@@ -78,7 +82,7 @@ def outcome(draw: st.DrawFn) -> Outcome:
         predicted=predicted,
         reviewed=draw(st.booleans()),
         evidence_kind=draw(st.sampled_from(sorted(ALLOWED_EVIDENCE_KINDS[label]))),
-        dead_reason=reason,  # type: ignore[arg-type]
+        dead_reason=reason,
         confidence=draw(st.floats(min_value=0.0, max_value=1.0)),
         unverified=tuple(draw(st.lists(st.sampled_from(_SOURCES), max_size=2, unique=True))),
         partial_evidence=draw(st.booleans()) if missing else False,

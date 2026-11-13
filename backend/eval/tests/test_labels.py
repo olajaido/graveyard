@@ -345,3 +345,10 @@ def test_load_labels_rejects_a_bom(tmp_path: Path) -> None:
     with pytest.raises(LabelsError) as info:
         load_labels(path)
     assert info.value.errors[0].startswith("line 1, header")
+
+
+def test_empty_evidence_url_is_reported_with_line_and_column() -> None:
+    from eval.labels import parse_labels_lenient
+
+    _, errors = parse_labels_lenient(csv_text([valid_row(evidence_url="")]))
+    assert errors == ("line 2, evidence_url: must not be empty",)

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -21,9 +23,10 @@ MARKER = "QZ9MARKER9ZQ"
 HEADER_LINE = ",".join(HEADER) + "\n"
 
 pytestmark = pytest.mark.property
+DEADLINE = timedelta(seconds=5)
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(rows=valid_rows())
 def test_parse_serialise_round_trip(rows: list[LabelRow]) -> None:
     """**Validates: Requirements EV-DATA-1, EV-DATA-2, EV-DATA-3, EV-MRG-4**"""
@@ -50,7 +53,7 @@ def _mutated_text(draw: st.DrawFn) -> str:
 _ANY_TEXT = st.one_of(st.text(max_size=300), _mutated_text())
 
 
-@settings(max_examples=300, deadline=None)
+@settings(max_examples=300, deadline=DEADLINE)
 @given(text=_ANY_TEXT)
 def test_lenient_never_raises_on_arbitrary_text(text: str) -> None:
     """**Validates: Requirements EV-MRG-2, EV-MRG-3**"""
@@ -59,7 +62,7 @@ def test_lenient_never_raises_on_arbitrary_text(text: str) -> None:
     assert all(e.startswith("line ") for e in errors)
 
 
-@settings(max_examples=300, deadline=None)
+@settings(max_examples=300, deadline=DEADLINE)
 @given(text=_ANY_TEXT)
 def test_strict_raises_iff_lenient_has_errors(text: str) -> None:
     """**Validates: Requirements EV-DATA-1, EV-MRG-5**"""
@@ -85,7 +88,7 @@ _BREAKERS = st.sampled_from(
 )
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(
     prefix=st.text(max_size=20).filter(lambda s: MARKER not in s),
     suffix=st.text(max_size=20).filter(lambda s: MARKER not in s),

@@ -3,24 +3,25 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Any
 
 import pytest
 
 from core.scoring import score_package
 from core.scoring.types import BaseState, Signals
-from eval.labels import LabelRow
+from eval.labels import Label, LabelRow
 from eval.outcome import Predicted, class_of, outcome_from
 
 AS_OF = date(2026, 11, 3)
 LONG_AGO = date(2020, 1, 1)
 
 
-def _row(label: str = "dead") -> LabelRow:
+def _row(label: Label = "dead") -> LabelRow:
     return LabelRow(
         ecosystem="pypi",
         name="somepkg",
         version="1.0.0",
-        label=label,  # type: ignore[arg-type]
+        label=label,
         evidence_kind="deprecation_notice",
         evidence_url="https://example.org/x",
         evidence_quote="q",
@@ -29,8 +30,8 @@ def _row(label: str = "dead") -> LabelRow:
     )
 
 
-def _signals(**kw: object) -> Signals:
-    return Signals(purl="pkg:pypi/somepkg@1.0.0", as_of=AS_OF, **kw)  # type: ignore[arg-type]
+def _signals(**kw: Any) -> Signals:
+    return Signals(purl="pkg:pypi/somepkg@1.0.0", as_of=AS_OF, **kw)
 
 
 @pytest.mark.parametrize(

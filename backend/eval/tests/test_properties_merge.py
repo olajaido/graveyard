@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from datetime import timedelta
 
 import pytest
 from hypothesis import given, settings
@@ -15,6 +16,7 @@ from eval.tests.strategies import valid_rows
 HEADER_LINE = ",".join(HEADER) + "\n"
 
 pytestmark = pytest.mark.property
+DEADLINE = timedelta(seconds=5)
 
 
 @dataclass(frozen=True)
@@ -38,7 +40,7 @@ def batches(draw: st.DrawFn) -> Batch:
     return Batch(existing=existing, staged=staged)
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(batch=batches())
 def test_merge_appends_in_order(batch: Batch) -> None:
     """**Validates: Requirements EV-MRG-2, EV-MRG-4, EV-DATA-7**"""
@@ -50,7 +52,7 @@ def test_merge_appends_in_order(batch: Batch) -> None:
     assert list(parse_labels(plan.merged_text)) == batch.existing + batch.staged
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(batch=batches(), data=st.data())
 def test_merge_two_steps_equal_one(batch: Batch, data: st.DataObject) -> None:
     """**Validates: Requirements EV-MRG-4, EV-MRG-5, EV-MRG-6**"""
@@ -63,7 +65,7 @@ def test_merge_two_steps_equal_one(batch: Batch, data: st.DataObject) -> None:
     assert step_two.merged_text == one_shot.merged_text
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(batch=batches().filter(lambda b: bool(b.staged)), data=st.data())
 def test_merge_rejects_any_reviewed_true(batch: Batch, data: st.DataObject) -> None:
     """**Validates: Requirements EV-DATA-8, EV-MRG-2**"""
@@ -75,7 +77,7 @@ def test_merge_rejects_any_reviewed_true(batch: Batch, data: st.DataObject) -> N
     assert info.value.errors
 
 
-@settings(max_examples=200, deadline=None)
+@settings(max_examples=200, deadline=DEADLINE)
 @given(batch=batches(), data=st.data())
 def test_merge_failed_plan_has_no_effect(batch: Batch, data: st.DataObject) -> None:
     """**Validates: Requirements EV-MRG-2, EV-MRG-3**

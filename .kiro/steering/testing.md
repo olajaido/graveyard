@@ -38,13 +38,13 @@ Semver/PEP 440 range matching has no required properties: OSV `querybatch` match
 | Layer | Tooling | Gate |
 |---|---|---|
 | Lint/format | Ruff, mypy (strict on `core`), ESLint, Prettier, tflint, terraform fmt, hadolint, actionlint | CI fail |
-| Unit | pytest, Vitest | 85% line coverage on `backend/core` (incl. `backend/core/install`), `backend/rites`, `backend/cli`, `backend/mcp_server` |
+| Unit | pytest, Vitest | 85% line coverage on `backend/core` (incl. `backend/core/install`), `backend/rites`, `backend/cli`, `backend/mcp_server`, `backend/eval` |
 | Property | Hypothesis, fast-check | `max_examples=500` in CI |
 | Integration | pytest with recorded HTTP fixtures (VCR-style) for every source; LocalStack optional | CI fail |
 | Contract | Schemathesis against `openapi.yaml` on dev stage | Deploy gate |
 | E2E | Playwright: landing → demo scan → certificate → rite preview; axe-core accessibility | Deploy gate |
 | Security | gitleaks, checkov, `pip-audit`/`pnpm audit`, Graveyard Vigil (dog-food), CodeQL | CI fail on high |
-| Eval | `make eval` precision ≥ 0.90 | CI fail |
+| Eval | `make eval`: Dead precision ≥ 0.90 and finished-healthy FPR ≤ 0.10 on reviewed rows | CI fail |
 | Load | k6, 20 concurrent scans of demo repo | Manual, W4 |
 
 ## Fixture Strategy
@@ -52,6 +52,7 @@ Semver/PEP 440 range matching has no required properties: OSV `querybatch` match
 - Recorded HTTP fixtures (VCR-style) for every external source.
 - Red-team fixtures: poisoned READMEs/issues for narrate and Séance prompt-injection tests.
 - Eval set in `eval/labelled_packages.csv`: ~100 packages hand-labelled (dead, finished-healthy, alive, ailing).
+- Eval fixtures in `eval/fixtures/<ecosystem>/<name>.json` (anchor format), captured once by `scripts/capture_eval.py`.
 - Confusion matrix printed by `make eval`.
 
 ## CI/CD Pipeline

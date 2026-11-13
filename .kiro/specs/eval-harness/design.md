@@ -327,10 +327,12 @@ signals = dataclasses.replace(
     s3_last_push_at=None, s5_committers=None, s6_open_issues=None, s6_closed_issues=None,
     s1_declared_death=True if loaded.registry_deprecated is True else None,
 )
-warnings = (*[w for w in loaded.warnings if w.source != "github"],
-            SourceWarning(code="GITHUB_DISABLED", source="github", signals=FEEDS["github"],
-                          detail="no GitHub token configured; GitHub signals unavailable"))
+kept = tuple(w for w in loaded.warnings if w.source != "github")
+disabled = SourceWarning(code="GITHUB_DISABLED", source="github", signals=FEEDS["github"],
+                         detail="no GitHub token configured; GitHub signals unavailable")
+warnings = kept if loaded.raw.get("repo") is None else (*kept, disabled)
 ```
+The `GITHUB_DISABLED` warning is added only when the fixture has a `repo`: the CLI's GitHub client warns per repo target, so a package without a repository (`nose`, `pycrypto`) has nothing skipped and stays verified (EV-NOGH-5).
 
 The `None` (not `False`) for S1 follows `core.sources.assemble`, where S1 for npm is `k_or(latest_deprecated, archived)` and an unknown archived flag leaves the OR unknown unless the registry says `True`; for PyPI S1 is the archived flag alone, so it is `None`. The scorer treats `False` and `None` alike for S1 (`is True` tests), so the choice changes no verdict, but `None` is the faithful value.
 

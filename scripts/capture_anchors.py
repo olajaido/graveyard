@@ -211,8 +211,11 @@ def sig(
     return out
 
 
-def missing(note: str, source: str | None = None) -> dict[str, Any]:
-    return sig(None, source, now_iso(), note=note)
+def missing(note: str, source: str | None = None, *, unavailable: bool = False) -> dict[str, Any]:
+    out = sig(None, source, now_iso(), note=note)
+    if unavailable:
+        out["unavailable"] = True
+    return out
 
 
 def to_date(raw: Any) -> str | None:
@@ -437,8 +440,8 @@ def collect_scorecard(
         try:
             fb = http.get(url, allow_404=True)
         except FetchError as exc:
-            return missing(f"scorecard unavailable: {exc}", url), missing(
-                f"scorecard unavailable: {exc}", url
+            return missing(f"scorecard unavailable: {exc}", url, unavailable=True), missing(
+                f"scorecard unavailable: {exc}", url, unavailable=True
             )
         source, fetched_at = url, fb.fetched_at
         overall = fb.data.get("score")
@@ -523,7 +526,9 @@ def capture_phase1(http: Http, name: str, ecosystem: str, pinned: str | None) ->
         d = pypi_release_date(reg["doc"], latest)
         if d:
             s2 = sig(d, reg["url"], reg["fetched_at"])
-    signals["s2_latest_release_at"] = s2 or missing("latest release date unavailable", s2_url)
+    signals["s2_latest_release_at"] = s2 or missing(
+        "latest release date unavailable", s2_url, unavailable=True
+    )
 
     # S1 (registry part) and S1b: npm only; PyPI exposes no deprecation signal
     if ecosystem == "npm":
@@ -566,7 +571,7 @@ def capture_phase1(http: Http, name: str, ecosystem: str, pinned: str | None) ->
             project = {"data": res.data, "fetched_at": res.fetched_at}
     (s4, s8), err = attempt("scorecard", collect_scorecard, http, repo, project)
     if err:
-        s4 = s8 = missing(err)
+        s4 = s8 = missing(err, unavailable=True)
     signals["s4_maintained"], signals["s8_overall"] = s4, s8
 
     # S7 advisories (None = unknown, [] = known empty)
@@ -645,11 +650,11 @@ def graphql(http: Http, query: str, variables: dict[str, Any]) -> Fetched:
 
 
 def capture_github(
-    http: Http, repos: list[tuple[str, str]]
+    http: Http, repos: list[tuple[str, str]], as_of: date = AS_OF
 ) -> dict[tuple[str, str], dict[str, dict[str, Any]]]:
     """Return per-repo signal dicts for s1_github/s3/s5/s6 (keyed by (owner, name))."""
-    since = datetime.combine(AS_OF - timedelta(days=365), datetime.min.time(), UTC)
-    until = datetime.combine(AS_OF, datetime.max.time(), UTC).replace(microsecond=0)
+    since = datetime.combine(as_of - timedelta(days=365), datetime.min.time(), UTC)
+    until = datetime.combine(as_of, datetime.max.time(), UTC).replace(microsecond=0)
     window = {
         "since": since.isoformat().replace("+00:00", "Z"),
         "until": until.isoformat().replace("+00:00", "Z"),
@@ -665,7 +670,8 @@ def capture_github(
         except FetchError as exc:
             for repo in chunk:
                 out[repo] = {
-                    k: missing(f"GitHub batch failed: {exc}", GITHUB_GRAPHQL) for k in _GH_KEYS
+                    k: missing(f"GitHub batch failed: {exc}", GITHUB_GRAPHQL, unavailable=True)
+                    for k in _GH_KEYS
                 }
             continue
         for i, repo in enumerate(chunk):
@@ -737,7 +743,9 @@ def github_signals(
                 {"o": repo[0], "n": repo[1], "after": info.get("endCursor"), **window},
             )
         except FetchError as exc:
-            out["s5_committers"] = missing(f"history pagination failed for {ref}: {exc}", src)
+            out["s5_committers"] = missing(
+                f"history pagination failed for {ref}: {exc}", src, unavailable=True
+            )
             return out
         fetched_at = res.fetched_at
         t = (
@@ -776,7 +784,9 @@ def combine_s1(partial: Partial, gh: dict[str, dict[str, Any]] | None) -> dict[s
     )
 
 
-def assemble(partial: Partial, gh: dict[str, dict[str, Any]] | None) -> dict[str, Any]:
+def assemble(
+    partial: Partial, gh: dict[str, dict[str, Any]] | None, as_of: date = AS_OF
+) -> dict[str, Any]:
     signals = dict(partial.signals)
     if partial.repo is None or gh is None:
         why = "no GitHub repo resolved"
@@ -798,7 +808,7 @@ def assemble(partial: Partial, gh: dict[str, dict[str, Any]] | None) -> dict[str
         "resolved_version": partial.resolved,
         "latest_version": partial.latest,
         "repo": f"github.com/{partial.repo[0]}/{partial.repo[1]}" if partial.repo else None,
-        "as_of": AS_OF.isoformat(),
+        "as_of": as_of.isoformat(),
         "captured_at": now_iso(),
         "signals": {k: signals[k] for k in order},
         # Not observable from public sources; fixed defaults, not captures.

@@ -40,12 +40,58 @@ def _is_name_or_attr(node: ast.expr, name: str) -> bool:
     return _is_name(node, name) or (isinstance(node, ast.Attribute) and node.attr == name)
 
 
+#: Real dotted names that are forbidden whatever local alias they are reached through.
+#: Value: (message, ``__main__`` may use it).
+FORBIDDEN_DOTTED = {
+    "os.environ": ("uses os.environ (no environment)", False),
+    "os.getenv": ("uses os.getenv (no environment)", False),
+    "time.time": ("uses time.time (no clock)", False),
+    "datetime.datetime.now": ("uses datetime.now (no clock)", False),
+    "datetime.date.today": ("uses date.today (no clock)", False),
+    "sys.exit": ("uses sys.exit (__main__ only)", True),
+}
+
+
+def _alias_map(tree: ast.AST) -> dict[str, str]:
+    """Local name -> real dotted name, from absolute ``import`` and ``from`` imports."""
+    aliases: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.asname:
+                    aliases[alias.asname] = alias.name
+                else:
+                    top = alias.name.split(".")[0]
+                    aliases[top] = top
+        elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
+            for alias in node.names:
+                aliases[alias.asname or alias.name] = f"{node.module}.{alias.name}"
+    return aliases
+
+
+def _resolve(node: ast.expr, aliases: dict[str, str]) -> str | None:
+    """Real dotted name of a ``Name``/``Attribute`` chain, or None if its root is not imported."""
+    if isinstance(node, ast.Name):
+        return aliases.get(node.id)
+    if isinstance(node, ast.Attribute):
+        base = _resolve(node.value, aliases)
+        return f"{base}.{node.attr}" if base else None
+    return None
+
+
 def check_guards(source: str, rel_path: str) -> list[str]:
     """Return one message per violation of EV-RUN-4 for a module named ``rel_path``."""
     tree = ast.parse(source, filename=rel_path)
     is_main = rel_path == MAIN_MODULE
+    aliases = _alias_map(tree)
     problems: list[str] = []
     for node in ast.walk(tree):
+        if isinstance(node, (ast.Name, ast.Attribute)):
+            dotted = _resolve(node, aliases)
+            if dotted in FORBIDDEN_DOTTED:
+                message, main_ok = FORBIDDEN_DOTTED[dotted]
+                if not (main_ok and is_main):
+                    problems.append(f"{rel_path}: {message}")
         if isinstance(node, ast.Import):
             problems.extend(
                 f"{rel_path}: imports {alias.name} (banned module)"
@@ -79,7 +125,7 @@ def check_guards(source: str, rel_path: str) -> list[str]:
             problems.append(f"{rel_path}: uses {node.id} (no environment)")
         if isinstance(node, ast.Call) and _is_name(node.func, "print") and not is_main:
             problems.append(f"{rel_path}: calls print() (__main__ only)")
-    return problems
+    return list(dict.fromkeys(problems))
 
 
 def _imports_eval(source: str) -> list[str]:
@@ -203,6 +249,78 @@ def test_rule3_print_only_in_main() -> None:
     assert any("print" in p for p in check_guards(source, "runner.py"))
     assert any("print" in p for p in check_guards(source, "__init__.py"))
     assert check_guards(source, MAIN_MODULE) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import urllib.request as ur\n",
+        "from urllib import request as r\n",
+        "import socket as s\n",
+        "import subprocess as sp\n",
+        "import httpx as h\n",
+        "import requests as rq\n",
+        "from subprocess import run as go\n",
+    ],
+)
+@pytest.mark.parametrize("rel_path", ["runner.py", MAIN_MODULE])
+def test_rule1_aliased_banned_modules_rejected(source: str, rel_path: str) -> None:
+    assert any("banned module" in p for p in check_guards(source, rel_path))
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import os as o\nx = o.environ\n",
+        "import os as o\nx = o.environ['A']\n",
+        "import os as o\nx = o.getenv('A')\n",
+        "from os import environ as e\n",
+        "from os import environ as e\nx = e['A']\n",
+        "from os import getenv as g\nx = g('A')\n",
+    ],
+)
+@pytest.mark.parametrize("rel_path", ["runner.py", MAIN_MODULE])
+def test_rule2_aliased_environment_rejected(source: str, rel_path: str) -> None:
+    assert any("environment" in p for p in check_guards(source, rel_path))
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import time as t\nx = t.time()\n",
+        "from time import time as now\n",
+        "from time import time as now\nx = now()\n",
+        "import datetime as dt\nx = dt.datetime.now()\n",
+        "import datetime as dt\nx = dt.date.today()\n",
+        "from datetime import datetime as D\nx = D.now()\n",
+        "from datetime import date as d\nx = d.today()\n",
+    ],
+)
+@pytest.mark.parametrize("rel_path", ["runner.py", MAIN_MODULE])
+def test_rule2_aliased_clock_rejected(source: str, rel_path: str) -> None:
+    assert any("clock" in p for p in check_guards(source, rel_path))
+
+
+def test_rule3_aliased_sys_exit_only_in_main() -> None:
+    for source in ("import sys as s\ns.exit(1)\n", "from sys import exit as bye\nbye(1)\n"):
+        assert any("__main__ only" in p for p in check_guards(source, "runner.py"))
+        assert check_guards(source, MAIN_MODULE) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "t = Ticker()\nx = t.time()\n",
+        "dt = Clock()\nx = dt.now()\ny = dt.today()\n",
+        "import json as t\nx = t.time\n",
+        "import json as dt\nx = dt.now()\n",
+        "from json import loads as D\nx = D.now()\n",
+        "from . import time as t\nx = t.time()\n",
+        "def f(t, dt, d):\n    return t.time() + dt.now() + d.today()\n",
+    ],
+)
+def test_non_alias_names_are_not_flagged(source: str) -> None:
+    assert check_guards(source, "runner.py") == []
 
 
 def test_clean_module_passes() -> None:

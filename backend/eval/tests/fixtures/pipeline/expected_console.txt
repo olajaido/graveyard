@@ -1,0 +1,48 @@
+Graveyard eval  model v1  as_of 2026-11-03  rows 9 (reviewed 8)
+GATING VIEW: reviewed rows only
+
+Confusion (rows = label, columns = predicted)
+                                dead  finished-healthy             alive            ailing           unknown
+dead                               3                 0                 0                 0                 0
+finished-healthy                   1                 1                 0                 0                 0
+alive                              0                 0                 1                 1                 0
+ailing                             0                 0                 0                 0                 1
+
+Per label         precision           recall
+dead              3/4 = 0.750         3/3 = 1.000
+finished-healthy  1/1 = 1.000         1/2 = 0.500
+alive             1/1 = 1.000         1/2 = 0.500
+ailing            0/1 = 0.000         0/1 = 0.000
+Unknown predictions: 1
+
+Finished-healthy: false-positive rate 1/2 = 0.500 (Dead); flagged 1/2 = 0.500 (Dead or Ailing)
+  Recall for finished-healthy is understated: a finished-healthy package scored Alive is a fine outcome.
+
+Dead precision by dead_reason:  declared 2/2 = 1.000   score 1/2 = 0.500
+Dead precision by ecosystem:  npm 2/2 = 1.000   pypi 1/2 = 0.500
+Dead recall by ecosystem:  npm 2/2 = 1.000   pypi 1/1 = 1.000
+Dead recall by evidence kind:  archived_repo 1/1 = 1.000   deprecation_notice 1/1 = 1.000   eol_announcement n/a   maintainer_statement 1/1 = 1.000
+
+Unverified verdicts: 1 (not gated by the CLI); Dead precision over gate-eligible predictions 3/3 = 1.000
+  by predicted class: dead 1   finished-healthy 0   alive 0   ailing 0   unknown 0
+  partial evidence: 3   missing risks: r2 1   r3 4   r4 3   r5 4   r6 4   r7 0   r8 3
+
+Confidence bands:  none 1   low 2   medium 1   full 4
+
+All rows (provisional, includes unreviewed labels): 9 rows; Dead precision 4/5 = 0.800; finished-healthy FPR 1/2 = 0.500
+
+Without GitHub data (ungated; what the CLI shows with no GITHUB_TOKEN)
+  rows 8   unverified 2   Dead precision 2/4 = 0.500 (gate-eligible 2/2 = 1.000)
+  finished-healthy FPR 2/2 = 1.000   flagged 2/2 = 1.000
+  unverified by predicted class: dead 2   finished-healthy 0   alive 0   ailing 0   unknown 0
+                                  dead  finished-healthy             alive            ailing           unknown
+  dead                               2                 0                 1                 0                 0
+  finished-healthy                   2                 0                 0                 0                 0
+  alive                              0                 0                 1                 1                 0
+  ailing                             0                 0                 0                 0                 1
+
+GATE: PASS
+  sample_dead: 3 (minimum 3) pass [ok]
+  sample_finished_healthy: 2 (minimum 2) pass [ok]
+  dead_precision: 0.750 (threshold 0.700) pass [ok]
+  finished_healthy_fpr: 0.500 (threshold 0.600) pass [ok]

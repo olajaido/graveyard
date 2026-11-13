@@ -728,3 +728,53 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Boundary tables (9/10, 8/10, 2/20, 3/20) pass on exact float comparison. The gate never passes on an empty sample.
 - **Corrected:** Sample checks report the row count as value with `den=None`, since the spec left it open.
 - **Surprise:** `gate.yaml` and the hash file already existed with the right content, so T5.1 and T5.2 only confirmed them.
+
+### 13 Nov — Spec `eval-harness`: T5a (guard hardening)
+- **Spec/task:** T5a.1: `check_guards` resolves aliases and from-imports (`import time as t`, `from time import time as now`, `import datetime as dt`, `import os as o`).
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run).
+- **Kiro got right:** An alias map from Import/ImportFrom nodes resolves every Name/Attribute chain, so `t.time()` and `dt.datetime.now()` are caught.
+- **Corrected:** Good samples added so a local `t`, `dt` or `from . import time as t` is not flagged.
+- **Surprise:** The guard previously matched names literally, so any alias slipped past it.
+
+### 13 Nov — Spec `eval-harness`: T6 (fixture loader)
+- **Spec/task:** T6.1 to T6.5: `fixture.py`, `support.py` helpers, unit tests, property tests, green gate.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, user-input decision, steering rules (PBT markers).
+- **Kiro got right:** The drift test pins `signals_from_fixture` to the anchor test's mapping for all nine anchors.
+- **Corrected:** EV-NOGH-2 always added `GITHUB_DISABLED`, contradicting EV-NOGH-5 (`nose` verified). Now added only when the fixture has a `repo`, as the CLI does.
+- **Surprise:** `SourceWarning` sorts its `signals`, so comparisons with `FEEDS["github"]` use sets.
+
+### 13 Nov — Spec `eval-harness`: T7 (report, run, entry point, pipeline test)
+- **Spec/task:** T7.1 to T7.8: `report.py`, `run.py`, `__main__.py` dispatcher, `build_pipeline_set`, `test_run.py`, golden console, smoke runs, green gate.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, no `type: ignore`).
+- **Kiro got right:** Every hand-derived literal (both confusion matrices, unverified 1 and 2, gate 3/4 and 1/2) matched the run first time.
+- **Corrected:** An empty labelled set returned exit 3; T7.7 needs exit 1 on "insufficient sample", so `as_of` became nullable (`n/a`, JSON `null`).
+- **Surprise:** `run_merge` binds `DEFAULT_DATA_DIR` as a default, so the merge dispatch test checks the repo files stay byte-identical.
+
+### 13 Nov — Spec `eval-harness`: T8 (capture scripts, offline)
+- **Spec/task:** T8.1 to T8.5: `capture_anchors.py` `as_of` and `unavailable` edits, `capture_eval.py`, offline script tests, socket-blocker conftest, lint.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (pinned deps, secrets via env only).
+- **Kiro got right:** The `capture_anchors.py` diff stayed at the listed hunks (23 insertions, 13 deletions); the anchor tests still pass (356).
+- **Corrected:** The blocker test uses an IP literal, so it reaches `connect` without depending on DNS.
+- **Surprise:** `assemble` pops `_s1_registry`, so `capture_eval` copies it first to build `s1_parts`.
+
+### 13 Nov — Spec `eval-harness`: coroner independence controls (D1, D2, D12)
+- **Spec/task:** T9.1 to T9.6: `.kiro/agents/coroner.json`, `eval/LABELLING.md`, agent guard test, document updates.
+- **Kiro features:** Custom agent with path-scoped permissions (`fs_read` and `fs_write` deny plus one allow, `web_fetch` public https only), steering, spec task DAG.
+- **D1:** The coroner has no shell, MCP, Powers, sub-agents or web search, so a label never comes from Graveyard output.
+- **D2:** Independent of the model, not of the facts; Dead precision is split by `dead_reason` and recall by `evidence_kind`.
+- **D12:** The coroner appends only to `eval/staging/coroner_rows.csv`; the merge validates the batch and rejects it whole on any defect.
+- **Open:** Glob anchoring of the permission rules is unverified until the manual probes (T11).
+
+### 13 Nov — Spec `eval-harness`: T9 (coroner agent, protocol, docs)
+- **Spec/task:** T9.1 to T9.8: PRD §11.5 coroner row, `eval/LABELLING.md`, `.kiro/agents/coroner.json`, agent guard test, `eval/README.md`, steering and PRD updates, ignore check, green gate.
+- **Kiro features:** Custom agent JSON, spec task DAG, spec-task-execution sub-agent, steering files.
+- **Kiro got right:** `check_agent` passes on the real file, and each of the 10 rules removed in turn fails it.
+- **Corrected:** The guard test first assumed 11 permission rules; the design has 10.
+- **Surprise:** `.gitignore` line 33 is a comment warning never to ignore `.kiro/`, so a literal grep for `kiro` matches even though nothing is ignored.
+
+### 13 Nov — Spec `eval-harness`: T10 (data-independent checkpoint)
+- **Spec/task:** T10.1 to T10.7: ruff, mypy --strict, full backend suite (7831 passed), CI-profile property tests, coverage 98.77%, scope check, handover.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run, CI Hypothesis profile).
+- **Kiro got right:** No `uv.lock` change; `backend/core/scoring/` and `weights.v1.yaml` untouched.
+- **Corrected:** Removed 4 `type: ignore` in eval tests and 8 `deadline=None` (now an explicit 5 s deadline); added tests for 8 non-defensive uncovered lines.
+- **Surprise:** The `pyproject.toml` eval additions were already in commit ad4e339, so the T0.3 diff check showed nothing.

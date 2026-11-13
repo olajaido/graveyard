@@ -20,6 +20,7 @@ graveyard/
 │   ├── pyproject.toml          # uv-managed; Python 3.12; pytest, ruff, mypy config
 │   ├── core/                    # pure logic: purl, versions, scoring, graph, sources (PBT heavy)
 │   │   ├── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
+│   │   ├── bands.py             # pure: confidence band constants (none, low, medium, full); no import from core.scoring
 │   │   ├── install/             # pure: install-command parser and hook payload extractor (no I/O)
 │   │   └── sources/             # pure half of the source clients: parsers, has_fix, repo resolution, signal assembly
 │   │       └── tests/fixtures/recorded/   # recorded HTTP cassette shared with backend/sources/tests
@@ -28,6 +29,7 @@ graveyard/
 │   ├── api/                     # handlers + openapi.yaml
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
 │   ├── narrate/                 # Bedrock prompts + validators
+│   ├── eval/                    # eval harness code (not shipped); colocated tests in eval/tests/; data lives in repo-root eval/
 │   ├── mcp_server/              # graveyard-mcp server (not mcp/: it would shadow the SDK)
 │   ├── cli/                     # graveyard CLI (autopsy, check-install; later scan); may import core.install
 │   └── tests/{unit,property,integration,fixtures}
@@ -38,7 +40,7 @@ graveyard/
 │   └── bootstrap/               # state bucket (S3 native locking), OIDC role
 ├── actions/vigil/               # GitHub Action
 ├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
-├── eval/                        # labelled set + harness
+├── eval/                        # data only: labelled set, fixtures, staging, gate.yaml, LABELLING.md, README.md, results.json
 ├── docs/{PRD.md,KIRO_JOURNAL.md,ARCHITECTURE.md,runbooks/}
 ├── scripts/hooks/               # incl. sync-power.py (writes the .kiro copies of the Power; --check mode)
 ├── .github/workflows/{ci.yml,deploy.yml,vigil.yml}
@@ -70,7 +72,7 @@ graveyard/
 - `backend/narrate/` contains Bedrock prompts and validators only.
 - `infra/modules/` contains reusable Terraform modules. No environment-specific values.
 - `infra/envs/` contains thin roots that call modules with tfvars. No resource definitions here.
-- `eval/` is standalone; not imported by application code.
+- `backend/eval/` may import `core`, `cli.gate` and `sources` types. Nothing imports it. The repo-root `eval/` folder holds data only.
 
 ## Commit Hygiene
 

@@ -261,7 +261,11 @@ priority    = mortality × (exposure.base + (1 − exposure.base) × exposure) �
 ### 7.6 Evaluation harness (credibility, and a strong point for judges)
 
 - Build `eval/labelled_packages.csv` with about **100 npm and PyPI packages** hand-labelled: dead (deprecated or archived), finished-healthy (tiny stable utilities), alive, and ailing.
-- `make eval` prints precision, recall and false-positive rate on "finished" packages, plus a confusion matrix. CI fails if precision drops below 0.90.
+- `make eval` prints precision, recall and false-positive rate on "finished" packages, plus a confusion matrix. CI fails if Dead precision drops below 0.90 or the finished-healthy false-positive rate rises above 0.10.
+- The false-positive rate is finished-healthy rows predicted Dead divided by finished-healthy rows. A finished-healthy package predicted Ailing is not a false positive; the flagged rate (Dead or Ailing) is reported next to it.
+- The gate runs on reviewed rows only and never passes vacuously: with fewer than 25 reviewed Dead rows or 20 reviewed finished-healthy rows, or with no Dead predictions, it fails with a reason.
+- Weights are frozen (`weights.v1.yaml`, hash recorded). A failing gate is reported, never tuned away; a change is a separate v2.
+- A without-GitHub view re-scores every fixture as the CLI does without a token. It is reported and never gated.
 - Report the numbers in the README and the video. **Judges rarely see hackathon projects that measure themselves.**
 
 ### 7.7 Properties that must always hold (property-based tests, §11.6)
@@ -673,7 +677,7 @@ Use **JSON format**. Kiro Crew only discovers `.json` agents, not `.md`.
 
 | Agent | Tools allowed | Role |
 |---|---|---|
-| `coroner` | read-only filesystem, Graveyard MCP, fetch | Investigates package health and writes the eval-set labels with evidence |
+| `coroner` | read-only access to three eval files, append to one staging file, web fetch; no Graveyard MCP, CLI, Powers or shell | Proposes eval-set labels from independent evidence (maintainer statements, deprecation notices, archived repos, EOL announcements) |
 | `necromancer` | write within `backend/rites/**`, test runner | Implements codemod rules and rite generators |
 | `stylist` | write within `web/**`, Playwright MCP | UI implementation against `ui-theme.md` |
 | `warden` | read-only, Terraform MCP, AWS docs MCP | Reviews IaC for least privilege, tagging and alarms |

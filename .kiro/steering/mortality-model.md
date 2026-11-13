@@ -144,3 +144,7 @@ All anchors: `paths` is null in every fixture, so `exposure == 1.0` and `exposur
 - `eval/labelled_packages.csv`: about 100 npm and PyPI packages, hand-labelled dead / finished-healthy / alive / ailing.
 - `make eval` prints precision, recall, false-positive rate on finished-healthy, and a confusion matrix.
 - CI fails if Dead precision < 0.90 or the finished-healthy false-positive rate > 0.10.
+- False-positive rate = finished-healthy rows predicted Dead ÷ finished-healthy rows. Predicted Ailing is not a false positive; the flagged rate (Dead or Ailing) is reported next to it.
+- The gate runs on reviewed rows only and never passes vacuously: fewer than 25 reviewed Dead or 20 reviewed finished-healthy rows, or no Dead predictions, fails with a reason.
+- Weights are frozen (`weights.v1.yaml`, hash recorded). A failing gate is reported, never tuned away; a change is a separate v2.
+- A without-GitHub view re-scores every fixture as the CLI does without a token. It is reported and never gated.
