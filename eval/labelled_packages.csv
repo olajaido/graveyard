@@ -21,3 +21,8 @@ npm,abab,2.0.6,dead,deprecation_notice,https://registry.npmjs.org/abab/latest,Us
 npm,sourcemap-codec,1.4.8,dead,deprecation_notice,https://registry.npmjs.org/sourcemap-codec/latest,Please use @jridgewell/sourcemap-codec instead,coroner,false
 npm,q,1.5.1,dead,deprecation_notice,https://registry.npmjs.org/q/latest,"You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises.",coroner,false
 npm,on-finished,2.4.2,alive,release_notes,https://github.com/jshttp/on-finished/releases,Release: 2.4.2 by @Phillip9587 in #110,coroner,false
+npm,react,19.3.1,alive,release_notes,https://github.com/facebook/react/releases/tag/v19.3.1,"Release 19.3.1 (October 14th, 2026)",coroner,false
+npm,vite,8.3.8,alive,release_notes,https://raw.githubusercontent.com/vitejs/vite/main/packages/vite/CHANGELOG.md,[8.3.8](https://github.com/vitejs/vite/compare/v8.3.7...v8.3.8) (2026-11-11),coroner,false
+npm,axios,1.21.1,alive,release_notes,https://github.com/axios/axios/releases,"v1.21.1 — November 9, 2026",coroner,false
+npm,prettier,3.10.1,alive,release_notes,https://prettier.io/blog/,"November 11, 2026 · 31 min readWe're excited to announce Prettier 3.10!",coroner,false
+npm,commander,15.1.0,alive,release_notes,https://raw.githubusercontent.com/tj/commander.js/master/CHANGELOG.md,## [15.1.0] (2026-11-07),coroner,false
