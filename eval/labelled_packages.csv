@@ -72,3 +72,8 @@ pypi,sen,0.8.1,ailing,maintainer_statement,https://github.com/TomasTomecek/sen,"
 pypi,windows-curses,2.4.2,ailing,maintainer_statement,https://github.com/zephyrproject-rtos/windows-curses,This project is not actively maintained and is looking for maintainers.,coroner,false
 pypi,yafowil-plone,6.0.0,alive,release_notes,https://pypi.org/pypi/yafowil-plone/json,"""upload_time"":""2026-03-31T09:42:36""",coroner,false
 pypi,zgw-consumers-oas,1.1.0,finished-healthy,feature_complete_readme,https://github.com/maykinmedia/zgw-consumers-oas,"This package is considered ""feature complete"" and will only receive bugfixes.",coroner,false
+npm,aiwg,2026.11.5,alive,release_notes,https://raw.githubusercontent.com/jmagly/aiwg/main/CHANGELOG.md,## [2026.11.5] - 2026-11-11,coroner,false
+pypi,feedjack,16.8.1,dead,deprecation_notice,https://pypi.org/pypi/feedjack/json,this fork of the project is pretty much abandoned and,coroner,false
+pypi,jdxi-editor,0.9.9,alive,release_notes,https://raw.githubusercontent.com/markxbrooks/JDXI-Editor/main/CHANGELOG.md,# [0.9.9] — 2026-11,coroner,false
+pypi,maccarone,0.1.9,finished-healthy,feature_complete_readme,https://github.com/bsilverthorn/maccarone,It feels feature-complete for that purpose.,coroner,false
+pypi,rai-workflow-manager,0.0.52,dead,maintainer_statement,https://github.com/RelationalAI/rai-workflow-manager,Warning: This project is inactive.,coroner,false
