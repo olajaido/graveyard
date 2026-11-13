@@ -174,6 +174,13 @@ The first still-works run (13 Nov) showed cases where the check did not test wha
 3. A Python package that imports an undeclared GUI toolkit from a fixed list (PyQt5, PyQt6, PySide2, PySide6) is checked with that toolkit and its system libraries installed. No other undeclared module is ever installed.
 4. Every row's version is checked against the registry. A version that does not exist on the registry is a labelling error: it is corrected to the registry version current on the labelling date and logged in section 8 before the check is re-run.
 
+#### Amendment 5 (fixed 13 Nov 2026, before the third still-works run and before batch B2)
+The second still-works run showed that Amendment 4 point 2 stopped npm installing peer frameworks, and that Docker on Apple Silicon ran arm64 images for which some packages publish no wheels. Changes, applied to every `finished-healthy` row:
+1. Replaces Amendment 4 point 2: npm installs normally (npm installs peer dependencies). Only if install fails with ERESOLVE is it retried with --legacy-peer-deps plus each peer dependency installed at its declared range.
+2. An npm import failure with ERR_UNSUPPORTED_DIR_IMPORT or ERR_UNKNOWN_FILE_EXTENSION (a bundler-only layout) is `pass_install_only`.
+3. All check containers run as linux/amd64.
+4. For every draw rule, the `finished-healthy` count excludes rows that failed the still-works check.
+
 #### Review check for `finished-healthy` (fixed 13 Nov 2026, before any review or capture)
 Section 1 requires that a `finished-healthy` package still works. At review (T14), each `finished-healthy` row's labelled version is installed in a clean environment on a currently supported runtime (Python 3.12 for pypi, Node 22 LTS for npm) and imported or required once. A row that fails is removed from the set and logged in section 8 with the reason "section 1: does not still work (install or import failed on <runtime>)". The check is the same for every row and does not use Graveyard.
 
