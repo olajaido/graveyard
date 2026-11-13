@@ -98,6 +98,20 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-13 | (addition 1) | n/a | Source lists for addition 1: GitHub code search for repostatus.org badges and README status phrases; see eval/addition1/README.md. |
 | 2026-11-13 | (addition 2) | n/a | Source lists for addition 2: GitHub code search for completeness/stability phrases; see eval/addition2/README.md. |
 | 2026-11-13 | (addition 3) | n/a | Source lists for addition 3: GitHub code search for completeness phrases; see eval/addition3/README.md. |
+| 2026-11-13 | pypi,cement | alive → removed | Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time) |
+| 2026-11-13 | pypi,liffile | alive → removed | Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time) |
+| 2026-11-13 | pypi,mastodon-py | alive → removed | Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time) |
+| 2026-11-13 | pypi,yafowil-plone | alive → removed | Amendment 1 point 3: only alive evidence is a machine timestamp (PyPI upload_time) |
+| 2026-11-13 | npm,p-queue | alive → removed | Amendment 3: only alive evidence is an API record (api.github.com created_at) |
+| 2026-11-13 | pypi,ydb | alive → removed | Amendment 3: only alive evidence is an API record (api.github.com created_at) |
+| 2026-11-13 | pypi,dalton | finished-healthy → removed | section 1: does not still work (import failed on python:3.12-slim, linux/amd64) |
+| 2026-11-13 | pypi,bravado-falcon | finished-healthy → removed | section 1: does not still work (install failed on python:3.12-slim, linux/amd64) |
+| 2026-11-13 | pypi,obffile | alive → removed | section 2: alive evidence is a README version field, not release notes |
+| 2026-11-13 | pypi,django-context-decorator | finished-healthy → kept, checked by hand | quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier) |
+| 2026-11-13 | pypi,robotframework-angularjs | finished-healthy → kept, checked by hand | quote verified in the PyPI JSON description of the same README (project page serves a bot challenge to the verifier) |
+| 2026-11-13 | npm,prettier | alive → kept, checked by hand | verified by maintainer in a browser: blog post dated November 11, 2026 announcing Prettier 3.10; the quote spans two page elements |
+
+
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
 
 This plan was fixed on 13 Nov 2026, before any labelling and before any Graveyard output was seen for these candidates. The maintainer chose the list without labels.
@@ -192,3 +206,6 @@ Additions 1 and 2 are exhausted with the effective `finished-healthy` count (row
 
 #### Labelling closed (13 Nov 2026, before any capture)
 After batch C1: 125 merged rows; effective `finished-healthy` 20 (22 merged, 2 failed the still-works check: dalton, bravado-falcon). Every section 3 minimum is met on effective counts. Addition 3 ranks 11-15 are not drawn. They are drawn (as batch C2, under the Addition 3 rule) only if review removes a `finished-healthy` row and the effective count falls below 20. No Graveyard output has been seen. From here, rows change only at review (T14), each change logged in section 8.
+
+#### Review complete; answer key frozen (13 Nov 2026, before any capture)
+T14 review applied from `eval/review/decisions.tsv`: 9 rows removed and 3 checked by hand, each logged in section 8. 116 rows remain, all `reviewed=true`: 45 `dead`, 31 `alive`, 20 `ailing`, 20 `finished-healthy`; 60 npm, 56 pypi. Every section 3 minimum is met. Evidence checks: `eval/review/evidence.tsv` (quotes on page) and `eval/review/still_works.tsv` (section 1). No Graveyard output has been seen. From this point no row is added, dropped or relabelled.
