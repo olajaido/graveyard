@@ -778,3 +778,12 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** No `uv.lock` change; `backend/core/scoring/` and `weights.v1.yaml` untouched.
 - **Corrected:** Removed 4 `type: ignore` in eval tests and 8 `deadline=None` (now an explicit 5 s deadline); added tests for 8 non-defensive uncovered lines.
 - **Surprise:** The `pyproject.toml` eval additions were already in commit ad4e339, so the T0.3 diff check showed nothing.
+
+### 13 Nov — Spec `eval-harness`: T11 (permission probes) *(manual)*
+- **Spec/task:** T11.1 to T11.4, run by the maintainer against the `coroner` agent. All probes matched expectations, so no `match` or `exclude` pattern needed adjusting.
+- **Blocked by the agent-profile deny rules (steps 1, 2, 5, 6):** the reads and writes outside the three allowed eval files were refused.
+- **Unavailable (steps 3, 4, 7):** the CLI, the `autopsy_package` MCP tool and web search are not offered to the agent.
+- **Allowed (steps 8, 9, 10):** reading `eval/LABELLING.md`, appending to `eval/staging/coroner_rows.csv`, and fetching the registry page. The staging append needed no prompt.
+- **Kiro got right:** the coroner declined to fabricate a label from evidence that did not support it.
+- **Resolved:** the open question on glob anchoring of the `fs_read` and `fs_write` rules is answered in practice: the workspace-relative patterns blocked and allowed exactly the expected paths.
+- **Follow-up change:** `web_fetch` now runs without a prompt for six hosts only (`registry.npmjs.org`, `www.npmjs.com`, `pypi.org`, `github.com`, `raw.githubusercontent.com`, `endoflife.date`), per the [Permissions page](https://kiro.dev/docs/permissions/). Each pattern is `https://<host>/*`, with no `exclude`. Every other URL keeps the default prompt, and the old `https://*` allow with its private-range exclusions is gone. No file permission changed. EV-AGT-5, the design and the T9.4 guard test were updated together, with bad-sample tests for a widened host list.

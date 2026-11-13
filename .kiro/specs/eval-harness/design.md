@@ -111,16 +111,17 @@ Format and location: JSON file in `.kiro/agents/`, workspace scope, loaded only 
       { "capability": "skill", "effect": "deny" },
       { "capability": "subagent", "effect": "deny" },
       { "capability": "web_search", "effect": "deny" },
-      { "capability": "web_fetch", "match": ["https://*"],
-        "exclude": ["https://localhost*", "https://127.*", "https://[::1]*", "https://169.254.*", "https://10.*", "https://192.168.*", "https://172.16.*", "…", "https://172.31.*"],
+      { "capability": "web_fetch",
+        "match": ["https://localhost*", "https://127.*", "https://0.0.0.0*", "https://169.254.*", "https://10.*", "https://172.16.*", "…", "https://172.31.*", "https://192.168.*", "https://[::1]*", "https://[fc*", "https://[fd*", "https://[fe8*", "https://[fe9*", "https://[fea*", "https://[feb*", "https://*.internal", "https://*.internal/*", "https://*.internal:*", "https://*.local", "https://*.local/*", "https://*.local:*", "…the same 35 with http://"],
+        "effect": "deny" },
+      { "capability": "web_fetch",
+        "match": ["https://registry.npmjs.org/*", "https://www.npmjs.com/*", "https://pypi.org/*", "https://github.com/*", "https://raw.githubusercontent.com/*", "https://endoflife.date/*"],
         "effect": "allow" }
     ]
   },
   "welcomeMessage": "Coroner ready. Give me packages to examine, or ask me to propose candidates for a label. I label from evidence only and append to the staging file."
 }
 ```
-
-(The file lists all sixteen `https://172.16.*` … `https://172.31.*` entries.)
 
 | Control | Requirement | Why it is there |
 |---------|-------------|-----------------|
@@ -131,7 +132,7 @@ Format and location: JSON file in `.kiro/agents/`, workspace scope, loaded only 
 | Deny `mcp`, `power`, `skill`, `shell`, `subagent` | EV-AGT-3 (c) | Deny wins over any allow, so a later edit to `tools` cannot re-enable the CLI or the MCP. |
 | `fs_read` deny with `exclude` | EV-AGT-4 | An allow-list written as deny-except. Blocks fixtures, results, anchors, source and weights. |
 | `fs_write` deny with `exclude` plus one allow | EV-AGT-4 | Deny wins, so the deny rule must not match the one writable path; the allow rule then applies to it alone. Matches the permissions page's "allow everything except X" pattern, inverted. |
-| `web_fetch` allow only for public https | EV-AGT-5 | The coroner fetches third-party pages; loopback and private ranges are excluded. |
+| `web_fetch` deny for private and internal targets, plus allow for six named hosts | EV-AGT-5 | No prompt for the registries, GitHub and endoflife.date; every other URL keeps the default prompt. Each pattern ends the host with `/*`, so `github.com.evil.example`, userinfo and ports do not match. The deny rule (70 patterns: 35 targets, `http` and `https`) blocks loopback, link-local (cloud metadata), RFC 1918, IPv6 local ranges, `*.internal` and `*.local` even if a later edit widens the allow list; deny wins. Because `*` also spans `/`, the `.internal` and `.local` patterns can over-match a URL whose path ends that way (e.g. `https://github.com/x/a.local`), which is then refused. The permissions page does not say whether web patterns are case-sensitive, so none is assumed; the patterns are lower case and do not cover decimal or hex IP forms; those are not allow-listed and so still prompt. |
 
 Residual risks, stated in `LABELLING.md` (EV-AGT-10): inherited steering describes the model; glob anchoring of `fs_read` and `fs_write` is unspecified on the permissions page, so the manual probes (EV-AGT-9) are the real test; a fetched page can carry injected instructions, so the only things an injected coroner can do are append junk rows to the staging file and fetch more pages. The merge validation and the review step are what stop junk rows.
 

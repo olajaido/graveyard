@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -33,30 +34,44 @@ EXPECTED_READ_EXCLUDE = [
 EXPECTED_WRITE_EXCLUDE = ["eval/staging/coroner_rows.csv"]
 EXPECTED_WRITE_ALLOW = ["eval/staging/coroner_rows.csv"]
 EXPECTED_NO_MATCH_DENIES = ["shell", "mcp", "power", "skill", "subagent", "web_search"]
-EXPECTED_FETCH_MATCH = ["https://*"]
-EXPECTED_FETCH_EXCLUDE = [
-    "https://localhost*",
-    "https://127.*",
-    "https://[::1]*",
-    "https://169.254.*",
-    "https://10.*",
-    "https://192.168.*",
-    "https://172.16.*",
-    "https://172.17.*",
-    "https://172.18.*",
-    "https://172.19.*",
-    "https://172.20.*",
-    "https://172.21.*",
-    "https://172.22.*",
-    "https://172.23.*",
-    "https://172.24.*",
-    "https://172.25.*",
-    "https://172.26.*",
-    "https://172.27.*",
-    "https://172.28.*",
-    "https://172.29.*",
-    "https://172.30.*",
-    "https://172.31.*",
+# Permissions page: web patterns are "*"-only globs. Each entry is scheme + host + "/*", so
+# a longer host (github.com.evil.example), userinfo or a port cannot match. Hosts not listed
+# fall through to the default, which prompts.
+EXPECTED_FETCH_MATCH = [
+    "https://registry.npmjs.org/*",
+    "https://www.npmjs.com/*",
+    "https://pypi.org/*",
+    "https://github.com/*",
+    "https://raw.githubusercontent.com/*",
+    "https://endoflife.date/*",
+]
+# Deny rule for private and internal targets, in https and http forms (deny beats allow).
+# "*" is the only wildcard and it also spans "/", so the two ".internal" and ".local"
+# patterns are written as host-end, host-then-path and host-then-port forms.
+_DENY_TARGETS = [
+    "localhost*",
+    "127.*",
+    "0.0.0.0*",
+    "169.254.*",
+    "10.*",
+    *[f"172.{n}.*" for n in range(16, 32)],
+    "192.168.*",
+    "[::1]*",
+    "[fc*",
+    "[fd*",
+    "[fe8*",
+    "[fe9*",
+    "[fea*",
+    "[feb*",
+    "*.internal",
+    "*.internal/*",
+    "*.internal:*",
+    "*.local",
+    "*.local/*",
+    "*.local:*",
+]
+EXPECTED_FETCH_DENY_MATCH = [
+    f"{scheme}://{t}" for scheme in ("https", "http") for t in _DENY_TARGETS
 ]
 EXPECTED_RESOURCES = ["file://eval/LABELLING.md"]
 
@@ -120,14 +135,19 @@ def check_agent(doc: dict[str, Any], repo_root: Path = REPO_ROOT) -> list[str]:
     else:
         if fetches[0].get("match") != EXPECTED_FETCH_MATCH:
             out.append(f"web_fetch allow match must be {EXPECTED_FETCH_MATCH}")
-        if fetches[0].get("exclude") != EXPECTED_FETCH_EXCLUDE:
-            out.append("web_fetch allow exclude list differs from the expected 22 entries")
-    if _rules_for(doc, "web_fetch", "deny"):
-        out.append("unexpected web_fetch deny rule")
+        if "exclude" in fetches[0]:
+            out.append("web_fetch allow must have no exclude (the host list is the scope)")
+    fetch_denies = _rules_for(doc, "web_fetch", "deny")
+    if len(fetch_denies) != 1:
+        out.append(f"expected exactly one web_fetch deny rule, got {len(fetch_denies)}")
+    elif fetch_denies[0].get("match") != EXPECTED_FETCH_DENY_MATCH or "exclude" in fetch_denies[0]:
+        out.append("web_fetch deny must match exactly the private and internal targets, no exclude")
+    if _rules_for(doc, "web_fetch", "ask"):
+        out.append("unexpected web_fetch ask rule")
 
     total = len(doc.get("permissions", {}).get("rules", []))
-    if total != 10:
-        out.append(f"expected exactly 10 rules, got {total}")
+    if total != 11:
+        out.append(f"expected exactly 11 rules, got {total}")
 
     entries: list[Any] = [
         *doc.get("tools", []),
@@ -159,11 +179,11 @@ def test_real_file_passes_checker() -> None:
     assert check_agent(_load()) == []
 
 
-@pytest.mark.parametrize("index", range(10))
+@pytest.mark.parametrize("index", range(11))
 def test_removing_any_rule_fails(index: int) -> None:
     doc = copy.deepcopy(_load())
     rules = doc["permissions"]["rules"]
-    assert len(rules) == 10
+    assert len(rules) == 11
     del rules[index]
     assert check_agent(doc) != []
 
@@ -189,3 +209,113 @@ def test_graveyard_in_resource_or_mcp_fails() -> None:
 
 def test_missing_named_file_fails(tmp_path: Path) -> None:
     assert check_agent(_load(), repo_root=tmp_path) != []
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda m: m.append("https://*"),
+        lambda m: m.append("https://evil.example/*"),
+        lambda m: m.__setitem__(3, "https://github.com*"),
+        lambda m: m.__setitem__(2, "https://*.org/*"),
+        lambda m: m.pop(),
+    ],
+)
+def test_fetch_host_list_change_fails(mutate: Any) -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "allow")
+    mutate(rule["match"])
+    assert check_agent(doc) != []
+
+
+def _glob(pattern: str, text: str) -> bool:
+    """Web-pattern semantics from the permissions page: "*" matches any characters."""
+    return re.fullmatch(".*".join(re.escape(p) for p in pattern.split("*")), text) is not None
+
+
+ALLOWED_SAMPLES = [
+    "https://registry.npmjs.org/ms",
+    "https://www.npmjs.com/package/ms",
+    "https://pypi.org/pypi/requests/json",
+    "https://github.com/org/repo/blob/main/README.md",
+    "https://raw.githubusercontent.com/org/repo/main/README.md",
+    "https://endoflife.date/python",
+]
+DENIED_SAMPLES = [
+    f"{scheme}://{host}{tail}"
+    for scheme in ("https", "http")
+    for host in (
+        "localhost",
+        "127.0.0.1",
+        "127.255.255.254",
+        "0.0.0.0",
+        "169.254.169.254",
+        "10.1.2.3",
+        "172.16.0.1",
+        "172.31.255.255",
+        "192.168.1.1",
+        "[::1]",
+        "[fc00::1]",
+        "[fd12::1]",
+        "[fe80::1]",
+        "[febf::1]",
+        "db.internal",
+        "printer.local",
+    )
+    for tail in ("", "/", "/x", ":8080/x")
+]
+
+
+def test_deny_matches_private_targets_and_spares_allowed_hosts() -> None:
+    (deny,) = _rules_for(_load(), "web_fetch", "deny")
+    (allow,) = _rules_for(_load(), "web_fetch", "allow")
+    for url in DENIED_SAMPLES:
+        assert any(_glob(p, url) for p in deny["match"]), url
+    for url in ALLOWED_SAMPLES:
+        assert not any(_glob(p, url) for p in deny["match"]), url
+        assert any(_glob(p, url) for p in allow["match"]), url
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda m: m.append("https://*"),
+        lambda m: m.append("https://github.com/*"),
+        lambda m: m.pop(),
+        lambda m: m.remove("http://169.254.*"),
+        lambda m: m.remove("https://*.local:*"),
+    ],
+)
+def test_fetch_deny_change_fails(mutate: Any) -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "deny")
+    mutate(rule["match"])
+    assert check_agent(doc) != []
+
+
+def test_fetch_deny_with_exclude_or_second_deny_fails() -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "deny")
+    rule["exclude"] = ["https://10.*"]
+    assert check_agent(doc) != []
+    doc = copy.deepcopy(_load())
+    doc["permissions"]["rules"].append({"capability": "web_fetch", "effect": "deny"})
+    assert check_agent(doc) != []
+
+
+def test_fetch_exclude_or_ask_rule_fails() -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "allow")
+    rule["exclude"] = ["https://10.*"]
+    assert check_agent(doc) != []
+    doc = copy.deepcopy(_load())
+    doc["permissions"]["rules"].append({"capability": "web_fetch", "effect": "ask"})
+    assert check_agent(doc) != []
+
+
+def test_fetch_patterns_are_host_anchored() -> None:
+    (rule,) = _rules_for(_load(), "web_fetch", "allow")
+    for pattern in rule["match"]:
+        assert pattern.startswith("https://")
+        assert pattern.endswith("/*")
+        assert pattern.count("*") == 1
