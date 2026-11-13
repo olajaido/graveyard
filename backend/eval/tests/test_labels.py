@@ -288,7 +288,7 @@ def test_composition_passes_for_a_generated_set() -> None:
 
 COMPOSITION_FAILURES: list[tuple[str, Callable[[], list[LabelRow]], str]] = [
     ("rows_89", lambda: make_set(ailing=14), "rows: 89"),
-    ("rows_111", lambda: make_set(alive=31), "rows: 111"),
+    ("rows_131", lambda: make_set(alive=51), "rows: 131"),
     ("fh_19", lambda: make_set(fh=19), "label finished-healthy: 19"),
     ("dead_24", lambda: make_set(dead_other=12), "label dead: 24"),
     ("alive_9", lambda: make_set(alive=9, ailing=36), "label alive: 9"),

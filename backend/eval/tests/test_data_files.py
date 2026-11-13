@@ -5,18 +5,19 @@ from __future__ import annotations
 from eval.labels import HEADER, parse_labels
 from eval.paths import DEFAULT_DATA_DIR
 
-_FILES = (
-    DEFAULT_DATA_DIR / "labelled_packages.csv",
-    DEFAULT_DATA_DIR / "staging" / "coroner_rows.csv",
-)
+_LABELLED = DEFAULT_DATA_DIR / "labelled_packages.csv"
+_STAGING = DEFAULT_DATA_DIR / "staging" / "coroner_rows.csv"
+_HEADER_LINE = ",".join(HEADER) + "\n"
 
 
-def test_data_files_header_only() -> None:
-    # NOTE: this test holds only while the committed data is header-only.
-    # After the maintainer merges labelled rows (rollout step 8), the real
-    # data will contain rows and this test is replaced.
-    expected = ",".join(HEADER) + "\n"
-    for path in _FILES:
-        text = path.read_bytes().decode("utf-8")
-        assert parse_labels(text) == (), path.name
-        assert text == expected, path.name
+def test_labelled_packages_header_and_rows_valid() -> None:
+    text = _LABELLED.read_bytes().decode("utf-8")
+    assert text.startswith(_HEADER_LINE)
+    # parse_labels raises LabelsError if any row fails the row validation.
+    parse_labels(text)
+
+
+def test_staging_starts_with_header() -> None:
+    # Rows are allowed here; the coroner appends them before the maintainer merges.
+    text = _STAGING.read_bytes().decode("utf-8")
+    assert text.startswith(_HEADER_LINE)

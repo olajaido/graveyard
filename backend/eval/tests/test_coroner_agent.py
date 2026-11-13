@@ -34,17 +34,21 @@ EXPECTED_READ_EXCLUDE = [
 EXPECTED_WRITE_EXCLUDE = ["eval/staging/coroner_rows.csv"]
 EXPECTED_WRITE_ALLOW = ["eval/staging/coroner_rows.csv"]
 EXPECTED_NO_MATCH_DENIES = ["shell", "mcp", "power", "skill", "subagent", "web_search"]
-# Permissions page: web patterns are "*"-only globs. Each entry is scheme + host + "/*", so
-# a longer host (github.com.evil.example), userinfo or a port cannot match. Hosts not listed
-# fall through to the default, which prompts.
-EXPECTED_FETCH_MATCH = [
-    "https://registry.npmjs.org/*",
-    "https://www.npmjs.com/*",
-    "https://pypi.org/*",
-    "https://github.com/*",
-    "https://raw.githubusercontent.com/*",
-    "https://endoflife.date/*",
+# Permissions page: web patterns are "*"-only globs. An allow entry is either scheme + host
+# + "/*" (URL form) or the exact bare host with no scheme and no wildcard (Kiro matched the
+# bare form in a live probe, so the agent file keeps both). Either way a longer host
+# (github.com.evil.example), userinfo or a port cannot match. Hosts not listed fall through
+# to the default, which prompts.
+EVIDENCE_HOSTS = [
+    "registry.npmjs.org",
+    "www.npmjs.com",
+    "pypi.org",
+    "github.com",
+    "raw.githubusercontent.com",
+    "endoflife.date",
 ]
+EXPECTED_FETCH_URL_MATCH = [f"https://{h}/*" for h in EVIDENCE_HOSTS]
+ALLOWED_FETCH_PATTERNS = {*EXPECTED_FETCH_URL_MATCH, *EVIDENCE_HOSTS}
 # Deny rule for private and internal targets, in https and http forms (deny beats allow).
 # "*" is the only wildcard and it also spans "/", so the two ".internal" and ".local"
 # patterns are written as host-end, host-then-path and host-then-port forms.
@@ -70,8 +74,42 @@ _DENY_TARGETS = [
     "*.local/*",
     "*.local:*",
 ]
+# Bare-host forms of the same targets (no scheme), kept beside the URL forms.
+_DENY_BARE = [
+    "localhost",
+    "localhost:*",
+    "*.localhost",
+    "*.localhost:*",
+    "127.*",
+    "0.0.0.0",
+    "0.0.0.0:*",
+    "10.*",
+    "169.254.*",
+    "192.168.*",
+    *[f"172.{n}.*" for n in range(16, 32)],
+    "*.internal",
+    "*.internal:*",
+    "*.local",
+    "*.local:*",
+    "::1",
+    "[::1]",
+    "[::1]:*",
+    "fc*:*",
+    "fd*:*",
+    "fe8*:*",
+    "fe9*:*",
+    "fea*:*",
+    "feb*:*",
+    "[fc*",
+    "[fd*",
+    "[fe8*",
+    "[fe9*",
+    "[fea*",
+    "[feb*",
+]
 EXPECTED_FETCH_DENY_MATCH = [
-    f"{scheme}://{t}" for scheme in ("https", "http") for t in _DENY_TARGETS
+    *[f"{scheme}://{t}" for scheme in ("https", "http") for t in _DENY_TARGETS],
+    *_DENY_BARE,
 ]
 EXPECTED_RESOURCES = ["file://eval/LABELLING.md"]
 
@@ -133,8 +171,18 @@ def check_agent(doc: dict[str, Any], repo_root: Path = REPO_ROOT) -> list[str]:
     if len(fetches) != 1:
         out.append(f"expected exactly one web_fetch allow rule, got {len(fetches)}")
     else:
-        if fetches[0].get("match") != EXPECTED_FETCH_MATCH:
-            out.append(f"web_fetch allow match must be {EXPECTED_FETCH_MATCH}")
+        patterns: list[Any] = fetches[0].get("match") or []
+        if len(set(map(str, patterns))) != len(patterns):
+            out.append("web_fetch allow match must have no duplicates")
+        for pattern in patterns:
+            if pattern not in ALLOWED_FETCH_PATTERNS:
+                out.append(
+                    f"web_fetch allow pattern {pattern!r} must be 'https://<host>/*' or an "
+                    f"exact bare host (no scheme, no wildcard), host one of {EVIDENCE_HOSTS}"
+                )
+        for url_form in EXPECTED_FETCH_URL_MATCH:
+            if url_form not in patterns:
+                out.append(f"web_fetch allow match must include {url_form!r}")
         if "exclude" in fetches[0]:
             out.append("web_fetch allow must have no exclude (the host list is the scope)")
     fetch_denies = _rules_for(doc, "web_fetch", "deny")
@@ -218,13 +266,36 @@ def test_missing_named_file_fails(tmp_path: Path) -> None:
         lambda m: m.append("https://evil.example/*"),
         lambda m: m.__setitem__(3, "https://github.com*"),
         lambda m: m.__setitem__(2, "https://*.org/*"),
-        lambda m: m.pop(),
+        lambda m: m.pop(0),
+        lambda m: m.append("github.com*"),
+        lambda m: m.append("*.github.com"),
+        lambda m: m.append("*"),
+        lambda m: m.append("evil.example"),
+        lambda m: m.append("https://github.com"),
+        lambda m: m.append("pypi.org"),
     ],
 )
 def test_fetch_host_list_change_fails(mutate: Any) -> None:
     doc = copy.deepcopy(_load())
     (rule,) = _rules_for(doc, "web_fetch", "allow")
     mutate(rule["match"])
+    assert check_agent(doc) != []
+
+
+def test_bare_host_allow_entries_are_optional_and_exact() -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "allow")
+    rule["match"] = list(EXPECTED_FETCH_URL_MATCH)
+    assert check_agent(doc) == []
+    rule["match"] = [*EXPECTED_FETCH_URL_MATCH, "github.com"]
+    assert check_agent(doc) == []
+
+
+@pytest.mark.parametrize("bad", ["github.com*", "*.github.com", "git*hub.com", "*github.com"])
+def test_wildcard_or_prefix_bare_allow_rejected(bad: str) -> None:
+    doc = copy.deepcopy(_load())
+    (rule,) = _rules_for(doc, "web_fetch", "allow")
+    rule["match"].append(bad)
     assert check_agent(doc) != []
 
 
@@ -316,6 +387,10 @@ def test_fetch_exclude_or_ask_rule_fails() -> None:
 def test_fetch_patterns_are_host_anchored() -> None:
     (rule,) = _rules_for(_load(), "web_fetch", "allow")
     for pattern in rule["match"]:
-        assert pattern.startswith("https://")
-        assert pattern.endswith("/*")
-        assert pattern.count("*") == 1
+        if pattern.startswith("https://"):
+            assert pattern.endswith("/*")
+            assert pattern.count("*") == 1
+        else:
+            assert pattern in EVIDENCE_HOSTS
+            assert "*" not in pattern
+            assert "://" not in pattern

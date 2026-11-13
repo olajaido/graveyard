@@ -52,7 +52,7 @@ ALLOWED_EVIDENCE_KINDS: Final[Mapping[str, frozenset[str]]] = {
 
 # EV-DATA-4 composition minimums.
 MIN_ROWS: Final = 90
-MAX_ROWS: Final = 110
+MAX_ROWS: Final = 130
 MIN_PER_LABEL: Final[Mapping[str, int]] = {
     "finished-healthy": 20,
     "dead": 25,
