@@ -100,3 +100,9 @@ pypi,kotti-image-gallery,0.3.2,dead,maintainer_statement,https://raw.githubuserc
 pypi,mkdocs-multirepo-plugin,0.8.3,ailing,maintainer_statement,https://raw.githubusercontent.com/jdoiro3/mkdocs-multirepo-plugin/HEAD/README.md,no longer being actively developed; support/maintenance will be provided as time allows,coroner,false
 pypi,oximedia,0.2.0,alive,release_notes,https://github.com/cool-japan/oximedia/releases,[0.2.1] - 2026-08-12,coroner,false
 pypi,ydb,3.35.0,alive,release_notes,https://api.github.com/repos/ydb-platform/ydb-python-sdk/releases/tags/3.35.0,"""tag_name"":""3.35.0"",""target_commitish"":""main"",""name"":""3.35.0"",""draft"":false,""immutable"":false,""prerelease"":false,""created_at"":""2026-11-09T20:01:17Z""",coroner,false
+pypi,django-context-decorator,1.6.1,finished-healthy,feature_complete_readme,https://pypi.org/project/django-context-decorator/,a tiny package that is feature complete and stable.,coroner,false
+npm,llm-wiki-compiler,1.5.0,alive,release_notes,https://raw.githubusercontent.com/atomicstrata/llm-wiki-compiler/main/CHANGELOG.md,## [1.5.0] - 2026-10-19,coroner,false
+pypi,celery,5.7.0,alive,release_notes,https://raw.githubusercontent.com/celery/celery/main/Changelog.rst,:release-date: 2026-11-05,coroner,false
+pypi,obffile,2026.10.20,alive,release_notes,https://pypi.org/pypi/obffile/json,:Version: 2026.10.20,coroner,false
+pypi,screen3,0.1.2,ailing,maintainer_statement,https://pypi.org/pypi/screen3/json,"Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.",coroner,false
+pypi,opentaxii,0.9.3,finished-healthy,feature_complete_readme,https://github.com/EclecticIQ/OpenTAXII,We have made the decision to consider this project feature-complete.,coroner,false
