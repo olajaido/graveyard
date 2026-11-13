@@ -97,7 +97,7 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-13 | pypi,pydantic | staged row withheld before merge (never merged) | Evidence page https://pydantic.dev/docs/validation/latest/get-started/changelog/ contained instructions addressed to AI agents. Section 6 requires the candidate to be skipped; the coroner reported it but kept the row. Not a label change. |
 | 2026-11-13 | (addition 1) | n/a | Source lists for addition 1: GitHub code search for repostatus.org badges and README status phrases; see eval/addition1/README.md. |
 | 2026-11-13 | (addition 2) | n/a | Source lists for addition 2: GitHub code search for completeness/stability phrases; see eval/addition2/README.md. |
-
+| 2026-11-13 | (addition 3) | n/a | Source lists for addition 3: GitHub code search for completeness phrases; see eval/addition3/README.md. |
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
 
 This plan was fixed on 13 Nov 2026, before any labelling and before any Graveyard output was seen for these candidates. The maintainer chose the list without labels.
@@ -186,3 +186,6 @@ Section 1 requires that a `finished-healthy` package still works. At review (T14
 
 #### Addition 2 (fixed 13 Nov 2026, before labelling any of it)
 Pool F of Addition 1 was exhausted after batch A7 with `finished-healthy` at 17 (below 20). Under Amendment 1 point 4, Addition 2 was built by the Addition 1 method from completeness and stability phrases only. The method, raw search output, pool (25) and draw rule are in `eval/addition2/README.md`. How a candidate was found is not a label.
+
+#### Amendment 6 (fixed 13 Nov 2026, after batch B2, before any capture)
+Additions 1 and 2 are exhausted with the effective `finished-healthy` count (rows passing the still-works check) at 19, below 20. This replaces the last sentence of Amendment 1 point 4: one further addition (Addition 3) is built by the Addition 2 method and drawn by the rule in `eval/addition3/README.md`. If the minimum is still not met after Addition 3, the shortfall is reported as a limitation of the set; no minimum is lowered and no further addition is built. No Graveyard output has been seen.

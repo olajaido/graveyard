@@ -1,0 +1,16 @@
+rank	ecosystem	name	source_query	repo	sha256_prefix
+1	npm	smells-code-analyzer	no new features planned [README.md]	Artawower/smells-code-analyzer	01891c12f0ac
+2	pypi	fuzzpy	feature-complete [README.markdown]	ezod/fuzzpy	0dd142a46c69
+3	npm	raviger	considered feature complete [README.md]	kyeotic/raviger	10dd2b9acc2e
+4	npm	simple-runtypes	is feature complete [README.md]	hoeck/simple-runtypes	14da28c57387
+5	npm	gulp-rev	is feature complete [README.md]	sindresorhus/gulp-rev	177a787be0ab
+6	pypi	rlic	considered feature complete [README.md]	neutrinoceros/rlic	48e1c7e4cf6b
+7	npm	pdfjs	no new features planned [README.md]	rkusa/pdfjs	82ccdeda9413
+8	npm	caprine	is feature complete [README.md]	sindresorhus/caprine	837e152ec6b7
+9	npm	updeep	considered feature complete [README.md]	substantial/updeep	8573ce64fd6f
+10	pypi	vault2vault	considered feature complete [README.md]	enpaul/vault2vault	9db02cdbb595
+11	pypi	resvg-py	is feature complete [README.md]	baseplate-admin/resvg-py	a3bb0c2903dd
+12	pypi	pensyve	no new features planned [README.md]	major7apps/pensyve	d10fed4a3302
+13	pypi	js2py	is feature complete [README.md]	PiotrDabkowski/Js2Py	d1e018573942
+14	pypi	networkx-viewer	considered feature complete [README.md]	jsexauer/networkx_viewer	e13493d4da41
+15	npm	react-sortable-hoc	no new features planned [README.md]	clauderic/react-sortable-hoc	e6b200f5d725
