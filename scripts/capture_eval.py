@@ -9,7 +9,8 @@
 Usage:
     GITHUB_TOKEN=... GRAVEYARD_CONTACT=you@example.com \
         uv run scripts/capture_eval.py --as-of YYYY-MM-DD \
-        [--only npm/ms pypi/six ...] [--skip-existing] [--delay 1.0] \
+        [--only npm/ms pypi/six ...] [--skip-existing | --refetch-unavailable] \
+        [--delay 1.0] \
         [--csv PATH] [--out-dir PATH]
 
 Reads ``eval/labelled_packages.csv`` and writes
@@ -24,6 +25,12 @@ Behaviour:
     * ``--as-of`` is required, must not be in the future (UTC), and is written to
       every fixture.
     * ``--skip-existing`` skips rows whose fixture file already exists (resumable).
+    * ``--refetch-unavailable`` re-captures (all sources, same ``--as-of``) only the
+      packages whose existing fixture has a signal with ``"unavailable": true`` and
+      overwrites those fixtures; every other fixture is left untouched.
+    * A GitHub batch that fails after the per-request retries (HTTP 5xx or timeout)
+      is split in half and each half retried, down to single repos; only a failing
+      single repo is marked unavailable.
     * A package that fails is reported with a scrubbed message; the rest are
       still processed and the exit status is 1. Fixtures are never deleted.
 
@@ -43,6 +50,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import os
 import re
 import sys
@@ -136,6 +144,73 @@ def build_s1_parts(
     return {"registry_deprecated": registry, "repo_archived": archived}
 
 
+def _batch_failed(signals: dict[str, dict[str, Any]]) -> bool:
+    """True when these signals came from a GitHub batch that gave up after retries.
+
+    Only retryable failures (HTTP 429/5xx, timeouts, network errors) end in
+    "giving up after retries"; a 4xx or bad JSON is not worth splitting for.
+    """
+    return any(
+        v.get("unavailable")
+        and str(v.get("note", "")).startswith("GitHub batch failed:")
+        and "giving up after retries" in str(v.get("note", ""))
+        for v in signals.values()
+    )
+
+
+def fetch_github_bisect(
+    http: Any, repos: list[tuple[str, str]], as_of: date
+) -> dict[tuple[str, str], dict[str, dict[str, Any]]]:
+    """``capture_github`` with split-and-retry for batches that fail after retries.
+
+    Calls the existing batch function with ever smaller lists. A single-repo
+    failure is the only thing that leaves that repo's signals unavailable.
+    """
+    out: dict[tuple[str, str], dict[str, dict[str, Any]]] = {}
+    size = capture_anchors.GITHUB_BATCH
+    for start in range(0, len(repos), size):
+        out.update(_fetch_split(http, repos[start : start + size], as_of))
+    return out
+
+
+def _fetch_split(
+    http: Any, chunk: list[tuple[str, str]], as_of: date
+) -> dict[tuple[str, str], dict[str, dict[str, Any]]]:
+    result = capture_anchors.capture_github(http, chunk, as_of)
+    if len(chunk) <= 1 or not any(_batch_failed(result[r]) for r in chunk):
+        return result
+    mid = len(chunk) // 2
+    print(f"GitHub batch of {len(chunk)} failed; splitting into {mid} + {len(chunk) - mid}")
+    result = _fetch_split(http, chunk[:mid], as_of)
+    result.update(_fetch_split(http, chunk[mid:], as_of))
+    return result
+
+
+def unavailable_signals(fixture: dict[str, Any]) -> list[str]:
+    """Names of signals (including ``s1_parts``) marked ``"unavailable": true``."""
+    names: list[str] = []
+    for group in ("signals", "s1_parts"):
+        section = fixture.get(group)
+        if isinstance(section, dict):
+            names += [k for k, v in section.items() if isinstance(v, dict) and v.get("unavailable")]
+    return names
+
+
+def select_refetch(rows: list[Row], out_dir: Path) -> list[Row]:
+    """Rows whose existing fixture has any unavailable signal. Missing or unreadable
+    fixtures are not selected (use a normal capture for those)."""
+    selected: list[Row] = []
+    for eco, name, version in rows:
+        path = out_dir / eco / f"{name}.json"
+        try:
+            fixture = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(fixture, dict) and unavailable_signals(fixture):
+            selected.append((eco, name, version))
+    return selected
+
+
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
@@ -144,6 +219,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--as-of", required=True, metavar="YYYY-MM-DD", help="capture date (UTC)")
     parser.add_argument("--only", nargs="+", metavar="ECO/NAME", help="subset, e.g. npm/ms")
     parser.add_argument("--skip-existing", action="store_true", help="skip rows with a fixture")
+    parser.add_argument(
+        "--refetch-unavailable",
+        action="store_true",
+        help="re-capture only packages whose fixture has an unavailable signal",
+    )
     parser.add_argument(
         "--delay", type=float, default=1.0, help="min seconds between requests per host"
     )
@@ -163,6 +243,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if as_of > datetime.now(UTC).date():
         print("error: --as-of must not be in the future (UTC).", file=sys.stderr)
+        return 2
+    if args.skip_existing and args.refetch_unavailable:
+        print("error: --skip-existing and --refetch-unavailable conflict.", file=sys.stderr)
         return 2
     if args.delay < MIN_DELAY:
         print(f"error: --delay must be at least {MIN_DELAY} seconds.", file=sys.stderr)
@@ -203,6 +286,11 @@ def main(argv: list[str] | None = None) -> int:
 
     out_dir: Path = args.out_dir
     todo: list[Row] = []
+    if args.refetch_unavailable:
+        rows = select_refetch(rows, out_dir)
+        print(f"re-capturing {len(rows)} package(s) with unavailable signals:")
+        for eco, name, _ in rows:
+            print(f"  {eco}/{name}")
     for eco, name, version in rows:
         if args.skip_existing and (out_dir / eco / f"{name}.json").exists():
             print(f"[{eco}/{name}] skipped (fixture exists)")
@@ -211,6 +299,7 @@ def main(argv: list[str] | None = None) -> int:
 
     http = capture_anchors.Http(f"graveyard-eval-capture/1.0 (+{contact})", args.delay)
     failures = 0
+    still_unavailable: list[str] = []
     try:
         captured: list[tuple[capture_anchors.Partial, dict[str, Any] | None]] = []
         for eco, name, version in todo:
@@ -226,7 +315,7 @@ def main(argv: list[str] | None = None) -> int:
 
         repos = sorted({p.repo for p, _ in captured if p.repo})
         print(f"fetching GitHub data for {len(repos)} repos (batched)...")
-        gh_data = capture_anchors.capture_github(http, repos, as_of) if repos else {}
+        gh_data = fetch_github_bisect(http, repos, as_of) if repos else {}
 
         for partial, registry_part in captured:
             gh = gh_data.get(partial.repo) if partial.repo else None
@@ -242,12 +331,22 @@ def main(argv: list[str] | None = None) -> int:
             signals = fixture["signals"]
             nulls = [k for k, v in signals.items() if v["value"] is None]
             unavailable = [k for k, v in signals.items() if v.get("unavailable")]
+            if args.refetch_unavailable:
+                for k in unavailable_signals(fixture):
+                    still_unavailable.append(f"{partial.ecosystem}/{partial.package}: {k}")
             print(
                 f"[{partial.ecosystem}/{partial.package}] wrote {path.name}; "
                 f"null signals: {nulls or 'none'}; unavailable: {unavailable or 'none'}"
             )
     finally:
         http.close()
+    if args.refetch_unavailable:
+        if still_unavailable:
+            print("still unavailable after re-capture:")
+            for line in still_unavailable:
+                print(f"  {line}")
+        else:
+            print("no signals still unavailable")
     return 1 if failures else 0
 
 

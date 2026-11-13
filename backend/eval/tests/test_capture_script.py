@@ -283,3 +283,162 @@ def test_main_missing_contact_exits_2(
 ) -> None:
     monkeypatch.delenv("GRAVEYARD_CONTACT")
     assert ev.main(["--as-of", "2026-11-03"]) == 2
+
+
+# --------------------------------------------------------------------------- #
+# capture_eval: GitHub batch bisection and --refetch-unavailable
+# --------------------------------------------------------------------------- #
+class BisectHttp:
+    """Fails a batch (HTTP 5xx after retries) when it holds a bad repo or is too big."""
+
+    def __init__(
+        self, anchors: Any, *, bad: set[str] | None = None, max_ok: int = 10**9, msg: str = ""
+    ) -> None:
+        self._anchors = anchors
+        self._bad = bad or set()
+        self._max_ok = max_ok
+        self._msg = msg or "giving up after retries: HTTP 502 from https://api.github.com/graphql"
+        self.sizes: list[int] = []
+
+    def request(self, method: str, url: str, **kwargs: Any) -> Any:
+        variables = kwargs["body"]["variables"]
+        names = [v for k, v in variables.items() if k.startswith("n")]
+        self.sizes.append(len(names))
+        if len(names) > self._max_ok or self._bad & set(names):
+            raise self._anchors.FetchError(self._msg)
+        data = {"data": {f"r{i}": None for i in range(len(names))}}
+        return self._anchors.Fetched(url=url, data=data, fetched_at="2026-11-14T00:00:00Z")
+
+
+def _repos(n: int) -> list[tuple[str, str]]:
+    return [("o", f"r{i}") for i in range(n)]
+
+
+def _is_unavailable(signals: dict[str, Any]) -> bool:
+    return all(v.get("unavailable") for v in signals.values())
+
+
+def test_bisect_down_to_single_repos_on_5xx(anchors: Any, ev: Any) -> None:
+    http = BisectHttp(anchors, max_ok=1)
+    out = ev.fetch_github_bisect(http, _repos(4), date(2026, 11, 14))
+    assert http.sizes == [4, 2, 1, 1, 2, 1, 1]
+    assert set(out) == set(_repos(4))
+    assert not any(_is_unavailable(v) for v in out.values())
+
+
+def test_bisect_success_after_split(anchors: Any, ev: Any) -> None:
+    http = BisectHttp(anchors, max_ok=2)
+    out = ev.fetch_github_bisect(http, _repos(4), date(2026, 11, 14))
+    assert http.sizes == [4, 2, 2]
+    assert not any(_is_unavailable(v) for v in out.values())
+
+
+def test_bisect_single_repo_failure_marks_only_that_repo(anchors: Any, ev: Any) -> None:
+    http = BisectHttp(anchors, bad={"r2"})
+    out = ev.fetch_github_bisect(http, _repos(5), date(2026, 11, 14))
+    assert _is_unavailable(out[("o", "r2")])
+    note = out[("o", "r2")]["s5_committers"]["note"]
+    assert "giving up after retries: HTTP 502" in note
+    assert not any(_is_unavailable(v) for r, v in out.items() if r != ("o", "r2"))
+
+
+def test_bisect_splits_on_timeout(anchors: Any, ev: Any) -> None:
+    http = BisectHttp(
+        anchors, max_ok=1, msg="giving up after retries: ReadTimeout requesting https://x"
+    )
+    out = ev.fetch_github_bisect(http, _repos(2), date(2026, 11, 14))
+    assert http.sizes == [2, 1, 1]
+    assert not any(_is_unavailable(v) for v in out.values())
+
+
+def test_bisect_does_not_split_non_retryable_error(anchors: Any, ev: Any) -> None:
+    http = BisectHttp(anchors, bad={"r0"}, msg="HTTP 401 from https://api.github.com/graphql")
+    out = ev.fetch_github_bisect(http, _repos(3), date(2026, 11, 14))
+    assert http.sizes == [3]
+    assert all(_is_unavailable(v) for v in out.values())
+
+
+def _write_fixture_json(root: Path, eco: str, name: str, **flags: bool) -> bytes:
+    import json
+
+    signals = {"s3": {"value": 1}, "s5": {"value": None}}
+    for key, unavailable in flags.items():
+        signals[key] = {"value": None, **({"unavailable": True} if unavailable else {})}
+    path = root / eco / f"{name}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"signals": signals, "s1_parts": {}}), encoding="utf-8")
+    return path.read_bytes()
+
+
+def test_select_refetch_picks_only_unavailable(ev: Any, tmp_path: Path) -> None:
+    _write_fixture_json(tmp_path, "npm", "bad", s6=True)
+    _write_fixture_json(tmp_path, "npm", "good", s6=False)
+    (tmp_path / "pypi").mkdir()
+    (tmp_path / "pypi" / "broken.json").write_text("{not json")
+    rows = [
+        ("npm", "bad", "1.0.0"),
+        ("npm", "good", "1.0.0"),
+        ("npm", "nofixture", "1.0.0"),
+        ("pypi", "broken", "1.0.0"),
+    ]
+    assert ev.select_refetch(rows, tmp_path) == [("npm", "bad", "1.0.0")]
+
+
+def test_unavailable_signals_covers_s1_parts(ev: Any) -> None:
+    fixture = {
+        "signals": {"a": {"value": 1}},
+        "s1_parts": {"repo_archived": {"value": None, "unavailable": True}},
+    }
+    assert ev.unavailable_signals(fixture) == ["repo_archived"]
+
+
+def test_refetch_with_skip_existing_exits_2(ev: Any, offline_env: None, tmp_path: Path) -> None:
+    code = ev.main(["--as-of", "2026-11-03", "--refetch-unavailable", "--skip-existing"])
+    assert code == 2
+
+
+def test_refetch_leaves_other_fixtures_untouched(
+    ev: Any, anchors: Any, offline_env: None, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+
+    before_good = _write_fixture_json(tmp_path / "out", "npm", "good", s6=False)
+    _write_fixture_json(tmp_path / "out", "npm", "bad", s6=True)
+    csv_path = tmp_path / "rows.csv"
+    csv_path.write_text("ecosystem,name,version\nnpm,good,1.0.0\nnpm,bad,1.0.0\n")
+
+    class StubHttp:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    captured: list[str] = []
+
+    def fake_phase1(http: Any, name: str, eco: str, version: str) -> Any:
+        captured.append(name)
+        return anchors.Partial(
+            package=name, ecosystem=eco, resolved=version, latest=version, repo=None, signals={}
+        )
+
+    def fake_assemble(partial: Any, gh: Any, as_of: Any) -> dict[str, Any]:
+        return {"package": partial.package, "signals": {"s6": {"value": 1}}, "as_of": "x"}
+
+    monkeypatch.setattr(anchors, "Http", StubHttp)
+    monkeypatch.setattr(anchors, "capture_phase1", fake_phase1)
+    monkeypatch.setattr(anchors, "assemble", fake_assemble)
+    args = [
+        "--as-of",
+        "2026-11-03",
+        "--refetch-unavailable",
+        "--csv",
+        str(csv_path),
+        "--out-dir",
+        str(tmp_path / "out"),
+    ]
+    assert ev.main(args) == 0
+    assert captured == ["bad"]
+    assert (tmp_path / "out" / "npm" / "good.json").read_bytes() == before_good
+    rewritten = json.loads((tmp_path / "out" / "npm" / "bad.json").read_text())
+    assert rewritten["signals"]["s6"]["value"] == 1
