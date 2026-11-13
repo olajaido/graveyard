@@ -45,3 +45,8 @@ pypi,attrs,26.1.0,alive,release_notes,https://www.attrs.org/en/stable/changelog.
 pypi,eventlet,0.41.3,ailing,maintainer_statement,https://github.com/eventlet/eventlet,Eventlet now follows a new maintenance policy. Only maintenance for stability and bug fixing will be provided.,coroner,false
 pypi,nose2,0.16.0,alive,release_notes,https://docs.nose2.io/en/latest/changelog.html,0.16.0 (2026-03-01),coroner,false
 pypi,simplejson,4.3.0,alive,release_notes,https://github.com/simplejson/simplejson/releases,Version 4.0.0 released 2026-04-18,coroner,false
+npm,path-is-absolute,2.0.0,dead,deprecation_notice,https://registry.npmjs.org/path-is-absolute/latest,This package is no longer relevant as Node.js 0.12 is unmaintained.,coroner,false
+pypi,argparse,1.4.0,dead,archived_repo,https://github.com/ThomasWaldmann/argparse,This repo is archived now and completely unsupported,coroner,false
+npm,inflight,1.0.6,dead,deprecation_notice,https://registry.npmjs.org/inflight/latest,"This module is not supported, and leaks memory. Do not use it.",coroner,false
+npm,xmldom,0.6.0,dead,maintainer_statement,https://github.com/xmldom/xmldom,"Since version 0.7.0 this package is published to npm as @xmldom/xmldom and no longer as xmldom, because we are no longer able to publish xmldom.",coroner,false
+pypi,pathlib,1.0.1,dead,maintainer_statement,https://pypi.org/pypi/pathlib/json,this backport module isn't maintained anymore.,coroner,false
