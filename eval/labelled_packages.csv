@@ -50,3 +50,25 @@ pypi,argparse,1.4.0,dead,archived_repo,https://github.com/ThomasWaldmann/argpars
 npm,inflight,1.0.6,dead,deprecation_notice,https://registry.npmjs.org/inflight/latest,"This module is not supported, and leaks memory. Do not use it.",coroner,false
 npm,xmldom,0.6.0,dead,maintainer_statement,https://github.com/xmldom/xmldom,"Since version 0.7.0 this package is published to npm as @xmldom/xmldom and no longer as xmldom, because we are no longer able to publish xmldom.",coroner,false
 pypi,pathlib,1.0.1,dead,maintainer_statement,https://pypi.org/pypi/pathlib/json,this backport module isn't maintained anymore.,coroner,false
+pypi,ansible-bender,0.10.1,ailing,maintainer_statement,https://github.com/ansible-community/ansible-bender,This project doesn't have an active maintainer right now that would watch issues daily.,coroner,false
+pypi,auto-resizing-text-edit,0.1.0,finished-healthy,feature_complete_readme,https://pypi.org/pypi/auto-resizing-text-edit/json,"It's already feature-complete though and, due to its simplicity and emphasis on working with Qt widget system rather than subverting it, should be safe for general use.",coroner,false
+npm,custom-protocol-detection,1.0.1,dead,maintainer_statement,https://github.com/ismailhabib/custom-protocol-detection,Warning: this library is no longer maintained,coroner,false
+pypi,liionpack,0.4.0,ailing,maintainer_statement,https://github.com/pybamm-team/liionpack,"This repository is currently in ""maintenance mode"" and is no longer actively developed.",coroner,false
+npm,nodejs-mobile-gyp,0.4.0,dead,maintainer_statement,https://github.com/janeasystems/nodejs-mobile-gyp,The project is no longer being actively maintained by Janea Systems.,coroner,false
+pypi,pysoundanalyser,0.3.7,dead,maintainer_statement,https://pypi.org/pypi/pysoundanalyser/json,"Project Status: Unsupported – The project has reached a stable, usable state but the author(s) have ceased all work on it.",coroner,false
+npm,react-hooks-global-state,2.1.0,dead,maintainer_statement,https://github.com/dai-shi/react-hooks-global-state,This project is no longer maintained.,coroner,false
+pypi,torf,4.3.1,finished-healthy,feature_complete_readme,https://pypi.org/pypi/torf/json,"I consider this project feature complete, but feel free to request new features",coroner,false
+npm,vue-formly,2.5.9,ailing,maintainer_statement,https://github.com/formly-js/vue-formly,"I've sinced moved on, things have changed, and I no longer have the time I need to keep working on this.",coroner,false
+pypi,zilch,0.1.3,finished-healthy,feature_complete_readme,https://pypi.org/pypi/zilch/json,zilch is considered feature-complete as the project owner (Ben Bangert) has,coroner,false
+npm,animate-components,1.4.8,ailing,maintainer_statement,https://github.com/nitin42/animate-components,Looking for maintainers. Please reach out to me if you're interested!,coroner,false
+npm,graphql-list-fields,2.0.4,finished-healthy,feature_complete_readme,https://github.com/jakepusateri/graphql-list-fields,This package is considered done.,coroner,false
+npm,react-native-version-check,3.5.0,ailing,maintainer_statement,https://github.com/kimxogus/react-native-version-check,It makes it hard to maintain this library actively. Hope to have someone to help maintaining react-native-version-check!,coroner,false
+npm,textlint-plugin-latex2e,1.2.1,ailing,maintainer_statement,https://github.com/textlint/textlint-plugin-latex2e,"This project is currently in a transition period and is looking for new maintainers, especially people who actively use both LaTeX and textlint.",coroner,false
+pypi,cement,3.0.16,alive,release_notes,https://pypi.org/pypi/cement/json,"""upload_time"":""2026-07-13T18:23:31""",coroner,false
+pypi,liffile,2026.11.12,alive,release_notes,https://pypi.org/pypi/liffile/json,"""upload_time"":""2026-11-13T01:20:22""",coroner,false
+pypi,mastodon-py,2.3.3,alive,release_notes,https://pypi.org/pypi/mastodon-py/json,"""upload_time"":""2026-10-18T13:12:37""",coroner,false
+pypi,rmextract,0.5.1,dead,maintainer_statement,https://github.com/lofar-astron/RMextract,No further development or maintenance will happen on RMExtract.,coroner,false
+pypi,sen,0.8.1,ailing,maintainer_statement,https://github.com/TomasTomecek/sen,"I lost interest in working on new features for sen. I will continue providing support for sen as much as I can, but only bug fixes.",coroner,false
+pypi,windows-curses,2.4.2,ailing,maintainer_statement,https://github.com/zephyrproject-rtos/windows-curses,This project is not actively maintained and is looking for maintainers.,coroner,false
+pypi,yafowil-plone,6.0.0,alive,release_notes,https://pypi.org/pypi/yafowil-plone/json,"""upload_time"":""2026-03-31T09:42:36""",coroner,false
+pypi,zgw-consumers-oas,1.1.0,finished-healthy,feature_complete_readme,https://github.com/maykinmedia/zgw-consumers-oas,"This package is considered ""feature complete"" and will only receive bugfixes.",coroner,false
