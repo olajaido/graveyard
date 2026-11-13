@@ -93,7 +93,7 @@ These are known and accepted. The controls stop the coroner from reading outputs
 A later change to a label or its evidence is logged here, with a reason. "The model disagreed" is not a valid reason. Add the source lists used for each batch as well.
 
 | date | row key | old → new | reason |
-|------|---------|-----------|--------|
+| 2026-11-13 | pypi,pydantic | staged row withheld before merge (never merged) | Evidence page https://pydantic.dev/docs/validation/latest/get-started/changelog/ contained instructions addressed to AI agents. Section 6 requires the candidate to be skipped; the coroner reported it but kept the row. Not a label change. |
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
 
