@@ -166,6 +166,13 @@ Uniform readings, applied to every row at review:
 1. The repostatus.org "Inactive" badge text ("...support/maintenance will be provided as time allows") is a statement of reduced capacity: `ailing`. The "Unsupported" badge text ("...the author(s) have ceased all work on it") is a statement that the package is unmaintained: `dead`.
 2. A version string that encodes a full calendar date (YYYY.MM.DD or YYYYMMDD) counts as a date in the quote for `alive`.
 
+#### Amendment 4 (fixed 13 Nov 2026, before re-running the still-works check)
+The first still-works run (13 Nov) showed cases where the check did not test what section 1 means. Refinements, applied to every `finished-healthy` row:
+1. npm packages whose entry point is not JavaScript (main/exports not .js/.cjs/.mjs/.json, or no resolvable JS entry) get an install-only check.
+2. npm installs use --legacy-peer-deps, as a consuming project with its own framework version would.
+3. A Python package that imports an undeclared GUI toolkit from a fixed list (PyQt5, PyQt6, PySide2, PySide6) is checked with that toolkit and its system libraries installed. No other undeclared module is ever installed.
+4. Every row's version is checked against the registry. A version that does not exist on the registry is a labelling error: it is corrected to the registry version current on the labelling date and logged in section 8 before the check is re-run.
+
 #### Review check for `finished-healthy` (fixed 13 Nov 2026, before any review or capture)
 Section 1 requires that a `finished-healthy` package still works. At review (T14), each `finished-healthy` row's labelled version is installed in a clean environment on a currently supported runtime (Python 3.12 for pypi, Node 22 LTS for npm) and imported or required once. A row that fails is removed from the set and logged in section 8 with the reason "section 1: does not still work (install or import failed on <runtime>)". The check is the same for every row and does not use Graveyard.
 
