@@ -1,1 +1,19 @@
 ecosystem,name,version,label,evidence_kind,evidence_url,evidence_quote,labelled_by,reviewed
+npm,request-promise,4.2.6,dead,deprecation_notice,https://registry.npmjs.org/request-promise/latest,request-promise has been deprecated because it extends the now deprecated request package,coroner,false
+npm,request-promise-native,1.0.9,dead,deprecation_notice,https://registry.npmjs.org/request-promise-native/latest,request-promise-native has been deprecated because it extends the now deprecated request package,coroner,false
+npm,node-sass,9.0.0,dead,deprecation_notice,https://registry.npmjs.org/node-sass/latest,Node Sass is no longer supported. Please use `sass` or `sass-embedded` instead.,coroner,false
+npm,tslint,6.1.3,dead,deprecation_notice,https://registry.npmjs.org/tslint/latest,TSLint has been deprecated in favor of ESLint.,coroner,false
+npm,babel-eslint,10.1.0,dead,deprecation_notice,https://registry.npmjs.org/babel-eslint/latest,babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.,coroner,false
+npm,istanbul,0.4.5,dead,deprecation_notice,https://registry.npmjs.org/istanbul/latest,"This module is no longer maintained, try this instead:",coroner,false
+npm,phantomjs-prebuilt,2.1.16,dead,deprecation_notice,https://registry.npmjs.org/phantomjs-prebuilt/latest,this package is now deprecated,coroner,false
+npm,protractor,7.0.0,dead,deprecation_notice,https://registry.npmjs.org/protractor/latest,Protractor is deprecated and will reach end-of-life by Summer 2023.,coroner,false
+npm,karma,6.4.4,dead,maintainer_statement,https://github.com/karma-runner/karma,Karma is deprecated and is not accepting new features or general bug fixes.,coroner,false
+npm,coffee-script,1.12.7,dead,deprecation_notice,https://registry.npmjs.org/coffee-script/latest,"CoffeeScript on NPM has moved to ""coffeescript"" (no hyphen)",coroner,false
+npm,jade,1.11.0,dead,deprecation_notice,https://registry.npmjs.org/jade/latest,"Jade has been renamed to pug, please install the latest version of pug instead of jade",coroner,false
+npm,gulp-util,3.0.8,dead,deprecation_notice,https://registry.npmjs.org/gulp-util/latest,gulp-util is deprecated,coroner,false
+npm,uglify-es,3.3.9,dead,deprecation_notice,https://registry.npmjs.org/uglify-es/latest,support for ECMAScript is superseded by `uglify-js` as of v3.13.0,coroner,false
+npm,nomnom,1.8.1,dead,deprecation_notice,https://registry.npmjs.org/nomnom/latest,Package no longer supported. Contact support@npmjs.com for more info.,coroner,false
+npm,querystring,0.2.1,dead,deprecation_notice,https://registry.npmjs.org/querystring/latest,The querystring API is considered Legacy. new code should use the URLSearchParams API instead.,coroner,false
+npm,har-validator,5.1.5,dead,deprecation_notice,https://registry.npmjs.org/har-validator/latest,this library is no longer supported,coroner,false
+npm,popper.js,1.16.1,dead,deprecation_notice,https://registry.npmjs.org/popper.js/latest,"You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1",coroner,false
+npm,domexception,4.0.0,dead,deprecation_notice,https://registry.npmjs.org/domexception/latest,Use your platform's native DOMException instead,coroner,false
