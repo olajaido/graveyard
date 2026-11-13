@@ -126,11 +126,25 @@ def test_classify_install_only() -> None:
     assert csw.classify(None, out, True) == "timeout"
 
 
+@pytest.mark.parametrize("code", ["ERR_UNSUPPORTED_DIR_IMPORT", "ERR_UNKNOWN_FILE_EXTENSION"])
+def test_classify_bundler_only(code: str) -> None:
+    out = f"{csw.IMPORT_MARKER}\n{csw.BUNDLER_ONLY_MARKER}{code}"
+    assert csw.classify(0, out, False) == "pass_install_only"
+    assert csw.classify(1, out, False) == "fail_import"
+    assert csw.classify(0, f"{csw.IMPORT_MARKER}\nFAILED x", False) == "pass"
+    assert code in csw.NODE_CODE
+    assert csw.BUNDLER_ONLY_MARKER in csw.NODE_CODE
+
+
 def test_refinements_applied() -> None:
     line = f"{csw.REFINEMENT_PREFIX}install_only: no entry"
     out = f"x\n{line}\n{line}"
-    assert csw.refinements_applied("npm", out) == ["legacy-peer-deps", "install_only: no entry"]
-    assert csw.refinements_applied("npm", "plain") == ["legacy-peer-deps"]
+    assert csw.refinements_applied("npm", out) == ["install_only: no entry"]
+    assert csw.refinements_applied("npm", "plain") == []
+    eres = f"{csw.REFINEMENT_PREFIX}eresolve_retry"
+    assert csw.refinements_applied("npm", eres) == ["eresolve_retry"]
+    bundler = f"{csw.REFINEMENT_PREFIX}bundler_only:ERR_UNKNOWN_FILE_EXTENSION"
+    assert csw.refinements_applied("npm", bundler) == ["bundler_only:ERR_UNKNOWN_FILE_EXTENSION"]
     qt = f"{csw.REFINEMENT_PREFIX}qt_toolkit:PyQt5"
     assert csw.refinements_applied("pypi", qt) == ["qt_toolkit:PyQt5"]
     assert csw.refinements_applied("pypi", "plain") == []
@@ -158,7 +172,13 @@ def test_qt_toolkit_to_install(missing: list[str], expected: str | None) -> None
 
 
 def test_container_scripts_carry_the_refinements() -> None:
-    assert "--legacy-peer-deps" in csw.NODE_SHELL
+    first_install = csw.NODE_SHELL.split("npm install", 2)
+    assert "--legacy-peer-deps" not in first_install[1]
+    assert "--legacy-peer-deps" in first_install[2]
+    assert "ERESOLVE" in csw.NODE_SHELL
+    assert "eresolve_retry" in csw.NODE_SHELL
+    assert "peerDependencies" in csw.NODE_PEERS_JS
+    assert "--legacy-peer-deps" in csw.NODE_PEERS_JS
     assert "qt_toolkit_to_install" in csw.PY_CODE
     for lib in ("libgl1", "libglib2.0-0", "libxkbcommon0", "libdbus-1-3", "libfontconfig1"):
         assert lib in csw.PY_CODE
@@ -206,3 +226,10 @@ def test_build_command_is_isolated() -> None:
     assert not {"-v", "--volume", "--mount", "-e", "--env", "--env-file"} & set(cmd)
     assert cmd[cmd.index("sh", cmd.index("sh") + 1) + 1 :][:2] == ["torf", "4.3.1"]
     assert "node:22-slim" in csw.build_command("npm", "ms", "2.1.3", "c2")
+
+
+@pytest.mark.parametrize("eco", ["pypi", "npm"])
+def test_build_command_forces_amd64(eco: str) -> None:
+    cmd = csw.build_command(eco, "pkg", "1.0", "c")
+    assert cmd[cmd.index("--platform") + 1] == "linux/amd64"
+    assert cmd.index("--platform") < cmd.index(csw.RUNTIMES[eco])

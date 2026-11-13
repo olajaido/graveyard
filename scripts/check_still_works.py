@@ -50,8 +50,13 @@ IMPORT_MARKER = "GRAVEYARD_PHASE=import"
 # Printed by the container when a refinement of Amendment 4 applied.
 REFINEMENT_PREFIX = "GRAVEYARD_REFINEMENT="
 INSTALL_ONLY_MARKER = REFINEMENT_PREFIX + "install_only"
-# Amendment 4.2: applied to every npm install.
-NPM_ALWAYS_REFINEMENT = "legacy-peer-deps"
+# Amendment 5.2: require/import failed only because the package needs a bundler.
+BUNDLER_ONLY_MARKER = REFINEMENT_PREFIX + "bundler_only:"
+BUNDLER_ONLY_CODES = ("ERR_UNSUPPORTED_DIR_IMPORT", "ERR_UNKNOWN_FILE_EXTENSION")
+# Amendment 5.1: the plain npm install hit ERESOLVE and was retried.
+ERESOLVE_REFINEMENT = "eresolve_retry"
+# Container platform for every run (Amendment 5.3).
+PLATFORM = "linux/amd64"
 
 _NAME = re.compile(r"^[A-Za-z0-9@][A-Za-z0-9._/~-]*$")
 _VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+!-]*$")
@@ -138,12 +143,14 @@ def classify(returncode: int | None, output: str, timed_out: bool) -> str:
         return FAIL_INSTALL
     if returncode != 0:
         return FAIL_IMPORT
-    return PASS_INSTALL_ONLY if INSTALL_ONLY_MARKER in output else PASS
+    if INSTALL_ONLY_MARKER in output or BUNDLER_ONLY_MARKER in output:
+        return PASS_INSTALL_ONLY
+    return PASS
 
 
 def refinements_applied(eco: str, output: str) -> list[str]:
-    """Amendment 4 refinements that applied to one check, for the detail column."""
-    found: list[str] = [NPM_ALWAYS_REFINEMENT] if eco == "npm" else []
+    """Amendment 4 and 5 refinements that applied to one check, for the detail column."""
+    found: list[str] = []
     for line in output.splitlines():
         line = line.strip()
         if line.startswith(REFINEMENT_PREFIX):
@@ -296,6 +303,18 @@ NODE_CODE = (
     + """
 const name = process.argv[1];
 const pkgDir = path.join(process.cwd(), 'node_modules', name);
+const BUNDLER_CODES = ['ERR_UNSUPPORTED_DIR_IMPORT', 'ERR_UNKNOWN_FILE_EXTENSION'];
+function fail(err) {
+  const code = err && err.code;
+  if (BUNDLER_CODES.includes(code)) {
+    console.log('"""
+    + BUNDLER_ONLY_MARKER
+    + """' + code);
+    process.exit(0);
+  }
+  console.log('FAILED', String(err));
+  process.exit(1);
+}
 let entryOk = false;
 try {
   entryOk = hasJsEntry(pkgDir, JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'))));
@@ -313,30 +332,49 @@ try {
   console.log('required', name);
 } catch (e) {
   if (e && e.code === 'ERR_REQUIRE_ESM') {
-    import(name).then(() => console.log('imported (esm)', name))
-      .catch((err) => { console.log('FAILED', String(err)); process.exit(1); });
+    import(name).then(() => console.log('imported (esm)', name)).catch(fail);
   } else {
-    console.log('FAILED', String(e)); process.exit(1);
+    fail(e);
   }
 }
 """
 )
 
+# Amendment 5.1: install each declared peer dependency at its declared range.
+NODE_PEERS_JS = """
+const { spawnSync } = require('child_process');
+const pkg = require(process.cwd() + '/node_modules/' + process.argv[1] + '/package.json');
+for (const [dep, range] of Object.entries(pkg.peerDependencies || {})) {
+  console.log('installing peer', dep + '@' + range);
+  const res = spawnSync(
+    'npm', ['install', '--legacy-peer-deps', '--no-audit', '--no-fund', dep + '@' + range],
+    { stdio: 'inherit' });
+  if (res.status !== 0) { console.log('peer install failed', dep); process.exit(1); }
+}
+"""
+
+# $1 name, $2 version, $3 import code, $4 peers code. Plain install first; only an
+# ERESOLVE failure triggers the --legacy-peer-deps retry plus explicit peer installs.
 NODE_SHELL = (
     "mkdir /tmp/work && cd /tmp/work && "
-    'npm install --legacy-peer-deps --no-audit --no-fund "$1@$2" && echo '
-    + IMPORT_MARKER
-    + ' && node -e "$3" "$1"'
+    '{ npm install --no-audit --no-fund "$1@$2" > /tmp/npm.log 2>&1; rc=$?; cat /tmp/npm.log; '
+    "if [ $rc -ne 0 ] && grep -q ERESOLVE /tmp/npm.log; then "
+    "echo " + REFINEMENT_PREFIX + ERESOLVE_REFINEMENT + "; "
+    'npm install --legacy-peer-deps --no-audit --no-fund "$1@$2" && node -e "$4" "$1"; '
+    "rc=$?; fi; [ $rc -eq 0 ]; } && echo " + IMPORT_MARKER + ' && node -e "$3" "$1"'
 )
 
 
 def build_command(eco: str, name: str, version: str, container: str) -> list[str]:
     """The ``docker run`` argv for one check. No mounts, no env passthrough."""
     code, shell = (PY_CODE, PY_SHELL) if eco == "pypi" else (NODE_CODE, NODE_SHELL)
+    extra = [NODE_PEERS_JS] if eco == "npm" else []
     return [
         "docker",
         "run",
         "--rm",
+        "--platform",
+        PLATFORM,
         "--name",
         container,
         "--memory",
@@ -351,6 +389,7 @@ def build_command(eco: str, name: str, version: str, container: str) -> list[str
         name,
         version,
         code,
+        *extra,
     ]
 
 
