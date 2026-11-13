@@ -106,3 +106,8 @@ pypi,celery,5.7.0,alive,release_notes,https://raw.githubusercontent.com/celery/c
 pypi,obffile,2026.10.20,alive,release_notes,https://pypi.org/pypi/obffile/json,:Version: 2026.10.20,coroner,false
 pypi,screen3,0.1.2,ailing,maintainer_statement,https://pypi.org/pypi/screen3/json,"Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.",coroner,false
 pypi,opentaxii,0.9.3,finished-healthy,feature_complete_readme,https://github.com/EclecticIQ/OpenTAXII,We have made the decision to consider this project feature-complete.,coroner,false
+npm,codec-detect,1.3.0,dead,deprecation_notice,https://registry.npmjs.org/codec-detect/latest,Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.,coroner,false
+pypi,mapdamage,2.2.3,ailing,maintainer_statement,https://pypi.org/pypi/mapdamage/json,"Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.",coroner,false
+pypi,products-zopetree,3.4.0,finished-healthy,feature_complete_readme,https://github.com/jugmac00/Products.ZopeTree,The package is considered feature-complete.,coroner,false
+pypi,robotframework-angularjs,1.0.0,finished-healthy,feature_complete_readme,https://pypi.org/project/robotframework-angularjs/,This library is considered mature and feature complete.,coroner,false
+pypi,t61codec,3.0.0,finished-healthy,feature_complete_readme,https://github.com/exhuma/t61codec,"The codec implements a fixed standard (ITU-T T.61, 1988) and is feature-complete.",coroner,false
