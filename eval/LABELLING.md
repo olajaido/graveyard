@@ -94,3 +94,37 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 
 | date | row key | old → new | reason |
 |------|---------|-----------|--------|
+
+## 9. Candidate plan (fixed 13 Nov 2026, before labelling)
+
+This plan was fixed on 13 Nov 2026, before any labelling and before any Graveyard output was seen for these candidates. The maintainer chose the list without labels.
+
+The nine mortality-model anchors are excluded because the model was checked against them: request, node-uuid, left-pad, express, uuid, moment, pycrypto, nose, six.
+
+### npm (54)
+
+request-promise, request-promise-native, node-sass, tslint, babel-eslint, istanbul, phantomjs-prebuilt, protractor, karma, coffee-script, jade, gulp-util, uglify-es, optimist, nomnom, querystring, bower, har-validator, popper.js, domexception, abab, sourcemap-codec, inherits, once, wrappy, isarray, escape-html, ee-first, ms, safe-buffer, balanced-match, concat-map, array-flatten, on-finished, fresh, depd, unpipe, bluebird, q, gulp, grunt, underscore, react, typescript, lodash, vite, eslint, axios, zod, prettier, webpack, chalk, commander, jest
+
+### PyPI (47)
+
+Theano, pep8, sklearn, distribute, pytest-runner, django-rest-swagger, nose-parameterized, Flask-Script, flask-restplus, oauth2, typed-ast, asynctest, Fabric3, toml, enum34, futures, dataclasses, contextlib2, webencodings, ply, singledispatch, backports.functools-lru-cache, appdirs, requests, django, flask, numpy, pandas, fastapi, pydantic, pytest, httpx, sqlalchemy, black, attrs, python-dateutil, docopt, eventlet, python-memcached, chardet, pyyaml, pycurl, M2Crypto, mock, nose2, pytz, simplejson
+
+### Label targets
+
+The label targets are what the evidence yields. The list does not assign a label to any package, and nothing here is a prediction. A package gets a label only when a fetched page supports it under section 2.
+
+The gate minimums still apply: at least 25 `dead` and at least 20 `finished-healthy`, and every row reviewed. Packages without supporting evidence are skipped and listed as skipped, with the reason.
+
+### Additions
+
+If the evidence leaves a shortfall against the gate minimums, a top-up list will be appended below as a dated addition. This plan is never edited in place.
+
+(a) Name spelling: rows are written in section 3's lowercase form. Theano → theano, Flask-Script → flask-script, Fabric3 → fabric3, M2Crypto → m2crypto. This is spelling normalisation of the same PyPI project, not a change of package, and is not a reason to skip.
+
+(b) Reserve list (fixed 13 Nov 2026, before labelling, no labels known). Used only if, after batches 1-5, the reviewed rows fall short of the 90-row window or the gate minimums (25 Dead, 20 finished-healthy). Taken strictly in this order, one at a time, stopping as soon as all three are met; a reserve package may be skipped only under the existing evidence rule. Unused reserve packages are never labelled.
+
+npm: path-is-absolute, is-number, inflight, mkdirp, xmldom, object-assign, faker, event-stream
+
+PyPI: argparse, idna, unittest2, ordereddict, ipaddress, pathlib, funcsigs
+
+Order of use: alternate npm and PyPI, starting with npm.
