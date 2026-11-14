@@ -798,3 +798,6 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Tests:** `test_real_dataset.py` and `test_real_results_fresh.py` pass; `test_real_gate.py` fails with the harness's gate text, as T15.6 allows.
 - **Decision:** a weights v2 is a separate, documented decision (D6). Not made here.
 - **Note:** `requirements.md` EV-DATA-4 and `LABELLING.md` line 46 still say 90 to 110 rows; code and amendment 1 say 130. The set has 116.
+**T16.6 deviations accepted (14 Nov 2026).** `scripts/capture_anchors.py` has `unavailable=True` call sites beyond the five named in T8.1 (S2 release date, S4/S8 Scorecard fallback, GitHub batch failure, S5 pagination failure). Each marks a failed source as unavailable, as EV-CAP requires; none changes scoring. Files outside the T10.6 list (steering updates, the T14 review scripts `apply_review`, `check_still_works`, `check_versions`, `verify_evidence`, and their unit tests) were added deliberately as review tooling.
+
+**v1 gate result with 95% Wilson intervals.** Dead precision 40/58 = 0.690 (0.562–0.794); finished-healthy FPR 11/20 = 0.550 (0.342–0.742). Both intervals exclude their thresholds (0.90 and 0.10), so the failure is not sampling noise. Declared-death precision 27/28 = 0.964 (0.823–0.994); score-based Dead 13/30 = 0.433 (0.274–0.608).
