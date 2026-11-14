@@ -787,3 +787,14 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** the coroner declined to fabricate a label from evidence that did not support it.
 - **Resolved:** the open question on glob anchoring of the `fs_read` and `fs_write` rules is answered in practice: the workspace-relative patterns blocked and allowed exactly the expected paths.
 - **Follow-up change:** `web_fetch` now runs without a prompt for six hosts only (`registry.npmjs.org`, `www.npmjs.com`, `pypi.org`, `github.com`, `raw.githubusercontent.com`, `endoflife.date`), per the [Permissions page](https://kiro.dev/docs/permissions/). Each pattern is `https://<host>/*`, with no `exclude`. Every other URL keeps the default prompt, and the old `https://*` allow with its private-range exclusions is gone. No file permission changed. EV-AGT-5, the design and the T9.4 guard test were updated together, with bad-sample tests for a widened host list.
+### 13 Nov — Spec `eval-harness`: T15 (data-dependent run) — GATE FAILED
+- **Spec/task:** T15.1 to T15.7. Preconditions passed: 116 rows (45 dead, 31 alive, 20 ailing, 20 finished-healthy; 60 npm, 56 pypi), all reviewed, 116 fixtures, one `as_of` (2026-11-13), staging header-only, trial run did not exit 3.
+- **Result:** `make eval` exit 1 from the harness (make reports 2). `eval/results.json` written by the harness. Model v1, weights frozen, nothing changed to influence the outcome.
+- **Failed checks:** `dead_precision` 0.690 (40/58) against a threshold of 0.900; `finished_healthy_fpr` 0.550 (11/20) against a maximum of 0.100. Sample checks passed (dead 45 ≥ 25, finished-healthy 20 ≥ 20).
+- **Confusion matrix (rows = label, columns = predicted dead / finished-healthy / alive / ailing / unknown):** dead 40/1/3/1/0; finished-healthy 11/3/1/5/0; alive 0/0/31/0/0; ailing 7/4/4/5/0.
+- **Dead precision by `dead_reason`:** declared 27/28 = 0.964; score 13/30 = 0.433. By ecosystem: npm 27/35 = 0.771, pypi 13/23 = 0.565. Dead recall 40/45 = 0.889; by evidence kind: deprecation_notice 28/29, maintainer_statement 11/15, archived_repo 1/1.
+- **Without-GitHub block (ungated):** Dead precision 42/68 = 0.618 (gate-eligible 27/28 = 0.964); finished-healthy FPR 14/20 = 0.700; flagged 16/20 = 0.800; 48 unverified rows.
+- **Context:** 24 fixtures have Scorecard (s4/s8) unavailable after 404s (LABELLING.md section 8); r4 and r8 are missing on 28 rows. Not changed or re-captured.
+- **Tests:** `test_real_dataset.py` and `test_real_results_fresh.py` pass; `test_real_gate.py` fails with the harness's gate text, as T15.6 allows.
+- **Decision:** a weights v2 is a separate, documented decision (D6). Not made here.
+- **Note:** `requirements.md` EV-DATA-4 and `LABELLING.md` line 46 still say 90 to 110 rows; code and amendment 1 say 130. The set has 116.

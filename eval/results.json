@@ -1,0 +1,3165 @@
+{
+  "as_of": "2026-11-13",
+  "gate": {
+    "checks": [
+      {
+        "den": null,
+        "name": "sample_dead",
+        "num": 45,
+        "passed": true,
+        "reason": "ok",
+        "threshold": 25.0,
+        "value": 45.0
+      },
+      {
+        "den": null,
+        "name": "sample_finished_healthy",
+        "num": 20,
+        "passed": true,
+        "reason": "ok",
+        "threshold": 20.0,
+        "value": 20.0
+      },
+      {
+        "den": 58,
+        "name": "dead_precision",
+        "num": 40,
+        "passed": false,
+        "reason": "below threshold",
+        "threshold": 0.9,
+        "value": 0.6896551724137931
+      },
+      {
+        "den": 20,
+        "name": "finished_healthy_fpr",
+        "num": 11,
+        "passed": false,
+        "reason": "above threshold",
+        "threshold": 0.1,
+        "value": 0.55
+      }
+    ],
+    "config": {
+      "max_finished_healthy_fpr": 0.1,
+      "min_dead_precision": 0.9,
+      "min_reviewed_dead": 25,
+      "min_reviewed_finished_healthy": 20
+    },
+    "passed": false
+  },
+  "labels_sha256": "8a0c91afdd4585a8d75c5fb2a7f0ae4407215cbd614b15aaa4ec84d7f4de6f85",
+  "model_version": "v1",
+  "rows": [
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "request-promise",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "4.2.6",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.81818181818181,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "request-promise-native",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.9",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.81818181818181,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "node-sass",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "9.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "tslint",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "6.1.3",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "babel-eslint",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "10.1.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "istanbul",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.27272727272728,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "phantomjs-prebuilt",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.1.16",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.0909090909091,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "protractor",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "7.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.72727272727272,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 51.644763860369615,
+      "name": "karma",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "6.4.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 75.71775247339929,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "coffee-script",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.12.7",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.45454545454544,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "jade",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.11.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.9090909090909,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "gulp-util",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.0.8",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.63636363636363,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "uglify-es",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.3.9",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.0909090909091,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 94.06363636363638,
+      "name": "nomnom",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.8.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.81818181818181,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "querystring",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.2.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "har-validator",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "5.1.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.36363636363635,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "popper.js",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.16.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 90.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "domexception",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "4.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.45454545454545,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "abab",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.6",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.36363636363636,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 94.16666666666667,
+      "name": "sourcemap-codec",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.4.8",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.45454545454545,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "q",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.5.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.72727272727272,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 24.400000000000002,
+      "name": "on-finished",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.4.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 44.36363636363637,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 0.0,
+      "name": "react",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "19.3.1",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 3.2000000000000006,
+      "name": "vite",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "8.3.8",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.818181818181819,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 2.3,
+      "name": "axios",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.21.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 4.181818181818181,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 3.2999999999999994,
+      "name": "prettier",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.10.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.999999999999998,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 4.5,
+      "name": "commander",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "15.1.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 8.181818181818182,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 97.57015742642027,
+      "name": "sklearn",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.0.post12",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 97.57015742642027,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 77.66030116358658,
+      "name": "nose-parameterized",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.6.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.9090909090909,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "typed-ast",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.5.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.0,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 90.0,
+      "name": "flask-script",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.6",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.0,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 87.42473498233215,
+      "name": "flask-restplus",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.13.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.45454545454544,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "django-rest-swagger",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.2.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.36363636363636,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 100.0,
+      "name": "ply",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.11",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 86.4,
+      "name": "appdirs",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.4.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.45454545454544,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 1.8000000000000005,
+      "name": "requests",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.34.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 3.2727272727272734,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 2.9000000000000004,
+      "name": "flask",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.1.3",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.272727272727273,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 2.4,
+      "name": "numpy",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.5.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 4.363636363636363,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 2.9000000000000004,
+      "name": "pandas",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.1.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.272727272727273,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 0.0,
+      "name": "fastapi",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.162.7",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 3.0000000000000004,
+      "name": "pytest",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "9.2.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.454545454545455,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 4.8,
+      "name": "sqlalchemy",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.1.8",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 8.727272727272727,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 1.199999999999999,
+      "name": "attrs",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "26.1.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 2.18181818181818,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 12.000000000000002,
+      "name": "eventlet",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.41.3",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 21.81818181818182,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 4.7,
+      "name": "nose2",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.16.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 8.545454545454545,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 21.200000000000003,
+      "name": "simplejson",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "4.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 38.54545454545455,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "path-is-absolute",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.54545454545453,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "argparse",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.4.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.54545454545455,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "inflight",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.6",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.72727272727272,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": true,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 27.400000000000002,
+      "name": "xmldom",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.6.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 49.81818181818182,
+        "predicted": "ailing",
+        "unverified": []
+      },
+      "wounded": true
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 100.0,
+      "name": "pathlib",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.1",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 60.0,
+      "name": "ansible-bender",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.10.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 90.9090909090909,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 100.0,
+      "name": "auto-resizing-text-edit",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.1.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.47142857142858,
+      "name": "custom-protocol-detection",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.18181818181819,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 46.25571526351814,
+      "name": "liionpack",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 65.9194822973057,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 87.1649555099247,
+      "name": "nodejs-mobile-gyp",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 90.15680418144483,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 59.39895149340736,
+      "name": "pysoundanalyser",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.3.7",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 76.62559890485969,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 87.2,
+      "name": "react-hooks-global-state",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.1.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.9090909090909,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 31.700000000000006,
+      "name": "torf",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "4.3.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 46.72727272727272,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 87.9,
+      "name": "vue-formly",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.5.9",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.18181818181819,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 97.9,
+      "name": "zilch",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.1.3",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.18181818181819,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 88.5,
+      "name": "animate-components",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.4.8",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 97.27272727272727,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 61.69733059548255,
+      "name": "graphql-list-fields",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 88.65944869640967,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 42.96495550992471,
+      "name": "react-native-version-check",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.5.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 59.93628274531764,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 30.2,
+      "name": "textlint-plugin-latex2e",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.2.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 49.45454545454545,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 60.070157426420266,
+      "name": "rmextract",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.5.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 76.67848920415655,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 41.10841889117044,
+      "name": "sen",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.8.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 56.56076162030988,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 8.571428571428571,
+      "name": "windows-curses",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.4.2",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 30.883934682702648,
+      "name": "zgw-consumers-oas",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "1.1.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 23.237508555783705,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 4.285714285714286,
+      "name": "aiwg",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2026.11.5",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 88.0,
+      "name": "feedjack",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "16.8.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 14.285714285714286,
+      "name": "jdxi-editor",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.9.9",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 100.0,
+      "name": "maccarone",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.1.9",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 27.718294710081157,
+      "name": "rai-workflow-manager",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.0.52",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 37.61122518822724,
+        "predicted": "ailing",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 4.200000000000001,
+      "name": "lighthouse",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "13.6.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 7.636363636363638,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 60.4,
+      "name": "material-design-lite",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 91.63636363636363,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 14.285714285714286,
+      "name": "oirfile",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2026.10.22",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 73.10862422997947,
+      "name": "pandoc-mustache",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.1.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.9090909090909,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 85.71428571428572,
+      "name": "py-d3",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.3.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 65.14853818324045,
+      "name": "pyutilib",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "6.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.36363636363635,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 86.8,
+      "name": "rx-sandbox",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 55.226488706365494,
+      "name": "sacn",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.11.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 65.56953518760498,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 50.74058863791924,
+      "name": "serializr",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.0.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 61.5823533071993,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 0.0,
+      "name": "vizro",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 2.5882352941176467,
+      "name": "cwltool",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.3.20261106131234",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 3.636363636363636,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 4.1,
+      "name": "aurelia",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.0.0-rc.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 7.454545454545453,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 3.5999999999999996,
+      "name": "h3-js",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "4.5.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 6.545454545454544,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 100.0,
+      "name": "react-accessible-details",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.0.5",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 47.07881099051531,
+      "name": "stwui",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.21.2-next",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 91.82067077344286,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 14.285714285714286,
+      "name": "susy-sass",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.4.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 85.71428571428572,
+      "name": "kotti-image-gallery",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "0.3.2",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 37.34270202007647,
+      "name": "mkdocs-multirepo-plugin",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.8.3",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 62.525667351129364,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 14.285714285714286,
+      "name": "oximedia",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.2.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 80.5457905544148,
+      "name": "django-context-decorator",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.6.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 89.95071868583163,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 0.0,
+      "name": "llm-wiki-compiler",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.5.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 3.0999999999999996,
+      "name": "celery",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "5.7.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 5.636363636363635,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 43.99356605065024,
+      "name": "screen3",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.1.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 69.07921100118224,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 57.2,
+      "name": "opentaxii",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.9.3",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.0909090909091,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 91.33333333333333,
+      "name": "codec-detect",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 26.23936638310355,
+      "name": "mapdamage",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.2.3",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 16.80355920602327,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 61.3,
+      "name": "products-zopetree",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.4.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.27272727272727,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 75.76513151461818,
+      "name": "robotframework-angularjs",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [
+        "scorecard"
+      ],
+      "version": "1.0.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 86.07118412046543,
+        "predicted": "dead",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 31.8,
+      "name": "t61codec",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 46.90909090909091,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 24.4,
+      "name": "babylonjs-charactercontroller",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.7",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 33.454545454545446,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 36.1,
+      "name": "command-line-args",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "6.0.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 47.45454545454545,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 11.819204067664028,
+      "name": "fortls",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.2.2",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 33.09377138945928,
+        "predicted": "ailing",
+        "unverified": [
+          "github",
+          "scorecard"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 0.0,
+      "name": "grafema",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.1",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 0.0,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 63.0,
+      "name": "please-upgrade-node",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "3.2.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "finished-healthy",
+      "mortality": 36.9,
+      "name": "pydora",
+      "predicted": "ailing",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.3.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 48.90909090909091,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 44.462765229295,
+      "name": "content-security-policy-builder",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 62.65957314417274,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "alive",
+      "mortality": 1.9999999999999998,
+      "name": "s2geometry",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.14.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 3.636363636363636,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "caprine",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.55.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.18181818181819,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 46.323134839151265,
+      "name": "pdfjs",
+      "predicted": "finished-healthy",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.5.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 57.65739530831932,
+        "predicted": "finished-healthy",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "alive",
+      "mortality": 29.100000000000005,
+      "name": "raviger",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "5.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 47.45454545454545,
+        "predicted": "ailing",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 16.314657279749685,
+      "name": "smells-code-analyzer",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.1.1",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 3.9356605065023955,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 88.0,
+      "name": "updeep",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.2.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    }
+  ],
+  "schema": "graveyard.eval",
+  "schema_version": 1,
+  "views": {
+    "all": {
+      "accuracy": {
+        "den": 116,
+        "num": 79,
+        "value": 0.6810344827586207
+      },
+      "bands": {
+        "full": {
+          "accuracy": {
+            "den": 88,
+            "num": 65,
+            "value": 0.7386363636363636
+          },
+          "dead_precision": {
+            "den": 49,
+            "num": 35,
+            "value": 0.7142857142857143
+          },
+          "predicted": {
+            "ailing": 8,
+            "alive": 24,
+            "dead": 49,
+            "finished-healthy": 7,
+            "unknown": 0
+          },
+          "rows": 88
+        },
+        "low": {
+          "accuracy": {
+            "den": 4,
+            "num": 3,
+            "value": 0.75
+          },
+          "dead_precision": {
+            "den": 4,
+            "num": 3,
+            "value": 0.75
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 4,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 4
+        },
+        "medium": {
+          "accuracy": {
+            "den": 24,
+            "num": 11,
+            "value": 0.4583333333333333
+          },
+          "dead_precision": {
+            "den": 5,
+            "num": 2,
+            "value": 0.4
+          },
+          "predicted": {
+            "ailing": 3,
+            "alive": 15,
+            "dead": 5,
+            "finished-healthy": 1,
+            "unknown": 0
+          },
+          "rows": 24
+        },
+        "none": {
+          "accuracy": null,
+          "dead_precision": null,
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 0
+        }
+      },
+      "confusion": {
+        "ailing": {
+          "ailing": 5,
+          "alive": 4,
+          "dead": 7,
+          "finished-healthy": 4,
+          "unknown": 0
+        },
+        "alive": {
+          "ailing": 0,
+          "alive": 31,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead": {
+          "ailing": 1,
+          "alive": 3,
+          "dead": 40,
+          "finished-healthy": 1,
+          "unknown": 0
+        },
+        "finished-healthy": {
+          "ailing": 5,
+          "alive": 1,
+          "dead": 11,
+          "finished-healthy": 3,
+          "unknown": 0
+        }
+      },
+      "dead_precision_wilson": [
+        0.5619669315326005,
+        0.7937806558519432
+      ],
+      "finished_healthy": {
+        "false_positive_rate": {
+          "den": 20,
+          "num": 11,
+          "value": 0.55
+        },
+        "false_positive_rate_wilson": [
+          0.3420820083075997,
+          0.7418049791429071
+        ],
+        "flagged_rate": {
+          "den": 20,
+          "num": 16,
+          "value": 0.8
+        }
+      },
+      "per_label": {
+        "ailing": {
+          "precision": {
+            "den": 11,
+            "num": 5,
+            "value": 0.45454545454545453
+          },
+          "recall": {
+            "den": 20,
+            "num": 5,
+            "value": 0.25
+          }
+        },
+        "alive": {
+          "precision": {
+            "den": 39,
+            "num": 31,
+            "value": 0.7948717948717948
+          },
+          "recall": {
+            "den": 31,
+            "num": 31,
+            "value": 1.0
+          }
+        },
+        "dead": {
+          "precision": {
+            "den": 58,
+            "num": 40,
+            "value": 0.6896551724137931
+          },
+          "recall": {
+            "den": 45,
+            "num": 40,
+            "value": 0.8888888888888888
+          }
+        },
+        "finished-healthy": {
+          "precision": {
+            "den": 8,
+            "num": 3,
+            "value": 0.375
+          },
+          "recall": {
+            "den": 20,
+            "num": 3,
+            "value": 0.15
+          }
+        }
+      },
+      "rows": 116,
+      "slices": {
+        "dead_precision_by_ecosystem": {
+          "npm": {
+            "den": 35,
+            "num": 27,
+            "value": 0.7714285714285715
+          },
+          "pypi": {
+            "den": 23,
+            "num": 13,
+            "value": 0.5652173913043478
+          }
+        },
+        "dead_precision_by_reason": {
+          "declared": {
+            "den": 28,
+            "num": 27,
+            "value": 0.9642857142857143
+          },
+          "score": {
+            "den": 30,
+            "num": 13,
+            "value": 0.43333333333333335
+          }
+        },
+        "dead_recall_by_ecosystem": {
+          "npm": {
+            "den": 30,
+            "num": 27,
+            "value": 0.9
+          },
+          "pypi": {
+            "den": 15,
+            "num": 13,
+            "value": 0.8666666666666667
+          }
+        },
+        "dead_recall_by_evidence_kind": {
+          "archived_repo": {
+            "den": 1,
+            "num": 1,
+            "value": 1.0
+          },
+          "deprecation_notice": {
+            "den": 29,
+            "num": 28,
+            "value": 0.9655172413793104
+          },
+          "eol_announcement": null,
+          "maintainer_statement": {
+            "den": 15,
+            "num": 11,
+            "value": 0.7333333333333333
+          }
+        }
+      },
+      "unknown": 0,
+      "unverified": {
+        "by_label": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 3,
+          "finished-healthy": 5
+        },
+        "by_predicted": {
+          "ailing": 3,
+          "alive": 0,
+          "dead": 5,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead_precision_gate_eligible": {
+          "den": 53,
+          "num": 38,
+          "value": 0.7169811320754716
+        },
+        "missing_risks": {
+          "r2": 0,
+          "r3": 4,
+          "r4": 28,
+          "r5": 4,
+          "r6": 4,
+          "r7": 0,
+          "r8": 28
+        },
+        "partial_evidence": 12,
+        "unverified": 8
+      }
+    },
+    "reviewed": {
+      "accuracy": {
+        "den": 116,
+        "num": 79,
+        "value": 0.6810344827586207
+      },
+      "bands": {
+        "full": {
+          "accuracy": {
+            "den": 88,
+            "num": 65,
+            "value": 0.7386363636363636
+          },
+          "dead_precision": {
+            "den": 49,
+            "num": 35,
+            "value": 0.7142857142857143
+          },
+          "predicted": {
+            "ailing": 8,
+            "alive": 24,
+            "dead": 49,
+            "finished-healthy": 7,
+            "unknown": 0
+          },
+          "rows": 88
+        },
+        "low": {
+          "accuracy": {
+            "den": 4,
+            "num": 3,
+            "value": 0.75
+          },
+          "dead_precision": {
+            "den": 4,
+            "num": 3,
+            "value": 0.75
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 4,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 4
+        },
+        "medium": {
+          "accuracy": {
+            "den": 24,
+            "num": 11,
+            "value": 0.4583333333333333
+          },
+          "dead_precision": {
+            "den": 5,
+            "num": 2,
+            "value": 0.4
+          },
+          "predicted": {
+            "ailing": 3,
+            "alive": 15,
+            "dead": 5,
+            "finished-healthy": 1,
+            "unknown": 0
+          },
+          "rows": 24
+        },
+        "none": {
+          "accuracy": null,
+          "dead_precision": null,
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 0
+        }
+      },
+      "confusion": {
+        "ailing": {
+          "ailing": 5,
+          "alive": 4,
+          "dead": 7,
+          "finished-healthy": 4,
+          "unknown": 0
+        },
+        "alive": {
+          "ailing": 0,
+          "alive": 31,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead": {
+          "ailing": 1,
+          "alive": 3,
+          "dead": 40,
+          "finished-healthy": 1,
+          "unknown": 0
+        },
+        "finished-healthy": {
+          "ailing": 5,
+          "alive": 1,
+          "dead": 11,
+          "finished-healthy": 3,
+          "unknown": 0
+        }
+      },
+      "dead_precision_wilson": [
+        0.5619669315326005,
+        0.7937806558519432
+      ],
+      "finished_healthy": {
+        "false_positive_rate": {
+          "den": 20,
+          "num": 11,
+          "value": 0.55
+        },
+        "false_positive_rate_wilson": [
+          0.3420820083075997,
+          0.7418049791429071
+        ],
+        "flagged_rate": {
+          "den": 20,
+          "num": 16,
+          "value": 0.8
+        }
+      },
+      "per_label": {
+        "ailing": {
+          "precision": {
+            "den": 11,
+            "num": 5,
+            "value": 0.45454545454545453
+          },
+          "recall": {
+            "den": 20,
+            "num": 5,
+            "value": 0.25
+          }
+        },
+        "alive": {
+          "precision": {
+            "den": 39,
+            "num": 31,
+            "value": 0.7948717948717948
+          },
+          "recall": {
+            "den": 31,
+            "num": 31,
+            "value": 1.0
+          }
+        },
+        "dead": {
+          "precision": {
+            "den": 58,
+            "num": 40,
+            "value": 0.6896551724137931
+          },
+          "recall": {
+            "den": 45,
+            "num": 40,
+            "value": 0.8888888888888888
+          }
+        },
+        "finished-healthy": {
+          "precision": {
+            "den": 8,
+            "num": 3,
+            "value": 0.375
+          },
+          "recall": {
+            "den": 20,
+            "num": 3,
+            "value": 0.15
+          }
+        }
+      },
+      "rows": 116,
+      "slices": {
+        "dead_precision_by_ecosystem": {
+          "npm": {
+            "den": 35,
+            "num": 27,
+            "value": 0.7714285714285715
+          },
+          "pypi": {
+            "den": 23,
+            "num": 13,
+            "value": 0.5652173913043478
+          }
+        },
+        "dead_precision_by_reason": {
+          "declared": {
+            "den": 28,
+            "num": 27,
+            "value": 0.9642857142857143
+          },
+          "score": {
+            "den": 30,
+            "num": 13,
+            "value": 0.43333333333333335
+          }
+        },
+        "dead_recall_by_ecosystem": {
+          "npm": {
+            "den": 30,
+            "num": 27,
+            "value": 0.9
+          },
+          "pypi": {
+            "den": 15,
+            "num": 13,
+            "value": 0.8666666666666667
+          }
+        },
+        "dead_recall_by_evidence_kind": {
+          "archived_repo": {
+            "den": 1,
+            "num": 1,
+            "value": 1.0
+          },
+          "deprecation_notice": {
+            "den": 29,
+            "num": 28,
+            "value": 0.9655172413793104
+          },
+          "eol_announcement": null,
+          "maintainer_statement": {
+            "den": 15,
+            "num": 11,
+            "value": 0.7333333333333333
+          }
+        }
+      },
+      "unknown": 0,
+      "unverified": {
+        "by_label": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 3,
+          "finished-healthy": 5
+        },
+        "by_predicted": {
+          "ailing": 3,
+          "alive": 0,
+          "dead": 5,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead_precision_gate_eligible": {
+          "den": 53,
+          "num": 38,
+          "value": 0.7169811320754716
+        },
+        "missing_risks": {
+          "r2": 0,
+          "r3": 4,
+          "r4": 28,
+          "r5": 4,
+          "r6": 4,
+          "r7": 0,
+          "r8": 28
+        },
+        "partial_evidence": 12,
+        "unverified": 8
+      }
+    },
+    "without_github": {
+      "all": {
+        "confusion": {
+          "ailing": {
+            "ailing": 3,
+            "alive": 3,
+            "dead": 12,
+            "finished-healthy": 2,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 2,
+            "alive": 27,
+            "dead": 0,
+            "finished-healthy": 2,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 2,
+            "alive": 1,
+            "dead": 42,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 2,
+            "alive": 2,
+            "dead": 14,
+            "finished-healthy": 2,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 68,
+          "num": 42,
+          "value": 0.6176470588235294
+        },
+        "dead_precision_gate_eligible": {
+          "den": 28,
+          "num": 27,
+          "value": 0.9642857142857143
+        },
+        "finished_healthy_fpr": {
+          "den": 20,
+          "num": 14,
+          "value": 0.7
+        },
+        "flagged_rate": {
+          "den": 20,
+          "num": 16,
+          "value": 0.8
+        },
+        "rows": 116,
+        "unverified": 48,
+        "unverified_by_predicted": {
+          "ailing": 8,
+          "alive": 0,
+          "dead": 40,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      },
+      "reviewed": {
+        "confusion": {
+          "ailing": {
+            "ailing": 3,
+            "alive": 3,
+            "dead": 12,
+            "finished-healthy": 2,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 2,
+            "alive": 27,
+            "dead": 0,
+            "finished-healthy": 2,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 2,
+            "alive": 1,
+            "dead": 42,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 2,
+            "alive": 2,
+            "dead": 14,
+            "finished-healthy": 2,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 68,
+          "num": 42,
+          "value": 0.6176470588235294
+        },
+        "dead_precision_gate_eligible": {
+          "den": 28,
+          "num": 27,
+          "value": 0.9642857142857143
+        },
+        "finished_healthy_fpr": {
+          "den": 20,
+          "num": 14,
+          "value": 0.7
+        },
+        "flagged_rate": {
+          "den": 20,
+          "num": 16,
+          "value": 0.8
+        },
+        "rows": 116,
+        "unverified": 48,
+        "unverified_by_predicted": {
+          "ailing": 8,
+          "alive": 0,
+          "dead": 40,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      }
+    }
+  },
+  "weights_sha256": "f1e5d7f1e821c1091e24e892b4924b1649fa57917296d6411df0369015c27c4f"
+}
