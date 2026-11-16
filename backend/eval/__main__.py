@@ -6,13 +6,16 @@ import sys
 from collections.abc import Sequence
 from typing import TextIO
 
+from eval.analysis_cmd import run_analysis
 from eval.merge import run_merge
 from eval.run import run
 
 
 def dispatch(argv: Sequence[str], *, out: TextIO, err: TextIO) -> int:
-    """Route ``merge ...`` to ``run_merge`` and everything else to ``run``."""
+    """Route ``merge ...`` and ``analysis ...`` to their runners, the rest to ``run``."""
     args = list(argv)
+    if args[:1] == ["analysis"]:
+        return run_analysis(args[1:], out=out, err=err)
     if args[:1] == ["merge"]:
         return run_merge(args[1:], out=out, err=err)
     return run(args, out=out, err=err)

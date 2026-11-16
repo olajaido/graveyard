@@ -1,0 +1,7492 @@
+{
+  "as_of": "2026-11-13",
+  "banner": "In-sample diagnostic on the v1 answer key. Not validation.",
+  "counterfactuals": {
+    "scorecard_missing": {
+      "ailing": {
+        "ailing": 4,
+        "alive": 9,
+        "dead": 4,
+        "finished-healthy": 3,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 31,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 3,
+        "alive": 2,
+        "dead": 39,
+        "finished-healthy": 1,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 4,
+        "alive": 6,
+        "dead": 8,
+        "finished-healthy": 2,
+        "unknown": 0
+      }
+    },
+    "staleness_missing": {
+      "ailing": {
+        "ailing": 1,
+        "alive": 3,
+        "dead": 14,
+        "finished-healthy": 2,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 5,
+        "alive": 24,
+        "dead": 0,
+        "finished-healthy": 2,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 4,
+        "alive": 1,
+        "dead": 37,
+        "finished-healthy": 0,
+        "unknown": 3
+      },
+      "finished-healthy": {
+        "ailing": 4,
+        "alive": 0,
+        "dead": 15,
+        "finished-healthy": 0,
+        "unknown": 1
+      }
+    }
+  },
+  "labels_sha256": "8a0c91afdd4585a8d75c5fb2a7f0ae4407215cbd614b15aaa4ec84d7f4de6f85",
+  "missing_causes": [
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "aiwg",
+        "version": "2026.11.5"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "grafema",
+        "version": "0.4.1"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "llm-wiki-compiler",
+        "version": "1.5.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "react",
+        "version": "19.3.1"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s3_last_push_at": "no_repo",
+        "s4_maintained": "no_repo",
+        "s5_committers": "no_repo",
+        "s6_closed_issues": "no_repo",
+        "s6_open_issues": "no_repo",
+        "s8_overall": "no_repo"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "react-accessible-details",
+        "version": "3.0.5"
+      },
+      "signals": [
+        "s3_last_push_at",
+        "s4_maintained",
+        "s5_committers",
+        "s6_open_issues",
+        "s6_closed_issues",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "smells-code-analyzer",
+        "version": "0.1.1"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "stwui",
+        "version": "0.21.2-next"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "susy-sass",
+        "version": "2.4.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "auto-resizing-text-edit",
+        "version": "0.1.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "fastapi",
+        "version": "0.162.7"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "fortls",
+        "version": "3.2.2"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "jdxi-editor",
+        "version": "0.9.9"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "kotti-image-gallery",
+        "version": "0.3.2"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "maccarone",
+        "version": "0.1.9"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "mapdamage",
+        "version": "2.2.3"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "mkdocs-multirepo-plugin",
+        "version": "0.8.3"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "oirfile",
+        "version": "2026.10.22"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "oximedia",
+        "version": "0.2.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s3_last_push_at": "no_repo",
+        "s4_maintained": "no_repo",
+        "s5_committers": "no_repo",
+        "s6_closed_issues": "no_repo",
+        "s6_open_issues": "no_repo",
+        "s8_overall": "no_repo"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "pathlib",
+        "version": "1.0.1"
+      },
+      "signals": [
+        "s3_last_push_at",
+        "s4_maintained",
+        "s5_committers",
+        "s6_open_issues",
+        "s6_closed_issues",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s3_last_push_at": "no_repo",
+        "s4_maintained": "no_repo",
+        "s5_committers": "no_repo",
+        "s6_closed_issues": "no_repo",
+        "s6_open_issues": "no_repo",
+        "s8_overall": "no_repo"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "ply",
+        "version": "3.11"
+      },
+      "signals": [
+        "s3_last_push_at",
+        "s4_maintained",
+        "s5_committers",
+        "s6_open_issues",
+        "s6_closed_issues",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "py-d3",
+        "version": "0.3.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "pysoundanalyser",
+        "version": "0.3.7"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "rai-workflow-manager",
+        "version": "0.0.52"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "robotframework-angularjs",
+        "version": "1.0.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s3_last_push_at": "no_repo",
+        "s4_maintained": "no_repo",
+        "s5_committers": "no_repo",
+        "s6_closed_issues": "no_repo",
+        "s6_open_issues": "no_repo",
+        "s8_overall": "no_repo"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "sklearn",
+        "version": "0.0.post12"
+      },
+      "signals": [
+        "s3_last_push_at",
+        "s4_maintained",
+        "s5_committers",
+        "s6_open_issues",
+        "s6_closed_issues",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "release_notes",
+        "label": "alive",
+        "name": "vizro",
+        "version": "1.0.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "windows-curses",
+        "version": "2.4.2"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    },
+    {
+      "cause": {
+        "s4_maintained": "scorecard_404",
+        "s8_overall": "scorecard_404"
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "zgw-consumers-oas",
+        "version": "1.1.0"
+      },
+      "signals": [
+        "s4_maintained",
+        "s8_overall"
+      ]
+    }
+  ],
+  "model_version": "v1",
+  "recorded": {
+    "dead_precision": {
+      "den": 58,
+      "num": 40,
+      "value": 0.6896551724137931,
+      "wilson": [
+        0.5619669315326005,
+        0.7937806558519432
+      ]
+    },
+    "finished_healthy_fpr": {
+      "den": 20,
+      "num": 11,
+      "value": 0.55,
+      "wilson": [
+        0.3420820083075997,
+        0.7418049791429071
+      ]
+    }
+  },
+  "rows": [
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11299435028248588,
+        "issues": 0.0,
+        "maintenance": 0.22598870056497175,
+        "scorecard": 0.096045197740113,
+        "staleness": 0.5649717514124294
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "animate-components",
+        "version": "1.4.8"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 109.53593429158111,
+        "s3_age_months": 101.81519507186859,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 17,
+        "s6_open": 5,
+        "s8": 1.5,
+        "s9_weekly_downloads": 166
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.5,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.85,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 88.5,
+        "mortality_pre_s1": 88.5,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 21.962696783025322,
+        "risk": 0.8785078713210129,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16208156663316314,
+        "issues": 0.0,
+        "maintenance": 0.3241631332663263,
+        "scorecard": 0.11021546531055093,
+        "staleness": 0.40353983478995953
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "graphql-list-fields",
+        "version": "2.0.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 33.08418891170431,
+        "s3_age_months": 14.817248459958932,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 11,
+        "s6_open": 0,
+        "s8": 3.2,
+        "s9_weekly_downloads": 81538
+      },
+      "risks": {
+        "r2": {
+          "contribution": 21.962696783025322,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8785078713210129,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 2.9346338124572213,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.11738535249828885,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.799999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6799999999999999,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 61.69733059548255,
+        "mortality_pre_s1": 61.69733059548255,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.19363047194942545,
+        "issues": 0.0,
+        "maintenance": 0.3872609438988509,
+        "scorecard": 0.106496759572184,
+        "staleness": 0.31261182457953957
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "karma",
+        "version": "6.4.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 27.498973305954827,
+        "s3_age_months": 5.125256673511293,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 1714,
+        "s6_open": 351,
+        "s8": 4.5,
+        "s9_weekly_downloads": 3642501
+      },
+      "risks": {
+        "r2": {
+          "contribution": 16.14476386036961,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.6457905544147845,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.5,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.55,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 51.644763860369615,
+        "mortality_pre_s1": 51.644763860369615,
+        "predicted": "finished-healthy",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16556291390728478,
+        "issues": 0.0,
+        "maintenance": 0.33112582781456956,
+        "scorecard": 0.08940397350993379,
+        "staleness": 0.4139072847682119
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "material-design-lite",
+        "version": "1.3.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 118.73511293634498,
+        "s3_age_months": 6.373716632443532,
+        "s4": 0,
+        "s5_committers": 1,
+        "s6_closed": 1814,
+        "s6_open": 390,
+        "s8": 4.6,
+        "s9_weekly_downloads": 85952
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.54,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 60.4,
+        "mortality_pre_s1": 60.4,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.21587485464278697,
+        "issues": 0.0,
+        "maintenance": 0.43174970928557393,
+        "scorecard": 0.15327114679637874,
+        "staleness": 0.19910428927526033
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "pdfjs",
+        "version": "2.5.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 16.427104722792606,
+        "s3_age_months": 16.427104722792606,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 160,
+        "s6_open": 69,
+        "s8": 2.9,
+        "s9_weekly_downloads": 138640
+      },
+      "risks": {
+        "r2": {
+          "contribution": 4.611567419575632,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.18446269678302527,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 4.611567419575632,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.18446269678302527,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.1,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.71,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 46.323134839151265,
+        "mortality_pre_s1": 46.323134839151265,
+        "predicted": "finished-healthy",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.15873015873015872,
+        "issues": 0.0,
+        "maintenance": 0.31746031746031744,
+        "scorecard": 0.12698412698412698,
+        "staleness": 0.3968253968253968
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "please-upgrade-node",
+        "version": "3.2.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 87.19507186858316,
+        "s3_age_months": 8.476386036960985,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 6,
+        "s6_open": 5,
+        "s8": 2,
+        "s9_weekly_downloads": 5504139
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 63.0,
+        "mortality_pre_s1": 63.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 100.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "react-accessible-details",
+        "version": "3.0.5"
+      },
+      "missing": [
+        {
+          "cause": "no_repo",
+          "signal": "s3_last_push_at"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s5_committers"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_open_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_closed_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": null
+        },
+        "s2_age_months": 83.1211498973306,
+        "s3_age_months": null,
+        "s4": null,
+        "s5_committers": null,
+        "s6_closed": null,
+        "s6_open": null,
+        "s8": null,
+        "s9_weekly_downloads": 24
+      },
+      "risks": {
+        "r2": {
+          "contribution": 100.0,
+          "effective_weight": 1.0,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.25,
+        "confidence_band": "low",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.23274782625319013,
+        "issues": 0.0,
+        "maintenance": 0.46549565250638025,
+        "scorecard": 0.1466311305395098,
+        "staleness": 0.15512539070091982
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "react-native-version-check",
+        "version": "3.5.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 18.39835728952772,
+        "s3_age_months": 9.724845995893224,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 93,
+        "s6_open": 42,
+        "s8": 3.7,
+        "s9_weekly_downloads": 95024
+      },
+      "risks": {
+        "r2": {
+          "contribution": 6.664955509924708,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.26659822039698833,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.3,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.63,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 42.96495550992471,
+        "mortality_pre_s1": 42.96495550992471,
+        "predicted": "finished-healthy",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1152073732718894,
+        "issues": 0.0,
+        "maintenance": 0.2304147465437788,
+        "scorecard": 0.07834101382488479,
+        "staleness": 0.5760368663594471
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "rx-sandbox",
+        "version": "2.0.5"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 39.68788501026694,
+        "s3_age_months": 36.79671457905544,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 34,
+        "s6_open": 1,
+        "s8": 3.2,
+        "s9_weekly_downloads": 4423
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.799999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6799999999999999,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 86.8,
+        "mortality_pre_s1": 86.8,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.1970808827496897,
+        "issues": 0.0,
+        "maintenance": 0.3941617654993794,
+        "scorecard": 0.1379566179247828,
+        "staleness": 0.27080073382614794
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "serializr",
+        "version": "3.0.5"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 18.595482546201232,
+        "s3_age_months": 18.595482546201232,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 83,
+        "s6_open": 34,
+        "s8": 3,
+        "s9_weekly_downloads": 31509
+      },
+      "risks": {
+        "r2": {
+          "contribution": 6.870294318959617,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.2748117727583847,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 6.870294318959617,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.2748117727583847,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.7,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 50.74058863791924,
+        "mortality_pre_s1": 50.74058863791924,
+        "predicted": "finished-healthy",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 14.285714285714286,
+        "risk": 1.0,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 0.8756367995205273,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.1243632004794725
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "smells-code-analyzer",
+        "version": "0.1.1"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 12.944558521560575,
+        "s3_age_months": 12.41889117043121,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 11
+      },
+      "risks": {
+        "r2": {
+          "contribution": 1.40559303803657,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.039356605065023954,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.6233499559988256,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.017453798767967117,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 16.314657279749685,
+        "mortality_pre_s1": 16.314657279749685,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 32.79309670480102,
+        "risk": 0.9182067077344286,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.30344254634197,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.69655745365803
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "stwui",
+        "version": "0.21.2-next"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 34.03696098562629,
+        "s3_age_months": 3.2854209445585214,
+        "s4": null,
+        "s5_committers": 1,
+        "s6_closed": 80,
+        "s6_open": 11,
+        "s8": null,
+        "s9_weekly_downloads": 55
+      },
+      "risks": {
+        "r2": {
+          "contribution": 32.79309670480102,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.9182067077344286,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 47.07881099051531,
+        "mortality_pre_s1": 47.07881099051531,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 14.285714285714286,
+        "risk": 1.0,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 1.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.0
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "susy-sass",
+        "version": "2.4.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 2.3983572895277208,
+        "s3_age_months": 2.3983572895277208,
+        "s4": null,
+        "s5_committers": 1,
+        "s6_closed": 1,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 6
+      },
+      "risks": {
+        "r2": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 14.285714285714286,
+        "mortality_pre_s1": 14.285714285714286,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11363636363636363,
+        "issues": 0.0,
+        "maintenance": 0.22727272727272727,
+        "scorecard": 0.09090909090909091,
+        "staleness": 0.5681818181818182
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "updeep",
+        "version": "1.2.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 44.714579055441476,
+        "s3_age_months": 44.714579055441476,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 56,
+        "s6_open": 0,
+        "s8": 2,
+        "s9_weekly_downloads": 17175
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 88.0,
+        "mortality_pre_s1": 88.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11376564277588168,
+        "issues": 0.0,
+        "maintenance": 0.22753128555176336,
+        "scorecard": 0.08987485779294653,
+        "staleness": 0.5688282138794084
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "vue-formly",
+        "version": "2.5.9"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 75.36755646817248,
+        "s3_age_months": 46.02874743326489,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 26,
+        "s6_open": 3,
+        "s8": 2.1,
+        "s9_weekly_downloads": 139
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.9,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.79,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 87.9,
+        "mortality_pre_s1": 87.9,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0875912408759124,
+        "staleness": 0.9124087591240875
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "xmldom",
+        "version": "0.6.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 16,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 66.89117043121149,
+        "s3_age_months": 0.06570841889117043,
+        "s4": 10,
+        "s5_committers": 7,
+        "s6_closed": 159,
+        "s6_open": 40,
+        "s8": 7.6,
+        "s9_weekly_downloads": 1603567
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 0.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 2.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.24,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": true,
+        "dead_reason": null,
+        "mortality": 27.400000000000002,
+        "mortality_pre_s1": 27.400000000000002,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": true
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16666666666666666,
+        "issues": 0.0,
+        "maintenance": 0.3333333333333333,
+        "scorecard": 0.08333333333333333,
+        "staleness": 0.4166666666666667
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "ansible-bender",
+        "version": "0.10.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 45.20739219712526,
+        "s3_age_months": 10.184804928131417,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 111,
+        "s6_open": 40,
+        "s8": 5,
+        "s9_weekly_downloads": 1200
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.5,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 60.0,
+        "mortality_pre_s1": 60.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.14285714285714288,
+        "issues": 0.14285714285714288,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.7142857142857143
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "auto-resizing-text-edit",
+        "version": "0.1.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 158.58726899383984,
+        "s3_age_months": 158.58726899383984,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 4,
+        "s8": null,
+        "s9_weekly_downloads": 6
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 21.072895277207394,
+        "risk": 0.8429158110882957,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.12415298094621396,
+        "issues": 0.0,
+        "maintenance": 0.24830596189242793,
+        "scorecard": 0.10428850399481973,
+        "staleness": 0.5232525531665383
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "django-context-decorator",
+        "version": "1.6.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 32.2299794661191,
+        "s3_age_months": 32.2299794661191,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 2,
+        "s6_open": 0,
+        "s8": 1.6,
+        "s9_weekly_downloads": 9495
+      },
+      "risks": {
+        "r2": {
+          "contribution": 21.072895277207394,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8429158110882957,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 21.072895277207394,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8429158110882957,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.84,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 80.5457905544148,
+        "mortality_pre_s1": 80.5457905544148,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 8.0,
+        "risk": 0.4,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.6666666666666665,
+        "scorecard": 0.33333333333333326,
+        "staleness": 0.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "eventlet",
+        "version": "0.41.3"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 0.8213552361396304,
+        "s3_age_months": 0.09856262833675565,
+        "s4": 6,
+        "s5_committers": 7,
+        "s6_closed": 399,
+        "s6_open": 192,
+        "s8": 6,
+        "s9_weekly_downloads": 448015
+      },
+      "risks": {
+        "r2": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 8.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 0.4,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 4.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.4,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 12.000000000000002,
+        "mortality_pre_s1": 12.000000000000002,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11389521640091116,
+        "issues": 0.0,
+        "maintenance": 0.22779043280182232,
+        "scorecard": 0.08883826879271071,
+        "staleness": 0.5694760820045558
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "flask-script",
+        "version": "2.0.6"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": true,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": true
+        },
+        "s2_age_months": 110.2258726899384,
+        "s3_age_months": 80.16427104722793,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 84,
+        "s6_open": 27,
+        "s8": 2.2,
+        "s9_weekly_downloads": 75886
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.800000000000001,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.78,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "declared",
+        "mortality": 90.0,
+        "mortality_pre_s1": 87.8,
+        "predicted": "dead",
+        "s1_override_applied": true,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 11.819204067664028,
+        "risk": 0.3309377138945928,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "fortls",
+        "version": "3.2.2"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 19.942505133470227,
+        "s3_age_months": 0.3613963039014374,
+        "s4": null,
+        "s5_committers": 10,
+        "s6_closed": 139,
+        "s6_open": 55,
+        "s8": null,
+        "s9_weekly_downloads": 5255
+      },
+      "risks": {
+        "r2": {
+          "contribution": 11.819204067664028,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.3309377138945928,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 11.819204067664028,
+        "mortality_pre_s1": 11.819204067664028,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.14285714285714288,
+        "issues": 0.14285714285714288,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.7142857142857143
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "maccarone",
+        "version": "0.1.9"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 38.6694045174538,
+        "s3_age_months": 37.28952772073922,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 2,
+        "s8": null,
+        "s9_weekly_downloads": 6
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 14.285714285714286,
+        "risk": 1.0,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 0.5444382336500838,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.4555617663499161
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "mapdamage",
+        "version": "2.2.3"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 16.032854209445585,
+        "s3_age_months": 16.0,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 55,
+        "s6_open": 1,
+        "s8": null,
+        "s9_weekly_downloads": 32
+      },
+      "risks": {
+        "r2": {
+          "contribution": 6.001271145008311,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.1680355920602327,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 5.952380952380952,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.16666666666666666,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 26.23936638310355,
+        "mortality_pre_s1": 26.23936638310355,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 22.330595482546205,
+        "risk": 0.6252566735112937,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.3825570596909107,
+        "issues": 0.01945205388258871,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.5979908864265006
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "mkdocs-multirepo-plugin",
+        "version": "0.8.3"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 27.006160164271048,
+        "s3_age_months": 7.852156057494867,
+        "s4": null,
+        "s5_committers": 1,
+        "s6_closed": 56,
+        "s6_open": 62,
+        "s8": null,
+        "s9_weekly_downloads": 16387
+      },
+      "risks": {
+        "r2": {
+          "contribution": 22.330595482546205,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.6252566735112937,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.7263922518159819,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.05084745762711873,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 37.34270202007647,
+        "mortality_pre_s1": 37.34270202007647,
+        "predicted": "finished-healthy",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1048951048951049,
+        "issues": 0.0,
+        "maintenance": 0.34965034965034963,
+        "scorecard": 0.10839160839160839,
+        "staleness": 0.43706293706293703
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "opentaxii",
+        "version": "0.9.3"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 49.08418891170431,
+        "s3_age_months": 8.082135523613964,
+        "s4": 0,
+        "s5_committers": 2,
+        "s6_closed": 138,
+        "s6_open": 8,
+        "s8": 3.8,
+        "s9_weekly_downloads": 160
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 6.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.2,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.62,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 57.2,
+        "mortality_pre_s1": 57.2,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1367827681798904,
+        "issues": 0.0,
+        "maintenance": 0.2735655363597808,
+        "scorecard": 0.09848359308952108,
+        "staleness": 0.49116810237080766
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "pandoc-mustache",
+        "version": "0.1.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 90.11909650924025,
+        "s3_age_months": 22.472279260780287,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 5,
+        "s6_open": 5,
+        "s8": 2.8,
+        "s9_weekly_downloads": 223
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 10.908624229979464,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.4363449691991786,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.199999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.72,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 73.10862422997947,
+        "mortality_pre_s1": 73.10862422997947,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1631321370309951,
+        "issues": 0.0,
+        "maintenance": 0.3262642740619902,
+        "scorecard": 0.10277324632952692,
+        "staleness": 0.4078303425774878
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "products-zopetree",
+        "version": "3.4.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 47.73716632443532,
+        "s3_age_months": 0.3613963039014374,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 6,
+        "s6_open": 0,
+        "s8": 3.7,
+        "s9_weekly_downloads": 8
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.3,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.63,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 61.3,
+        "mortality_pre_s1": 61.3,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.2710027100271003,
+        "issues": 0.0,
+        "maintenance": 0.5420054200542006,
+        "scorecard": 0.18699186991869918,
+        "staleness": 0.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "pydora",
+        "version": "2.3.2"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 0.03285420944558522,
+        "s3_age_months": 0.03285420944558522,
+        "s4": 0,
+        "s5_committers": 1,
+        "s6_closed": 45,
+        "s6_open": 0,
+        "s8": 3.1,
+        "s9_weekly_downloads": 621
+      },
+      "risks": {
+        "r2": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.8999999999999995,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.69,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 36.9,
+        "mortality_pre_s1": 36.9,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 27.366285323164174,
+        "risk": 0.7662559890485968,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.24050448579550845,
+        "issues": 0.2035037956731226,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.5559917185313688
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "pysoundanalyser",
+        "version": "0.3.7"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 30.390143737166323,
+        "s3_age_months": 15.80287474332649,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 1,
+        "s6_open": 12,
+        "s8": null,
+        "s9_weekly_downloads": 3
+      },
+      "risks": {
+        "r2": {
+          "contribution": 27.366285323164174,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.7662559890485968,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 5.659039796616801,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.1584531143052704,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 12.087912087912091,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.8461538461538463,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 59.39895149340736,
+        "mortality_pre_s1": 59.39895149340736,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.15349538575790353,
+        "issues": 0.05847443266967753,
+        "maintenance": 0.30699077151580706,
+        "scorecard": 0.08902732373958404,
+        "staleness": 0.3920120863170278
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "pyutilib",
+        "version": "6.0.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 76.81314168377824,
+        "s3_age_months": 12.517453798767967,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 13,
+        "s6_open": 29,
+        "s8": 4.2,
+        "s9_weekly_downloads": 4433
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.5390143737166324,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.021560574948665295,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 3.8095238095238093,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.38095238095238093,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.8,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.58,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 65.14853818324045,
+        "mortality_pre_s1": 65.14853818324045,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 14.285714285714286,
+        "risk": 1.0,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 0.5153893641414588,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.48461063585854136
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "rai-workflow-manager",
+        "version": "0.0.52"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 21.026694045174537,
+        "s3_age_months": 7.62217659137577,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 67
+      },
+      "risks": {
+        "r2": {
+          "contribution": 13.432580424366872,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.3761122518822724,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 27.718294710081157,
+        "mortality_pre_s1": 27.718294710081157,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 30.739708614451942,
+        "risk": 0.8607118412046543,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.18855262308833967,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.8114473769116602
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "robotframework-angularjs",
+        "version": "1.0.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 32.6570841889117,
+        "s3_age_months": 32.6570841889117,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 18,
+        "s6_open": 4,
+        "s8": null,
+        "s9_weekly_downloads": 1042
+      },
+      "risks": {
+        "r2": {
+          "contribution": 30.739708614451942,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.8607118412046543,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 30.739708614451942,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.8607118412046543,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 75.76513151461818,
+        "mortality_pre_s1": 75.76513151461818,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 18.0,
+        "risk": 0.9,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.18927444794952678,
+        "issues": 0.0,
+        "maintenance": 0.5678233438485804,
+        "scorecard": 0.2429022082018927,
+        "staleness": 0.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "torf",
+        "version": "4.3.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 9.987679671457906,
+        "s3_age_months": 4.336755646817249,
+        "s4": 1,
+        "s5_committers": 2,
+        "s6_closed": 42,
+        "s6_open": 5,
+        "s8": 2.3,
+        "s9_weekly_downloads": 4843
+      },
+      "risks": {
+        "r2": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 18.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 0.9,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 6.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.7,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.77,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 31.700000000000006,
+        "mortality_pre_s1": 31.700000000000006,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 8.571428571428571,
+        "risk": 0.6,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 1.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "windows-curses",
+        "version": "2.4.2"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 7.457905544147844,
+        "s3_age_months": 7.457905544147844,
+        "s4": null,
+        "s5_committers": 2,
+        "s6_closed": 27,
+        "s6_open": 20,
+        "s8": null,
+        "s9_weekly_downloads": 30100
+      },
+      "risks": {
+        "r2": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 8.571428571428571,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.6,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 8.571428571428571,
+        "mortality_pre_s1": 8.571428571428571,
+        "predicted": "alive",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 14.285714285714286,
+        "risk": 1.0,
+        "signal": "r5"
+      },
+      "groups": {
+        "bus_factor": 0.4625613424093716,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.5374386575906285
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "zgw-consumers-oas",
+        "version": "1.1.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 17.57700205338809,
+        "s3_age_months": 17.57700205338809,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 940
+      },
+      "risks": {
+        "r2": {
+          "contribution": 8.299110198494182,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.23237508555783704,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 8.299110198494182,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.23237508555783704,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": null,
+        "mortality": 30.883934682702648,
+        "mortality_pre_s1": 30.883934682702648,
+        "predicted": "ailing",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.10214504596527067,
+        "issues": 0.10214504596527067,
+        "maintenance": 0.20429009193054135,
+        "scorecard": 0.08069458631256383,
+        "staleness": 0.5107252298263534
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "zilch",
+        "version": "0.1.3"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 178.0041067761807,
+        "s3_age_months": 178.0041067761807,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 1,
+        "s8": 2.1,
+        "s9_weekly_downloads": 1
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.9,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.79,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 97.9,
+        "mortality_pre_s1": 97.9,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    }
+  ],
+  "schema": "graveyard.eval.analysis",
+  "schema_version": 1,
+  "score_based_dead": [
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11299435028248588,
+        "issues": 0.0,
+        "maintenance": 0.22598870056497175,
+        "scorecard": 0.096045197740113,
+        "staleness": 0.5649717514124294
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "animate-components",
+        "version": "1.4.8"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 109.53593429158111,
+        "s3_age_months": 101.81519507186859,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 17,
+        "s6_open": 5,
+        "s8": 1.5,
+        "s9_weekly_downloads": 166
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.5,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.85,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 88.5,
+        "mortality_pre_s1": 88.5,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11053213327017211,
+        "issues": 0.02842254855518711,
+        "maintenance": 0.22106426654034422,
+        "scorecard": 0.08732038528343597,
+        "staleness": 0.5526606663508605
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "custom-protocol-detection",
+        "version": "1.0.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 102.24229979466119,
+        "s3_age_months": 65.47843942505133,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 13,
+        "s6_open": 22,
+        "s8": 2.1,
+        "s9_weekly_downloads": 20132
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 2.571428571428571,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.2571428571428571,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.9,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.79,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 90.47142857142858,
+        "mortality_pre_s1": 90.47142857142858,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 21.962696783025322,
+        "risk": 0.8785078713210129,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16208156663316314,
+        "issues": 0.0,
+        "maintenance": 0.3241631332663263,
+        "scorecard": 0.11021546531055093,
+        "staleness": 0.40353983478995953
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "graphql-list-fields",
+        "version": "2.0.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 33.08418891170431,
+        "s3_age_months": 14.817248459958932,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 11,
+        "s6_open": 0,
+        "s8": 3.2,
+        "s9_weekly_downloads": 81538
+      },
+      "risks": {
+        "r2": {
+          "contribution": 21.962696783025322,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8785078713210129,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 2.9346338124572213,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.11738535249828885,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.799999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6799999999999999,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 61.69733059548255,
+        "mortality_pre_s1": 61.69733059548255,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16556291390728478,
+        "issues": 0.0,
+        "maintenance": 0.33112582781456956,
+        "scorecard": 0.08940397350993379,
+        "staleness": 0.4139072847682119
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "material-design-lite",
+        "version": "1.3.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 118.73511293634498,
+        "s3_age_months": 6.373716632443532,
+        "s4": 0,
+        "s5_committers": 1,
+        "s6_closed": 1814,
+        "s6_open": 390,
+        "s8": 4.6,
+        "s9_weekly_downloads": 85952
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.54,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 60.4,
+        "mortality_pre_s1": 60.4,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 22.578713210130044,
+        "risk": 0.9031485284052018,
+        "signal": "r3"
+      },
+      "groups": {
+        "bus_factor": 0.11472500549674908,
+        "issues": 0.05736250274837454,
+        "maintenance": 0.22945001099349815,
+        "scorecard": 0.09178000439739926,
+        "staleness": 0.506682476363979
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "nodejs-mobile-gyp",
+        "version": "0.4.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 32.72279260780287,
+        "s3_age_months": 33.67556468172484,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 1,
+        "s6_open": 3,
+        "s8": 2,
+        "s9_weekly_downloads": 1545
+      },
+      "risks": {
+        "r2": {
+          "contribution": 21.58624229979466,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8634496919917863,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 22.578713210130044,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.9031485284052018,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 5.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.5,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 87.1649555099247,
+        "mortality_pre_s1": 87.1649555099247,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.15873015873015872,
+        "issues": 0.0,
+        "maintenance": 0.31746031746031744,
+        "scorecard": 0.12698412698412698,
+        "staleness": 0.3968253968253968
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "please-upgrade-node",
+        "version": "3.2.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 87.19507186858316,
+        "s3_age_months": 8.476386036960985,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 6,
+        "s6_open": 5,
+        "s8": 2,
+        "s9_weekly_downloads": 5504139
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 63.0,
+        "mortality_pre_s1": 63.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 100.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "react-accessible-details",
+        "version": "3.0.5"
+      },
+      "missing": [
+        {
+          "cause": "no_repo",
+          "signal": "s3_last_push_at"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s5_committers"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_open_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_closed_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": null
+        },
+        "s2_age_months": 83.1211498973306,
+        "s3_age_months": null,
+        "s4": null,
+        "s5_committers": null,
+        "s6_closed": null,
+        "s6_open": null,
+        "s8": null,
+        "s9_weekly_downloads": 24
+      },
+      "risks": {
+        "r2": {
+          "contribution": 100.0,
+          "effective_weight": 1.0,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.25,
+        "confidence_band": "low",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1146788990825688,
+        "issues": 0.0,
+        "maintenance": 0.2293577981651376,
+        "scorecard": 0.08256880733944953,
+        "staleness": 0.573394495412844
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "react-hooks-global-state",
+        "version": "2.1.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 47.31006160164271,
+        "s3_age_months": 38.50513347022587,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 37,
+        "s6_open": 1,
+        "s8": 2.8,
+        "s9_weekly_downloads": 42292
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.199999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.72,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 87.2,
+        "mortality_pre_s1": 87.2,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1152073732718894,
+        "issues": 0.0,
+        "maintenance": 0.2304147465437788,
+        "scorecard": 0.07834101382488479,
+        "staleness": 0.5760368663594471
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "rx-sandbox",
+        "version": "2.0.5"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 39.68788501026694,
+        "s3_age_months": 36.79671457905544,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 34,
+        "s6_open": 1,
+        "s8": 3.2,
+        "s9_weekly_downloads": 4423
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.799999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.6799999999999999,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 86.8,
+        "mortality_pre_s1": 86.8,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11363636363636363,
+        "issues": 0.0,
+        "maintenance": 0.22727272727272727,
+        "scorecard": 0.09090909090909091,
+        "staleness": 0.5681818181818182
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "updeep",
+        "version": "1.2.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 44.714579055441476,
+        "s3_age_months": 44.714579055441476,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 56,
+        "s6_open": 0,
+        "s8": 2,
+        "s9_weekly_downloads": 17175
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 88.0,
+        "mortality_pre_s1": 88.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11376564277588168,
+        "issues": 0.0,
+        "maintenance": 0.22753128555176336,
+        "scorecard": 0.08987485779294653,
+        "staleness": 0.5688282138794084
+      },
+      "identity": {
+        "ecosystem": "npm",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "vue-formly",
+        "version": "2.5.9"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": false,
+          "repo_archived": false
+        },
+        "s2_age_months": 75.36755646817248,
+        "s3_age_months": 46.02874743326489,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 26,
+        "s6_open": 3,
+        "s8": 2.1,
+        "s9_weekly_downloads": 139
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.9,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.79,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 87.9,
+        "mortality_pre_s1": 87.9,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16666666666666666,
+        "issues": 0.0,
+        "maintenance": 0.3333333333333333,
+        "scorecard": 0.08333333333333333,
+        "staleness": 0.4166666666666667
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "ansible-bender",
+        "version": "0.10.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 45.20739219712526,
+        "s3_age_months": 10.184804928131417,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 111,
+        "s6_open": 40,
+        "s8": 5,
+        "s9_weekly_downloads": 1200
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.5,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 60.0,
+        "mortality_pre_s1": 60.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11574074074074073,
+        "issues": 0.0,
+        "maintenance": 0.23148148148148145,
+        "scorecard": 0.07407407407407407,
+        "staleness": 0.5787037037037037
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "appdirs",
+        "version": "1.4.4"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 78.09445585215606,
+        "s3_age_months": 45.07597535934291,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 61,
+        "s6_open": 30,
+        "s8": 3.6,
+        "s9_weekly_downloads": 6497952
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.64,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 86.4,
+        "mortality_pre_s1": 86.4,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.14285714285714288,
+        "issues": 0.14285714285714288,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.7142857142857143
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "auto-resizing-text-edit",
+        "version": "0.1.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 158.58726899383984,
+        "s3_age_months": 158.58726899383984,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 4,
+        "s8": null,
+        "s9_weekly_downloads": 6
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 21.072895277207394,
+        "risk": 0.8429158110882957,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.12415298094621396,
+        "issues": 0.0,
+        "maintenance": 0.24830596189242793,
+        "scorecard": 0.10428850399481973,
+        "staleness": 0.5232525531665383
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "django-context-decorator",
+        "version": "1.6.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 32.2299794661191,
+        "s3_age_months": 32.2299794661191,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 2,
+        "s6_open": 0,
+        "s8": 1.6,
+        "s9_weekly_downloads": 9495
+      },
+      "risks": {
+        "r2": {
+          "contribution": 21.072895277207394,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8429158110882957,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 21.072895277207394,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.8429158110882957,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.84,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 80.5457905544148,
+        "mortality_pre_s1": 80.5457905544148,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11363636363636363,
+        "issues": 0.0,
+        "maintenance": 0.22727272727272727,
+        "scorecard": 0.09090909090909091,
+        "staleness": 0.5681818181818182
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "feedjack",
+        "version": "16.8.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 123.36755646817248,
+        "s3_age_months": 123.36755646817248,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 4,
+        "s6_open": 1,
+        "s8": 2,
+        "s9_weekly_downloads": 12
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 8.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.8,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 88.0,
+        "mortality_pre_s1": 88.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.11438410424716668,
+        "issues": 0.011721339304479984,
+        "maintenance": 0.22876820849433335,
+        "scorecard": 0.07320582671818668,
+        "staleness": 0.5719205212358334
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "flask-restplus",
+        "version": "0.13.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 87.06365503080082,
+        "s3_age_months": 43.761806981519506,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 254,
+        "s6_open": 312,
+        "s8": 3.6,
+        "s9_weekly_downloads": 15422
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 1.024734982332156,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.10247349823321561,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.4,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.64,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 87.42473498233215,
+        "mortality_pre_s1": 87.42473498233215,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16666666666666666,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.8333333333333333
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "kotti-image-gallery",
+        "version": "0.3.2"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 174.32443531827516,
+        "s3_age_months": 172.78028747433265,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 1,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 1
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 85.71428571428572,
+        "mortality_pre_s1": 85.71428571428572,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.14285714285714288,
+        "issues": 0.14285714285714288,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.7142857142857143
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "maccarone",
+        "version": "0.1.9"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 38.6694045174538,
+        "s3_age_months": 37.28952772073922,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 2,
+        "s8": null,
+        "s9_weekly_downloads": 6
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.12876591836716708,
+        "issues": 0.0,
+        "maintenance": 0.25753183673433416,
+        "scorecard": 0.09271146122436029,
+        "staleness": 0.5209907836741385
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "nose-parameterized",
+        "version": "0.6.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 115.77823408624229,
+        "s3_age_months": 26.84188911704312,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 75,
+        "s6_open": 33,
+        "s8": 2.8,
+        "s9_weekly_downloads": 3323
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 15.460301163586584,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.6184120465434634,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.199999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.72,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 77.66030116358658,
+        "mortality_pre_s1": 77.66030116358658,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1367827681798904,
+        "issues": 0.0,
+        "maintenance": 0.2735655363597808,
+        "scorecard": 0.09848359308952108,
+        "staleness": 0.49116810237080766
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "pandoc-mustache",
+        "version": "0.1.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 90.11909650924025,
+        "s3_age_months": 22.472279260780287,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 5,
+        "s6_open": 5,
+        "s8": 2.8,
+        "s9_weekly_downloads": 223
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 10.908624229979464,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.4363449691991786,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.199999999999999,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.72,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 73.10862422997947,
+        "mortality_pre_s1": 73.10862422997947,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 100.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "pathlib",
+        "version": "1.0.1"
+      },
+      "missing": [
+        {
+          "cause": "no_repo",
+          "signal": "s3_last_push_at"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s5_committers"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_open_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_closed_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": null,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": null
+        },
+        "s2_age_months": 54.340862422997944,
+        "s3_age_months": null,
+        "s4": null,
+        "s5_committers": null,
+        "s6_closed": null,
+        "s6_open": null,
+        "s8": null,
+        "s9_weekly_downloads": 952762
+      },
+      "risks": {
+        "r2": {
+          "contribution": 100.0,
+          "effective_weight": 1.0,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.25,
+        "confidence_band": "low",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 100.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "ply",
+        "version": "3.11"
+      },
+      "missing": [
+        {
+          "cause": "no_repo",
+          "signal": "s3_last_push_at"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s5_committers"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_open_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_closed_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": null,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": null
+        },
+        "s2_age_months": 104.9034907597536,
+        "s3_age_months": null,
+        "s4": null,
+        "s5_committers": null,
+        "s6_closed": null,
+        "s6_open": null,
+        "s8": null,
+        "s9_weekly_downloads": 6769065
+      },
+      "risks": {
+        "r2": {
+          "contribution": 100.0,
+          "effective_weight": 1.0,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.25,
+        "confidence_band": "low",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 100.0,
+        "mortality_pre_s1": 100.0,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.1631321370309951,
+        "issues": 0.0,
+        "maintenance": 0.3262642740619902,
+        "scorecard": 0.10277324632952692,
+        "staleness": 0.4078303425774878
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "products-zopetree",
+        "version": "3.4.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 47.73716632443532,
+        "s3_age_months": 0.3613963039014374,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 6,
+        "s6_open": 0,
+        "s8": 3.7,
+        "s9_weekly_downloads": 8
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 6.3,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.63,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 61.3,
+        "mortality_pre_s1": 61.3,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 35.714285714285715,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.16666666666666666,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.8333333333333333
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "py-d3",
+        "version": "0.3.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 103.5564681724846,
+        "s3_age_months": 56.73921971252567,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 16,
+        "s6_open": 0,
+        "s8": null,
+        "s9_weekly_downloads": 4
+      },
+      "risks": {
+        "r2": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 35.714285714285715,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 85.71428571428572,
+        "mortality_pre_s1": 85.71428571428572,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.15349538575790353,
+        "issues": 0.05847443266967753,
+        "maintenance": 0.30699077151580706,
+        "scorecard": 0.08902732373958404,
+        "staleness": 0.3920120863170278
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "ailing",
+        "name": "pyutilib",
+        "version": "6.0.0"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 76.81314168377824,
+        "s3_age_months": 12.517453798767967,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 13,
+        "s6_open": 29,
+        "s8": 4.2,
+        "s9_weekly_downloads": 4433
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 0.5390143737166324,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.021560574948665295,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 3.8095238095238093,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.38095238095238093,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 5.8,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.58,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 65.14853818324045,
+        "mortality_pre_s1": 65.14853818324045,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 20.0,
+        "risk": 1.0,
+        "signal": "r4"
+      },
+      "groups": {
+        "bus_factor": 0.16647201253382707,
+        "issues": 0.0,
+        "maintenance": 0.33294402506765414,
+        "scorecard": 0.12485400940037031,
+        "staleness": 0.3757299529981484
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "maintainer_statement",
+        "label": "dead",
+        "name": "rmextract",
+        "version": "0.5.1"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 26.086242299794662,
+        "s3_age_months": 19.581108829568787,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 28,
+        "s6_open": 10,
+        "s8": 2.5,
+        "s9_weekly_downloads": 97
+      },
+      "risks": {
+        "r2": {
+          "contribution": 14.673169062286107,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.5869267624914443,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 7.896988364134154,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 0.31587953456536616,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.5,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.75,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 60.070157426420266,
+        "mortality_pre_s1": 60.070157426420266,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 30.739708614451942,
+        "risk": 0.8607118412046543,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.18855262308833967,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 0.8114473769116602
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "robotframework-angularjs",
+        "version": "1.0.0"
+      },
+      "missing": [
+        {
+          "cause": "scorecard_404",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "scorecard_404",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 32.6570841889117,
+        "s3_age_months": 32.6570841889117,
+        "s4": null,
+        "s5_committers": 0,
+        "s6_closed": 18,
+        "s6_open": 4,
+        "s8": null,
+        "s9_weekly_downloads": 1042
+      },
+      "risks": {
+        "r2": {
+          "contribution": 30.739708614451942,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.8607118412046543,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 30.739708614451942,
+          "effective_weight": 0.35714285714285715,
+          "present": true,
+          "risk": 0.8607118412046543,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 14.285714285714286,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 0.0,
+          "effective_weight": 0.14285714285714288,
+          "present": true,
+          "risk": 0.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.7,
+        "confidence_band": "medium",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 75.76513151461818,
+        "mortality_pre_s1": 75.76513151461818,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [
+          "scorecard"
+        ],
+        "wounded": false
+      }
+    },
+    {
+      "correct": true,
+      "dominant_signal": {
+        "contribution": 97.57015742642027,
+        "risk": 0.9757015742642027,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.0,
+        "issues": 0.0,
+        "maintenance": 0.0,
+        "scorecard": 0.0,
+        "staleness": 1.0
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "deprecation_notice",
+        "label": "dead",
+        "name": "sklearn",
+        "version": "0.0.post12"
+      },
+      "missing": [
+        {
+          "cause": "no_repo",
+          "signal": "s3_last_push_at"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s4_maintained"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s5_committers"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_open_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s6_closed_issues"
+        },
+        {
+          "cause": "no_repo",
+          "signal": "s8_overall"
+        }
+      ],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": null,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": null
+        },
+        "s2_age_months": 35.41683778234086,
+        "s3_age_months": null,
+        "s4": null,
+        "s5_committers": null,
+        "s6_closed": null,
+        "s6_open": null,
+        "s8": null,
+        "s9_weekly_downloads": 367129
+      },
+      "risks": {
+        "r2": {
+          "contribution": 97.57015742642027,
+          "effective_weight": 1.0,
+          "present": true,
+          "risk": 0.9757015742642027,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": null,
+          "effective_weight": null,
+          "present": false,
+          "risk": null,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 0.25,
+        "confidence_band": "low",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 97.57015742642027,
+        "mortality_pre_s1": 97.57015742642027,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    },
+    {
+      "correct": false,
+      "dominant_signal": {
+        "contribution": 25.0,
+        "risk": 1.0,
+        "signal": "r2"
+      },
+      "groups": {
+        "bus_factor": 0.10214504596527067,
+        "issues": 0.10214504596527067,
+        "maintenance": 0.20429009193054135,
+        "scorecard": 0.08069458631256383,
+        "staleness": 0.5107252298263534
+      },
+      "identity": {
+        "ecosystem": "pypi",
+        "evidence_kind": "feature_complete_readme",
+        "label": "finished-healthy",
+        "name": "zilch",
+        "version": "0.1.3"
+      },
+      "missing": [],
+      "raw": {
+        "advisories": {
+          "count": 0,
+          "with_fix": 0
+        },
+        "s1_declared": false,
+        "s1_parts": {
+          "registry_deprecated": null,
+          "repo_archived": false
+        },
+        "s2_age_months": 178.0041067761807,
+        "s3_age_months": 178.0041067761807,
+        "s4": 0,
+        "s5_committers": 0,
+        "s6_closed": 0,
+        "s6_open": 1,
+        "s8": 2.1,
+        "s9_weekly_downloads": 1
+      },
+      "risks": {
+        "r2": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r3": {
+          "contribution": 25.0,
+          "effective_weight": 0.25,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.25
+        },
+        "r4": {
+          "contribution": 20.0,
+          "effective_weight": 0.2,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.2
+        },
+        "r5": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r6": {
+          "contribution": 10.0,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 1.0,
+          "weight": 0.1
+        },
+        "r8": {
+          "contribution": 7.9,
+          "effective_weight": 0.1,
+          "present": true,
+          "risk": 0.79,
+          "weight": 0.1
+        }
+      },
+      "verdict": {
+        "confidence": 1.0,
+        "confidence_band": "full",
+        "cursed": false,
+        "dead_reason": "score",
+        "mortality": 97.9,
+        "mortality_pre_s1": 97.9,
+        "predicted": "dead",
+        "s1_override_applied": false,
+        "unverified": [],
+        "wounded": false
+      }
+    }
+  ],
+  "summary": {
+    "confusion": {
+      "ailing": {
+        "ailing": 5,
+        "alive": 4,
+        "dead": 7,
+        "finished-healthy": 4,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 31,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 1,
+        "alive": 3,
+        "dead": 40,
+        "finished-healthy": 1,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 5,
+        "alive": 1,
+        "dead": 11,
+        "finished-healthy": 3,
+        "unknown": 0
+      }
+    },
+    "misclassified": 37,
+    "misclassified_by_pair": {
+      "ailing->alive": 4,
+      "ailing->dead": 7,
+      "ailing->finished-healthy": 4,
+      "dead->ailing": 1,
+      "dead->alive": 3,
+      "dead->finished-healthy": 1,
+      "finished-healthy->ailing": 5,
+      "finished-healthy->alive": 1,
+      "finished-healthy->dead": 11
+    },
+    "rows": 116,
+    "score_based_dead": {
+      "correct": 13,
+      "incorrect": 17
+    }
+  },
+  "weights_sha256": "f1e5d7f1e821c1091e24e892b4924b1649fa57917296d6411df0369015c27c4f"
+}

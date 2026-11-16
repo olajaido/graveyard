@@ -14,6 +14,7 @@ REQUIRED_PHONY = ("eval", "eval-merge")
 _TARGET_RE = re.compile(r"([A-Za-z0-9_][A-Za-z0-9_.-]*)\s*:(?!=)")
 EVAL_RECIPE = "\tcd backend && uv run python -m eval"
 MERGE_RECIPE = "\tcd backend && uv run python -m eval merge $(ARGS)"
+ANALYSIS_RECIPE = "\tcd backend && uv run python -m eval analysis $(ARGS)"
 
 
 def defined_targets(lines: list[str]) -> list[str]:
@@ -53,6 +54,14 @@ def check_makefile(text: str) -> list[str]:
 def test_makefile_recipes_are_literal() -> None:
     assert MAKEFILE.is_file()
     assert check_makefile(MAKEFILE.read_text(encoding="utf-8")) == []
+
+
+def test_eval_analysis_target_is_pinned() -> None:
+    """MV2-FA: `eval-analysis` is phony and runs the subcommand from backend/ via uv."""
+    lines = MAKEFILE.read_text(encoding="utf-8").splitlines()
+    assert "eval-analysis" in phony_targets(lines)
+    assert "eval-analysis:" in lines
+    assert lines[lines.index("eval-analysis:") + 1] == ANALYSIS_RECIPE
 
 
 def test_makefile_has_no_pythonpath() -> None:

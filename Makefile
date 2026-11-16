@@ -1,9 +1,13 @@
-.PHONY: eval eval-merge eval-still-works eval-versions eval-verify eval-apply-review
+.PHONY: eval eval-merge eval-analysis eval-still-works eval-versions eval-verify eval-apply-review
 eval:
 	cd backend && uv run python -m eval
 
 eval-merge:
 	cd backend && uv run python -m eval merge $(ARGS)
+
+# Read-only v1 failure analysis; writes eval/analysis/v1-failures.{json,md}; add ARGS=--all for every row.
+eval-analysis:
+	cd backend && uv run python -m eval analysis $(ARGS)
 
 # Needs Docker; installs only inside throwaway containers (T14 review check).
 eval-still-works:

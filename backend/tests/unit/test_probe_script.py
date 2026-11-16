@@ -369,7 +369,7 @@ def env(
     out.mkdir()
     fixtures = tmp_path / "fixtures"
     (fixtures / "npm").mkdir(parents=True)
-    argv = ["--out-dir", str(out), "--fixture-dir", str(fixtures)]
+    argv = ["--as-of", AS_OF.isoformat(), "--out-dir", str(out), "--fixture-dir", str(fixtures)]
     return out, fixtures, argv
 
 
@@ -405,6 +405,7 @@ def test_main_follows_exit_0_and_writes_reports(
     doc = json.loads((out / "results.json").read_text(encoding="utf-8"))
     assert doc["verdict"]["outcome"] == "FOLLOWS"
     assert doc["verdict"]["moved_subjects"] == 3
+    assert doc["as_of"] == AS_OF.isoformat()
     assert [s["old_name"] for s in doc["subjects"]] == ["old/one", "old/two", "fx/old"]
     rows = (out / "subjects.tsv").read_text(encoding="utf-8").splitlines()
     assert rows[0].split("\t") == list(probe.SUBJECT_COLUMNS)
@@ -512,7 +513,7 @@ def test_missing_environment_exit_2(
     monkeypatch.setenv("GITHUB_TOKEN", TOKEN)
     monkeypatch.setenv("GRAVEYARD_CONTACT", CONTACT)
     monkeypatch.setenv(missing, "  ")  # blank counts as missing
-    assert probe.main(["--out-dir", str(tmp_path)]) == 2
+    assert probe.main(["--as-of", AS_OF.isoformat(), "--out-dir", str(tmp_path)]) == 2
     assert missing in capsys.readouterr().err
     assert list(tmp_path.iterdir()) == []
 
@@ -526,7 +527,7 @@ def test_missing_seeds_file_exit_2_before_any_request_or_write(
 ) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", TOKEN)
     monkeypatch.setenv("GRAVEYARD_CONTACT", CONTACT)
-    assert probe.main(["--out-dir", str(tmp_path)]) == 2
+    assert probe.main(["--as-of", AS_OF.isoformat(), "--out-dir", str(tmp_path)]) == 2
     err = capsys.readouterr().err
     assert str(tmp_path / "seeds.tsv") in err
     assert "Traceback" not in err
@@ -538,7 +539,46 @@ def test_delay_below_minimum_exit_2(
 ) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", TOKEN)
     monkeypatch.setenv("GRAVEYARD_CONTACT", CONTACT)
-    assert probe.main(["--delay", "0.1", "--out-dir", str(tmp_path)]) == 2
+    assert (
+        probe.main(["--as-of", AS_OF.isoformat(), "--delay", "0.1", "--out-dir", str(tmp_path)])
+        == 2
+    )
+
+
+def test_missing_as_of_exit_2(probe: Any, no_network: None, tmp_path: Path) -> None:
+    with pytest.raises(SystemExit) as info:
+        probe.main(["--out-dir", str(tmp_path)])
+    assert info.value.code == 2
+
+
+@pytest.mark.parametrize("value", ["2026-13-01", "14/11/2026", "yesterday", ""])
+def test_bad_as_of_format_exit_2(
+    probe: Any,
+    no_network: None,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    value: str,
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", TOKEN)
+    monkeypatch.setenv("GRAVEYARD_CONTACT", CONTACT)
+    assert probe.main(["--as-of", value, "--out-dir", str(tmp_path)]) == 2
+    assert "YYYY-MM-DD" in capsys.readouterr().err
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_future_as_of_exit_2(
+    probe: Any,
+    no_network: None,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", TOKEN)
+    monkeypatch.setenv("GRAVEYARD_CONTACT", CONTACT)
+    assert probe.main(["--as-of", "2999-01-01", "--out-dir", str(tmp_path)]) == 2
+    assert "future" in capsys.readouterr().err
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_unknown_option_exit_2(probe: Any, no_network: None) -> None:

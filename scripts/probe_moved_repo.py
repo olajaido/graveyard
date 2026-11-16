@@ -29,7 +29,8 @@ GitHub phase (S3 last push, S5 committers, S6 open/closed issues, archive flag)
     ``github_signals`` (``HISTORY_PAGE_QUERY``, capped by ``HISTORY_PAGE_CAP``).
     The old and the current name must be passed as separate entries (or two
     back-to-back calls) so each is keyed by the name that was asked for.
-    ``as_of`` defaults to ``AS_OF`` (2026-11-03); pass it explicitly.
+    ``as_of`` defaults to ``AS_OF`` (2026-11-03) in the library; the probe always passes
+    its required ``--as-of`` instead.
     ``capture_eval.py`` wraps this as
     ``fetch_github_bisect(http: Any, repos: list[tuple[str, str]],
     as_of: date)``, which splits a failed batch down to single repos. It is
@@ -90,7 +91,14 @@ Part 1 (T2.3): subjects and confirmation
 Usage (part 1 writes ``subjects.tsv``; part 2 measures and decides)::
 
     GITHUB_TOKEN=... GRAVEYARD_CONTACT=you@example.com \
-        uv run scripts/probe_moved_repo.py [--delay 1.0] [--out-dir PATH] [--library]
+        uv run scripts/probe_moved_repo.py --as-of YYYY-MM-DD \
+        [--delay 1.0] [--out-dir PATH] [--library]
+
+``--as-of`` is required. It is the capture-path window (S3, S5, S6) and is written to
+``results.json``. It must be a valid date and not in the future (UTC), like
+``capture_eval.py --as-of``. The committed run used 2026-11-03 (the nine-anchor date,
+``capture_anchors.AS_OF``); the held-out v1 fixtures were captured with 2026-11-13, so
+a fresh run should pass ``--as-of 2026-11-13`` to match them.
 
 Subjects: the four seeds of ``eval/analysis/moved-repo-probe/seeds.tsv``
 (``GET /repositories/<id>`` gives the current name) plus every distinct
@@ -141,7 +149,7 @@ import sys
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urlparse
@@ -942,6 +950,7 @@ def run_subjects(session: Session, out_dir: Path, fixture_dir: Path) -> list[Sub
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Moved-repository probe (MV2-SRC-2).")
+    parser.add_argument("--as-of", required=True, metavar="YYYY-MM-DD", help="capture date (UTC)")
     parser.add_argument("--delay", type=float, default=1.0, help="min seconds between requests")
     parser.add_argument("--out-dir", type=Path, default=PROBE_DIR)
     parser.add_argument("--fixture-dir", type=Path, default=FIXTURE_DIR)
@@ -950,7 +959,15 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="also measure with the backend/sources clients (informational, never decides)",
     )
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv)  # a missing --as-of exits 2 here
+    try:
+        as_of = date.fromisoformat(args.as_of)
+    except ValueError:
+        print("error: --as-of must be a date in YYYY-MM-DD form.", file=sys.stderr)
+        return 2
+    if as_of > datetime.now(UTC).date():
+        print("error: --as-of must not be in the future (UTC).", file=sys.stderr)
+        return 2
     token = os.environ.get("GITHUB_TOKEN", "").strip()
     if not token:
         print(
@@ -978,7 +995,6 @@ def main(argv: list[str] | None = None) -> int:
         subjects = run_subjects(session, args.out_dir, args.fixture_dir)
         confirmed = sum(1 for s in subjects if s.confirmed_moved)
         print(f"subjects: {len(subjects)} recorded, {confirmed} confirmed moved")
-        as_of = capture_anchors.AS_OF
         results = run_measurements(session, subjects, as_of)
         if args.library:
             add_library(session, results, contact, token, as_of)

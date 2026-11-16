@@ -237,6 +237,16 @@
         "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
         "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
         "timestamp": 1794833383196
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835190102
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835252001
       }
     ],
     "T2.5 — Tests in `backend/tests/unit/test_probe_script.py` with a fake transport in the style of `test_capture_script.py`: a 301 is not followed; a `Location` with another host or an unexpected path is rejected; a seed whose current name equals the old name is recorded as not moved; no response body text and no token appear in any output file; the S3 repeat rule; exit codes; missing environment gives exit 2.": [
@@ -271,6 +281,11 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960292
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835164885
       }
     ],
     "T3.1 — `backend/eval/analysis.py`, part 1 (pure): `build_row_detail(row, fixture, weights) -> dict` with the `identity`, `verdict`, `raw`, `risks`, `groups` and `dominant_signal` blocks of design 6.2, using only public scoring functions and `months_between`. Tests: `effective_weight * risk * 100` equals the contribution for every present signal and contributions sum to `mortality_pre_s1` (property over generated signals); group shares sum to 1 when mortality is positive; `s1_override_applied` is true exactly when S1 raises the score; ties for the dominant signal go to the lowest risk id.": [
@@ -278,6 +293,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960330
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835256557
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835406515
       }
     ],
     "T3.2 — `analysis.py`, part 2: the missing-cause classifier (`scorecard_404`, `unavailable_other`, `no_repo`, `absent`, and `github_failed` for a failed GitHub batch note) read from fixture notes and flags; `build_analysis(rows, fixtures, weights, all_rows=False)` assembling `summary`, `rows`, `score_based_dead` (with `correct`), `missing_causes`. Tests on synthetic fixtures covering each cause class and the misclassified selection.": [
@@ -285,6 +310,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960366
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835407947
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835570228
       }
     ],
     "T3.3 — `analysis.py`, part 3: the two fixed counterfactuals (`staleness_missing`: r2 and r3 treated as missing; `scorecard_missing`: r4 and r8 treated as missing), each giving predicted-class counts by label, computed with the public scoring functions on altered risks. Tests: the `Weights` object and `weights.v1.yaml` hash are unchanged; counts sum to the row count; with no r2, r3, r4 or r8 present the counterfactuals equal the actual result.": [
@@ -292,6 +327,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960405
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835568890
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835636975
       }
     ],
     "T3.4 — `render_markdown(doc) -> str` per design 6.3: banner first line; recorded result table; confusion matrix; misclassified table; score-based Dead table; per-row blocks; counterfactual table; missing-cause table; no conclusion text. Tests: the banner is line 1; output is deterministic; a synthetic document renders every section.": [
@@ -299,6 +344,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960453
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835635691
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835807336
       }
     ],
     "T3.5 — Add the `analysis` subcommand to `eval/__main__.py` (reads through the loaders `run()` uses, same exit 3 conditions; writes `eval/analysis/v1-failures.json` and `.md` by temporary file and rename; `--all` flag) and the Makefile target `eval-analysis`. Update `test_makefile.py` to pin the new target and keep the `eval` and `eval-merge` recipes literal. Tests: `test_read_only` on a temporary copy of the data folder (the MV2-ISO-1 groups are unchanged and exactly two files are created), `test_deterministic`, `test_banner_present`, `test_conclusion_current` is written in T4.1, not here.": [
@@ -306,6 +361,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960500
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835808912
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835892952
       }
     ],
     "T3.6 — Run `make eval-analysis` (offline) and verify on the real data: 37 misclassified rows, and 30 score-based Dead rows split 13 correct and 17 incorrect. Add `test_misclassified_count` and `test_score_based_split` (real data, skipped with a reason if the lock does not match). **If a count differs from the recorded result, stop and report; do not adjust the code to match.** Print the list of misclassified row names and the counterfactual table in the report. Draw no conclusion.": [
@@ -313,6 +378,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960550
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835894230
+      },
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794836284531
       }
     ],
     "T4.1 — Write `test_conclusion_current` in `backend/eval/tests/test_analysis.py`: `eval/analysis/conclusion.md` must start with `report_sha256: <hash>` equal to the SHA-256 of `eval/analysis/v1-failures.json`; skipped with a reason only while the file does not exist.": [
@@ -810,6 +885,20 @@
         "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
         "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
         "timestamp": 1794825285384
+      }
+    ],
+    "T2 — MV2-SRC-2 probe (D10; MV2-SRC-2; design 12.2). Do this early: the token expires about 20 Nov 2026.": [
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794835165035
+      }
+    ],
+    "T3 — Failure-analysis tooling and run (MV2-FA-1 to FA-7; design 6)": [
+      {
+        "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794836284638
       }
     ]
   }

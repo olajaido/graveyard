@@ -815,3 +815,17 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** The closure tool rejects dynamic imports and includes parent inits. The lock is built from tag `eval-v1-result`, and `make eval` leaves `results.json` byte-identical.
 - **Corrected:** T1.2 stopped because the real closure includes `core/__init__.py`. The maintainer approved expecting it in the closure and lock.
 - **Surprise:** Parent package inits are part of what v1 executes, so the lock holds one more file than the T1.2 text listed.
+
+### 16 Nov — Spec `mortality-model-v2`: T2 (moved-repo probe)
+- **Spec/task:** T2.1 to T2.6: `eval/probe.py` (`decide`), seeds, `scripts/probe_moved_repo.py`, 34 script tests; maintainer ran the probe (T2.6).
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, manual task hand-off, `user_input` stop conditions.
+- **Kiro got right:** The 301 is read without following it, and the `Location` host and path are validated. No token or response text reaches any output file.
+- **Corrected:** Design 12.2 said "six signals", but `decide` compares seven values (S3, S4, S5, S6 open, S6 closed, S8, archived); design amended. Added a clean exit 2 for a missing `seeds.tsv`.
+- **Surprise:** Verdict FAILS. 7 confirmed-moved subjects; all GitHub signals follow renames. Scorecard S4 and S8 are missing under the current name for fezvrasta/popper.js and npm/inflight but present under the old name. T6.3 is required (`eval/analysis/moved-repo-probe/result.md`).
+
+### 16 Nov — Spec `mortality-model-v2`: T3 (failure-analysis tooling and run)
+- **Spec/task:** T3.1 to T3.6: `eval/analysis.py` (row detail, missing causes, counterfactuals, renderer), `analysis` subcommand and `make eval-analysis`, real-data count tests.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, a stop condition on counts (T3.6), steering rules (`uv run`, locked v1 files).
+- **Kiro got right:** The real run gave 37 misclassified rows and 30 score-based Dead rows (13 correct, 17 incorrect), as recorded; `results.json` is byte-identical and v1 files are untouched.
+- **Corrected:** The probe used the anchor `as_of` (2026-11-03) instead of the fixtures' 2026-11-13; it now takes a required `--as-of`.
+- **Surprise:** No fixture carries a `github_failed` note, so that cause class is empty on real data.
