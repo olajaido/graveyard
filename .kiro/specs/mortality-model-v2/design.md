@@ -120,7 +120,7 @@ def load_model(version: ModelVersion) -> Model: ...
 - `v1`: `score` is `core.scoring.score_package` called with no weights, and `weights_path` is `DEFAULT_WEIGHTS_PATH`. `score_package(signals)` keeps meaning v1 (MV2-ISO-2).
 - `v2`: `score` is `core.scoring.v2.score_package_v2`, and `weights_path` is `core/scoring/weights.v2.yaml`. The result carries `model_version == "v2"`, taken from the weights file.
 - An unknown version raises `ValueError`.
-- No v1 module imports `versions.py` or `v2/` (`test_v1_closure_excludes_v2`). `versions.py` is itself in the v2 closure only if the v2 entry imports it, which it does not.
+- No v1 module imports `versions.py` or `v2/` (`test_v1_closure_excludes_v2`). The v2 manifest entry is `core.scoring.versions` (4.3), so `versions.py`, which imports `v2` inside `load_model`, is hashed with the v2 files.
 - `backend/cli`, `mcp_server` and the Power keep calling v1. Wiring v2 into them is a later product decision and out of scope.
 - `ModelSpec` in `eval/models.py` wraps `Model` with the harness data: expected `model_version`, the digest file name, and the manifest file name (`None` for v1). File names are relative to the eval root, so tests can inject a temporary root.
 
@@ -137,13 +137,14 @@ The same function builds the v1 closure for the lock (`entry_module = "core.scor
 ```json
 {
   "schema": "graveyard.model-manifest", "schema_version": 1,
-  "model_version": "v2", "entry": "core.scoring.v2",
+  "model_version": "v2", "entry": "core.scoring.versions",
   "files":   {"backend/core/scoring/__init__.py": "<sha256>", "...": "..."},
   "weights": {"backend/core/scoring/weights.v2.yaml": "<sha256>"},
   "lockfile_sha256": "<sha256 of backend/uv.lock>",
   "closure_sha256": "<sha256 of the sorted 'path<TAB>sha256' lines of files, then weights>"
 }
 ```
+- The entry is `core.scoring.versions` (amendment 7.5.3): the closure follows its in-function import of `core.scoring.v2`, so `files` holds the 10 files of the v1 closure, the three `v2/` modules and `versions.py` (14 files). Otherwise `versions.py`, which maps "v2" to a function, would be in no manifest.
 - Files are hashed as raw bytes. `lockfile_sha256` is informational: `uv.lock` changes for unrelated reasons, so a difference is a warning, not an error. `PyYAML` is pinned in `uv.lock` and is the only third-party package the weights loader uses.
 - `python -m eval manifest --model v2` prints the manifest. `--write` creates the file by exclusive create; it runs once, at the frozen tag. `--check` recomputes it and compares, exit 0 or 3.
 - `eval/FROZEN_WEIGHTS.v2.sha256` holds the SHA-256 of `weights.v2.yaml`, in the same format as the v1 file.
@@ -154,7 +155,7 @@ The same function builds the v1 closure for the lock (`entry_module = "core.scor
 - `model_version: v2` at the top level, as v1.
 - Every numeric parameter of v2 lives here; formula-shape constants are named and documented in the v2 module, as v1's `constants.py` does (MV2-MOD-6).
 - Each parameter has a comment with its rationale, written in the design amendment first (MV2-FA-6).
-- The v1 keys (`weights`, `staleness`, `thresholds`, `exposure` and the others `load_weights` requires) are present only if the mechanism reuses them. The loader for v2 is `core/scoring/v2/params.py` (section 7), because `core/scoring/weights.py` is in the v1 lock and validates the v1 shape.
+- The v2 file keeps the v1 shape (`weights`, `staleness`, `thresholds`, `exposure` and the other keys `load_weights` requires), because the v2 mechanism reuses the v1 pipeline (7.5.3). `core/scoring/v2/params.py` is a thin wrapper: it reads the file with the v1 `load_weights` (`core/scoring/weights.py` is locked and is not edited) and checks `model_version == "v2"`. The result is the existing `Weights` type.
 - The file is read with `yaml.safe_load` only, immutable after loading, cached by resolved path, as `weights.py` does.
 
 ### 4.5 Tests (`test_manifest.py`, `test_versions.py`)
@@ -252,7 +253,7 @@ Any figure for v2 on the v1 key is written only to `eval/results.v2-insample.jso
 
 ## 7. v2 scoring mechanism: PENDING FAILURE ANALYSIS
 
-**Not designed.** The mechanism is added by a dated design amendment after the analysis task has produced `eval/analysis/v1-failures.*` and `eval/analysis/conclusion.md`, and before the `mortality-v2-frozen` tag (MV2-MOD-3, D11). This section states only the constraints the amendment must meet and the interface it fills in.
+**Draft mechanism: section 7.5 (16 Nov 2026), awaiting approval at T4.5.** Until the approval line exists, this section is as first written. The mechanism is added by a dated design amendment after the analysis task has produced `eval/analysis/v1-failures.*` and `eval/analysis/conclusion.md`, and before the `mortality-v2-frozen` tag (MV2-MOD-3, D11). This section states only the constraints the amendment must meet and the interface it fills in.
 
 ### 7.1 Constraints
 | Constraint | Source |
@@ -271,9 +272,9 @@ Any figure for v2 on the v1 key is written only to `eval/results.v2-insample.jso
 ### 7.2 Interface
 ```python
 # core/scoring/v2/__init__.py
-def score_package_v2(signals: Signals, weights: V2Weights | None = None) -> ScoringResult: ...
+def score_package_v2(signals: Signals, weights: Weights | None = None) -> ScoringResult: ...
 # core/scoring/v2/params.py
-def load_v2_weights(path: Path | None = None) -> V2Weights: ...
+def load_v2_weights(path: Path | None = None) -> Weights: ...
 ```
 Both are pure, total over any valid `Signals`, deterministic, and perform no I/O besides `load_v2_weights` reading `weights.v2.yaml` through a cached loader. `ScoringResult.model_version` is `"v2"`.
 
@@ -292,11 +293,152 @@ These fail until `v2/` exists; they do not depend on the mechanism.
 |---|---|
 | `test_v2_declared_dead_property` (Hypothesis) | For any generated `Signals` with S1 true, v2 returns Dead and `declared`. |
 | `test_v2_declared_fixtures` | Every v1 fixture and anchor whose v1 result is `declared` Dead is Dead `declared` under v2. |
-| `test_v2_input_set` (MV2-IN-1) | `Signals` field names, the attributes read by v2 modules (found by `ast`), the 11 evidence keys and the set of URL builders in `core.sources` equal literals generated from commit `00c373e`, plus `ALLOWED_NEW_SIGNALS == ()`. |
+| `test_v2_input_set` (MV2-IN-1) | `Signals` field names, the attributes read by the modules of the v2 closure (found by `ast`; the v2 modules add none), the 11 evidence keys and the set of URL builders in `core.sources` equal literals generated from commit `00c373e`, plus `ALLOWED_NEW_SIGNALS == ()`. |
 | `test_v2_no_text_features` (MV2-IN-2) | No v2 module imports or reads a text-bearing type, and the URL-builder set has gained no endpoint. |
 | `test_v2_purity` | `core/scoring/v2/**` imports no `httpx`, `os`, `time`, `random`, `subprocess`, `logging`; no `datetime.now`; no dynamic import. |
 | `test_v2_total_and_deterministic` (Hypothesis) | No exception for any valid `Signals`; two calls give equal results. |
-| `test_v2_manifest_current` | `FROZEN_MODEL.v2.json` equals a fresh `closure("core.scoring.v2")` build and the weights digest file matches. |
+| `test_v2_manifest_current` | `FROZEN_MODEL.v2.json` equals a fresh `closure("core.scoring.versions")` build (14 files) and the weights digest file matches. |
+
+### 7.5 Amendment, 16 Nov 2026, declared-only-dead
+
+**Status: the four decisions of T4.5 are applied (16 Nov 2026); the approval line is still to be added by the maintainer, at the end of this subsection.** Nothing under `core/scoring/v2/`, no `versions.py` and no `weights.v2.yaml` exists.
+**Inputs.** `eval/analysis/conclusion.md` (`report_sha256: 411a9a165edfca9ca69778002a3d76fa9e7d4847e8a0c8e34fd0ad6bf1ac862c`, checked by `test_conclusion_current`), `eval/analysis/v1-failures.{json,md}` and tag `mortality-v2-analysis`. Row names below are taken from `v1-failures.json`.
+**Companion.** Requirements amendment A9 adds the held-out check `dead_flagged_rate` (MV2-GATE-8). The conclusion pairs it with this mechanism; section 7.5.8 gives its design.
+
+#### 7.5.1 Mechanism (item 1 of 7.3)
+
+**In plain words.** v2 is v1 with one rule changed: the score can no longer pronounce a package Dead. Dead is pronounced only on a declaration, S1 true (registry deprecation or archived repository), exactly as in v1. A package with S1 not true and mortality ≥ 60, which v1 classes `Dead` with `dead_reason = "score"`, is `Ailing` with `dead_reason = None` in v2. Everything else is v1 unchanged: the six risks, the weights, mortality, confidence, the S1 override to at least 90, `Unknown`, `Resting` (still only for 30 ≤ mortality < 60), the Ailing/Alive boundary at 30, Cursed, Wounded, exposure and priority.
+
+**How it is built.** `score_package_v2` calls the v1 `score_package` with the v2 weights file, then replaces the pair `(Dead, "score")` by `(Ailing, None)`. Nothing else in the result changes except `model_version`. Cursed and Wounded read `base_state` only through "Dead or Ailing" (`_advisory_is_cursed`, `compute_wounded`), so demotion does not change them; priority does not read `base_state`. A test pins both (7.5.4).
+
+**Why (MV2-FA-5; the conclusion's reading).** The scored signals saturate for long-quiet repositories and then carry no information that separates abandoned, finished and ailing packages. Evidence from the report:
+
+| Observation | Rows |
+|---|---|
+| Same saturated profile (r2, r3, r4, r5 all 1.0), mortality 86 to 91, opposite labels | dead: `react-hooks-global-state` 87.2, `appdirs` 86.4, `feedjack` 88.0, `flask-restplus` 87.4, `custom-protocol-detection` 90.5. finished-healthy: `updeep` 88.0, `rx-sandbox` 86.8. ailing: `vue-formly` 87.9, `animate-components` 88.5 |
+| Only r2 present (confidence 0.25), mortality 100.0, opposite labels | dead: `pathlib`, `ply`. finished-healthy: `react-accessible-details` |
+| Labels flip across the 60 boundary within 0.4 points | dead: `rmextract` 60.1. ailing: `ansible-bender` 60.0, `material-design-lite` 60.4 |
+| No single signal is the cause (whole key, in-sample) | removing r2 and r3 raises finished-healthy predicted Dead from 11 to 15; removing r4 and r8 lowers it from 11 to 8 and does not fix it |
+| Declared death works | declared Dead precision 27/28 (v1 recorded result) |
+
+The conclusion finds "inactivity treated as death" supported only in part, so MV2-MOD-3's conditional rule (no score-based Dead from inactivity signals alone) is not the mechanism. This mechanism is wider and satisfies that rule a fortiori: property P1 (7.5.4) forbids any score-based Dead.
+
+**What it costs, stated up front.**
+- v1's score-based Dead rows are the rows the rule touches: 30 of 116 on the v1 key (13 labelled dead, 11 finished-healthy, 6 ailing). The 13 correct ones are `appdirs`, `custom-protocol-detection`, `feedjack`, `flask-restplus`, `kotti-image-gallery`, `nodejs-mobile-gyp`, `nose-parameterized`, `pathlib`, `ply`, `py-d3`, `react-hooks-global-state`, `rmextract` and `sklearn`. Four of them (`appdirs`, `feedjack`, `nose-parameterized`, `sklearn`) are labelled dead from a deprecation notice, yet S1 was not true for them in their fixtures. All 13 become Ailing. Dead recall is now bounded by S1 coverage.
+- v2 does not separate finished from abandoned. It declines to pronounce death without a declaration. A false-positive rate that falls because Dead is withheld is not evidence of better discrimination, and the report says so.
+- **The flagged set (Dead or Ailing) is identical for v1 and v2 on every input**, because the only class change is Dead to Ailing. Two consequences: the finished-healthy flagged rate (v1 recorded: 16/20) and the dead-flagged rate are the same for both models on any dataset; and the FPR gate no longer measures flagging at all. Section 7.5.8 states how the held-out check and the report treat this.
+- The score-based Dead slice of MV2-GATE-4 has no rows under v2, by construction. The report states "none by construction" instead of a ratio.
+- The product glossary defines Dead as "declared dead, or score ≥ 60". v2 is not wired into the CLI, the MCP server or the Power (4.1), so no product text changes now. Shipping v2 to users needs a product decision and an amendment to the glossary and PRD section 7.
+
+#### 7.5.2 Parameters (item 2 of 7.3; MV2-FA-6)
+
+No new parameter. No value differs from v1. None is fitted, searched or optimised against the v1 key; the analysis gave no evidence for changing any of them, and the two counterfactuals show that no single signal explains the failures.
+
+| Key in `weights.v2.yaml` | Value | Rationale |
+|---|---|---|
+| `model_version` | `v2` | Selects the result's `model_version`. |
+| `weights.s2, s3` | 0.25, 0.25 | Unchanged from v1. |
+| `weights.s4` | 0.20 | Unchanged from v1. |
+| `weights.s5, s6, s8` | 0.10 each | Unchanged from v1. |
+| `staleness.grace_months`, `span_months` | 12, 24 | Unchanged from v1. |
+| `thresholds.ailing` | 30 | Unchanged. The Alive/Ailing boundary stays as in v1 (conclusion). |
+| `thresholds.dead` | 60 | Value unchanged. **Its role changes:** it no longer yields Dead. It is the upper edge of the Resting band (Resting needs mortality < 60, as in v1) and the level above which an undeclared package is Ailing and never Resting. The key keeps its name because the v1 loader requires it (7.5.3). |
+| `thresholds.s1_min_score` | 90 | Unchanged. A declared package still scores at least 90, so priority ordering is unchanged. |
+| `thresholds.resting_r6_max` | 0.2 | Unchanged. |
+| `resting_min_weekly_downloads` | 10000 | Unchanged. |
+| `cursed_min_age_days` | 90 | Unchanged (MV2-MOD-7). |
+| `exposure.runtime, dev, direct, transitive, base` | 1.0, 0.2, 1.0, 0.6, 0.5 | Unchanged. |
+| `cursed_priority_multiplier` | 1.5 | Unchanged. |
+
+`test_v2_parameters_equal_v1` makes "none fitted" mechanical: every field of the loaded v2 `Weights` except `model_version` equals the v1 value. A future change to any one of them fails that test and is a v3.
+
+#### 7.5.3 Files added to the closure (item 3 of 7.3)
+
+| File | Content | Imports (first-party) |
+|---|---|---|
+| `backend/core/scoring/v2/__init__.py` | `score_package_v2(signals, weights=None) -> ScoringResult` | `core.scoring` (`score_package`), `core.scoring.types`, `core.scoring.v2.classify`, `core.scoring.v2.params` |
+| `backend/core/scoring/v2/params.py` | `load_v2_weights(path=None) -> Weights`: reads `weights.v2.yaml` with the v1 `load_weights` and checks `model_version == "v2"` | `core.scoring.weights`, `core.scoring.types` |
+| `backend/core/scoring/v2/classify.py` | `demote_score_dead(state, reason) -> (state, reason)`; total over `BaseState` and `DeadReason` | `core.scoring.types` |
+| `backend/core/scoring/weights.v2.yaml` | the table of 7.5.2 | (data; hashed as the weights entry) |
+| `backend/core/scoring/versions.py` | `load_model` (4.1) | `core.scoring`, `core.scoring.v2` (inside the function) |
+
+- Closure of `core.scoring.v2`: the 10 files of the v1 closure plus the three `v2/` modules, 13 files.
+- **Decided at T4.5.** As first designed in 4.3 and 11.8, `versions.py` was in neither manifest: the v2 entry did not import it, and the harness closure is limited to `eval.*`. After the freeze it could have been edited to map "v2" to another function without any hash changing. The manifest entry is now `core.scoring.versions` (the closure follows its in-function import of `v2`), so `FROZEN_MODEL.v2.json` lists 14 files plus the weights entry. `test_v1_closure_excludes_v2` is unaffected because no v1 module imports `versions.py`. The text changes are listed in 7.5.9.
+- The v1 loader `load_weights` accepts any `model_version` string and validates the v1 shape, which `weights.v2.yaml` keeps. A second loader would repeat 100 lines of validation, so `params.py` stays thin. This replaces `V2Weights` of 7.2 and 4.4 by the existing `Weights` type.
+- `MV2-IN-1(b)`: the v2 modules read no `Signals` attribute (they forward `signals`). The test compares the attributes read across the whole v2 closure with the v1 literal; the sets are equal because v2 adds none.
+
+#### 7.5.4 Property tests (item 3 of 7.3)
+
+All `@pytest.mark.property`, Hypothesis, using `core/scoring/tests/strategies.py` (read, not edited). Under `core/scoring/v2/tests/`.
+
+| Test | File | Asserts |
+|---|---|---|
+| P1 `test_no_score_dead` | `test_properties_no_score_dead.py` | For any `Signals` with `s1_declared_death is not True`: `base_state is not Dead` and `dead_reason is None`. Also an explicit generator for inactivity-only profiles (r2, r3, r4, r5 at 1.0, no advisories): never Dead (MV2-MOD-3). |
+| P2 `test_declared_dead_preserved` | design 7.4, `test_v2_declared_dead_property` | For any `Signals` with S1 true: Dead and `"declared"`. |
+| P3 `test_differential_v1` | `test_properties_differential.py` | For any `Signals`: if v1 gives `(Dead, "score")`, v2 gives `(Ailing, None)`; otherwise `(base_state, dead_reason)` are equal; every other field except `model_version` is equal (mortality, confidence, cursed, wounded, exposure, priority, risks, contributions). |
+| P4 `test_flagged_set_identical` | `test_properties_differential.py` | For any `Signals`: `v1.base_state in {Dead, Ailing}` iff `v2.base_state in {Dead, Ailing}`. This is the property the held-out `dead_flagged_rate` relies on. |
+| P5 `test_resting_band` | `test_properties_differential.py` | If v2 returns Resting then 30 ≤ mortality < 60. |
+| `test_demote_table` (unit) | `test_classify.py` | Over every `BaseState` and `DeadReason`: only `(Dead, "score")` changes. |
+| `test_v2_parameters_equal_v1` (unit) | `test_params.py` | As 7.5.2; wrong `model_version` raises. |
+
+The data-independent tests of 7.4 stay as written, with `test_v2_input_set` (b) read over the closure (7.5.3).
+
+#### 7.5.5 Declared-Dead preservation (item 4 of 7.3)
+
+Structural: v1 `classify_state` returns `(Dead, "declared")` for S1 true before any score is read, and `demote_score_dead` has no branch that changes `"declared"`. Tests: P2 (any signals), P3 (v1 equals v2 whenever v1 is not score-Dead), `test_v2_declared_fixtures` (every v1 fixture and anchor with `dead_reason = declared`), `test_demote_table`. MV2-GATE-6(b) reports held-out declared-slice precision and recall for both models; they are equal by P3.
+
+#### 7.5.6 In-sample note (item 5 of 7.3; MV2-FA-4)
+
+No v2 result exists and none is quoted here. T7.9 writes `eval/results.v2-insample.json`, labelled in-sample, with no gate object and no pass or fail line. The v1 key has been read by the designer and cannot validate v2. The only v1-key figures used in this amendment are v1's recorded results and the rows of `v1-failures.json`. The threshold of A9 was chosen with v1's recorded 41/45 in view (A9 says so); no v2 figure is compared with it.
+
+#### 7.5.7 `types.py` (item 6 of 7.3)
+
+No change. `Weights` is reused as the v2 weights type; `ScoringResult` is unchanged. No locked file is edited (3.3).
+
+#### 7.5.8 Held-out gate: `dead_flagged_rate` (requirements A9, MV2-GATE-8)
+
+**Definition.** Over the pooled reviewed, captured rows labelled `dead`: `(predicted dead + predicted ailing) / all`. `unknown`, `alive` and `finished-healthy` (Resting) count as not flagged. Threshold 0.85 from `eval/heldout/gate.yaml` key `min_dead_flagged_rate`.
+
+**Integration (why it is not in `GateConfig`).** `report.build_results` writes `asdict(config)` into `results.json`, so a new `GateConfig` field would change the v1 bytes (MV2-ISO-3). Therefore:
+- `metrics.py`: `dead_flagged_rate(c: Confusion) -> Ratio | None`, next to `fh_flagged_rate`.
+- `gate.py`: `CheckName` gains `"dead_flagged_rate"`. `load_gate_config` accepts one optional key, `min_dead_flagged_rate` (number in [0, 1]); `GateConfig` keeps its four fields. A second reader, `load_min_dead_flagged_rate(path) -> float | None`, returns the value or `None`. `evaluate_gate(reviewed, cfg, *, min_dead_flagged_rate=None)` appends the fifth check only when the value is given, so every v1 call returns the same four checks and `results.json` is byte-identical.
+- `run.py`: for dataset `heldout` reads the value and passes it. The check then appears in `gate.checks` and in `gate.passed`, so the console, the document and the verdict cannot disagree. (Computing it only in `verdict.py` would leave `gate.passed` true while the verdict is FAIL.) The held-out document's `gate.config` does not list the fifth threshold; the check object carries it as `threshold`, and the gate-config hash in `provenance` covers the file.
+- `verdict.py` (11.3): five checks. NOT EVALUABLE when `reason` is `insufficient sample` or starts with `undefined`; a failed `sample_dead` also makes `dead_flagged_rate` not evaluable. Verdict: any not evaluable gives INCONCLUSIVE; else all five passed gives PASS; else FAIL. `confirmed` gains `wilson(dead_flagged).lower >= 0.85` as a third flag.
+- `report.py` (11.4): `headline` shows the three proportions; `unflagged_dead` lists the dead rows predicted `alive`, `finished-healthy` or `unknown`, by name; `score_based_dead` reads "none by construction" when its denominator is 0; one reported, ungated slice `undeclared_high_mortality` (Ailing rows with mortality ≥ `thresholds.dead` and S1 not true, by label) replaces the vacuous score-based Dead slice as the place where demoted rows are visible. Kept at T4.5.
+
+**How to read it.** By P4, v1 and v2 have the same dead-flagged rate on every dataset, so the check cannot separate the models. It tests two things: that the demotion did not hide dead packages (true by construction) and that the signals flag dead packages at all on held-out data. A v2 FAIL on this check is also a v1 FAIL and points at the signals, not at the mechanism. Because the FPR counts only predicted Dead, the same rows that v1 called Dead now sit in Ailing; the finished-healthy flagged rate is equal for v1 and v2 and is reported, not gated (MV2-GATE-4).
+
+#### 7.5.9 Text changes applied after the T4.5 decisions (16 Nov 2026)
+
+Design: 4.1 and 4.3 (`entry` is `core.scoring.versions`, 14 files), 4.4 and 7.2 (`Weights` replaces `V2Weights`; `params.py` is a thin wrapper), 7.4 (`test_v2_input_set` (b) over the closure; `test_v2_manifest_current` over the new entry), 8.1 (`gate.yaml` gains the fifth key), 11.3 (five checks), 11.4 (headline, `unflagged_dead`, `undeclared_high_mortality`, limits text). Tasks: T5.9, T5.15, T5.16, T5.17, T7.3, T7.8 and T11.5 rewritten; T5.15a added before T5.15 and T5.15a's tests also load the real `eval/heldout/gate.yaml` that T5.9 creates. T7.4 sub-tasks are inserted by T7.1 from 7.5.10.
+
+#### 7.5.10 Sub-tasks for T7.4 and T7.6 (T7.1 inserts them)
+
+Each is one module or one test file, small enough for one turn. Order is binding.
+
+| ID | Task |
+|---|---|
+| T7.3 (revised) | `core/scoring/v2/params.py` (`load_v2_weights`) and `core/scoring/weights.v2.yaml` with the rationale comments of 7.5.2. Tests `v2/tests/test_params.py`: loads; `model_version == "v2"`; `test_v2_parameters_equal_v1`; a file with another `model_version` raises. `core/scoring/weights.py` is not edited. |
+| T7.4a | `core/scoring/v2/classify.py` (`demote_score_dead`) and `v2/tests/test_classify.py` (`test_demote_table` over `BaseState` x `DeadReason`; returns a new tuple; no I/O). |
+| T7.5 | `core/scoring/v2/__init__.py` (`score_package_v2`): call v1 `score_package` with `load_v2_weights()`, apply `demote_score_dead`, return the result with the demoted pair. The tests of T7.2 pass except the manifest test. |
+| T7.6a | `v2/tests/test_properties_no_score_dead.py`: P1 including the inactivity-only generator. |
+| T7.6b | `v2/tests/test_properties_differential.py`: P3, P4, P5, and the Cursed, Wounded and priority equality. |
+| T7.7, T7.8 | As written in `tasks.md` (T7.8 revised for the manifest entry `core.scoring.versions`, 7.5.3). |
+| T7.9, T7.10 | As written. |
+| T5.15a (before T5.15) | `metrics.dead_flagged_rate`, the `gate.py` changes of 7.5.8 and their tests: v1 `results.json` byte-identical; the optional key accepted and validated; unknown keys still rejected; the fifth check absent without the value; present with it. |
+
+**Decisions taken at T4.5 (16 Nov 2026)**
+1. Resting stays in [30, 60): an undeclared package at 60 or above is Ailing and never Resting (7.5.1).
+2. `core.scoring.versions` (`versions.py`) is the manifest entry and is in the v2 manifest (7.5.3).
+3. The `undeclared_high_mortality` report slice is kept (7.5.8).
+4. The edits to T5.9, T5.15, T5.16, T5.17, T7.3, T7.8 and T11.5 and the new T5.15a are accepted (7.5.9).
+
+#### 7.5.11 Stated limitations
+
+1. **The dead-flagged check cannot tell v1 from v2.** The only class change is Dead to Ailing, so both models flag the same set of rows (Dead or Ailing) on every input (P4). Their dead-flagged rates are equal on any dataset. The check shows that demotion hid no dead package (true by construction) and whether the signals flag dead packages at all on held-out data. A failure is a failure for both models and points at the signals, not at the mechanism.
+2. **A lower FPR under v2 is not better discrimination.** The FPR counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate (v1 recorded: 16/20) is equal for both models, and it is reported, not gated (MV2-GATE-4). The result report carries both statements in its limits text (11.4, T5.16, T11.5), whatever the verdict.
+
+Approved 16 Nov 2026
 
 ## 8. Held-out population and the Q draw (MV2-POP, MV2-SMP-1, D5, D9)
 
@@ -320,10 +462,11 @@ npm_snapshot:  {package: npm-high-impact, export: npmHighImpact, member: package
 ```
 A test asserts that `seed` equals the literal in the requirements and that the numbers equal those of MV2-SMP-1 and MV2-SMP-3. The pin values (commit SHA, package version, hashes) are not constants; they are recorded at the draw (section 8.3).
 
-`eval/heldout/gate.yaml` (committed at step 3, MV2-GATE-1) uses the v1 format so that `load_gate_config` is reused unchanged:
+`eval/heldout/gate.yaml` (committed at step 3, MV2-GATE-1) uses the v1 format plus one optional key (requirements A9, design 7.5.8). `load_gate_config` accepts the optional key and still returns the four-field `GateConfig`; `load_min_dead_flagged_rate` reads the fifth value:
 ```yaml
 min_dead_precision: 0.90
 max_finished_healthy_fpr: 0.10
+min_dead_flagged_rate: 0.85
 min_reviewed_dead: 25
 min_reviewed_finished_healthy: 20
 ```
@@ -483,10 +626,10 @@ Exit codes: `0` PASS, `1` FAIL, `2` usage, `3` input error, `4` INCONCLUSIVE (he
 Verdict = Literal["PASS", "FAIL", "INCONCLUSIVE"]
 def evaluate_verdict(gate: GateResult) -> VerdictResult   # verdict, not_evaluable, confirmed
 ```
-It uses the four checks of `evaluate_gate` unchanged, on the pooled reviewed rows. A check is NOT EVALUABLE when its `reason` is `insufficient sample` or starts with `undefined`. A failed `sample_dead` also makes `dead_precision` not evaluable; a failed `sample_finished_healthy` also makes `finished_healthy_fpr` not evaluable (MV2-MIN-1). Verdict: any not evaluable gives `INCONCLUSIVE`; otherwise all four passed gives `PASS`; otherwise `FAIL`. All four values are printed whatever the verdict, so a clear miss stays visible under INCONCLUSIVE. `confirmed` (MV2-GATE-3) is `wilson(precision).lower >= 0.90` and `wilson(fpr).upper <= 0.10`, computed with `metrics.wilson`; it never changes the verdict.
+It uses the checks of `evaluate_gate` on the pooled reviewed rows: the four of v1 plus `dead_flagged_rate` (MV2-GATE-8), which `evaluate_gate` appends when it is given `min_dead_flagged_rate` (7.5.8). A check is NOT EVALUABLE when its `reason` is `insufficient sample` or starts with `undefined`. A failed `sample_dead` also makes `dead_precision` and `dead_flagged_rate` not evaluable; a failed `sample_finished_healthy` also makes `finished_healthy_fpr` not evaluable (MV2-MIN-1). Verdict: any not evaluable gives `INCONCLUSIVE`; otherwise all five passed gives `PASS`; otherwise `FAIL`. All five values are printed whatever the verdict, so a clear miss stays visible under INCONCLUSIVE. `confirmed` (MV2-GATE-3) is `wilson(precision).lower >= 0.90`, `wilson(fpr).upper <= 0.10` and `wilson(dead_flagged_rate).lower >= 0.85`, computed with `metrics.wilson`; it never changes the verdict.
 
 ### 11.4 Report (`eval/heldout/report.py`, pure)
-The `heldout` object holds: `verdict`; `not_evaluable`; `floors` (counts against 25 and 20); `headline` (both gated proportions with Wilson interval and `confirmed`); `score_based_dead` (precision, numerator, denominator, Wilson interval, count; from `slices.dead_precision_by_reason["score"]`); `declared` (precision, recall); `by_stratum` and `by_ecosystem` (`metrics_for` on each subset); `deprecated_slice` (S1 declared true, false, unknown, each by label and predicted class); `changed_since_draw` (rows whose fixture `latest_version` differs from `latest_version_at_draw`); `not_captured`; `recaptured` (from `capture-log.tsv`); `amendments` (the entries of `AMENDMENTS.md`, or an empty list); `coverage` (from `draw.json`); and the limits text of MV2-SMP-6. The limits text states that: pooled proportions mix two strata; the registry-dependent Q filter counts cover the examined prefix, not the whole snapshot; the PyPI population is the top 5,000 by downloads while the npm population is every unscoped name of `npmHighImpact` (a different depth of popularity, so per-ecosystem results are not comparable); and Scorecard 404s are "not scanned" here and `unavailable` in the v1 fixtures. `report.py` modules format values taken from `VerdictResult` and the metrics; a test asserts that they never recompute the verdict (11.8). The console renderer prints the verdict, the four checks with intervals, and the score-based line next to the headline.
+The `heldout` object holds: `verdict`; `not_evaluable`; `floors` (counts against 25 and 20); `headline` (the three gated proportions with Wilson interval and `confirmed`); `unflagged_dead` (labelled dead rows predicted `alive`, `finished-healthy` or `unknown`, by name and predicted class); `score_based_dead` (precision, numerator, denominator, Wilson interval, count; from `slices.dead_precision_by_reason["score"]`; reads "none by construction" when the denominator is 0); `undeclared_high_mortality` (reported, ungated: rows with S1 not true and mortality at or above `thresholds.dead` of the model's weights, by label and predicted class); `declared` (precision, recall); `by_stratum` and `by_ecosystem` (`metrics_for` on each subset); `deprecated_slice` (S1 declared true, false, unknown, each by label and predicted class); `changed_since_draw` (rows whose fixture `latest_version` differs from `latest_version_at_draw`); `not_captured`; `recaptured` (from `capture-log.tsv`); `amendments` (the entries of `AMENDMENTS.md`, or an empty list); `coverage` (from `draw.json`); and the limits text of MV2-SMP-6. The limits text states that: pooled proportions mix two strata; the registry-dependent Q filter counts cover the examined prefix, not the whole snapshot; the PyPI population is the top 5,000 by downloads while the npm population is every unscoped name of `npmHighImpact` (a different depth of popularity, so per-ecosystem results are not comparable); Scorecard 404s are "not scanned" here and `unavailable` in the v1 fixtures; v1 and v2 flag the same rows (Dead or Ailing), so their dead-flagged rates and finished-healthy flagged rates are equal on any dataset and the dead-flagged check cannot tell the models apart; and the finished-healthy FPR counts predicted Dead only, so a fall in it under v2 is not evidence of better discrimination (7.5.11). `report.py` modules format values taken from `VerdictResult` and the metrics; a test asserts that they never recompute the verdict (11.8). The console renderer prints the verdict, the five checks with intervals, and the score-based line next to the headline.
 
 ### 11.5 Comparison (`python -m eval compare`)
 Reads `results.v1.json` and `results.v2.json`, checks that they share `labels_sha256`, the fixture-set hash and `as_of`, and writes `comparison.json` and `comparison.md`: for each label, counts of (v1 predicted, v2 predicted). Descriptive only (MV2-GATE-7). It may be regenerated; it is not a model run.

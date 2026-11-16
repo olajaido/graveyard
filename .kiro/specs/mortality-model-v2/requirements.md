@@ -182,3 +182,25 @@ Only the items below may change `backend/sources`, `backend/core/sources` or the
 | A6 | 14 Nov 2026 | MV2-SMP-3 | The F stopping rule counts effective finished-healthy rows among F-stratum candidates only. The gate floor of MV2-MIN-1 still counts pooled rows. |
 | A7 | 14 Nov 2026 | MV2-ORD-5 (with A5) | `backend/cli/gate.py` joins the frozen harness set. Only harness files may be amended through `eval/heldout/AMENDMENTS.md`; a change to the model files, the manifest, `weights.v2.yaml`, the source changes, the held-out configuration (`dataset.yaml`, `gate.yaml`, `f/queries.tsv`) or `V1_LOCK.json` is a new model version. |
 | A8 | 14 Nov 2026 | MV2-ORD-1 step 1 | The step 1 tag is the existing `v2-requirements` (commit `2f3c3ab`, pushed 14 Nov 2026, holding `requirements.md` revision 3). The name `mortality-v2-requirements` is not used and no second requirements tag is created. `design.md`, `tasks.md` and amendments A1 to A8 follow that tag and are included by the step 2 tag `mortality-v2-analysis`. |
+| A9 | 16 Nov 2026 | MV2-GATE-1, GATE-2, GATE-3, GATE-4, MIN-1, MIN-2; adds MV2-GATE-8 | Adds a pre-registered held-out check, the dead-flagged rate, gated with the existing checks. Text below. **Takes effect when the maintainer adds the approval line to design 7.5 (T4.5); the T4.5 decisions of 16 Nov 2026 are applied.** |
+
+
+### A9 text (16 Nov 2026)
+Source: `eval/analysis/conclusion.md`, "Trade-off and safeguard". The v2 mechanism withholds Dead without a declaration (design 7.5), and the gate rewards withholding Dead (a model that predicts Dead less often has fewer false positives). This check requires that labelled dead packages are still flagged.
+
+| ID | Requirement |
+|----|-------------|
+| MV2-GATE-8 | **Dead-flagged rate (new, gated).** Over the pooled, reviewed, captured rows labelled `dead`, `dead_flagged_rate = (rows predicted dead + rows predicted ailing) / (rows labelled dead)`. A row predicted `unknown`, `alive` or `finished-healthy` (Resting) is not flagged. The check passes when the point estimate is **≥ 0.85**. The threshold is the key `min_dead_flagged_rate: 0.85` of `eval/heldout/gate.yaml`, committed at the freeze tag (step 3, MV2-ORD-1) with the other thresholds. NOT CAPTURED rows are in no denominator, as for the other checks. The check applies to the held-out dataset only; `eval/gate.yaml`, the v1 dataset and `eval/results.json` are unchanged (MV2-ISO-1, ISO-3). Both models are run through it (MV2-GATE-7). |
+| MV2-GATE-1 (amended) | After "Dead precision ≥ 0.90 and finished-healthy FPR ≤ 0.10", add "and dead-flagged rate ≥ 0.85 (MV2-GATE-8)". `eval/heldout/gate.yaml` holds the three thresholds and the two floors. |
+| MV2-GATE-2 (amended) | In `PASS` and `FAIL`, "both checks" reads "all three rate checks". `INCONCLUSIVE`: any check `NOT EVALUABLE`, including the dead-flagged rate. |
+| MV2-GATE-3 (amended) | The dead-flagged rate carries its 95% Wilson interval. A `PASS` also says whether its interval clears 0.85 ("confirmed": lower bound ≥ 0.85) or not ("point estimate only"). |
+| MV2-MIN-1 (amended) | The dead-flagged rate is `NOT EVALUABLE` when labelled `dead` rows are below the floor of 25 (the floor of the dead-precision check applies to it) or when there are none. Floors are not lowered. |
+| MV2-MIN-2 (added sentence) | At the floor of 25 labelled dead rows, 0.85 needs 22 flagged rows (0.88), so at most 3 may be unflagged; the 95% Wilson interval of 22/25 is 0.700 to 0.958. At 45 dead rows, 39 are needed (0.867; interval 0.738 to 0.937). A pass at the floor is a point-estimate pass with a wide interval, and the report says so. |
+| MV2-GATE-4 (amended) | Also reported, not gated: the labelled dead rows that are not flagged, by name and predicted class. When a model gives no score-based Dead by construction (v2), the score-based Dead line reads "none by construction" instead of a ratio. |
+
+
+**Basis and limits, stated so the reader can judge the value.**
+- On the v1 key, v1 flagged 41 of 45 labelled dead rows (40 predicted dead, 1 predicted ailing), 0.911, 95% Wilson interval 0.793 to 0.965 (`eval/results.json`, confusion row `dead`). The maintainer set 0.85 in `conclusion.md` with that figure in view. It is a gate threshold, not a model parameter, and no procedure derived it. It was fixed before any held-out data exists: this amendment is committed after the tag `mortality-v2-analysis` and before `mortality-v2-frozen`, and `check_heldout_order.py` check 2 requires `eval/heldout/` to hold no data at the frozen tag (MV2-ORD-2).
+- By design 7.5.1 the set of rows flagged (Dead or Ailing) is identical for v1 and v2 on every input. The two models therefore have the same dead-flagged rate on any dataset, and the check cannot tell them apart. A failure on this check is a failure for both models and points at the signals, not at the mechanism.
+- Ailing counts as flagged, so the check does not penalise flagging finished-healthy packages. The finished-healthy flagged rate (v1 recorded: 16/20) is equal for both models and stays reported, not gated (MV2-GATE-4).
+- No v2 figure on the v1 key is compared with 0.85 (MV2-FA-4).
