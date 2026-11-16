@@ -1,0 +1,43 @@
+# Mortality model v2 parameters (design 7.5.2, MV2-FA-6).
+# No value differs from v1. None is fitted, searched or optimised against the v1 key;
+# test_v2_parameters_equal_v1 enforces this. Changing any value is a v3.
+# Formula-shape constants (R5_BUCKETS, R6_MIDPOINT) live in constants.py, not here.
+# Selects the result's model_version.
+model_version: v2
+# Per-signal weights. s2, s3: unchanged from v1. s4: unchanged. s5, s6, s8: unchanged.
+weights:
+  s2: 0.25
+  s3: 0.25
+  s4: 0.20
+  s5: 0.10
+  s6: 0.10
+  s8: 0.10
+# Unchanged from v1.
+staleness:
+  grace_months: 12
+  span_months: 24
+thresholds:
+  # Value unchanged. Its ROLE changes: it no longer yields Dead. It is the upper edge of
+  # the Resting band (Resting needs mortality < 60, as in v1) and the level above which an
+  # undeclared package is Ailing and never Resting. The key keeps its name because the v1
+  # loader requires it (design 7.5.3).
+  dead: 60
+  # Unchanged. The Alive/Ailing boundary stays as in v1.
+  ailing: 30
+  # Unchanged. A declared package still scores at least 90, so priority ordering is unchanged.
+  s1_min_score: 90
+  # Unchanged.
+  resting_r6_max: 0.2
+# Unchanged.
+resting_min_weekly_downloads: 10000
+# Unchanged (MV2-MOD-7).
+cursed_min_age_days: 90
+# Unchanged.
+exposure:
+  runtime: 1.0
+  dev: 0.2
+  direct: 1.0
+  transitive: 0.6
+  base: 0.5
+# Unchanged.
+cursed_priority_multiplier: 1.5

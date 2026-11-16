@@ -959,6 +959,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962393
+      },
+      {
+        "executionId": "8a08eb44-7cd4-440c-a0df-6bffec499c99",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794849599356
+      },
+      {
+        "executionId": "8a08eb44-7cd4-440c-a0df-6bffec499c99",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794849640281
       }
     ],
     "T7.2 — Write the data-independent tests of design 7.4 first; they fail until `v2/` exists: `test_v2_declared_dead_property` (Hypothesis), `test_v2_declared_fixtures` (every v1 fixture and anchor that is declared Dead under v1), `test_v2_input_set` (literals of the `Signals` field names, the `Signals` attributes read by the v1 modules, the 11 evidence keys and the `core.sources` URL builders, generated once from commit `00c373e` with `git show` and pasted as literals; `ALLOWED_NEW_SIGNALS == ()`), `test_v2_no_text_features`, `test_v2_purity`, `test_v2_total_and_deterministic`, `test_v2_manifest_current`. Place them under `core/scoring/v2/tests/`.": [
@@ -966,6 +976,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962432
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794849832995
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851527046
       }
     ],
     "T7.3 — `core/scoring/v2/params.py` (`V2Weights`, `load_v2_weights`, cached, `yaml.safe_load`, immutable, strict validation) and `core/scoring/weights.v2.yaml` (`model_version: v2`, every parameter with its rationale comment from the amendment). Tests: valid file loads; each invalid case raises (missing key, wrong type, non-finite number, out-of-range value). Do not edit `core/scoring/weights.py` (locked).": [
@@ -980,6 +1000,11 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962512
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851772461
       }
     ],
     "T7.5 — `core/scoring/v2/__init__.py`: `score_package_v2(signals, weights=None) -> ScoringResult` wiring the modules, with the declared-Dead rule (`s1_declared_death is True` gives `BaseState.DEAD` and `\"declared\"`), `model_version == \"v2\"`. The tests of T7.2 are green after this task (except the manifest test, T7.8).": [
@@ -987,6 +1012,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962554
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851776283
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851827853
       }
     ],
     "T7.6 — Mechanism property tests named in the amendment, one sub-task per test file if the amendment lists several (`@pytest.mark.property`), including totality, determinism and the rule of MV2-MOD-3 if the amendment adopts it.": [
@@ -994,6 +1029,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962591
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851828704
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851936370
       }
     ],
     "T7.7 — `core/scoring/versions.py` (`Model`, `load_model(\"v1\"|\"v2\")`, the v2 import inside the function) and the `v2` entry of `eval/models.py`; `--model v2` accepted by the harness. Tests: `load_model(\"v1\").score(s) == score_package(s)`; `load_model(\"v2\").version == \"v2\"`; an unknown version raises; `test_v1_closure_excludes_v2` still passes with `versions.py` and `v2/` present; `test_v1_lock` green.": [
@@ -1302,6 +1347,54 @@
         "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794849000750
+      }
+    ],
+    "T7.3 — `core/scoring/v2/params.py` (`load_v2_weights(path=None) -> Weights`: reads the file with the v1 `load_weights`, checks `model_version == \"v2\"`; design 7.5.3) and `core/scoring/weights.v2.yaml` (the v1 shape, `model_version: v2`, every parameter with its rationale comment from design 7.5.2, including the changed role of `thresholds.dead`). Tests in `core/scoring/v2/tests/test_params.py`: the file loads; `model_version == \"v2\"`; `test_v2_parameters_equal_v1` (every field of the loaded `Weights` except `model_version` equals the v1 value); a file with another `model_version` raises. Do not edit `core/scoring/weights.py` (locked).": [
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851531176
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851770435
+      }
+    ],
+    "T7.4a — `core/scoring/v2/classify.py` and `core/scoring/v2/tests/test_classify.py` (requirements MV2-MOD-2, MV2-MOD-3, MV2-MOD-4, MV2-IN-2; design 7.5.1, 7.5.3, 7.5.4, 7.5.10). `demote_score_dead(state, reason) -> (state, reason)`, total over `BaseState` and `DeadReason`, imports only `core.scoring.types`, no I/O: `(Dead, \"score\")` becomes `(Ailing, None)`; every other pair is returned unchanged, including `(Dead, \"declared\")`. Unit test `test_demote_table` over every `BaseState` x `DeadReason` (only `(Dead, \"score\")` changes; returns a new tuple). Do not edit `core/scoring/weights.py` or any locked v1 file.": [
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851533069
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851772386
+      }
+    ],
+    "T7.6a — `core/scoring/v2/tests/test_properties_no_score_dead.py` (`@pytest.mark.property`): P1, including the inactivity-only generator (design 7.5.10, 7.5.5). v2 never returns `(Dead, \"score\")`; do not edit locked v1 files.": [
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851832037
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851935785
+      }
+    ],
+    "T7.6b — `core/scoring/v2/tests/test_properties_differential.py` (`@pytest.mark.property`): P3, P4, P5, and the Cursed, Wounded and priority equality against v1 (design 7.5.10, 7.5.5). Do not edit locked v1 files.": [
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851833112
+      },
+      {
+        "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794851936320
       }
     ]
   }
