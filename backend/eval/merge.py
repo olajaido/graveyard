@@ -11,11 +11,12 @@ from __future__ import annotations
 import csv
 import io
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, TextIO
 
+from eval.heldout.datasets import DATASETS, HELDOUT
 from eval.labels import (
     HEADER,
     LabelRow,
@@ -33,7 +34,12 @@ EXIT_OK: Final = 0
 EXIT_USAGE: Final = 2
 EXIT_INVALID: Final = 3
 
-_USAGE: Final = "usage: python -m eval merge [--dry-run]\n"
+BATCH_LOG_NAME: Final = "heldout/draw/batch-log.tsv"
+BATCH_LOG_COLUMNS: Final = 7  # batch_id, stratum, ecosystem, order_range, triples, sha256, date
+_TRIPLES_COLUMN: Final = 4
+_USAGE: Final = "usage: python -m eval merge [--dataset v1|heldout] [--dry-run]\n"
+
+Key = tuple[str, str]
 
 
 class MergeError(ValueError):
@@ -75,8 +81,47 @@ def _staged_records(text: str) -> list[tuple[int, list[str]]]:
     return records
 
 
-def plan_merge(existing_text: str, staged_text: str) -> MergePlan:
-    """Validate the batch and build the merged text. Raises ``MergeError`` on any defect."""
+def parse_batch_log(text: str) -> tuple[dict[Key, str], tuple[str, ...]]:
+    """Released versions by key, and the defects, from the text of ``batch-log.tsv``.
+
+    Tab-separated, one released batch per line: batch id, stratum, ecosystem, order range,
+    the ``ecosystem,name,version`` triples joined by ``;``, SHA-256 of the printed text and
+    release date (design 10.1). A first line whose first cell is ``batch_id`` is a header.
+    """
+    released: dict[Key, str] = {}
+    errors: list[str] = []
+    lines = text.lstrip("\ufeff").replace("\r", "").split("\n")
+    for number, line in enumerate(lines, start=1):
+        if not line.strip() or (number == 1 and line.split("\t")[0] == "batch_id"):
+            continue
+        cells = line.split("\t")
+        if len(cells) != BATCH_LOG_COLUMNS:
+            errors.append(f"batch log: line {number}, row: expected {BATCH_LOG_COLUMNS} columns")
+            continue
+        for triple in cells[_TRIPLES_COLUMN].split(";"):
+            parts = triple.strip().split(",")
+            if len(parts) != 3 or not all(parts):
+                errors.append(f"batch log: line {number}, triples: malformed triple")
+                continue
+            key = (parts[0], parts[1])
+            if released.get(key, parts[2]) != parts[2]:
+                errors.append(f"batch log: line {number}, triples: conflicting version")
+                continue
+            released[key] = parts[2]
+    return released, tuple(errors)
+
+
+def plan_merge(
+    existing_text: str,
+    staged_text: str,
+    *,
+    released: Mapping[Key, str] | None = None,
+) -> MergePlan:
+    """Validate the batch and build the merged text. Raises ``MergeError`` on any defect.
+
+    With ``released`` (held-out dataset), every staged key must be a key of it and the staged
+    version must equal the released one.
+    """
     existing, existing_errors = parse_labels_lenient(existing_text)
     errors: list[str] = [f"labelled set: {e}" for e in existing_errors]
 
@@ -91,6 +136,12 @@ def plan_merge(existing_text: str, staged_text: str) -> MergePlan:
             errors.append(f"staging: line {line}, labelled_by: must be coroner in staging")
         if (fields[0], fields[1]) in existing_keys:
             errors.append(f"staging: line {line}, name: duplicate key")
+        if released is not None:
+            logged = released.get((fields[0], fields[1]))
+            if logged is None:
+                errors.append(f"staging: line {line}, name: not in a released batch")
+            elif fields[2] != logged:
+                errors.append(f"staging: line {line}, version: differs from the released batch")
     if errors:
         raise MergeError(errors)
 
@@ -128,13 +179,24 @@ def _replace_atomically(path: Path, text: str) -> None:
     tmp.replace(path)
 
 
-def merge_files(data_dir: Path, *, dry_run: bool) -> MergePlan | None:
-    """Merge the staging file into the labelled set; ``None`` when nothing is staged."""
-    labelled_path = data_dir / LABELLED_NAME
+def merge_files(data_dir: Path, *, dry_run: bool, dataset: str = "v1") -> MergePlan | None:
+    """Merge the staging file into the labelled set; ``None`` when nothing is staged.
+
+    ``dataset="heldout"`` targets the held-out labelled set and checks the batch log.
+    """
+    labelled_name = HELDOUT.labels if dataset == HELDOUT.name else LABELLED_NAME
+    labelled_path = data_dir / labelled_name
     staging_path = data_dir / STAGING_NAME
-    existing_text = _read_text(labelled_path, LABELLED_NAME)
+    existing_text = _read_text(labelled_path, labelled_name)
     staged_text = _read_text(staging_path, STAGING_NAME)
-    plan = plan_merge(existing_text, staged_text)
+    released: dict[Key, str] | None = None
+    if dataset == HELDOUT.name:
+        released, log_errors = parse_batch_log(
+            _read_text(data_dir / BATCH_LOG_NAME, "draw/batch-log.tsv")
+        )
+        if log_errors:
+            raise MergeError(log_errors)
+    plan = plan_merge(existing_text, staged_text, released=released)
     if not plan.staged:
         return None
     if not dry_run:
@@ -155,6 +217,32 @@ def _counts(rows: Sequence[LabelRow]) -> str:
     return f"by label {labels}; by ecosystem {ecos}"
 
 
+def _parse_args(argv: Sequence[str]) -> tuple[str, bool] | None:
+    """``(dataset, dry_run)``, or ``None`` for a usage error. Each option at most once."""
+    dataset: str | None = None
+    dry_run = False
+    seen_dry = False
+    args = list(argv)
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--dry-run" and not seen_dry:
+            seen_dry = dry_run = True
+        elif arg == "--dataset" and dataset is None and i + 1 < len(args):
+            i += 1
+            dataset = args[i]
+        elif arg.startswith("--dataset=") and dataset is None:
+            dataset = arg.removeprefix("--dataset=")
+        else:
+            return None
+        i += 1
+    if dataset is None:
+        dataset = "v1"
+    if dataset not in DATASETS:
+        return None
+    return dataset, dry_run
+
+
 def run_merge(
     argv: Sequence[str],
     *,
@@ -163,14 +251,13 @@ def run_merge(
     data_dir: Path = DEFAULT_DATA_DIR,
 ) -> int:
     """Command seam: returns 0, 2 (usage) or 3 (invalid input)."""
-    args = list(argv)
-    if args not in ([], ["--dry-run"]):
+    parsed = _parse_args(argv)
+    if parsed is None:
         err.write(_USAGE)
         return EXIT_USAGE
-    dry_run = bool(args)
-
+    dataset, dry_run = parsed
     try:
-        plan = merge_files(data_dir, dry_run=dry_run)
+        plan = merge_files(data_dir, dry_run=dry_run, dataset=dataset)
     except MergeError as exc:
         shown = exc.errors[:MAX_PRINTED_ERRORS]
         for message in shown:

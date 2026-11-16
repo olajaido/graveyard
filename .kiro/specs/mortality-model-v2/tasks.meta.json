@@ -440,6 +440,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960802
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794839080220
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794839175941
       }
     ],
     "T5.2 — `heldout/exclusions.py` (design 8.4): `parse_plan(text)` for `LABELLING.md` section 9 (checks 54, 47 and 15), pool TSV reader by header, anchor ecosystems from fixture purls, `build_exclusions(...)`, `exclusions_tsv(...)`. Tests on synthetic texts (wrong count raises; missing column raises; names that fail the syntax are reported) and one real-data test that parses the real section 9 and the nine anchors and reaches counts 54, 47, 15 and 9, and that every key of `eval/labelled_packages.csv` is in the result.": [
@@ -447,6 +457,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960843
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794839177630
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840336232
       }
     ],
     "T5.3 — `heldout/pins.py` (pure): `parse_hugovk(bytes, top_n)` (strict JSON, 5 MB cap, row shape, non-increasing counts), `parse_npm_top_js(bytes)` (exact shape `export const <id> = [` then one `'name',` per line then `];`; names validated), `verify_pins(pins_json, files)`. Tests with good and bad samples for each shape rule and hash mismatches.": [
@@ -454,6 +474,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960894
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794839178778
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840337068
       }
     ],
     "T5.4 — `scripts/heldout_pin.py` (design 8.3): resolves the commit-pinned raw URL for the PyPI file, downloads the npm tarball from `registry.npmjs.org`, checks `dist.integrity`, reads one member in memory with `tarfile`, writes `snapshot/*.json` and `pins.json`, `--verify` re-hashes. Hosts allow-listed, no redirects off host, size caps. Tests with a fake transport and a synthetic tarball: integrity mismatch aborts; extra members are never read; wrong member shape aborts; no file is written on failure.": [
@@ -461,6 +491,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960963
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840345961
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840666989
       }
     ],
     "T5.5 — `scripts/heldout_draw.py` (design 8.5, 8.6): exclusions, the lazy Q walk in draw order, `q-examined.tsv` (resumable), `q-candidates.tsv`, `draw.json`, `--draw-date` not in the future; a 404 is `unpublished`; any other failure retries 3 times then stops with a non-zero exit and no skipping. Tests with a fake registry: stop on failure and resume gives the same candidates as an uninterrupted run; short population records `short_of_budget`; `test_q_replay.py` replays `q-candidates.tsv` from `q-examined.tsv` on synthetic data.": [
@@ -468,6 +508,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960997
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840851887
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841268174
       }
     ],
     "T5.6 — `heldout/fpool.py`, grid and build (design 9.1, 9.4): `build_grid()` (8 phrases × 5 filenames × 5 byte bands = 200 rows, ids stable) and `build_pool(mapped, exclusions, q_candidates, seed, owner_cap)`. Tests: phrases and filenames are exactly the sets of the design; bands are disjoint and cover every integer from 0; 200 rows with no duplicates; pool dedupe keeps the lowest query id; exclusions and Q candidates removed; owner cap applied in draw order; byte-for-byte rebuild from fixed inputs.": [
@@ -475,6 +525,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961042
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840346102
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840668771
       }
     ],
     "T5.7 — `scripts/heldout_fpool.py` subcommands `calibrate` and `search` (design 9.2; `search` refuses to run until `calibration.tsv` records a pass): `gh search code \"<phrase>\" size:<band> --filename <file> --limit 100 --json repository,path,url` as an argument list through an injectable runner; unit calibration first (5 sampled hits per band, size read in bytes from the contents API, any hit outside its band aborts and writes `calibration.tsv`); `query-log.tsv` with one line per cell including zero-result cells and the `saturated` flag; retry 3 times then stop; resumable; 7 s gap. Tests with a fake runner and fake contents API: calibration pass and fail; zero-result cell logged; saturated flag at 100; resume skips completed cells; a failing cell stops the run and is not skipped.": [
@@ -482,6 +542,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961081
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841279412
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841808419
       }
     ],
     "T5.8 — `scripts/heldout_fpool.py map` and `build` (design 9.3, 9.4): candidate names (repo name, PEP 503 form, without `python-` or `py` prefix), exact match of the parsed `owner/repo` through `core.purl.normalise_repo_url` and `repo_key`, scoped and invalid names skipped and counted, `mapped.tsv`, then `fpool.build_pool`, `f-pool.tsv`, `strata.tsv` and the extra `draw.json` counts. Tests: a package pointing at `foo/bar-baz` does not match `foo/bar`; scoped names skipped; a fake registry end to end on a toy grid.": [
@@ -489,6 +559,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961122
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841831385
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842336687
       }
     ],
     "T5.9 — Create the step 3 configuration files under `eval/heldout/`: `dataset.yaml` (design 8.1), `gate.yaml` (0.90, 0.10, 25, 20), `f/queries.tsv` (the 200 rows written by `build_grid()`), `README.md` (what the folder is, the tag order, \"no data before the draw\"), and `AMENDMENTS.md` (header and the entry format, no entry). Tests in `backend/eval/tests/test_heldout_config.py`: seed equals the literal in the requirements; numbers equal MV2-SMP-1 and SMP-3; `gate.yaml` loads with `load_gate_config` to `GateConfig(0.90, 0.10, 25, 20)`; `queries.tsv` equals `build_grid()`; `AMENDMENTS.md` has no entry; the set of paths under `eval/heldout/` equals the allowed list of design 13.2 check 2 (plus `FROZEN_HARNESS.json` once T8.1 writes it).": [
@@ -503,6 +583,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961214
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840346253
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840666888
       }
     ],
     "T5.11 — `heldout/coverage.py` and the `coverage` subcommand (MV2-SMP-6, MV2-LAB-6): from `draw.json`, `strata.tsv`, `labelled_packages.csv` and `no-label.tsv`, write `eval/heldout/coverage.json` and `.md`: per stratum and ecosystem, population counts and which filters they cover (whole snapshot or examined prefix), candidates drawn, rows by label, `no label` by reason, the F query grid summary (cells, zero-hit, saturated), the limits text. Tests on synthetic inputs; deterministic bytes.": [
@@ -510,6 +600,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961258
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841281188
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841810025
       }
     ],
     "T5.12 — `heldout/batches.py` (pure, design 10.1): batch layout (Q 25 per ecosystem, F up to 20), `can_release(state)` returning the blocking reason, `effective_finished_healthy(rows, still_works)` (F-stratum rows only, `reviewed=true`, `pass` or recorded hand check), the F stopping rule (20 effective, 120 released, pool exhausted). Tests: each blocking rule; a row removed at review still counts against 120; Q rows never count for the F rule; stop at exactly 20.": [
@@ -517,6 +617,26 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961313
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840346582
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840672284
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840851762
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841267315
       }
     ],
     "T5.13 — `scripts/heldout_batch.py` with `next` and `status` (design 10.1): `next` fetches current registry latest versions, appends `batch-log.tsv`, prints `ecosystem,name,version` sorted by name with no stratum or rank; `status` prints counts (released, labelled, reviewed, effective F rows, floors, staging empty). Tests with a fake registry: a blocked release prints the reason; the printed batch carries no stratum, rank or source; the log line holds the SHA-256 of the printed text.": [
@@ -524,6 +644,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961356
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841823172
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842331047
       }
     ],
     "T5.14 — `backend/eval/models.py` (`ModelSpec` registry with the `v1` entry only) and `backend/eval/heldout/datasets.py` (`Dataset` registry: `v1` and `heldout`, paths relative to the eval root); extend `run.py` and `__main__.py` with `--model`, `--dataset`, `--insample` parsing and the usage errors of design 11.1 (`--model v2` is rejected as unknown until T7.7). The default path must stay unchanged. Update the pinned usage string in the existing tests only. Tests for the new parsing; `test_run.py` and `test_real_results_fresh.py` pass without other edits.": [
@@ -531,6 +661,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961434
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840856841
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841272616
       }
     ],
     "T5.15 — `heldout/verdict.py` (design 11.3): `evaluate_verdict(gate)`, NOT EVALUABLE rules, `confirmed` flags from `metrics.wilson`. Tests: floors met and missed; FPR exactly 0.10 and precision exactly 0.90 pass; zero predicted Dead gives INCONCLUSIVE; a clear FPR miss with a missed floor is INCONCLUSIVE and still lists all four values; Wilson values pinned to 2/20 upper 0.301 and 0/20 upper 0.161.": [
@@ -559,6 +699,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961659
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794843259956
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794843426452
       }
     ],
     "T5.19 — `eval/merge.py` `--dataset heldout` (design 10.2): staging stays `eval/staging/coroner_rows.csv`, target `eval/heldout/labelled_packages.csv`; every staged key must be in a released batch of `batch-log.tsv` and its version must equal the logged version; all existing rules unchanged; default behaviour unchanged. Tests, including an unreleased key rejecting the whole batch.": [
@@ -566,6 +716,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961739
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841286072
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841814804
       }
     ],
     "T5.20 — Docs before any labelling (MV2-LAB-1, MV2-PROC-2): add the held-out addendum under `LABELLING.md` section 3 and one section 8 row; add a held-out section to `eval/README.md` (draft; finalised in T11.6). Do not touch sections 1, 2 or 6. `test_labelling_sections_unchanged` and the coroner agent tests are green. **If a coroner agent guard test fails because of the edit, stop and report.**": [
@@ -573,6 +733,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961783
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840858307
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841274098
       }
     ],
     "T5.21 — Generic model and harness manifests in `eval/manifest.py` (design 4.3, 11.8): `build_manifest`, `verify_manifest`, `closure_sha256`, and `python -m eval manifest --harness [--write|--check]` using the roots, the `backend/cli/gate.py` addition and the exclusions of design 11.8. `--write` is exclusive create. Do not write `FROZEN_HARNESS.json` yet (T8.1). Tests: round trip; each tamper case (changed byte, added file, removed file, edited `closure_sha256`) fails verification; `--write` refuses an existing file; `test_frozen_harness_boundary` (nothing outside the set is imported by a module inside it except the two report modules).": [
@@ -580,6 +750,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961834
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840348129
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840670656
       }
     ],
     "T5.22 — `scripts/check_heldout_order.py`, part 1: the tag sequence constant (`v2-requirements`, `mortality-v2-analysis`, `mortality-v2-frozen`, `eval-heldout-draw`, `eval-heldout-answer-key`, `eval-heldout-capture`, `eval-heldout-result`; `v2-requirements` is never created: `--step v2-requirements --tag` is rejected), argument parsing (`--verify-all`, `--step <tag>`, `--tag`), git helpers (commit dates in UTC, ancestor tests, first-add commit), checks 1 to 3 of design 13.2. Tests in `backend/tests/integration/test_check_heldout_order.py` with temporary git repositories: `--step v2-requirements --tag` is rejected and creates nothing; tags out of order; a fixture added before the answer-key tag; a draw file or an `AMENDMENTS.md` entry at the frozen tag.": [
@@ -587,6 +767,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961882
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841288192
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841816743
       }
     ],
     "T5.23 — `check_heldout_order.py`, part 2: checks 4 and 5 (category A never amendable; category B amendable with `AMENDMENTS.md` parsing, header regex, `paths:` and `reason:` lines, the entry's first-appearance commit being a strict ancestor of the change commit, entry date not after the change date, append-only). Tests: A file edited after the frozen tag fails even with an amendment; B file edited with no amendment, with an amendment in the same commit, with a later-dated amendment, with an amendment naming another path all fail; with an earlier amendment it passes; a deleted or edited amendment line fails; report-module and test edits pass with a notice.": [
@@ -594,6 +784,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961931
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841827294
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842335116
       }
     ],
     "T5.24 — `check_heldout_order.py`, part 3: checks 6 to 9 (draw record and query-log coverage; capture window `F <= as_of <= F + 3 days`; `capture-log.tsv` rules with `form=not_captured` lines listing rows that were never captured; result files added by exactly one commit with matching provenance hashes; `V1_LOCK.json` files unchanged) and `--tag` mode (creates an annotated tag at `HEAD` only when the checks pass). Tests: `as_of` four days after the freeze date; a second re-capture of one row; a missing grid cell; a result file amended twice; a provenance mismatch; a locked file edited; `--tag` creates nothing on failure.": [
@@ -601,6 +801,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822961981
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842342856
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842669825
       }
     ],
     "T5.25 — Gate for T5: `uv run pytest -q`, ruff, `uv run mypy --strict core sources cli eval` are clean; `git status --short` shows no file under `eval/heldout/` outside the allowed list; none of the network scripts has been run. List every script built and not yet run.": [
@@ -608,6 +818,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962018
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794843429547
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844009712
       }
     ],
     "T6.1 — MV2-SRC-1 in `scripts/capture_anchors.py::collect_scorecard`: catch `NotFoundError` before `FetchError` and return `missing(\"not scanned\", url)` for S4 and S8 with no `unavailable` key; leave the `FetchError` branch unchanged. Tests in `backend/eval/tests/test_capture_script.py`: a fake `Http` raising `NotFoundError` gives value `None`, note `not scanned`, no `unavailable` key, for S4 and S8; a fake raising `FetchError` still gives `unavailable: True`; the deps.dev-first path is unchanged. **Stop if `collect_scorecard` has another 404 handling site that the design did not list.**": [
@@ -909,6 +1129,78 @@
         "executionId": "c6def5f8-bb32-4bf8-b658-d033c9e04d99",
         "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
         "timestamp": 1794836284638
+      }
+    ],
+    "T5 — Held-out tooling: built and tested on synthetic data, not run on real populations. May run while T4 waits. **Create no file under `eval/heldout/` except those named in T5.9, T5.20 and T5.21's tests.**": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794839073232
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844009822
+      }
+    ],
+    "T5.9 — Create the step 3 configuration files under `eval/heldout/`: `dataset.yaml` (design 8.1), `gate.yaml` (0.90, 0.10, 25, 20 and `min_dead_flagged_rate: 0.85`, requirements A9), `f/queries.tsv` (the 200 rows written by `build_grid()`), `README.md` (what the folder is, the tag order, \"no data before the draw\"), and `AMENDMENTS.md` (header and the entry format, no entry). Tests in `backend/eval/tests/test_heldout_config.py`: seed equals the literal in the requirements; numbers equal MV2-SMP-1 and SMP-3; `gate.yaml` read with `yaml.safe_load` has exactly the five keys with the values 0.90, 0.10, 0.85, 25 and 20 (its load through `load_gate_config` and `load_min_dead_flagged_rate` is tested in T5.15a, which runs after this task); `eval/gate.yaml` (v1) is unchanged and has four keys; `queries.tsv` equals `build_grid()`; `AMENDMENTS.md` has no entry; the set of paths under `eval/heldout/` equals the allowed list of design 13.2 check 2 (plus `FROZEN_HARNESS.json` once T8.1 writes it).": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794840855044
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841270816
+      }
+    ],
+    "T5.15a — Gate code for `dead_flagged_rate` (requirements A9, MV2-GATE-8; design 7.5.8). `metrics.dead_flagged_rate(c)` beside `fh_flagged_rate` (row `dead`: `dead` + `ailing` over the row sum; `None` when the row sum is 0). In `gate.py`: `CheckName` gains `\"dead_flagged_rate\"`; `load_gate_config` accepts the optional key `min_dead_flagged_rate` (number in [0, 1]) and still returns the four-field `GateConfig` (no new field: `build_results` writes `asdict(config)`); new `load_min_dead_flagged_rate(path) -> float | None`; `evaluate_gate(reviewed, cfg, *, min_dead_flagged_rate=None)` appends the fifth check only when the value is given. In `run.py`, the `heldout` dataset reads the value and passes it; the `v1` dataset does not. Tests: hand-computed `dead_flagged_rate` tables (41/45 as the v1 key's dead row; empty row gives `None`; `unknown`, `alive` and `finished-healthy` count as not flagged); unknown keys still rejected; the optional key out of range or non-numeric rejected; the real `eval/heldout/gate.yaml` loads to `GateConfig(0.90, 0.10, 25, 20)` and 0.85; the real `eval/gate.yaml` gives `None`; without the value `evaluate_gate` returns the four checks as before; `test_gate.py`, `test_report.py` and `test_real_results_fresh.py` pass without other edits. **Stop if `eval/results.json` would change.**": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841284635
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841813243
+      }
+    ],
+    "T5.15 — `heldout/verdict.py` (design 11.3): `evaluate_verdict(gate)` over five checks, NOT EVALUABLE rules (a failed `sample_dead` also makes `dead_flagged_rate` not evaluable), three `confirmed` flags from `metrics.wilson`. Tests: floors met and missed; FPR exactly 0.10, precision exactly 0.90 and dead-flagged rate exactly 0.85 (17/20) pass; 21/25 = 0.84 fails; zero predicted Dead gives INCONCLUSIVE; no labelled dead rows gives INCONCLUSIVE; a dead-flagged miss alone gives FAIL; a clear FPR miss with a missed floor is INCONCLUSIVE and still lists all five values; Wilson values pinned to 2/20 upper 0.301, 0/20 upper 0.161, and 22/25 = (0.700, 0.958) within 1e-3.": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794841825564
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842333173
+      }
+    ],
+    "T5.16 — `heldout/report.py` and `heldout/provenance.py` (design 11.2 to 11.4): the `heldout` object, `provenance` (hashes include `capture-log.tsv`, `FROZEN_HARNESS.json`, `AMENDMENTS.md` or `null`), the console renderer (five checks), the limits text including the two limitations of design 7.5.11, `headline` with three proportions, `unflagged_dead`, `undeclared_high_mortality`, and `score_based_dead` reading \"none by construction\" when its denominator is 0. Tests on a synthetic 60-row set (including a set with no score-based Dead); the AST test that the report modules do not import `evaluate_gate` or `evaluate_verdict`.": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842341121
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842668107
+      }
+    ],
+    "T5.17 — Held-out run flow in `run.py` (design 11.1, 11.2): reviewed check (exit 3), strata check (exit 3), NOT CAPTURED rows (no fixture, listed, not scored), exclusive-create output `eval/heldout/results.<model>.json` (exit 3 if present), `--out` for rerun proof, exit codes 0, 1, 3 and 4, document = unchanged `build_results` plus `provenance` and `heldout`. The `heldout` run passes the threshold of `eval/heldout/gate.yaml` to `evaluate_gate` and the `v1` dataset does not (four checks, `results.json` bytes unchanged). End-to-end pipeline tests on a synthetic dataset in `tmp_path`: PASS, FAIL (also a miss on `dead_flagged_rate` alone), INCONCLUSIVE (exit 4; also fewer than 25 dead rows), unreviewed row, missing strata, NOT CAPTURED lowering a floor, a second run refused, orphan fixture exit 3, byte-identical `--out` rerun.": [
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794842675249
+      },
+      {
+        "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794843256707
       }
     ]
   }

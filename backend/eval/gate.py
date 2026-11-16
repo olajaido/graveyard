@@ -15,16 +15,22 @@ from typing import Final, Literal
 
 import yaml
 
-from eval.metrics import Ratio, confusion, fh_false_positive_rate, precision
+from eval.metrics import Ratio, confusion, dead_flagged_rate, fh_false_positive_rate, precision
 from eval.outcome import Outcome
 
 CheckName = Literal[
-    "sample_dead", "sample_finished_healthy", "dead_precision", "finished_healthy_fpr"
+    "sample_dead",
+    "sample_finished_healthy",
+    "dead_precision",
+    "finished_healthy_fpr",
+    "dead_flagged_rate",
 ]
 
 _RATE_KEYS: Final = ("min_dead_precision", "max_finished_healthy_fpr")
 _COUNT_KEYS: Final = ("min_reviewed_dead", "min_reviewed_finished_healthy")
-_KEYS: Final = frozenset(_RATE_KEYS + _COUNT_KEYS)
+_OPTIONAL_KEY: Final = "min_dead_flagged_rate"
+_KEYS: Final = frozenset(_RATE_KEYS + _COUNT_KEYS + (_OPTIONAL_KEY,))
+_REQUIRED_KEYS: Final = frozenset(_RATE_KEYS + _COUNT_KEYS)
 
 
 class GateConfigError(ValueError):
@@ -56,8 +62,7 @@ class GateResult:
     checks: tuple[GateCheck, ...]
 
 
-def load_gate_config(path: Path) -> GateConfig:
-    """Read and validate ``gate.yaml``; any problem raises ``GateConfigError``."""
+def _read_mapping(path: Path) -> dict[str, object]:
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
@@ -67,18 +72,33 @@ def load_gate_config(path: Path) -> GateConfig:
     for key in data:
         if key not in _KEYS:
             raise GateConfigError(f"{path}: unknown key {key!r}")
-    for key in sorted(_KEYS):
+    return data
+
+
+def _rate(path: Path, data: dict[str, object], key: str) -> float:
+    raw = data[key]
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raise GateConfigError(f"{path}: {key!r} must be a number")
+    if not 0.0 <= raw <= 1.0:  # also rejects nan
+        raise GateConfigError(f"{path}: {key!r} must be within [0, 1]")
+    return float(raw)
+
+
+def load_gate_config(path: Path) -> GateConfig:
+    """Read and validate ``gate.yaml``; any problem raises ``GateConfigError``.
+
+    The optional key ``min_dead_flagged_rate`` is validated but not part of ``GateConfig``.
+    """
+    data = _read_mapping(path)
+    for key in sorted(_REQUIRED_KEYS):
         if key not in data:
             raise GateConfigError(f"{path}: missing key {key!r}")
+    if _OPTIONAL_KEY in data:
+        _rate(path, data, _OPTIONAL_KEY)
 
     rates: dict[str, float] = {}
     for key in _RATE_KEYS:
-        raw = data[key]
-        if isinstance(raw, bool) or not isinstance(raw, (int, float)):
-            raise GateConfigError(f"{path}: {key!r} must be a number")
-        if not 0.0 <= raw <= 1.0:  # also rejects nan
-            raise GateConfigError(f"{path}: {key!r} must be within [0, 1]")
-        rates[key] = float(raw)
+        rates[key] = _rate(path, data, key)
 
     counts: dict[str, int] = {}
     for key in _COUNT_KEYS:
@@ -95,6 +115,13 @@ def load_gate_config(path: Path) -> GateConfig:
         min_reviewed_dead=counts["min_reviewed_dead"],
         min_reviewed_finished_healthy=counts["min_reviewed_finished_healthy"],
     )
+
+
+def load_min_dead_flagged_rate(path: Path) -> float | None:
+    """The optional ``min_dead_flagged_rate`` of ``gate.yaml``, or ``None`` when absent."""
+    load_gate_config(path)
+    data = _read_mapping(path)
+    return _rate(path, data, _OPTIONAL_KEY) if _OPTIONAL_KEY in data else None
 
 
 def _sample_check(name: CheckName, count: int, minimum: int) -> GateCheck:
@@ -126,12 +153,17 @@ def _rate_check(
     return GateCheck(name, ok, value, threshold, ratio.num, ratio.den, reason)
 
 
-def evaluate_gate(reviewed: Sequence[Outcome], cfg: GateConfig) -> GateResult:
-    """Evaluate the four checks over the reviewed as-captured outcomes."""
+def evaluate_gate(
+    reviewed: Sequence[Outcome],
+    cfg: GateConfig,
+    *,
+    min_dead_flagged_rate: float | None = None,
+) -> GateResult:
+    """Evaluate the four checks (five with ``min_dead_flagged_rate``) over reviewed outcomes."""
     c = confusion(reviewed)
     true_dead = sum(c["dead"].values())
     true_fh = sum(c["finished-healthy"].values())
-    checks = (
+    checks: tuple[GateCheck, ...] = (
         _sample_check("sample_dead", true_dead, cfg.min_reviewed_dead),
         _sample_check("sample_finished_healthy", true_fh, cfg.min_reviewed_finished_healthy),
         _rate_check(
@@ -149,6 +181,16 @@ def evaluate_gate(reviewed: Sequence[Outcome], cfg: GateConfig) -> GateResult:
             undefined="undefined (no finished-healthy rows)",
         ),
     )
+    if min_dead_flagged_rate is not None:
+        checks += (
+            _rate_check(
+                "dead_flagged_rate",
+                dead_flagged_rate(c),
+                min_dead_flagged_rate,
+                floor=True,
+                undefined="undefined (no dead rows)",
+            ),
+        )
     return GateResult(passed=all(k.passed for k in checks), checks=checks)
 
 

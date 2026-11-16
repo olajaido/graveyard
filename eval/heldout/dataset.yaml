@@ -1,0 +1,13 @@
+seed: graveyard-mortality-v2-heldout-1
+quiet_months: 24
+q:
+  pypi_top_n: 5000
+  per_ecosystem_budget: 75
+  batch_size: 25
+f:
+  candidate_budget: 120
+  effective_finished_healthy_target: 20
+  batch_size: 20
+  owner_cap: 3
+pypi_snapshot: {repo: hugovk/top-pypi-packages, file: top-pypi-packages.min.json}
+npm_snapshot:  {package: npm-high-impact, export: npmHighImpact, member: package/lib/top.js}

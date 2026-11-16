@@ -829,3 +829,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** The real run gave 37 misclassified rows and 30 score-based Dead rows (13 correct, 17 incorrect), as recorded; `results.json` is byte-identical and v1 files are untouched.
 - **Corrected:** The probe used the anchor `as_of` (2026-11-03) instead of the fixtures' 2026-11-13; it now takes a required `--as-of`.
 - **Surprise:** No fixture carries a `github_failed` note, so that cause class is empty on real data.
+
+### 16 Nov — Spec `mortality-model-v2`: T5 (held-out tooling)
+- **Spec/task:** T5.1 to T5.25: draw, exclusions, pins, fpool, batches, strata, coverage, verdict, report, compare, manifests, order check, `dead_flagged_rate` gate code, held-out run flow, merge `--dataset heldout`, config files, docs.
+- **Kiro features:** Spec task DAG, parallel spec-task-execution sub-agents, `user_input` stop on an ambiguous design rule (T5.12), steering rules (`uv run`, locked v1 files, no network).
+- **Kiro got right:** Every script built on synthetic data only; `results.json` stayed byte-identical; `eval/heldout/` holds only the five allowed files.
+- **Corrected:** Design 10.1 rule 1 blocked after a review removal; maintainer chose to read `decisions.tsv` removals, design amended. Order-check append-only is checked per commit, not as one net diff.
+- **Surprise:** Several file layouts (`batch-log.tsv` triples separator, `f_counts` in `draw.json`, capture-log transient classes) were not fixed by the design; sub-agents chose them and flagged them for confirmation.

@@ -569,6 +569,8 @@ Dedupe on `(ecosystem, name)`, keeping the lowest query id. Remove everything in
 ### 10.1 Batch release (`scripts/heldout_batch.py`; rules in `eval/heldout/batches.py`, pure)
 State comes from files: `q-candidates.tsv`, `f-pool.tsv`, `draw/batch-log.tsv`, `draw/no-label.tsv`, `labelled_packages.csv`, `review/still_works.tsv`, and the staging file.
 - **Batches.** Q: per ecosystem, 25 per batch in draw order (3 per ecosystem). F: up to 20 per batch in the single pool order.
+**10.1 amendment (maintainer decision).** Review removals are read from `review/decisions.tsv` rows with action `remove` (the held-out equivalent location) and passed to `batches.py` as a collection of removed keys. Rule 1 accepts a CSV row, a no-label line, or a recorded removal. A candidate is an effective finished-healthy row when its still-works result is `pass` or `pass_install_only`, or it has a `keep_manual` decision. Removed F rows still count against the 120 released. T5.13 reads the same decisions file.
+
 - **`next`** releases the next batch only when all of these hold; otherwise it prints which rule blocks:
   1. every candidate of the previous released batch has a row in `labelled_packages.csv` or a line in `no-label.tsv`;
   2. every row of the previous batch has `reviewed=true`, and every `finished-healthy` row has a still-works result;

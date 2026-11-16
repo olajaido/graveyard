@@ -1,4 +1,4 @@
-.PHONY: eval eval-merge eval-analysis eval-still-works eval-versions eval-verify eval-apply-review
+.PHONY: eval eval-merge eval-analysis eval-still-works eval-versions eval-verify eval-apply-review eval-heldout eval-compare heldout-order
 eval:
 	cd backend && uv run python -m eval
 
@@ -24,3 +24,15 @@ eval-verify:
 # Applies eval/review/decisions.tsv to the labelled set; add ARGS=--mark-reviewed to set reviewed=true (T14).
 eval-apply-review:
 	python3 scripts/apply_review.py $(ARGS)
+
+# Held-out run, exclusive create of eval/heldout/results.<model>.json; pass ARGS="--model v1" or "--model v2".
+eval-heldout:
+	cd backend && uv run python -m eval --dataset heldout $(ARGS)
+
+# Descriptive v1 to v2 transition table; writes eval/heldout/comparison.{json,md}; not a model run.
+eval-compare:
+	cd backend && uv run python -m eval compare
+
+# Checks every heldout tag that exists against the order rules (design 13).
+heldout-order:
+	python3 scripts/check_heldout_order.py --verify-all

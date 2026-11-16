@@ -85,6 +85,31 @@ An empty labelled set therefore fails the gate on insufficient sample (exit 1). 
 
 **A failing gate is reported and not tuned.**
 
+## Held-out set (mortality model v2)
+
+*Draft. Finalised in T11.6 of the mortality-model-v2 spec.*
+
+The held-out set tests the v2 model on packages that were not used to build or tune it. It is separate from the v1 set above. Nothing is labelled or captured for it yet, and `eval/heldout/` does not exist.
+
+### Two strata
+
+- **Q (quiet)**: quiet, high-download, unscoped packages that can be labelled, taken from a seeded, reproducible draw order.
+- **F (finished-healthy)**: packages found through README completeness or stability phrases, with a mapped repo. This is the method that built the v1 key.
+
+Candidates from both ecosystems come from one draw order. They go to the coroner in batches of up to 20, and each batch is labelled, reviewed and still-works checked before the next. Drawing stops when 20 effective finished-healthy rows exist, when 120 candidates have been drawn, or when the pool runs out. The budget is never extended, and undrawn candidates are never labelled.
+
+### Labelling
+
+The `coroner` agent labels under `LABELLING.md` (sections 1, 2, 4, 5 and 6 unchanged, plus the held-out addendum in section 3). It receives `(ecosystem, name, version)` only. Every candidate it receives gets a row or a recorded `no label: <reason>`, and a `no label` candidate is not replaced. A candidate skipped because its page contained instructions is recorded as `no label` with the page URL.
+
+### Limits
+
+- Q covers only quiet, high-download, unscoped, labellable packages. It says nothing about other packages.
+- F is selected by README phrases and covers only packages that have such a phrase and a mapped repo.
+- Pooled proportions mix both strata. They are not population estimates, so read the per-stratum figures next to them.
+- The v1 key was used to build and check the model, so v1-key figures are in-sample. Only the held-out figures are out-of-sample.
+- Every held-out package joins the exclusion list once its result is recorded. A later model needs a new seed and a new draw.
+
 ## Frozen weights
 
 The harness has no weights option. It records `model_version` and the SHA-256 of `weights.v1.yaml` in `results.json`, and exits 3 if the file no longer matches `FROZEN_WEIGHTS.sha256` or if a result is not `v1`. A change to the model is a separate, documented v2: a new `weights.v2.yaml`, an ADR and a new `model_version`. It is not an edit to the v1 file.

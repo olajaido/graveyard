@@ -1,0 +1,201 @@
+id	phrase	filename	band
+1	feature-complete	README.md	<1000
+2	feature-complete	README.md	1000..2999
+3	feature-complete	README.md	3000..5999
+4	feature-complete	README.md	6000..11999
+5	feature-complete	README.md	>=12000
+6	feature-complete	README.rst	<1000
+7	feature-complete	README.rst	1000..2999
+8	feature-complete	README.rst	3000..5999
+9	feature-complete	README.rst	6000..11999
+10	feature-complete	README.rst	>=12000
+11	feature-complete	README	<1000
+12	feature-complete	README	1000..2999
+13	feature-complete	README	3000..5999
+14	feature-complete	README	6000..11999
+15	feature-complete	README	>=12000
+16	feature-complete	README.txt	<1000
+17	feature-complete	README.txt	1000..2999
+18	feature-complete	README.txt	3000..5999
+19	feature-complete	README.txt	6000..11999
+20	feature-complete	README.txt	>=12000
+21	feature-complete	README.markdown	<1000
+22	feature-complete	README.markdown	1000..2999
+23	feature-complete	README.markdown	3000..5999
+24	feature-complete	README.markdown	6000..11999
+25	feature-complete	README.markdown	>=12000
+26	feature complete	README.md	<1000
+27	feature complete	README.md	1000..2999
+28	feature complete	README.md	3000..5999
+29	feature complete	README.md	6000..11999
+30	feature complete	README.md	>=12000
+31	feature complete	README.rst	<1000
+32	feature complete	README.rst	1000..2999
+33	feature complete	README.rst	3000..5999
+34	feature complete	README.rst	6000..11999
+35	feature complete	README.rst	>=12000
+36	feature complete	README	<1000
+37	feature complete	README	1000..2999
+38	feature complete	README	3000..5999
+39	feature complete	README	6000..11999
+40	feature complete	README	>=12000
+41	feature complete	README.txt	<1000
+42	feature complete	README.txt	1000..2999
+43	feature complete	README.txt	3000..5999
+44	feature complete	README.txt	6000..11999
+45	feature complete	README.txt	>=12000
+46	feature complete	README.markdown	<1000
+47	feature complete	README.markdown	1000..2999
+48	feature complete	README.markdown	3000..5999
+49	feature complete	README.markdown	6000..11999
+50	feature complete	README.markdown	>=12000
+51	considered complete	README.md	<1000
+52	considered complete	README.md	1000..2999
+53	considered complete	README.md	3000..5999
+54	considered complete	README.md	6000..11999
+55	considered complete	README.md	>=12000
+56	considered complete	README.rst	<1000
+57	considered complete	README.rst	1000..2999
+58	considered complete	README.rst	3000..5999
+59	considered complete	README.rst	6000..11999
+60	considered complete	README.rst	>=12000
+61	considered complete	README	<1000
+62	considered complete	README	1000..2999
+63	considered complete	README	3000..5999
+64	considered complete	README	6000..11999
+65	considered complete	README	>=12000
+66	considered complete	README.txt	<1000
+67	considered complete	README.txt	1000..2999
+68	considered complete	README.txt	3000..5999
+69	considered complete	README.txt	6000..11999
+70	considered complete	README.txt	>=12000
+71	considered complete	README.markdown	<1000
+72	considered complete	README.markdown	1000..2999
+73	considered complete	README.markdown	3000..5999
+74	considered complete	README.markdown	6000..11999
+75	considered complete	README.markdown	>=12000
+76	complete and stable	README.md	<1000
+77	complete and stable	README.md	1000..2999
+78	complete and stable	README.md	3000..5999
+79	complete and stable	README.md	6000..11999
+80	complete and stable	README.md	>=12000
+81	complete and stable	README.rst	<1000
+82	complete and stable	README.rst	1000..2999
+83	complete and stable	README.rst	3000..5999
+84	complete and stable	README.rst	6000..11999
+85	complete and stable	README.rst	>=12000
+86	complete and stable	README	<1000
+87	complete and stable	README	1000..2999
+88	complete and stable	README	3000..5999
+89	complete and stable	README	6000..11999
+90	complete and stable	README	>=12000
+91	complete and stable	README.txt	<1000
+92	complete and stable	README.txt	1000..2999
+93	complete and stable	README.txt	3000..5999
+94	complete and stable	README.txt	6000..11999
+95	complete and stable	README.txt	>=12000
+96	complete and stable	README.markdown	<1000
+97	complete and stable	README.markdown	1000..2999
+98	complete and stable	README.markdown	3000..5999
+99	complete and stable	README.markdown	6000..11999
+100	complete and stable	README.markdown	>=12000
+101	stable and complete	README.md	<1000
+102	stable and complete	README.md	1000..2999
+103	stable and complete	README.md	3000..5999
+104	stable and complete	README.md	6000..11999
+105	stable and complete	README.md	>=12000
+106	stable and complete	README.rst	<1000
+107	stable and complete	README.rst	1000..2999
+108	stable and complete	README.rst	3000..5999
+109	stable and complete	README.rst	6000..11999
+110	stable and complete	README.rst	>=12000
+111	stable and complete	README	<1000
+112	stable and complete	README	1000..2999
+113	stable and complete	README	3000..5999
+114	stable and complete	README	6000..11999
+115	stable and complete	README	>=12000
+116	stable and complete	README.txt	<1000
+117	stable and complete	README.txt	1000..2999
+118	stable and complete	README.txt	3000..5999
+119	stable and complete	README.txt	6000..11999
+120	stable and complete	README.txt	>=12000
+121	stable and complete	README.markdown	<1000
+122	stable and complete	README.markdown	1000..2999
+123	stable and complete	README.markdown	3000..5999
+124	stable and complete	README.markdown	6000..11999
+125	stable and complete	README.markdown	>=12000
+126	is feature complete	README.md	<1000
+127	is feature complete	README.md	1000..2999
+128	is feature complete	README.md	3000..5999
+129	is feature complete	README.md	6000..11999
+130	is feature complete	README.md	>=12000
+131	is feature complete	README.rst	<1000
+132	is feature complete	README.rst	1000..2999
+133	is feature complete	README.rst	3000..5999
+134	is feature complete	README.rst	6000..11999
+135	is feature complete	README.rst	>=12000
+136	is feature complete	README	<1000
+137	is feature complete	README	1000..2999
+138	is feature complete	README	3000..5999
+139	is feature complete	README	6000..11999
+140	is feature complete	README	>=12000
+141	is feature complete	README.txt	<1000
+142	is feature complete	README.txt	1000..2999
+143	is feature complete	README.txt	3000..5999
+144	is feature complete	README.txt	6000..11999
+145	is feature complete	README.txt	>=12000
+146	is feature complete	README.markdown	<1000
+147	is feature complete	README.markdown	1000..2999
+148	is feature complete	README.markdown	3000..5999
+149	is feature complete	README.markdown	6000..11999
+150	is feature complete	README.markdown	>=12000
+151	considered feature complete	README.md	<1000
+152	considered feature complete	README.md	1000..2999
+153	considered feature complete	README.md	3000..5999
+154	considered feature complete	README.md	6000..11999
+155	considered feature complete	README.md	>=12000
+156	considered feature complete	README.rst	<1000
+157	considered feature complete	README.rst	1000..2999
+158	considered feature complete	README.rst	3000..5999
+159	considered feature complete	README.rst	6000..11999
+160	considered feature complete	README.rst	>=12000
+161	considered feature complete	README	<1000
+162	considered feature complete	README	1000..2999
+163	considered feature complete	README	3000..5999
+164	considered feature complete	README	6000..11999
+165	considered feature complete	README	>=12000
+166	considered feature complete	README.txt	<1000
+167	considered feature complete	README.txt	1000..2999
+168	considered feature complete	README.txt	3000..5999
+169	considered feature complete	README.txt	6000..11999
+170	considered feature complete	README.txt	>=12000
+171	considered feature complete	README.markdown	<1000
+172	considered feature complete	README.markdown	1000..2999
+173	considered feature complete	README.markdown	3000..5999
+174	considered feature complete	README.markdown	6000..11999
+175	considered feature complete	README.markdown	>=12000
+176	no new features planned	README.md	<1000
+177	no new features planned	README.md	1000..2999
+178	no new features planned	README.md	3000..5999
+179	no new features planned	README.md	6000..11999
+180	no new features planned	README.md	>=12000
+181	no new features planned	README.rst	<1000
+182	no new features planned	README.rst	1000..2999
+183	no new features planned	README.rst	3000..5999
+184	no new features planned	README.rst	6000..11999
+185	no new features planned	README.rst	>=12000
+186	no new features planned	README	<1000
+187	no new features planned	README	1000..2999
+188	no new features planned	README	3000..5999
+189	no new features planned	README	6000..11999
+190	no new features planned	README	>=12000
+191	no new features planned	README.txt	<1000
+192	no new features planned	README.txt	1000..2999
+193	no new features planned	README.txt	3000..5999
+194	no new features planned	README.txt	6000..11999
+195	no new features planned	README.txt	>=12000
+196	no new features planned	README.markdown	<1000
+197	no new features planned	README.markdown	1000..2999
+198	no new features planned	README.markdown	3000..5999
+199	no new features planned	README.markdown	6000..11999
+200	no new features planned	README.markdown	>=12000

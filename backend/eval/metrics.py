@@ -87,6 +87,11 @@ def fh_flagged_rate(c: Confusion) -> Ratio | None:
     return _ratio(row["dead"] + row["ailing"], _row_sum(c, "finished-healthy"))
 
 
+def dead_flagged_rate(c: Confusion) -> Ratio | None:
+    row = c["dead"]
+    return _ratio(row["dead"] + row["ailing"], _row_sum(c, "dead"))
+
+
 def wilson(r: Ratio | None) -> Interval | None:
     """95% Wilson score interval for ``r``, clamped to [0, 1]."""
     if r is None:

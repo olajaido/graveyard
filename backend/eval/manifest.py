@@ -7,13 +7,20 @@ followed. Anything that would make the static answer differ from the real one ra
 ``ManifestError``: star imports, ``importlib``, ``__import__``, ``exec``, ``eval``,
 ``compile``, and a first-party import that does not resolve to a file under ``root``.
 
+``build_manifest``, ``verify_manifest`` and ``closure_sha256`` hash a file set and check it
+again (design 4.3); the harness set of design 11.8 and ``manifest --harness`` sit on them.
+
 Pure Python with file reads only. ``root`` is passed in; nothing reads the current directory.
 """
 
 from __future__ import annotations
 
 import ast
+import hashlib
+import json
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import Any, Final, TextIO
 
 FIRST_PARTY_ROOT = "core"
 DYNAMIC_NAMES = frozenset({"__import__", "exec", "eval", "compile"})
@@ -41,8 +48,8 @@ def _parents(module: str) -> list[str]:
     return [".".join(parts[:i]) for i in range(1, len(parts))]
 
 
-def _is_first_party(module: str) -> bool:
-    return module == FIRST_PARTY_ROOT or module.startswith(FIRST_PARTY_ROOT + ".")
+def _in_package(module: str, top: str) -> bool:
+    return module == top or module.startswith(top + ".")
 
 
 def _check_dynamic(tree: ast.AST, rel: str) -> None:
@@ -61,14 +68,14 @@ def _check_dynamic(tree: ast.AST, rel: str) -> None:
 
 
 def _imported_modules(
-    tree: ast.AST, module: str, is_package: bool, rel: str, root: Path
+    tree: ast.AST, module: str, is_package: bool, rel: str, root: Path, top: str
 ) -> set[str]:
-    """First-party modules named by the imports of ``module`` (absolute dotted names)."""
+    """Modules under ``top`` named by the imports of ``module`` (absolute dotted names)."""
     package = module.split(".") if is_package else module.split(".")[:-1]
     found: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            found.update(a.name for a in node.names if _is_first_party(a.name))
+            found.update(a.name for a in node.names if _in_package(a.name, top))
         elif isinstance(node, ast.ImportFrom):
             if node.level:
                 keep = len(package) - (node.level - 1)
@@ -78,7 +85,7 @@ def _imported_modules(
                 target = ".".join([*base, *(node.module.split(".") if node.module else [])])
             else:
                 target = node.module or ""
-            if not _is_first_party(target):
+            if not _in_package(target, top):
                 continue
             found.add(target)
             for alias in node.names:
@@ -106,17 +113,16 @@ def labelling_section(text: str, number: int) -> str:
     return "\n".join(lines[start:end])
 
 
-def closure(entry_module: str, root: Path) -> tuple[Path, ...]:
-    """Files executed by importing ``entry_module``, sorted by path relative to ``root``."""
-    if not _is_first_party(entry_module):
-        raise ManifestError(f"{entry_module}: not a first-party ({FIRST_PARTY_ROOT}.*) module")
-
+def _walk(
+    entries: Sequence[str], root: Path, top: str, skip: Callable[[str], bool]
+) -> dict[str, Path]:
+    """Files executed by importing ``entries``; modules for which ``skip`` is true are left out."""
     files: dict[str, Path] = {}
     seen: set[str] = set()
-    pending = [entry_module]
+    pending = list(entries)
     while pending:
         module = pending.pop()
-        if module in seen:
+        if module in seen or skip(module):
             continue
         seen.add(module)
         for parent in _parents(module):
@@ -131,5 +137,279 @@ def closure(entry_module: str, root: Path) -> tuple[Path, ...]:
         except (SyntaxError, UnicodeDecodeError) as exc:
             raise ManifestError(f"{rel}: cannot parse ({exc})") from exc
         _check_dynamic(tree, rel)
-        pending.extend(_imported_modules(tree, module, path.name == "__init__.py", rel, root))
+        pending.extend(_imported_modules(tree, module, path.name == "__init__.py", rel, root, top))
+    return files
+
+
+def closure(entry_module: str, root: Path) -> tuple[Path, ...]:
+    """Files executed by importing ``entry_module``, sorted by path relative to ``root``."""
+    if not _in_package(entry_module, FIRST_PARTY_ROOT):
+        raise ManifestError(f"{entry_module}: not a first-party ({FIRST_PARTY_ROOT}.*) module")
+    files = _walk([entry_module], root, FIRST_PARTY_ROOT, lambda _module: False)
     return tuple(files[rel] for rel in sorted(files))
+
+
+# --- Generic manifests (design 4.3) -------------------------------------------------------
+
+EXIT_OK: Final = 0
+EXIT_USAGE: Final = 2
+EXIT_INVALID: Final = 3
+HARNESS_SCHEMA: Final = "graveyard.harness-manifest"
+HARNESS_RECORD: Final = ("heldout", "FROZEN_HARNESS.json")
+_USAGE: Final = "usage: python -m eval manifest --harness [--write|--check]\n"
+
+
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def closure_sha256(files: Mapping[str, str], weights: Mapping[str, str] | None = None) -> str:
+    """SHA-256 of the sorted ``path<TAB>sha256`` lines of ``files``, then those of ``weights``."""
+    lines = [f"{path}\t{files[path]}\n" for path in sorted(files)]
+    extra = weights or {}
+    lines += [f"{path}\t{extra[path]}\n" for path in sorted(extra)]
+    return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
+
+def _hashes(root: Path, paths: Iterable[Path]) -> dict[str, str]:
+    return {p.relative_to(root).as_posix(): _sha256_file(p) for p in paths}
+
+
+def build_manifest(
+    root: Path,
+    files: Iterable[Path],
+    *,
+    header: Mapping[str, Any],
+    weights: Iterable[Path] | None = None,
+) -> dict[str, Any]:
+    """Manifest of ``files`` (raw-byte SHA-256, paths relative to ``root``).
+
+    ``header`` supplies the fixed fields (schema, entry, roots and so on). ``weights`` adds a
+    ``weights`` object when given. ``closure_sha256`` covers the files, then the weights.
+    """
+    manifest: dict[str, Any] = dict(header)
+    file_hashes = _hashes(root, files)
+    manifest["files"] = file_hashes
+    weight_hashes: dict[str, str] | None = None
+    if weights is not None:
+        weight_hashes = _hashes(root, weights)
+        manifest["weights"] = weight_hashes
+    manifest["closure_sha256"] = closure_sha256(file_hashes, weight_hashes)
+    return manifest
+
+
+def _hash_map(manifest: Mapping[str, Any], key: str) -> dict[str, str] | None:
+    value = manifest.get(key)
+    if isinstance(value, dict) and all(
+        isinstance(k, str) and isinstance(v, str) for k, v in value.items()
+    ):
+        return dict(value)
+    return None
+
+
+def _compare(
+    recorded: Mapping[str, str], root: Path, current: Iterable[Path], label: str
+) -> list[str]:
+    """Problems between a recorded path-to-hash map and the files that exist now."""
+    problems: list[str] = []
+    now = {p.relative_to(root).as_posix(): p for p in current}
+    problems += [f"{label} added: {rel}" for rel in sorted(set(now) - set(recorded))]
+    problems += [f"{label} removed: {rel}" for rel in sorted(set(recorded) - set(now))]
+    for rel in sorted(set(recorded) & set(now)):
+        if _sha256_file(now[rel]) != recorded[rel]:
+            problems.append(f"{label} changed: {rel}")
+    return problems
+
+
+def verify_manifest(
+    manifest: Mapping[str, Any],
+    root: Path,
+    files: Iterable[Path],
+    weights: Iterable[Path] | None = None,
+) -> list[str]:
+    """Problems found (empty when the manifest matches); never raises on a bad manifest.
+
+    ``files`` and ``weights`` are the sets recomputed from the working tree. Reports a changed
+    file, a file the manifest lacks or lists without it existing, and a ``closure_sha256``
+    that does not match the manifest's own ``files`` and ``weights``.
+    """
+    recorded = _hash_map(manifest, "files")
+    if recorded is None:
+        return ["manifest: 'files' is missing or malformed"]
+    problems = _compare(recorded, root, files, "file")
+    recorded_weights: dict[str, str] | None = None
+    if weights is not None:
+        recorded_weights = _hash_map(manifest, "weights")
+        if recorded_weights is None:
+            problems.append("manifest: 'weights' is missing or malformed")
+        else:
+            problems += _compare(recorded_weights, root, weights, "weights")
+    if manifest.get("closure_sha256") != closure_sha256(recorded, recorded_weights):
+        problems.append("closure_sha256 does not match the manifest's own files")
+    return problems
+
+
+# --- Frozen harness (design 11.8) ---------------------------------------------------------
+
+HARNESS_ROOTS: Final = (
+    "eval.gate",
+    "eval.metrics",
+    "eval.outcome",
+    "eval.fixture",
+    "eval.run",
+    "eval.heldout.verdict",
+    "eval.heldout.strata",
+    "eval.heldout.datasets",
+)
+#: Report modules: imported by the frozen set (``run.py`` imports ``report.py``) but not frozen.
+REPORT_MODULES: Final = ("eval.report", "eval.heldout.report")
+#: Outside the frozen set. ``eval.tests`` also excludes everything below it.
+HARNESS_EXCLUDED: Final = (
+    *REPORT_MODULES,
+    "eval.compare",
+    "eval.analysis",
+    "eval.probe",
+    "eval.merge",
+    "eval.__main__",
+    "eval.tests",
+)
+#: Amendable file outside ``eval`` that the harness imports (``run.py``, design 11.8).
+HARNESS_EXTRA_FILES: Final = ("cli/gate.py",)
+HARNESS_PACKAGE: Final = "eval"
+BACKEND_DIR: Final = Path(__file__).resolve().parents[1]
+
+
+def _excluded(module: str) -> bool:
+    return any(_in_package(module, name) for name in HARNESS_EXCLUDED)
+
+
+def _module_path(module: str) -> str:
+    return "backend/" + module.replace(".", "/") + ".py"
+
+
+def harness_files(backend_dir: Path, roots: Sequence[str] = HARNESS_ROOTS) -> tuple[Path, ...]:
+    """Frozen harness files under ``backend_dir``, sorted by relative path.
+
+    The closure of ``roots`` within ``eval``, without the excluded modules, plus
+    ``cli/gate.py``. Raises ``ManifestError`` when a root or an imported module is missing.
+    """
+    files = _walk(roots, backend_dir, HARNESS_PACKAGE, _excluded)
+    for extra in HARNESS_EXTRA_FILES:
+        path = backend_dir / extra
+        if not path.is_file():
+            raise ManifestError(f"{extra}: does not exist under {backend_dir}")
+        files[extra] = path
+    return tuple(files[rel] for rel in sorted(files))
+
+
+def harness_boundary_violations(
+    backend_dir: Path, roots: Sequence[str] = HARNESS_ROOTS
+) -> list[str]:
+    """Imports from a frozen module to an excluded module other than the two report modules."""
+    problems: list[str] = []
+    for path in harness_files(backend_dir, roots):
+        rel = path.relative_to(backend_dir).as_posix()
+        if not rel.startswith("eval/"):
+            continue
+        is_package = path.name == "__init__.py"
+        parts = Path(rel).with_suffix("").parts
+        module = ".".join(parts[:-1] if is_package else parts)
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=rel)
+        for target in sorted(
+            _imported_modules(tree, module, is_package, rel, backend_dir, HARNESS_PACKAGE)
+        ):
+            if _excluded(target) and not any(_in_package(target, r) for r in REPORT_MODULES):
+                problems.append(f"{rel} imports {target}, which is outside the frozen set")
+    return problems
+
+
+def harness_header() -> dict[str, Any]:
+    """Fixed fields of the harness manifest."""
+    return {
+        "schema": HARNESS_SCHEMA,
+        "schema_version": 1,
+        "roots": [_module_path(m) for m in HARNESS_ROOTS],
+        "exclusions": list(HARNESS_EXCLUDED),
+        "extra_files": [f"backend/{p}" for p in HARNESS_EXTRA_FILES],
+    }
+
+
+def build_harness_manifest(backend_dir: Path = BACKEND_DIR) -> dict[str, Any]:
+    """Manifest of the frozen harness, paths relative to the parent of ``backend_dir``."""
+    return build_manifest(backend_dir.parent, harness_files(backend_dir), header=harness_header())
+
+
+def verify_harness_manifest(
+    manifest: Mapping[str, Any], backend_dir: Path = BACKEND_DIR
+) -> list[str]:
+    """Problems between ``manifest`` and the working tree (design 11.8)."""
+    try:
+        files = harness_files(backend_dir)
+    except ManifestError as exc:
+        return [str(exc)]
+    problems = [
+        f"{key} differs from the harness definition"
+        for key, expected in harness_header().items()
+        if manifest.get(key) != expected
+    ]
+    return problems + verify_manifest(manifest, backend_dir.parent, files)
+
+
+def dumps_manifest(manifest: Mapping[str, Any]) -> str:
+    """Canonical text: sorted keys, two-space indent, LF, trailing newline."""
+    return json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+def run_manifest(
+    argv: Sequence[str],
+    *,
+    out: TextIO,
+    err: TextIO,
+    backend_dir: Path = BACKEND_DIR,
+    data_dir: Path | None = None,
+) -> int:
+    """``manifest --harness [--write|--check]``: returns 0, 2 (usage) or 3 (invalid or differs).
+
+    No flag prints the manifest. ``--write`` creates ``<data>/heldout/FROZEN_HARNESS.json`` by
+    exclusive create and refuses an existing file. ``--check`` compares the file with the tree.
+    """
+    args = list(argv)
+    if args not in (["--harness"], ["--harness", "--write"], ["--harness", "--check"]):
+        err.write(_USAGE)
+        return EXIT_USAGE
+    base = data_dir if data_dir is not None else backend_dir.parent / "eval"
+    record = base.joinpath(*HARNESS_RECORD)
+    if args[1:] == ["--check"]:
+        try:
+            loaded = json.loads(record.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            err.write(f"eval: cannot read {record.name}: {exc}\n")
+            return EXIT_INVALID
+        if not isinstance(loaded, dict):
+            err.write(f"eval: {record.name} is not a JSON object\n")
+            return EXIT_INVALID
+        problems = verify_harness_manifest(loaded, backend_dir)
+        for problem in problems:
+            err.write(f"eval: {problem}\n")
+        if problems:
+            err.write(f"harness files differ from {record.name}\n")
+            return EXIT_INVALID
+        out.write(f"{record.name}: matches\n")
+        return EXIT_OK
+    try:
+        text = dumps_manifest(build_harness_manifest(backend_dir))
+    except ManifestError as exc:
+        err.write(f"eval: {exc}\n")
+        return EXIT_INVALID
+    if args[1:] == ["--write"]:
+        record.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with record.open("x", encoding="utf-8", newline="\n") as handle:
+                handle.write(text)
+        except FileExistsError:
+            err.write(f"eval: {record.name} exists; it is never rewritten\n")
+            return EXIT_INVALID
+        out.write(f"wrote {record.name}\n")
+        return EXIT_OK
+    out.write(text)
+    return EXIT_OK

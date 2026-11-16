@@ -64,6 +64,19 @@ def test_eval_analysis_target_is_pinned() -> None:
     assert lines[lines.index("eval-analysis:") + 1] == ANALYSIS_RECIPE
 
 
+def test_heldout_targets_are_pinned() -> None:
+    """Design 11.1, T5.18: held-out run, compare and order-check targets."""
+    lines = MAKEFILE.read_text(encoding="utf-8").splitlines()
+    expected = {
+        "eval-heldout": "\tcd backend && uv run python -m eval --dataset heldout $(ARGS)",
+        "eval-compare": "\tcd backend && uv run python -m eval compare",
+        "heldout-order": "\tpython3 scripts/check_heldout_order.py --verify-all",
+    }
+    for target, recipe in expected.items():
+        assert target in phony_targets(lines)
+        assert lines[lines.index(f"{target}:") + 1] == recipe
+
+
 def test_makefile_has_no_pythonpath() -> None:
     assert "PYTHONPATH" not in MAKEFILE.read_text(encoding="utf-8")
 
