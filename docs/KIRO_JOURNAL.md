@@ -801,3 +801,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 **T16.6 deviations accepted (14 Nov 2026).** `scripts/capture_anchors.py` has `unavailable=True` call sites beyond the five named in T8.1 (S2 release date, S4/S8 Scorecard fallback, GitHub batch failure, S5 pagination failure). Each marks a failed source as unavailable, as EV-CAP requires; none changes scoring. Files outside the T10.6 list (steering updates, the T14 review scripts `apply_review`, `check_still_works`, `check_versions`, `verify_evidence`, and their unit tests) were added deliberately as review tooling.
 
 **v1 gate result with 95% Wilson intervals.** Dead precision 40/58 = 0.690 (0.562–0.794); finished-healthy FPR 11/20 = 0.550 (0.342–0.742). Both intervals exclude their thresholds (0.90 and 0.10), so the failure is not sampling noise. Declared-death precision 27/28 = 0.964 (0.823–0.994); score-based Dead 13/30 = 0.433 (0.274–0.608).
+
+### 16 Nov — Spec `mortality-model-v2`: T0 (Baseline, guards, requirements tag)
+- **Spec/task:** T0.1 to T0.3
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, steering rules (uv run), read-only git checks for the tag.
+- **Kiro got right:** T0.1 baseline held except `test_real_gate.py::test_gate_passes_on_committed_data` (the recorded v1 gate failure); `make eval` returns 2 via make (underlying command exits 1) and `results.json` is unchanged. T0.2 made the eval guards recursive, with a nested-module bad-sample test. T0.3 confirmed tag `v2-requirements` at 2f3c3ab (pushed 14 Nov, on origin), holding `requirements.md` revision 3.
+- **Corrected:** The user ruled the v1 gate test expected red, and T0.1 was amended with a note.
+- **Surprise:** None for T0.3; the tag, remote and revision marker all matched.

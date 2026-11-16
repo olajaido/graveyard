@@ -142,7 +142,16 @@ def _imports_eval(source: str) -> list[str]:
 
 
 def _eval_modules() -> list[Path]:
-    return sorted(EVAL_DIR.glob("*.py"))
+    """Every module under ``eval/`` at any depth, except tests."""
+    return sorted(
+        path
+        for path in EVAL_DIR.glob("**/*.py")
+        if "tests" not in path.relative_to(EVAL_DIR).parts and "__pycache__" not in path.parts
+    )
+
+
+def _rel(path: Path, root: Path = EVAL_DIR) -> str:
+    return path.relative_to(root).as_posix()
 
 
 def _eval_free_modules() -> list[Path]:
@@ -162,13 +171,31 @@ EVAL_FREE_MODULES = _eval_free_modules()
 
 
 def test_glob_finds_the_known_modules() -> None:
-    names = {p.name for p in EVAL_MODULES}
+    names = {_rel(p) for p in EVAL_MODULES}
     assert {"__init__.py", "__main__.py"} <= names
+    assert not any(n.startswith("tests/") or "/tests/" in n for n in names)
 
 
-@pytest.mark.parametrize("path", EVAL_MODULES, ids=lambda p: p.name)
+@pytest.mark.parametrize("path", EVAL_MODULES, ids=_rel)
 def test_eval_module_obeys_guards(path: Path) -> None:
-    assert check_guards(path.read_text(encoding="utf-8"), path.name) == []
+    assert check_guards(path.read_text(encoding="utf-8"), _rel(path)) == []
+
+
+def test_recursive_glob_catches_banned_import_in_nested_module(tmp_path: Path) -> None:
+    nested = tmp_path / "heldout" / "x.py"
+    nested.parent.mkdir()
+    nested.write_text("import subprocess\n", encoding="utf-8")
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "t.py").write_text("import subprocess\n", encoding="utf-8")
+    found = sorted(
+        p for p in tmp_path.glob("**/*.py") if "tests" not in p.relative_to(tmp_path).parts
+    )
+    assert [_rel(p, tmp_path) for p in found] == ["heldout/x.py"]
+    problems = check_guards(nested.read_text(encoding="utf-8"), _rel(nested, tmp_path))
+    assert any("banned module" in p for p in problems)
+    # a nested __main__.py is not the package entry point
+    assert check_guards("print('x')\n", "heldout/__main__.py")
 
 
 @pytest.mark.parametrize("path", EVAL_FREE_MODULES, ids=lambda p: p.relative_to(BACKEND).as_posix())
