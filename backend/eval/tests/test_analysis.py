@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
@@ -511,3 +512,26 @@ def test_score_based_split() -> None:
     doc = _real_v1_analysis()
     assert len(doc["score_based_dead"]) == 30
     assert doc["summary"]["score_based_dead"] == {"correct": 13, "incorrect": 17}
+
+
+# --- T4.1: the hand-written conclusion must record the hash of the current report -------------
+
+_ANALYSIS_DIR = Path(__file__).resolve().parents[3] / "eval" / "analysis"
+_CONCLUSION_PATH = _ANALYSIS_DIR / "conclusion.md"
+_REPORT_JSON_PATH = _ANALYSIS_DIR / "v1-failures.json"
+_CONCLUSION_FIRST_LINE = re.compile(r"report_sha256: ([0-9a-f]{64})")
+
+
+def test_conclusion_current() -> None:
+    """**Validates: Requirements MV2-FA-5**: conclusion.md records the hash of the current JSON."""
+    if not _CONCLUSION_PATH.exists():
+        pytest.skip("eval/analysis/conclusion.md does not exist yet (written in T4.2)")
+    text = _CONCLUSION_PATH.read_text(encoding="utf-8")
+    first_line = text.split("\n", 1)[0].rstrip("\r")
+    match = _CONCLUSION_FIRST_LINE.fullmatch(first_line)
+    assert match is not None, (
+        f"first line of conclusion.md must be 'report_sha256: <64 hex>', got {first_line!r}"
+    )
+    assert _REPORT_JSON_PATH.is_file(), "eval/analysis/v1-failures.json is missing"
+    actual = hashlib.sha256(_REPORT_JSON_PATH.read_bytes()).hexdigest()
+    assert match.group(1) == actual, "conclusion.md is stale: regenerate or update report_sha256"
