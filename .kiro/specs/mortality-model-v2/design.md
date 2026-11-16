@@ -569,7 +569,7 @@ What this does and does not show: GitHub's REST API answers an old name with a r
    | Condition | Verdict | Consequence |
    |---|---|---|
    | fewer than 2 confirmed-moved subjects measured | `INCONCLUSIVE` | Rerun; the frozen tag is blocked. |
-   | every confirmed-moved subject has equal, present values for all six signals on the capture path | `FOLLOWS` | MV2-SRC-2 is dropped; `result.md` is the evidence. |
+   | every confirmed-moved subject has equal, present values for all seven compared values (S3, S4, S5, S6 open, S6 closed, S8, archived) on the capture path | `FOLLOWS` | MV2-SRC-2 is dropped; `result.md` is the evidence. |
    | at least one signal is missing or different on the capture path for at least one subject | `FAILS` | MV2-SRC-2 is implemented for the failing sources (12.3). |
    The `backend/sources` result is reported beside the capture-path result and does not decide, because the held-out fixtures come from the capture path. If the library fails and the capture path does not, the report says so and the library is left unchanged (MV2-SRC-3 limits changes to what a requirement allows).
 

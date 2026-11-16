@@ -808,3 +808,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** T0.1 baseline held except `test_real_gate.py::test_gate_passes_on_committed_data` (the recorded v1 gate failure); `make eval` returns 2 via make (underlying command exits 1) and `results.json` is unchanged. T0.2 made the eval guards recursive, with a nested-module bad-sample test. T0.3 confirmed tag `v2-requirements` at 2f3c3ab (pushed 14 Nov, on origin), holding `requirements.md` revision 3.
 - **Corrected:** The user ruled the v1 gate test expected red, and T0.1 was amended with a note.
 - **Surprise:** None for T0.3; the tag, remote and revision marker all matched.
+
+### 16 Nov — Spec `mortality-model-v2`: T1 (v1 lock)
+- **Spec/task:** T1.1 to T1.7: `eval/manifest.py` (`closure`, `labelling_section`), `scripts/make_v1_lock.py`, `eval/V1_LOCK.json` (144 files), `test_v1_lock.py`.
+- **Kiro features:** Spec task DAG, spec-task-execution sub-agent, stop condition in T1.2, user_input for the amendment.
+- **Kiro got right:** The closure tool rejects dynamic imports and includes parent inits. The lock is built from tag `eval-v1-result`, and `make eval` leaves `results.json` byte-identical.
+- **Corrected:** T1.2 stopped because the real closure includes `core/__init__.py`. The maintainer approved expecting it in the closure and lock.
+- **Surprise:** Parent package inits are part of what v1 executes, so the lock holds one more file than the T1.2 text listed.

@@ -57,6 +57,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959743
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824018570
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824102250
       }
     ],
     "T1.2 — Test `closure(\"core.scoring\", <backend dir>)` on the real tree: it contains `__init__.py`, `classify.py`, `constants.py`, `normalise.py`, `priority.py`, `score.py`, `sort.py`, `types.py`, `weights.py` under `core/scoring/` and nothing under `core/sources`, `core/graph` or `cli`. **If the real closure holds anything else, stop and report it; the lock must list exactly what v1 executes.**": [
@@ -64,6 +74,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959781
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824105787
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824218400
       }
     ],
     "T1.3 — Add `labelling_section(text, number) -> str` to `eval/manifest.py` (text from the `## <number>.` heading to the next `## ` heading, LF endings) with tests (sections 1, 2, 6 and 8 of the real `LABELLING.md` are non-empty and distinct; a missing section raises).": [
@@ -71,6 +91,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959825
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824222048
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824252382
       }
     ],
     "T1.4 — Write `scripts/make_v1_lock.py` (standard library plus `sys.path` insertion of `backend/` to import `eval.manifest`). It builds the file list of design 3.1 (frozen v1 data, v1 closure, the nine anchor fixtures), reads each file's bytes with `git show eval-v1-result:<path>`, aborts if a closure file differs between the working tree and the tag, hashes `labelling_sections` 1, 2 and 6 from the tagged `LABELLING.md`, and writes `eval/V1_LOCK.json` by exclusive create (refuses to overwrite; `--out` for tests). Tests in `backend/tests/unit/test_make_v1_lock.py` use a temporary git repository with a fake tag: good case, missing tag, tree/tag mismatch, existing output refused, deterministic bytes.": [
@@ -78,6 +108,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959873
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824256406
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824639757
       }
     ],
     "T1.5 — Run `python3 scripts/make_v1_lock.py` (local git only) to create `eval/V1_LOCK.json`. Report the file count per group and the three section hashes. **If the tag is absent or the script aborts on a mismatch, stop and report.**": [
@@ -85,6 +125,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959916
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824642579
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824674607
       }
     ],
     "T1.6 — Write `backend/eval/tests/test_v1_lock.py` (design 3.2): `test_lock_matches_disk`; `test_lock_matches_tag` (skipped, with a reason, when `git` or the tag is absent; no new pytest marker); `test_labelling_sections_unchanged`; `test_v1_closure_excludes_v2` (asserts `versions.py` and `v2/` are not in the v1 closure; passes now because they do not exist); `test_default_scoring_is_v1` over the nine anchors and every v1 fixture.": [
@@ -92,6 +142,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822959951
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824677893
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824792310
       }
     ],
     "T1.7 — Gate: `uv run pytest -q`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core sources cli eval` are clean; `make eval` leaves `eval/results.json` byte-identical; `git status --short` shows only the new files of T1 and the T0.2 edit.": [
@@ -99,6 +159,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960006
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794824795246
+      },
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794825285297
       }
     ],
     "T2.1 — Create `backend/eval/probe.py` (pure): a frozen dataclass for one measurement (S3, S4, S5, S6 open, S6 closed, S8, archive flag; each a scalar or `None`) keyed by `(subject, path, key)` where `path` is `capture` or `library` and `key` is `old` or `current`, and `decide(measurements) -> Verdict` with `FOLLOWS`, `FAILS` (naming the failing sources and signals) and `INCONCLUSIVE`, exactly the table in design 12.2. The `library` path never decides. Tests: fewer than 2 confirmed-moved subjects gives INCONCLUSIVE; all equal and present gives FOLLOWS; one missing or different signal on the capture path gives FAILS; a library-only difference does not change the verdict; seeds marked not moved are ignored; the result does not depend on input order (property).": [
@@ -106,6 +176,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960066
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794827888756
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794830985154
       }
     ],
     "T2.2 — Create `eval/analysis/moved-repo-probe/seeds.tsv` (columns `old_name, repository_id, observed`): `visionmedia/debug` 2871998, `mishoo/UglifyJS2` 5569059, `substack/node-browserify` 931039, `visionmedia/express` 237159, each with the note \"REST GET /repos/<old> returned 301 on 14 Nov 2026\". Read `scripts/capture_eval.py` and `scripts/capture_anchors.py` and write down, in the script's module docstring, the exact functions used for the GitHub phase, the deps.dev project lookup and the Scorecard lookup. **If the capture path cannot be called per repository without running a whole capture, stop and report before writing the script.**": [
@@ -113,6 +193,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960125
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794830986658
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794831086936
       }
     ],
     "T2.3 — Write `scripts/probe_moved_repo.py`, part 1: PEP 723 header with the pins of `capture_eval.py`; environment `GITHUB_TOKEN` and `GRAVEYARD_CONTACT` (scrubbed errors, token never written anywhere); subject building (the four seeds resolved with `GET /repositories/<id>`; every distinct `repo` of `eval/fixtures/**` checked with GraphQL `nameWithOwner`; a mismatch is a subject); confirmation (REST `GET /repos/<old>` read as a non-followed 301, `Location` host `api.github.com` and path `^/repositories/[0-9]+$`, then `GET /repositories/<id>` for `full_name`); write `subjects.tsv`. Network I/O only through one function so tests can fake it.": [
@@ -120,6 +210,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960165
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794831088930
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794831244332
       }
     ],
     "T2.4 — Probe script, part 2: for each confirmed-moved subject, call the capture-path functions named in T2.2 keyed by the old and by the current name back to back; repeat a pair once if S3 differs; store parsed scalars only (no response text); optional `--library` adds an informational measurement with the `backend/sources` clients (it never decides); write `results.json` and `result.md` with the verdict from `eval.probe.decide`. Exit 0 for FOLLOWS or FAILS, 1 for INCONCLUSIVE, 2 for usage or missing environment.": [
@@ -127,6 +227,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960217
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794831245648
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794833383196
       }
     ],
     "T2.5 — Tests in `backend/tests/unit/test_probe_script.py` with a fake transport in the style of `test_capture_script.py`: a 301 is not followed; a `Location` with another host or an unexpected path is rejected; a seed whose current name equals the old name is recorded as not moved; no response body text and no token appear in any output file; the S3 repeat rule; exit codes; missing environment gives exit 2.": [
@@ -134,6 +244,26 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960256
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794833384433
+      },
+      {
+        "executionId": "5b0ba848-2631-4702-8173-b893fda34f52",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794833823131
+      },
+      {
+        "executionId": "a1f728ef-da2b-4229-bfd8-c45b8b3ea46f",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794834290923
+      },
+      {
+        "executionId": "a1f728ef-da2b-4229-bfd8-c45b8b3ea46f",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794834320997
       }
     ],
     "T2.6 — **MANUAL (maintainer, `GITHUB_TOKEN`, before 20 Nov 2026): run the probe.** Check the token expiry first. Trial: run with the seeds only. Then run in full from the repo root and commit `eval/analysis/moved-repo-probe/`. Read `result.md`. **STOP**: record the verdict in the journal. FOLLOWS: T6.3 is not needed. FAILS: T6.3 is required. INCONCLUSIVE: rerun or fix before T8.": [
@@ -673,6 +803,13 @@
         "executionId": "9278ab31-0398-4339-8fb4-e17671babdf1",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794823733337
+      }
+    ],
+    "T1 — v1 lock (MV2-ISO-1, ISO-3, LAB-1; design 3, 4.2)": [
+      {
+        "executionId": "564e856c-4288-4b37-b8b2-85551974ccfe",
+        "chatSessionId": "sess_529e52e0-2745-44d5-b9a1-beb5870c87c1",
+        "timestamp": 1794825285384
       }
     ]
   }
