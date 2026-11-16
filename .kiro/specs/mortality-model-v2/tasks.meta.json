@@ -1141,6 +1141,11 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962838
+      },
+      {
+        "executionId": "24bd3a43-3fa2-46df-bb04-453522400668",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869879019
       }
     ],
     "T9.1 — **MANUAL: pins.** `uv run scripts/heldout_pin.py` (PEP 723). Inspect `eval/heldout/snapshot/pins.json` (PyPI commit SHA and hashes; npm version, integrity, 17,338-ish names). **If the npm member shape check aborts, stop: the fix is a design amendment, not a looser parser.**": [
@@ -1474,6 +1479,13 @@
         "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794861060972
+      }
+    ],
+    "T8 — Freeze v2": [
+      {
+        "executionId": "24bd3a43-3fa2-46df-bb04-453522400668",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869879114
       }
     ]
   }

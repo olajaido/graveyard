@@ -862,3 +862,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** v2 differs from v1 only in demoting `(Dead, "score")` to `(Ailing, None)`; the differential properties hold; `core/scoring/v2` is at 100% coverage; `eval/results.json` is byte-identical.
 - **Corrected:** Adding `v2/tests/__init__.py` before `v2/__init__.py` broke collection, so it was left out.
 - **Surprise:** The in-sample command cannot run on the real tree before T8.1 writes the manifest, because verify runs before scoring. Figures came from a temporary copy.
+
+### 16 Nov — Spec `mortality-model-v2`: T8 (freeze v2)
+- **Spec/task:** T8.1 manifests written and checked; T8.2 tag `mortality-v2-frozen` at 782dd8d, `--verify-all` ok.
+- **Kiro features:** Spec task DAG, manual stop tasks, the order-check script and tags.
+- **Kiro got right:** The in-sample run reproduced the temp-copy figures exactly (Dead precision 27/28, finished-healthy FPR 0/20, dead_flagged_rate 41/45); both manifest checks stayed green after the type cleanups.
+- **Corrected:** `check_heldout_order.py` counted the AMENDMENTS.md template as an entry; a shared fence-aware parser fixed it before the tag.
+- **Surprise:** Probe and test files sit outside both frozen closures, so removing their `type: ignore` comments needed no regeneration.
