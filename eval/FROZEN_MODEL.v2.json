@@ -1,0 +1,27 @@
+{
+  "closure_sha256": "21d252c5daded8ad09d84c5c42067d511e42e6489a08f5ef4d483bf6a9bf873b",
+  "entry": "core.scoring.versions",
+  "files": {
+    "backend/core/__init__.py": "04634fdcc3c961f3726a8c1d9facd66a99dbddc6ddd789fff6d80300bfc1a13e",
+    "backend/core/scoring/__init__.py": "6ae018a01ea5d56da6de2eba856c96cb4cbcc09ae3381a270be3fd680ef52a9c",
+    "backend/core/scoring/classify.py": "6188a3190ff273d1a2759439430f2fdd57ed7344e941ca08a0a75b213dfbcc3b",
+    "backend/core/scoring/constants.py": "061727ac92a2b83f2014ee93edc4514d7e2c2bbc9ed7d0715dd11cec310ccdfe",
+    "backend/core/scoring/normalise.py": "6d3f534a296c628d7bebe14d622131902ec5c99f6357ffbeebde78146c546175",
+    "backend/core/scoring/priority.py": "7a91a54e8c6c24a24cca9cdf208b95ae78a509ec66c13fae30fd7aa6f7465816",
+    "backend/core/scoring/score.py": "7d021a5a51696d101e633632b906f37b3a2d5cb31ded16faaa69a43095427db1",
+    "backend/core/scoring/sort.py": "142e7af494b3a5ccd677b9de7481ec578747ecfeb42feff78672cc4396755a55",
+    "backend/core/scoring/types.py": "6e8ce1f2a917326d997b72069591162e377bee6a40c87a7bc97ddf2b0862f001",
+    "backend/core/scoring/v2/__init__.py": "86825fb9895de0e0735d6c6ff92cc3f054f7dc8a1aae473f6d25d270f8db1756",
+    "backend/core/scoring/v2/classify.py": "691f377b82d8da886103d744df4e26242c35e2fb06c339461803a7a0b86c1980",
+    "backend/core/scoring/v2/params.py": "71521bb494e36fb31cb627edc3730e0e718bcabc2b413db1c1d3a1dcdb496261",
+    "backend/core/scoring/versions.py": "f013d4a47c18403238b734bba436bf0d000c46addb54ce248f26e40d8290c947",
+    "backend/core/scoring/weights.py": "bb0a80c894309ed8c1d6a2ad0d58d16894947c9ec4dedb21f7429f0873f41fb3"
+  },
+  "lockfile_sha256": "42769eabaf88342477b1fa06d5b44f9dd8a099c5e4f74896c0552d0b14912cee",
+  "model_version": "v2",
+  "schema": "graveyard.model-manifest",
+  "schema_version": 1,
+  "weights": {
+    "backend/core/scoring/weights.v2.yaml": "ef6324775acc2c8c5ce6d312d5129a64a77117a1ac163dc54732ada07f834f97"
+  }
+}

@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import asdict, replace
+from typing import Any
 
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
 from eval.probe import Measurement, Outcome, decide
+from eval.probe import Path as ProbePath
 
-VALUES = {
+VALUES: dict[str, Any] = {
     "s3": "2026-01-01",
     "s4": 5.0,
     "s5": 3,
@@ -21,11 +23,8 @@ VALUES = {
 }
 
 
-def _pair(subject: str, path: str = "capture", moved: bool = True) -> list[Measurement]:
-    return [
-        Measurement(subject, path, key, moved=moved, **VALUES)  # type: ignore[arg-type]
-        for key in ("old", "current")
-    ]
+def _pair(subject: str, path: ProbePath = "capture", moved: bool = True) -> list[Measurement]:
+    return [Measurement(subject, path, key, moved=moved, **VALUES) for key in ("old", "current")]
 
 
 def _two() -> list[Measurement]:

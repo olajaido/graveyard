@@ -201,6 +201,7 @@ def render_console(results: Mapping[str, Any]) -> str:
     lines: list[str] = [
         f"Graveyard eval  model {results['model_version']}  as_of {results['as_of'] or 'n/a'}  "
         f"rows {allv['rows']} (reviewed {rev['rows']})",
+        *([f"IN-SAMPLE: {results['banner']}"] if results.get("insample") else []),
         "GATING VIEW: reviewed rows only",
         "",
         "Confusion (rows = label, columns = predicted)",
@@ -261,7 +262,8 @@ def render_console(results: Mapping[str, Any]) -> str:
     ]
     lines += ["  " + ln for ln in _confusion_lines(ng["confusion"])]
 
-    gate = results["gate"]
-    lines += ["", f"GATE: {'PASS' if gate['passed'] else 'FAIL'}"]
-    lines += [_check_line(c) for c in gate["checks"]]
+    gate = results.get("gate")
+    if gate is not None:
+        lines += ["", f"GATE: {'PASS' if gate['passed'] else 'FAIL'}"]
+        lines += [_check_line(c) for c in gate["checks"]]
     return "\n".join(lines) + "\n"

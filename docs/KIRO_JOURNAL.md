@@ -850,3 +850,15 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** `backend/sources` has no code change (probe ran without `--library`; failures were capture-path only). Unmoved fixtures keep the same keys; `eval/results.json` is byte-identical.
 - **Corrected:** The resolver needed a new `Http.get_raw`, because `Http.request` drops the `Location` header. The nameWithOwner step is a separate batched query so the GitHub capture query is unchanged.
 - **Surprise:** For popper.js and inflight the old name has Scorecard data and the current name has none, so the lookup tries both names; one name failing never reads as "not scanned".
+### 16 Nov — Spec `mortality-model-v2`: T7.9 (in-sample figures)
+- **Label:** in-sample on the v1 key, not validation. No pass or fail statement is made.
+- **Spec/task:** T7.9: `--model v2 --dataset v1 --insample` writes `results.v2-insample.json` (`insample: true`, banner, no `gate`).
+- **Figures (v1 → v2, 116 reviewed rows):** Dead precision 40/58 → 27/28; finished-healthy FPR 11/20 → 0/20; dead_flagged_rate 41/45 → 41/45; Dead predictions score-based 30 → 0.
+- **Not yet run on the repo's `eval/`:** the v2 manifest is written at T8.1, so the figures came from a temp copy of the key and are not committed.
+
+### 16 Nov — Spec `mortality-model-v2`: T7 (v2 implementation)
+- **Spec/task:** T7.1 to T7.10: tests first, `weights.v2.yaml`, `classify.py`, `score_package_v2`, P1/P3/P4/P5 property tests, `versions.py`, v2 manifest and verify, in-sample run, pre-freeze gate.
+- **Kiro features:** Spec task DAG, parallel spec-task-execution sub-agents, tests-first ordering, a stop condition on the manifest conflict (T7.9).
+- **Kiro got right:** v2 differs from v1 only in demoting `(Dead, "score")` to `(Ailing, None)`; the differential properties hold; `core/scoring/v2` is at 100% coverage; `eval/results.json` is byte-identical.
+- **Corrected:** Adding `v2/tests/__init__.py` before `v2/__init__.py` broke collection, so it was left out.
+- **Surprise:** The in-sample command cannot run on the real tree before T8.1 writes the manifest, because verify runs before scoring. Figures came from a temporary copy.

@@ -19,9 +19,12 @@ def _run(argv: list[str], data: Path) -> tuple[int, str, str]:
 
 
 def test_registries_hold_the_expected_entries() -> None:
-    assert set(MODELS) == {"v1"}
+    assert set(MODELS) == {"v1", "v2"}
     assert MODELS["v1"].manifest_file is None
     assert MODELS["v1"].digest_file == "FROZEN_WEIGHTS.sha256"
+    assert MODELS["v2"].digest_file == "FROZEN_WEIGHTS.v2.sha256"
+    assert MODELS["v2"].manifest_file == "FROZEN_MODEL.v2.json"
+    assert MODELS["v2"].weights_path.name == "weights.v2.yaml"
     assert set(DATASETS) == {"v1", "heldout"}
     assert DATASETS["v1"].default_out == "results.json"
     assert DATASETS["v1"].write_mode == "replace"
@@ -51,7 +54,8 @@ def test_all_options_parse() -> None:
     "argv",
     [
         ["--model", "v2"],
-        ["--model", "v2", "--insample"],
+        ["--model", "v2", "--dataset", "v1"],
+        ["--model", "v1", "--insample"],
         ["--model", "v3"],
         ["--dataset", "nope"],
         ["--insample"],
@@ -66,9 +70,14 @@ def test_usage_errors_exit_2_with_usage_text(argv: list[str], tmp_path: Path) ->
     assert list(tmp_path.iterdir()) == []
 
 
-def test_v2_is_unknown_until_registered() -> None:
-    with pytest.raises(_UsageError, match="unknown --model 'v2'"):
-        _parse(["--model", "v2"])
+def test_unknown_model_is_a_usage_error() -> None:
+    with pytest.raises(_UsageError, match="unknown --model 'v3'; known: v1, v2"):
+        _parse(["--model", "v3"])
+
+
+def test_v2_heldout_parses() -> None:
+    args = _parse(["--model", "v2", "--dataset", "heldout"])
+    assert (args.model.version, args.dataset.name, args.insample) == ("v2", "heldout", False)
 
 
 def test_heldout_reads_its_own_labels(tmp_path: Path) -> None:

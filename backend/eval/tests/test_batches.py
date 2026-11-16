@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from typing import Any
 
 import pytest
 from hypothesis import given
@@ -23,17 +24,20 @@ from eval.heldout.batches import (
     next_f_batch,
     next_q_batch,
 )
-from eval.labels import LabelRow
+from eval.labels import Ecosystem, Label, LabelRow
 
 
 def _row(
-    name: str, label: str = "finished-healthy", reviewed: bool = True, eco: str = "npm"
+    name: str,
+    label: Label = "finished-healthy",
+    reviewed: bool = True,
+    eco: Ecosystem = "npm",
 ) -> LabelRow:
     return LabelRow(
-        eco,  # type: ignore[arg-type]
+        eco,
         name,
         "1.0.0",
-        label,  # type: ignore[arg-type]
+        label,
         "kind",
         "https://example.org/x",
         "quote",
@@ -42,7 +46,7 @@ def _row(
     )
 
 
-def _state(**kw: object) -> ReleaseState:
+def _state(**kw: Any) -> ReleaseState:
     base = ReleaseState(
         stratum="Q",
         previous_batch=(),
@@ -56,7 +60,7 @@ def _state(**kw: object) -> ReleaseState:
         f_released=0,
         f_pool_remaining=50,
     )
-    return replace(base, **kw)  # type: ignore[arg-type]
+    return replace(base, **kw)
 
 
 def test_q_batch_is_25_per_ecosystem_in_draw_order() -> None:

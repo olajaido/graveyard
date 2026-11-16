@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 
 from eval.gate import GateConfig, GateResult, evaluate_gate
@@ -24,7 +26,7 @@ def _good(**over: int) -> Table:
     table: Table = {("dead", "dead"): 25, ("finished-healthy", "finished-healthy"): 20}
     for key, n in over.items():
         label, predicted = key.split("__")
-        table[(label, predicted)] = n  # type: ignore[index]
+        table[(cast(Label, label), cast(Predicted, predicted))] = n
     return table
 
 

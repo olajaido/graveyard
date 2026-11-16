@@ -1,0 +1,46 @@
+{
+  "closure_sha256": "359c13f92ddd52cd4c93698e5c1f295731625f94c6e977f0338cd46c2903f62d",
+  "exclusions": [
+    "eval.report",
+    "eval.heldout.report",
+    "eval.compare",
+    "eval.analysis",
+    "eval.probe",
+    "eval.merge",
+    "eval.__main__",
+    "eval.tests"
+  ],
+  "extra_files": [
+    "backend/cli/gate.py"
+  ],
+  "files": {
+    "backend/cli/gate.py": "c89d9c4d8d5644e17b4759d4ce491e98274c562a2923bacde90a280738a91ce8",
+    "backend/eval/__init__.py": "0fc6d16ddd2e9fb16865c1531d1c404c63175f3672995baf530f8c17738f3bdc",
+    "backend/eval/fixture.py": "8ed936be5fd3a43d4ef9c1e3e91e78595752b68670ecd7bbbf9bb3a9c2cd537b",
+    "backend/eval/gate.py": "230219ed0d759945dd4a568d227328a8f68eeac38c55fdc3cad444b13555dd8b",
+    "backend/eval/heldout/__init__.py": "764c1d820992c84e826c7787591ae3af757fa04507a14d31dc2e7c0d49dad671",
+    "backend/eval/heldout/datasets.py": "bafd2651d26bcfe4131f488da30e158f9b97f2c53120d961146c3fcfdd577b88",
+    "backend/eval/heldout/provenance.py": "ba3b0b9d31bb1a91861d8c10bfcda5740b1992fae1f06278bb05629a1d372b92",
+    "backend/eval/heldout/strata.py": "bcf29a38b3df2ed29048db6b219175b2dea33d791dd97e6211654e68bfc9de7d",
+    "backend/eval/heldout/verdict.py": "77e202512f78cf891234d785faec8fe057ba79b011bbb7f268482f395e603ba5",
+    "backend/eval/labels.py": "f19bf58b928ef5fed20944c2397139c623a759dab763c3bd96363e5c53c261a5",
+    "backend/eval/manifest.py": "8eaed3a6d56e5f7f771beb81ea67ac2acdf1eddbeb1bb8e1186b993f19987247",
+    "backend/eval/metrics.py": "d0787978ce801c37fe02e54d1b973b50e4083a069dfbd682e54bd46d6a028613",
+    "backend/eval/models.py": "441d70ad706ed1641af40583c615510ee6b74ccceec28e0c9b9e772dd196eb8c",
+    "backend/eval/outcome.py": "5319fb221ce53c608a9a32697fa649a9fb9b6cd8a270a93c63f25fce7deb453d",
+    "backend/eval/paths.py": "7fe252669e4157dbe61993bae7fc2f17fc3a5d05658903ee08125065f0f5526d",
+    "backend/eval/run.py": "df7a8209abd3c9958cd1e7c4b340a51bf5e2d5c4023cfc79bc5fdfdad5d25fdb"
+  },
+  "roots": [
+    "backend/eval/gate.py",
+    "backend/eval/metrics.py",
+    "backend/eval/outcome.py",
+    "backend/eval/fixture.py",
+    "backend/eval/run.py",
+    "backend/eval/heldout/verdict.py",
+    "backend/eval/heldout/strata.py",
+    "backend/eval/heldout/datasets.py"
+  ],
+  "schema": "graveyard.harness-manifest",
+  "schema_version": 1
+}

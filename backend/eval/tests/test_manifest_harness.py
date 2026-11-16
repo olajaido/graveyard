@@ -188,7 +188,7 @@ def test_write_check_and_refuse_overwrite(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "args", [[], ["--write"], ["--harness", "--write", "--check"], ["--model", "v2"]]
+    "args", [[], ["--write"], ["--harness", "--write", "--check"], ["--model", "v3"]]
 )
 def test_usage_errors(tmp_path: Path, args: list[str]) -> None:
     code, _, err = run(args, make_backend(tmp_path), tmp_path / "data")

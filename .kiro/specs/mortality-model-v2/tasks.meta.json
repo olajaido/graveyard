@@ -1046,6 +1046,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962634
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794858574693
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794858702978
       }
     ],
     "T7.8 — Model manifest (design 4.3): `python -m eval manifest --model v2 [--write|--check]` built on the generic functions of T5.21, `eval/FROZEN_WEIGHTS.v2.sha256` support, and `verify(spec)` before scoring in `run.py` (exit 3 with the design's message on any mismatch). Tests: round trip; tamper cases; `--write` refuses overwrite; the harness exits 3 on a one-byte change in a closure file. Do not write the real manifest yet (T8.1).": [
@@ -1060,6 +1070,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962716
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794858901935
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794859356763
       }
     ],
     "T7.10 — Pre-freeze gate: `uv run ruff check`, `uv run ruff format --check`, `uv run mypy --strict core sources cli eval` (no `type: ignore`), `uv run pytest -q`, `HYPOTHESIS_PROFILE=ci uv run pytest -m property -q`, coverage at least 85% on `core/scoring/v2` and on the new `eval` modules (separately reported), V1 lock tests, `make eval` byte-identical. Report counts.": [
@@ -1067,6 +1087,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962755
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794859357435
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794861060735
       }
     ],
     "T8.1 — Write `eval/FROZEN_WEIGHTS.v2.sha256`, run `python -m eval manifest --model v2 --write` and `python -m eval manifest --harness --write`, then `--check` for both. Confirm `eval/heldout/` holds exactly `README.md`, `dataset.yaml`, `gate.yaml`, `f/queries.tsv`, `FROZEN_HARNESS.json`, `AMENDMENTS.md` (no entry). Run the full gate of T7.10. List the tests that skip because held-out data is absent. **STOP and hand over; report anything unexpected.**": [
@@ -1074,6 +1104,26 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962799
+      },
+      {
+        "executionId": "e52efcfd-4ce6-4e41-b450-552dc14c006e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794864086055
+      },
+      {
+        "executionId": "e52efcfd-4ce6-4e41-b450-552dc14c006e",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794867980673
+      },
+      {
+        "executionId": "1c63fc48-375f-4a8d-85eb-2e58f3b50f30",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869020575
+      },
+      {
+        "executionId": "1c63fc48-375f-4a8d-85eb-2e58f3b50f30",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869334858
       }
     ],
     "T8.2 — **MANUAL (maintainer): freeze tag.** Run `python3 scripts/check_heldout_order.py --verify-all` (checks `v2-requirements` and the hand-made `mortality-v2-analysis`). Commit everything from T5 to T8.1. Run `python3 scripts/check_heldout_order.py --step mortality-v2-frozen --tag`. Journal line. From here: category A files are frozen for good, harness files change only through `AMENDMENTS.md`. Before T9, check that `GITHUB_TOKEN` is valid (it expires about 20 Nov 2026; create a new public-read token with no scopes if needed) and `gh auth status` is logged in.": [
@@ -1395,6 +1445,25 @@
         "executionId": "8bf36bd7-d1ef-4d72-ad91-c39d9dc15fbf",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794851936320
+      }
+    ],
+    "T7.8 — Model manifest (design 4.3; entry `core.scoring.versions`, 14 files plus the weights entry; T7.7 must be done first): `python -m eval manifest --model v2 [--write|--check]` built on the generic functions of T5.21, `eval/FROZEN_WEIGHTS.v2.sha256` support, and `verify(spec)` before scoring in `run.py` (exit 3 with the design's message on any mismatch). Tests: round trip; tamper cases; `--write` refuses overwrite; the harness exits 3 on a one-byte change in a closure file, including `versions.py`; the manifest lists `versions.py`. Do not write the real manifest yet (T8.1).": [
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794858704568
+      },
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794858896461
+      }
+    ],
+    "T7 — v2 implementation per the approved amendment (MV2-MOD-1 to MOD-7, MV2-IN-1, IN-2, MV2-ISO-2, ISO-4; design 4, 7). **Starts only after T4.5 (\"Approved\" line present).**": [
+      {
+        "executionId": "245443f5-6fcc-496b-b299-df180b7c7aa7",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794861060972
       }
     ]
   }

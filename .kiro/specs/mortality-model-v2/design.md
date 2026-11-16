@@ -438,6 +438,8 @@ Each is one module or one test file, small enough for one turn. Order is binding
 1. **The dead-flagged check cannot tell v1 from v2.** The only class change is Dead to Ailing, so both models flag the same set of rows (Dead or Ailing) on every input (P4). Their dead-flagged rates are equal on any dataset. The check shows that demotion hid no dead package (true by construction) and whether the signals flag dead packages at all on held-out data. A failure is a failure for both models and points at the signals, not at the mechanism.
 2. **A lower FPR under v2 is not better discrimination.** The FPR counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate (v1 recorded: 16/20) is equal for both models, and it is reported, not gated (MV2-GATE-4). The result report carries both statements in its limits text (11.4, T5.16, T11.5), whatever the verdict.
 
+3. **Note, 2026-11-16 (limitations of the in-sample figures and future work).** (a) In-sample on the v1 key, v2's PyPI Dead recall is 3/15, because PyPI rarely declares deprecation (npm Dead recall is 24/30). (b) Future work, not v2: PEP 792 project status markers (archived, deprecated, quarantined) as a PyPI declared-death source. That would be a v3 change with a new seed and a new draw (MV2-POP-6).
+
 Approved 16 Nov 2026
 
 ## 8. Held-out population and the Q draw (MV2-POP, MV2-SMP-1, D5, D9)
@@ -615,6 +617,8 @@ heldout-order:
 Exit codes: `0` PASS, `1` FAIL, `2` usage, `3` input error, `4` INCONCLUSIVE (held-out only). The v1 dataset keeps 0, 1, 2, 3. Combination rules: `--model v2 --dataset v1` without `--insample` is exit 2; `--insample` with `--dataset heldout` is exit 2.
 
 **In-sample run (MV2-FA-4).** `--model v2 --dataset v1 --insample` scores the v1 key with v2, then removes the `gate` object from the document, sets `"insample": true` and the banner, writes `eval/results.v2-insample.json` by atomic replace, prints no pass/fail line, and exits 0 unless the input is invalid. It never opens `eval/results.json` (section 3.4). Tests: file name, flag, absent `gate` key, unchanged `results.json`.
+
+**Note, 2026-11-16 (maintainer-approved).** `eval/results.v2-insample.json` is created with exclusive create (exit 3 if it exists), a deliberate deviation from the "atomic replace" wording above. The in-sample run verifies the v2 manifest like any v2 run, so it runs after T8.1 has written the manifests.
 
 ### 11.2 Held-out specifics
 - All rows must be `reviewed=true`, else exit 3. Every row key must be in `draw/strata.tsv`, else exit 3. Fixture identity, version and single-`as_of` rules are as v1.

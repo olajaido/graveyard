@@ -47,6 +47,7 @@ from eval.heldout.report import render_console as render_heldout_console
 from eval.heldout.strata import StrataError, StratumRow, join_strata, parse_strata
 from eval.heldout.verdict import evaluate_verdict
 from eval.labels import LabelRow, LabelsError, load_labels
+from eval.manifest import BACKEND_DIR, MODEL_MESSAGE, verify
 from eval.models import DEFAULT_MODEL, MODELS, ModelSpec
 from eval.outcome import Outcome, outcome_from
 from eval.paths import DEFAULT_DATA_DIR
@@ -62,6 +63,9 @@ MODEL_VERSION: Final = DEFAULT_MODEL
 USAGE: Final = (
     "usage: python -m eval [--model v1|v2] [--dataset v1|heldout] [--out PATH] [--insample]\n"
 )
+INSAMPLE_FILE: Final = "results.v2-insample.json"
+V1_RESULTS_FILE: Final = "results.json"
+INSAMPLE_BANNER: Final = "In-sample diagnostic on the v1 answer key. Not validation."
 FROZEN_MESSAGE: Final = "weights are frozen; a change is a documented v2"
 
 
@@ -266,6 +270,7 @@ def run(
     out: TextIO,
     err: TextIO,
     data_dir: Path = DEFAULT_DATA_DIR,
+    backend_dir: Path = BACKEND_DIR,
 ) -> int:
     """Run the harness on ``data_dir`` and return the exit code."""
     try:
@@ -275,9 +280,25 @@ def run(
         err.write(USAGE)
         return EXIT_USAGE
     spec, dataset = args.model, args.dataset
-    results_path = (
-        data_dir / dataset.default_out.format(model=spec.version) if args.out is None else args.out
-    )
+    if spec.manifest_file is not None:
+        problems, warnings = verify(spec, data_dir, backend_dir)
+        for line in (*problems, *warnings):
+            err.write(f"eval: {line}\n")
+        if problems:
+            return _input_error(err, MODEL_MESSAGE.format(name=spec.manifest_file))
+    if args.out is not None:
+        results_path = args.out
+    elif args.insample:
+        results_path = data_dir / INSAMPLE_FILE
+    else:
+        results_path = data_dir / dataset.default_out.format(model=spec.version)
+    if args.insample:
+        # Design 3.4 / MV2-FA-4: an in-sample figure never goes to results.json, and an
+        # existing in-sample file is never overwritten.
+        if results_path.resolve() == (data_dir / V1_RESULTS_FILE).resolve():
+            return _input_error(err, f"in-sample results never go to {V1_RESULTS_FILE}")
+        if results_path.exists():
+            return _input_error(err, f"{results_path} already exists; it is never overwritten")
 
     try:
         label_rows, labels_sha = load_labels(data_dir / dataset.labels)
@@ -369,6 +390,11 @@ def run(
         no_github_results=ng_results,
         no_github_outcomes=ng_outcomes,
     )
+    if args.insample:
+        # MV2-FA-4: no gate object, no pass/fail; the file says what it is.
+        del document["gate"]
+        document["insample"] = True
+        document["banner"] = INSAMPLE_BANNER
     verdict = None
     if heldout and inputs is not None:
         try:
@@ -420,7 +446,7 @@ def run(
         )
 
     try:
-        if dataset.write_mode == "exclusive":
+        if dataset.write_mode == "exclusive" or args.insample:
             _write_exclusive(results_path, dumps(document))
         else:
             _write_atomic(results_path, dumps(document))
@@ -450,6 +476,8 @@ def run(
         return EXIT_GATE_FAILED if verdict.verdict == "FAIL" else EXIT_INCONCLUSIVE
 
     out.write(render_console(document))
+    if args.insample:
+        return EXIT_PASS
     if gate.passed:
         return EXIT_PASS
     err.write("eval: gate failed\n")

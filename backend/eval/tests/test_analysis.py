@@ -335,7 +335,7 @@ def test_build_analysis_score_based_correct_flag() -> None:
 
 def _cf_inputs() -> tuple[list[LabelRow], dict[tuple[str, str], LoadedFixture]]:
     stale = AS_OF - timedelta(days=4000)
-    specs: dict[str, tuple[str, dict[str, Any]]] = {
+    specs: dict[str, tuple[Label, dict[str, Any]]] = {
         "stale": ("alive", {"s2_latest_release_at": stale, "s3_last_push_at": stale}),
         "card": ("dead", {"s4_maintained": 0, "s8_overall": 0}),
         "mixed": (
@@ -348,7 +348,7 @@ def _cf_inputs() -> tuple[list[LabelRow], dict[tuple[str, str], LoadedFixture]]:
     rows: list[LabelRow] = []
     fixtures: dict[tuple[str, str], LoadedFixture] = {}
     for name, (label, kwargs) in specs.items():
-        row = _row(name, label)  # type: ignore[arg-type]
+        row = _row(name, label)
         rows.append(row)
         fixtures[row.key] = _fixture(
             name, Signals(purl=f"pkg:npm/{name}@1", as_of=AS_OF, **kwargs), {}

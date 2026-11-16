@@ -65,7 +65,8 @@ class Measurement:
     archived: Scalar = None
 
     def value(self, signal: str) -> Scalar:
-        return getattr(self, signal)  # type: ignore[no-any-return]
+        value: Scalar = getattr(self, signal)
+        return value
 
 
 class Outcome(Enum):

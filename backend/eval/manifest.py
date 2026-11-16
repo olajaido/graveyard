@@ -20,7 +20,10 @@ import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
-from typing import Any, Final, TextIO
+from typing import TYPE_CHECKING, Any, Final, TextIO
+
+if TYPE_CHECKING:
+    from eval.models import ModelSpec
 
 FIRST_PARTY_ROOT = "core"
 DYNAMIC_NAMES = frozenset({"__import__", "exec", "eval", "compile"})
@@ -374,6 +377,10 @@ def run_manifest(
     exclusive create and refuses an existing file. ``--check`` compares the file with the tree.
     """
     args = list(argv)
+    if args[:1] == ["--model"]:
+        return _run_model_manifest(
+            args, out=out, err=err, backend_dir=backend_dir, data_dir=data_dir
+        )
     if args not in (["--harness"], ["--harness", "--write"], ["--harness", "--check"]):
         err.write(_USAGE)
         return EXIT_USAGE
@@ -410,6 +417,173 @@ def run_manifest(
             err.write(f"eval: {record.name} exists; it is never rewritten\n")
             return EXIT_INVALID
         out.write(f"wrote {record.name}\n")
+        return EXIT_OK
+    out.write(text)
+    return EXIT_OK
+
+
+# --- Model manifest (design 4.3) ----------------------------------------------------------
+
+MODEL_SCHEMA: Final = "graveyard.model-manifest"
+#: Manifest entry module per model version; ``v1`` has no manifest (its lock is V1_LOCK.json).
+MODEL_ENTRIES: Final = {"v2": "core.scoring.versions"}
+#: Weights file per model version, relative to the backend directory.
+MODEL_WEIGHTS: Final = {"v2": "core/scoring/weights.v2.yaml"}
+MODEL_MANIFEST_FILES: Final = {"v2": "FROZEN_MODEL.v2.json"}
+MODEL_DIGEST_FILES: Final = {"v2": "FROZEN_WEIGHTS.v2.sha256"}
+MODEL_MESSAGE: Final = "model files differ from {name}; a change is a documented v3"
+LOCKFILE = "uv.lock"
+_MODEL_USAGE: Final = "usage: python -m eval manifest --model v2 [--write|--check]\n"
+
+
+def model_header(version: str) -> dict[str, Any]:
+    """Fixed fields of the model manifest."""
+    return {
+        "schema": MODEL_SCHEMA,
+        "schema_version": 1,
+        "model_version": version,
+        "entry": MODEL_ENTRIES[version],
+    }
+
+
+def _lockfile_sha256(backend_dir: Path) -> str | None:
+    lock = backend_dir / LOCKFILE
+    return _sha256_file(lock) if lock.is_file() else None
+
+
+def build_model_manifest(version: str, backend_dir: Path = BACKEND_DIR) -> dict[str, Any]:
+    """Manifest of the closure of the model entry plus its weights file (design 4.3).
+
+    Paths are relative to the parent of ``backend_dir``. ``lockfile_sha256`` is informational
+    and outside ``closure_sha256``.
+    """
+    files = closure(MODEL_ENTRIES[version], backend_dir)
+    manifest = build_manifest(
+        backend_dir.parent,
+        files,
+        header=model_header(version),
+        weights=[backend_dir / MODEL_WEIGHTS[version]],
+    )
+    manifest["lockfile_sha256"] = _lockfile_sha256(backend_dir)
+    return manifest
+
+
+def verify_model_manifest(
+    version: str, manifest: Mapping[str, Any], backend_dir: Path = BACKEND_DIR
+) -> list[str]:
+    """Problems between ``manifest`` and the working tree; never raises on a bad manifest."""
+    try:
+        files = closure(MODEL_ENTRIES[version], backend_dir)
+    except ManifestError as exc:
+        return [str(exc)]
+    problems = [
+        f"{key} differs from the model definition"
+        for key, expected in model_header(version).items()
+        if manifest.get(key) != expected
+    ]
+    weights = [backend_dir / MODEL_WEIGHTS[version]]
+    return problems + verify_manifest(manifest, backend_dir.parent, files, weights)
+
+
+def lockfile_warning(manifest: Mapping[str, Any], backend_dir: Path = BACKEND_DIR) -> str | None:
+    """Warning (not an error) when ``uv.lock`` differs from the recorded hash."""
+    recorded = manifest.get("lockfile_sha256")
+    if recorded is None or recorded == _lockfile_sha256(backend_dir):
+        return None
+    return f"warning: backend/{LOCKFILE} differs from the manifest (informational)"
+
+
+def _digest_problems(version: str, digest_path: Path, backend_dir: Path) -> list[str]:
+    try:
+        actual = _sha256_file(backend_dir / MODEL_WEIGHTS[version])
+        expected = digest_path.read_text(encoding="utf-8").split()[0]
+    except (OSError, UnicodeDecodeError, IndexError):
+        return [f"cannot read the weights digest {digest_path.name}"]
+    if actual != expected:
+        return [f"weights differ from {digest_path.name}"]
+    return []
+
+
+def verify(
+    spec: ModelSpec, data_dir: Path, backend_dir: Path = BACKEND_DIR
+) -> tuple[list[str], list[str]]:
+    """Run-time check of a frozen model (design 4.3): ``(problems, warnings)``.
+
+    Empty problems for a spec without a manifest (v1). Otherwise the manifest and the weights
+    digest file under ``data_dir`` are compared with the working tree.
+    """
+    if spec.manifest_file is None:
+        return [], []
+    record = data_dir / spec.manifest_file
+    try:
+        loaded = json.loads(record.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return [f"cannot read {record.name}: {exc}"], []
+    if not isinstance(loaded, dict):
+        return [f"{record.name} is not a JSON object"], []
+    problems = verify_model_manifest(spec.version, loaded, backend_dir)
+    problems += _digest_problems(spec.version, data_dir / spec.digest_file, backend_dir)
+    warning = lockfile_warning(loaded, backend_dir)
+    return problems, [warning] if warning else []
+
+
+def _run_model_manifest(
+    args: list[str], *, out: TextIO, err: TextIO, backend_dir: Path, data_dir: Path | None
+) -> int:
+    """``manifest --model v2 [--write|--check]``: returns 0, 2 (usage) or 3."""
+    if (
+        len(args) < 2
+        or args[1] not in MODEL_ENTRIES
+        or args[2:] not in ([], ["--write"], ["--check"])
+    ):
+        err.write(_MODEL_USAGE)
+        return EXIT_USAGE
+    version, mode = args[1], (args[2] if len(args) > 2 else "")
+    base = data_dir if data_dir is not None else backend_dir.parent / "eval"
+    record = base / MODEL_MANIFEST_FILES[version]
+    digest = base / MODEL_DIGEST_FILES[version]
+    if mode == "--check":
+        try:
+            loaded = json.loads(record.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            err.write(f"eval: cannot read {record.name}: {exc}\n")
+            return EXIT_INVALID
+        if not isinstance(loaded, dict):
+            err.write(f"eval: {record.name} is not a JSON object\n")
+            return EXIT_INVALID
+        problems = verify_model_manifest(version, loaded, backend_dir)
+        problems += _digest_problems(version, digest, backend_dir)
+        for problem in problems:
+            err.write(f"eval: {problem}\n")
+        warning = lockfile_warning(loaded, backend_dir)
+        if warning:
+            err.write(f"eval: {warning}\n")
+        if problems:
+            err.write(MODEL_MESSAGE.format(name=record.name) + "\n")
+            return EXIT_INVALID
+        out.write(f"{record.name}: matches\n")
+        return EXIT_OK
+    try:
+        text = dumps_manifest(build_model_manifest(version, backend_dir))
+        weights_sha = _sha256_file(backend_dir / MODEL_WEIGHTS[version])
+    except (ManifestError, OSError) as exc:
+        err.write(f"eval: {exc}\n")
+        return EXIT_INVALID
+    if mode == "--write":
+        existing = [p.name for p in (record, digest) if p.exists()]
+        if existing:
+            err.write(f"eval: {', '.join(existing)} exists; it is never rewritten\n")
+            return EXIT_INVALID
+        record.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with record.open("x", encoding="utf-8", newline="\n") as handle:
+                handle.write(text)
+            with digest.open("x", encoding="utf-8", newline="\n") as handle:
+                handle.write(weights_sha + "\n")
+        except FileExistsError:
+            err.write(f"eval: {record.name} or {digest.name} exists; it is never rewritten\n")
+            return EXIT_INVALID
+        out.write(f"wrote {record.name} and {digest.name}\n")
         return EXIT_OK
     out.write(text)
     return EXIT_OK
