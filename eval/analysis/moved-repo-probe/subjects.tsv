@@ -1,0 +1,8 @@
+old_name	current_name	origin	repository_id	rest_status	confirmed_moved	note
+visionmedia/debug	debug-js/debug	seed	2871998	301	yes	confirmed by 301 and /repositories/<id>
+mishoo/UglifyJS2	mishoo/UglifyJS	seed	5569059	301	yes	confirmed by 301 and /repositories/<id>
+substack/node-browserify	browserify/browserify	seed	931039	301	yes	confirmed by 301 and /repositories/<id>
+visionmedia/express	expressjs/express	seed	237159	301	yes	confirmed by 301 and /repositories/<id>
+fezvrasta/popper.js	floating-ui/floating-ui	graphql	54994103	301	yes	confirmed by 301 and /repositories/<id>
+jadejs/jade	pugjs/pug	graphql	734934	301	yes	confirmed by 301 and /repositories/<id>
+npm/inflight	isaacs/inflight-DEPRECATED-DO-NOT-USE	graphql	19442260	301	yes	confirmed by 301 and /repositories/<id>

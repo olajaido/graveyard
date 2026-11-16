@@ -1,0 +1,426 @@
+{
+  "as_of": "2026-11-03",
+  "signal_source": {
+    "archived": "github",
+    "s3": "github",
+    "s4": "scorecard",
+    "s5": "github",
+    "s6_closed": "github",
+    "s6_open": "github",
+    "s8": "scorecard"
+  },
+  "subjects": [
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fdebug-js%2Fdebug"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-10-14",
+            "s4": 0,
+            "s5": 3,
+            "s6_closed": 612,
+            "s6_open": 60,
+            "s8": 2.6
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fvisionmedia%2Fdebug"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-10-14",
+            "s4": 0,
+            "s5": 3,
+            "s6_closed": 612,
+            "s6_open": 60,
+            "s8": 2.6
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "debug-js/debug",
+      "library": null,
+      "measured": true,
+      "old_name": "visionmedia/debug",
+      "repository_id": "2871998",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fmishoo%2FUglifyJS"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2024-11-22",
+            "s4": 0,
+            "s5": 0,
+            "s6_closed": 2894,
+            "s6_open": 33,
+            "s8": 2.7
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fmishoo%2FUglifyJS2"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2024-11-22",
+            "s4": 0,
+            "s5": 0,
+            "s6_closed": 2894,
+            "s6_open": 33,
+            "s8": 2.7
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "mishoo/UglifyJS",
+      "library": null,
+      "measured": true,
+      "old_name": "mishoo/UglifyJS2",
+      "repository_id": "5569059",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fbrowserify%2Fbrowserify"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-10-24",
+            "s4": 0,
+            "s5": 2,
+            "s6_closed": 1177,
+            "s6_open": 350,
+            "s8": 3.9
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fsubstack%2Fnode-browserify"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-10-24",
+            "s4": 0,
+            "s5": 2,
+            "s6_closed": 1177,
+            "s6_open": 350,
+            "s8": 3.9
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "browserify/browserify",
+      "library": null,
+      "measured": true,
+      "old_name": "substack/node-browserify",
+      "repository_id": "931039",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fexpressjs%2Fexpress"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-11-02",
+            "s4": 10,
+            "s5": 44,
+            "s6_closed": 3973,
+            "s6_open": 113,
+            "s8": 8.5
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fvisionmedia%2Fexpress"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-11-02",
+            "s4": 10,
+            "s5": 44,
+            "s6_closed": 3973,
+            "s6_open": 113,
+            "s8": 8.5
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "expressjs/express",
+      "library": null,
+      "measured": true,
+      "old_name": "visionmedia/express",
+      "repository_id": "237159",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Ffloating-ui%2Ffloating-ui"
+            },
+            {
+              "status": 404,
+              "url": "https://api.securityscorecards.dev/projects/github.com/floating-ui/floating-ui"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-11-12",
+            "s4": null,
+            "s5": 24,
+            "s6_closed": 1456,
+            "s6_open": 40,
+            "s8": null
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Ffezvrasta%2Fpopper.js"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-11-12",
+            "s4": 10,
+            "s5": 24,
+            "s6_closed": 1456,
+            "s6_open": 40,
+            "s8": 4.7
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "floating-ui/floating-ui",
+      "library": null,
+      "measured": true,
+      "old_name": "fezvrasta/popper.js",
+      "repository_id": "54994103",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fpugjs%2Fpug"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-03-13",
+            "s4": 0,
+            "s5": 1,
+            "s6_closed": 2289,
+            "s6_open": 300,
+            "s8": 3.9
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fjadejs%2Fjade"
+            }
+          ],
+          "values": {
+            "archived": false,
+            "s3": "2026-03-13",
+            "s4": 0,
+            "s5": 1,
+            "s6_closed": 2289,
+            "s6_open": 300,
+            "s8": 3.9
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "pugjs/pug",
+      "library": null,
+      "measured": true,
+      "old_name": "jadejs/jade",
+      "repository_id": "734934",
+      "s3_first_attempt": null
+    },
+    {
+      "capture": {
+        "current": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 404,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fisaacs%2Finflight-DEPRECATED-DO-NOT-USE"
+            },
+            {
+              "status": 404,
+              "url": "https://api.securityscorecards.dev/projects/github.com/isaacs/inflight-DEPRECATED-DO-NOT-USE"
+            }
+          ],
+          "values": {
+            "archived": true,
+            "s3": "2024-05-23",
+            "s4": null,
+            "s5": 0,
+            "s6_closed": 6,
+            "s6_open": 0,
+            "s8": null
+          }
+        },
+        "old": {
+          "calls": [
+            {
+              "status": 200,
+              "url": "https://api.github.com/graphql"
+            },
+            {
+              "status": 200,
+              "url": "https://api.deps.dev/v3/projects/github.com%2Fnpm%2Finflight"
+            }
+          ],
+          "values": {
+            "archived": true,
+            "s3": "2024-05-23",
+            "s4": 0,
+            "s5": 0,
+            "s6_closed": 6,
+            "s6_open": 0,
+            "s8": 2.9
+          }
+        }
+      },
+      "confirmed_moved": true,
+      "current_name": "isaacs/inflight-DEPRECATED-DO-NOT-USE",
+      "library": null,
+      "measured": true,
+      "old_name": "npm/inflight",
+      "repository_id": "19442260",
+      "s3_first_attempt": null
+    }
+  ],
+  "verdict": {
+    "failing_signals": [
+      "s4",
+      "s8"
+    ],
+    "failing_sources": [
+      "scorecard"
+    ],
+    "failures": [
+      {
+        "signal": "s4",
+        "source": "scorecard",
+        "subject": "fezvrasta/popper.js"
+      },
+      {
+        "signal": "s8",
+        "source": "scorecard",
+        "subject": "fezvrasta/popper.js"
+      },
+      {
+        "signal": "s4",
+        "source": "scorecard",
+        "subject": "npm/inflight"
+      },
+      {
+        "signal": "s8",
+        "source": "scorecard",
+        "subject": "npm/inflight"
+      }
+    ],
+    "moved_subjects": 7,
+    "outcome": "FAILS"
+  }
+}
