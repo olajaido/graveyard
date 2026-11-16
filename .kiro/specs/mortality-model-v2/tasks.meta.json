@@ -433,6 +433,11 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822960763
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844354165
       }
     ],
     "T5.1 — `backend/eval/heldout/__init__.py` (docstring) and `draw.py` (design 8.2): `normalise_name`, `draw_key`, `draw_order`, `quiet_cutoff`, `is_quiet`, `select_q`. Tests: syntax cases for npm and PyPI (scoped, uppercase, PEP 503 forms); `draw_key` pinned to two literal SHA-256 values computed by hand in the test; February 29 handling; properties: order independent of input order, adding an excluded name never changes the others' relative order, the lazy walk equals filter-then-take, `quiet_cutoff` monotone.": [
@@ -835,6 +840,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962056
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844364973
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844691083
       }
     ],
     "T6.2 — Pin the behaviour that needs no change: `backend/sources/tests/test_scorecard_404_pin.py` (the Scorecard client returns `Absent` for a 404 and the assembled result has no warning for S4 or S8); an eval fixture test that a fixture with \"not scanned\" S4 gives no `SourceWarning` and an empty `unverified_sources`; confirm `--refetch-unavailable` selection ignores such a fixture; the existing cassette replay tests are green. No `backend/sources` code changes.": [
@@ -842,6 +857,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962099
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844366422
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844691208
       }
     ],
     "T6.3a — In the capture path, resolve the current `owner/name` once per repository, before the keyed lookups, by the method design 12.3 names (GraphQL `nameWithOwner`, then a non-followed REST 301 with `Location` host and path validation, then `GET /repositories/<id>`), at most 2 extra requests per repository. Tests with a fake `Http`: rename resolved; invalid `Location` rejected; no other redirect followed.": [
@@ -849,6 +874,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962147
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844691366
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845249268
       }
     ],
     "T6.3b — Use the current name for exactly the sources the probe recorded as failing; record `repo_moved_from` as an additive top-level fixture key; test that the fixture loader ignores unknown top-level keys (or add the key to its allow-list with a test). Add the SRC-TEST-6 fault property: a failure never turns a signal into a different known value.": [
@@ -856,6 +891,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962199
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845249395
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845549342
       }
     ],
     "T6.3c — Change `backend/sources` only if the probe recorded a library failure that the held-out capture path does not share; otherwise leave it and note this in the journal. If changed: cassette from recorded probe responses, purity and silence guards green.": [
@@ -863,6 +908,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962253
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845549495
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845571673
       }
     ],
     "T6.4 — Add a dated amendment note to `.kiro/specs/autopsy-sources/requirements.md` describing the capture-path change (and the library change if T6.3c ran), citing MV2-SRC-3. Edit nothing else in that spec.": [
@@ -870,6 +925,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962325
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845571840
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845603924
       }
     ],
     "T6.5 — Gate: `uv run pytest -q`, ruff, mypy clean; `make eval` leaves `eval/results.json` byte-identical; V1 lock tests green; list the files changed under `scripts/` and `backend/sources/`.": [
@@ -877,6 +942,16 @@
         "executionId": "ee60da5f-5021-465b-9fd8-259f3efeb638",
         "chatSessionId": "sess_21300917-e88e-46e0-9812-58f733521d9a",
         "timestamp": 1794822962362
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845604859
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794849000542
       }
     ],
     "T7.1 — **Stop unless the amendment in `design.md` section 7.5 carries `Approved <date>` and T6.5 is done.** Insert the approved sub-task list of the amendment (one per module, one per property-test file) as T7.4a, T7.4b and so on, each small enough for one turn. Change nothing else.": [
@@ -1201,6 +1276,32 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794843256707
+      }
+    ],
+    "T4 — STOP: conclusion and the v2 mechanism amendment (MV2-FA-5, MV2-MOD-3, D11)": [
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844354299
+      }
+    ],
+    "T6.3 — **Only if the probe verdict (T2.6) is FAILS; otherwise mark this task and T6.3a to T6.3c \"not needed: probe FOLLOWS\" with a link to `result.md` and go on.**": [
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794844691291
+      },
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794845571775
+      }
+    ],
+    "T6 — Source changes in the capture path (MV2-SRC-1, MV2-SRC-2, MV2-SRC-3; design 12)": [
+      {
+        "executionId": "31299bb3-1fd6-4380-9513-5a57badc2b9d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794849000750
       }
     ]
   }

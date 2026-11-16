@@ -279,3 +279,15 @@ Pure-half tests live in `backend/core/sources/tests/`; I/O-half tests in `backen
 | Q4 | npm downloads in bulk; PyPI downloads lazily for Resting candidates only; 3 s interval and 7-day cache kept; measure the limit while recording. **Revised after T12:** the measured safe interval is 0.5 s, so the default is now 1.2 s (SRC-S9-4; 1.0 s after T12, raised to 1.2 s in the final review). | D14, SRC-S9-1…4, SRC-REC-5, SRC-TEST-15, SRC-TEST-18 |
 | Q5 | No `pytest-asyncio`; `autopsy_async` plus a sync `autopsy`; `httpx.MockTransport`, no `respx`. | D13, SRC-API-1, SRC-TEST-1, SRC-TEST-16 |
 | Q6 | deps.dev package `isDefault` as the latest-version fallback. | D15, SRC-LAT-1…3, SRC-TEST-17 |
+
+---
+## Amendments
+
+### 2026-11-16: capture-path change for moved repositories (mortality-model-v2, MV2-SRC-1, MV2-SRC-3)
+| Row | Change |
+|---|---|
+| SRC-REC-1, SRC-REC-2 (capture script `scripts/capture_anchors.py`) | **Amended by mortality-model-v2 (MV2-SRC-1).** In `collect_scorecard`, a Scorecard `404` (`NotFoundError`) now records "not scanned" for S4 and S8: value `null`, no `unavailable` key. A `FetchError` is unchanged and still records `unavailable: true`. |
+| S4, S8 Scorecard lookup | **Amended by mortality-model-v2 (MV2-SRC-3).** For a repository that moved, the capture resolves the current `owner/name` once per repository (`resolve_current_names`: GraphQL `nameWithOwner`, then a non-followed, validated `301` and `GET /repositories/<id>`). The Scorecard lookup tries the current name first, then the declared name. The Scorecard source URL records the name that answered. |
+| GitHub signals (S3, S5, S6) | Unchanged. |
+| Fixture schema | The fixture gains the additive top-level key `repo_moved_from`, written only for moved repositories. Fixtures for repositories that did not move are unchanged. |
+| `backend/sources`, `backend/core/sources` | **Not changed.** The probe ran without `--library`, and every failure it recorded was in the capture path only. Evidence: `eval/analysis/moved-repo-probe/result.md`. |

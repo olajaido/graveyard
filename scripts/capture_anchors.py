@@ -124,6 +124,15 @@ class Fetched:
     fetched_at: str
 
 
+@dataclass(frozen=True)
+class RawReply:
+    """One reply of ``Http.get_raw``: any status below 500, redirects not followed."""
+
+    status: int
+    location: str | None
+    data: Any
+
+
 def now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -190,6 +199,38 @@ class Http:
 
     def get(self, url: str, allow_404: bool = False) -> Fetched:
         return self.request("GET", url, allow_404=allow_404)
+
+    def get_raw(self, url: str) -> RawReply:
+        """GET without following redirects; returns the status, ``Location`` and parsed JSON.
+
+        Unlike ``request`` it returns any status below 500 (including 301 and 404) and never
+        raises on a 4xx. Retries 429, 5xx and network errors like ``request``. Used only by
+        ``resolve_current_names``.
+        """
+        host = urlparse(url).hostname or ""
+        extra: dict[str, str] = {}
+        if host == "api.github.com" and _TOKEN:
+            extra["Authorization"] = f"Bearer {_TOKEN}"  # sent to GitHub only
+        last_problem = "unknown error"
+        for attempt in range(4):
+            self._throttle(host)
+            try:
+                resp = self._client.request("GET", url, headers=extra)
+            except httpx.HTTPError as exc:
+                last_problem = f"{type(exc).__name__} requesting {url}"
+            else:
+                if resp.status_code not in (429, 500, 502, 503, 504):
+                    try:
+                        data = resp.json() if resp.content else None
+                    except ValueError:
+                        data = None
+                    return RawReply(resp.status_code, resp.headers.get("Location"), data)
+                last_problem = f"HTTP {resp.status_code} from {url}"
+                retry_after = resp.headers.get("Retry-After", "")
+                if retry_after.isdigit():
+                    time.sleep(min(int(retry_after), 60))
+            time.sleep(self._delay * (2**attempt))
+        raise FetchError(f"giving up after retries: {last_problem}")
 
 
 # --------------------------------------------------------------------------- #
@@ -279,6 +320,7 @@ class Partial:
     repo: tuple[str, str] | None
     signals: dict[str, dict[str, Any]]
     npm_deprecated_s1: bool | None = None  # npm/deps.dev part of S1
+    repo_moved_from: str | None = None  # declared ``owner/name`` when GitHub renamed the repo
 
 
 def collect_registry_npm(http: Http, name: str, pinned: str | None) -> dict[str, Any]:
@@ -415,43 +457,99 @@ def osv_fixed_versions(vuln: dict[str, Any], ecosystem: str, name: str) -> list[
     return sorted(set(fixed))
 
 
-def collect_scorecard(
-    http: Http, repo: tuple[str, str] | None, project: dict[str, Any] | None
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Return (s4, s8). deps.dev project first, Scorecard API as fallback."""
-    if repo is None:
-        why = "no GitHub repo resolved"
-        return missing(why), missing(why)
-    key = f"github.com/{repo[0]}/{repo[1]}"
-    fetched_at: str | None = None
-    source: str | None = None
+def _same_repo(a: tuple[str, str], b: tuple[str, str]) -> bool:
+    return (a[0].lower(), a[1].lower()) == (b[0].lower(), b[1].lower())
+
+
+def _project_scorecard(
+    project: dict[str, Any] | None, key: str
+) -> tuple[Any, Any, str | None, str | None]:
+    """(overall, maintained, source, fetched_at) from a deps.dev project document."""
+    if project is None:
+        return None, None, None, None
     overall: Any = None
     maintained: Any = None
-    if project is not None:
-        source = f"https://api.deps.dev/v3/projects/{quote(key, safe='')}"
-        fetched_at = project["fetched_at"]
-        card = project["data"].get("scorecard") or {}
-        overall = card.get("overallScore")
-        for check in card.get("checks", []) or []:
-            if check.get("name") == "Maintained":
-                maintained = check.get("score")
-    if overall is None and maintained is None:
-        url = f"https://api.securityscorecards.dev/projects/{key}"
+    card = project["data"].get("scorecard") or {}
+    overall = card.get("overallScore")
+    for check in card.get("checks", []) or []:
+        if check.get("name") == "Maintained":
+            maintained = check.get("score")
+    source = f"https://api.deps.dev/v3/projects/{quote(key, safe='')}"
+    return overall, maintained, source, project["fetched_at"]
+
+
+def scorecard_lookup(
+    http: Http,
+    repo: tuple[str, str] | None,
+    project: dict[str, Any] | None,
+    current: tuple[str, str] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], str | None]:
+    """Return (s4, s8, answered). ``answered`` is ``"current"``, ``"declared"`` or None.
+
+    The deps.dev project document (keyed by the declared repo, unchanged) is read first. For
+    the Scorecard API, a moved repository (``current`` differs from ``repo``) tries the current
+    name first and the declared name if that gave no data (MV2-SRC-3). The declared name's
+    outcome is the fallback result, so a repository that has not moved behaves exactly as
+    before. A failure on any tried name never produces a known value from another source.
+    """
+    if repo is None:
+        why = "no GitHub repo resolved"
+        return missing(why), missing(why), None
+    key = f"github.com/{repo[0]}/{repo[1]}"
+    overall, maintained, source, fetched_at = _project_scorecard(project, key)
+    if overall is not None or maintained is not None:
+        s4, s8 = _scorecard_pair(maintained, overall, source, fetched_at)
+        return s4, s8, "declared"
+    candidates: list[tuple[str, tuple[str, str]]] = []
+    if current is not None and not _same_repo(current, repo):
+        candidates.append(("current", current))
+    candidates.append(("declared", repo))
+    unavailable: tuple[str, str] | None = None
+    outcome: tuple[dict[str, Any], dict[str, Any]] | None = None
+    for label, name in candidates:
+        url = f"https://api.securityscorecards.dev/projects/github.com/{name[0]}/{name[1]}"
         try:
             fb = http.get(url, allow_404=True)
+        except NotFoundError:
+            # MV2-SRC-1: Scorecard has no entry for this repo. Not a fetch failure.
+            outcome = (missing("not scanned", url), missing("not scanned", url))
+            continue
         except FetchError as exc:
-            return missing(f"scorecard unavailable: {exc}", url, unavailable=True), missing(
-                f"scorecard unavailable: {exc}", url, unavailable=True
-            )
-        source, fetched_at = url, fb.fetched_at
-        overall = fb.data.get("score")
-        for check in fb.data.get("checks", []) or []:
+            unavailable = (f"scorecard unavailable: {exc}", url)
+            outcome = None
+            continue
+        data = fb.data
+        overall = data.get("score")
+        maintained = None
+        for check in data.get("checks", []) or []:
             if check.get("name") == "Maintained":
                 maintained = check.get("score")
+        if overall is not None or maintained is not None:
+            s4, s8 = _scorecard_pair(maintained, overall, url, fb.fetched_at)
+            return s4, s8, label
+        outcome = _scorecard_pair(maintained, overall, url, fb.fetched_at)
+    if unavailable is not None:
+        msg, url = unavailable
+        return missing(msg, url, unavailable=True), missing(msg, url, unavailable=True), None
+    assert outcome is not None
+    return outcome[0], outcome[1], None
+
+
+def _scorecard_pair(
+    maintained: Any, overall: Any, source: str | None, fetched_at: str | None
+) -> tuple[dict[str, Any], dict[str, Any]]:
     return (
         sig(maintained, source, fetched_at, note=None if maintained is not None else "absent"),
         sig(overall, source, fetched_at, note=None if overall is not None else "absent"),
     )
+
+
+def collect_scorecard(
+    http: Http, repo: tuple[str, str] | None, project: dict[str, Any] | None
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Return (s4, s8). deps.dev project first, Scorecard API as fallback (declared name)."""
+    s4, s8, _ = scorecard_lookup(http, repo, project)
+    return s4, s8
 
 
 def collect_downloads(http: Http, name: str, ecosystem: str) -> dict[str, Any]:
@@ -569,9 +667,20 @@ def capture_phase1(http: Http, name: str, ecosystem: str, pinned: str | None) ->
         )
         if res is not None:
             project = {"data": res.data, "fetched_at": res.fetched_at}
-    (s4, s8), err = attempt("scorecard", collect_scorecard, http, repo, project)
-    if err:
-        s4 = s8 = missing(err, unavailable=True)
+    # Resolve the current name once, before the keyed lookups. It only steers the Scorecard
+    # API lookup (MV2-SRC-3); GitHub capture keeps the declared name. None keeps that name.
+    current: tuple[str, str] | None = None
+    if repo is not None:
+        resolved_names, _ = attempt("current name", resolve_current_names, http, [repo])
+        current = (resolved_names or {}).get(repo)
+    moved_from: str | None = None
+    if repo is not None and current is not None and not _same_repo(current, repo):
+        moved_from = f"{repo[0]}/{repo[1]}"
+    sc, err = attempt("scorecard", scorecard_lookup, http, repo, project, current)
+    if err or sc is None:
+        s4 = s8 = missing(err or "scorecard unavailable", unavailable=True)
+    else:
+        s4, s8, _answered = sc
     signals["s4_maintained"], signals["s8_overall"] = s4, s8
 
     # S7 advisories (None = unknown, [] = known empty)
@@ -591,6 +700,7 @@ def capture_phase1(http: Http, name: str, ecosystem: str, pinned: str | None) ->
         latest=latest,
         repo=repo,
         signals=signals,
+        repo_moved_from=moved_from,
     )
 
 
@@ -760,6 +870,113 @@ def github_signals(
 
 
 # --------------------------------------------------------------------------- #
+# Current repository name (MV2-SRC-3, design 12.3). Scorecard lookup only: the
+# GitHub signals above follow renames and are not keyed by this name.
+# --------------------------------------------------------------------------- #
+GITHUB_REST = "https://api.github.com"
+_FULL_NAME = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+_REPOSITORY_PATH = re.compile(r"^/repositories/[0-9]+$")
+
+
+def build_name_query(count: int) -> str:
+    """GraphQL query asking only ``nameWithOwner`` for ``count`` repositories."""
+    decls = [f"$o{i}: String!, $n{i}: String!" for i in range(count)]
+    body = [
+        f"r{i}: repository(owner: $o{i}, name: $n{i}) {{ nameWithOwner }}" for i in range(count)
+    ]
+    return f"query({', '.join(decls)}) {{\n" + "\n".join(body) + "\n}"
+
+
+def parse_full_name(raw: Any) -> tuple[str, str] | None:
+    """``owner/name`` string to a pair, or None when it is not exactly that shape."""
+    if not isinstance(raw, str) or not _FULL_NAME.match(raw):
+        return None
+    owner, name = raw.split("/", 1)
+    return owner, name
+
+
+def redirect_repository_id(reply: RawReply) -> str | None:
+    """Repository id of a 301 whose ``Location`` is ``https://api.github.com/repositories/<id>``.
+
+    Any other status, host, scheme, port, userinfo, query, fragment or path gives None.
+    """
+    if reply.status != 301 or not reply.location:
+        return None
+    parsed = urlparse(reply.location)
+    try:
+        port = parsed.port
+    except ValueError:
+        return None
+    if parsed.scheme != "https" or parsed.hostname != "api.github.com" or port is not None:
+        return None
+    if parsed.username or parsed.password or parsed.query or parsed.fragment or parsed.params:
+        return None
+    if not _REPOSITORY_PATH.match(parsed.path):
+        return None
+    return parsed.path.rsplit("/", 1)[1]
+
+
+def _graphql_names(
+    http: Http, repos: list[tuple[str, str]]
+) -> dict[tuple[str, str], tuple[str, str]]:
+    """``nameWithOwner`` per repo from batched GraphQL (1 request per 50 repos)."""
+    found: dict[tuple[str, str], tuple[str, str]] = {}
+    for start in range(0, len(repos), GITHUB_BATCH):
+        chunk = repos[start : start + GITHUB_BATCH]
+        variables: dict[str, Any] = {}
+        for i, (owner, name) in enumerate(chunk):
+            variables[f"o{i}"], variables[f"n{i}"] = owner, name
+        try:
+            res = graphql(http, build_name_query(len(chunk)), variables)
+        except FetchError:
+            continue
+        for i, repo in enumerate(chunk):
+            node = res.data["data"].get(f"r{i}")
+            current = parse_full_name(node.get("nameWithOwner")) if isinstance(node, dict) else None
+            if current is not None:
+                found[repo] = current
+    return found
+
+
+def _rest_name(http: Http, repo: tuple[str, str]) -> tuple[str, str] | None:
+    """REST fallback: non-followed 301 on ``/repos/<old>``, then ``/repositories/<id>``.
+
+    At most 2 requests. Only a 301 with a valid ``Location`` is used; no other redirect is
+    followed. ``full_name`` must be a plain ``owner/name``.
+    """
+    try:
+        first = http.get_raw(f"{GITHUB_REST}/repos/{repo[0]}/{repo[1]}")
+        repo_id = redirect_repository_id(first)
+        if repo_id is None:
+            return None
+        second = http.get_raw(f"{GITHUB_REST}/repositories/{repo_id}")
+    except FetchError:
+        return None
+    if second.status != 200 or not isinstance(second.data, dict):
+        return None
+    return parse_full_name(second.data.get("full_name"))
+
+
+def resolve_current_names(
+    http: Http, repos: list[tuple[str, str]]
+) -> dict[tuple[str, str], tuple[str, str] | None]:
+    """Resolve the current ``owner/name`` of each repository, once, before keyed lookups.
+
+    Order (design 12.3): GraphQL ``nameWithOwner`` (one shared request per 50 repos), then,
+    only for a repository GraphQL did not name, the REST 301 route (at most 2 requests per
+    repository). Returns ``repo -> current pair`` (equal to ``repo`` ignoring case when not
+    moved) or ``None`` when no source could name it; callers then keep the name they have.
+    Never raises on a failed lookup.
+    """
+    unique = list(dict.fromkeys(repos))
+    names: dict[tuple[str, str], tuple[str, str] | None] = {}
+    graph = _graphql_names(http, unique)
+    for repo in unique:
+        names[repo] = graph.get(repo) or _rest_name(http, repo)
+    return names
+
+
+# --------------------------------------------------------------------------- #
 # Assembly and output
 # --------------------------------------------------------------------------- #
 def combine_s1(partial: Partial, gh: dict[str, dict[str, Any]] | None) -> dict[str, Any]:
@@ -801,7 +1018,7 @@ def assemble(
         "s6_closed_issues", "s7_advisories", "s8_overall", "s9_weekly_downloads",
     ]  # fmt: skip
     purl_name = _norm(partial.package) if partial.ecosystem == "pypi" else partial.package
-    return {
+    fixture: dict[str, Any] = {
         "package": partial.package,
         "ecosystem": partial.ecosystem,
         "purl": f"pkg:{partial.ecosystem}/{purl_name}@{partial.resolved}",
@@ -816,6 +1033,9 @@ def assemble(
         "services_affected": None,
         "shared_repo": False,
     }
+    if partial.repo_moved_from is not None:  # additive key; absent when the repo did not move
+        fixture["repo_moved_from"] = partial.repo_moved_from
+    return fixture
 
 
 def write_fixture(out_dir: Path, fixture: dict[str, Any]) -> Path:

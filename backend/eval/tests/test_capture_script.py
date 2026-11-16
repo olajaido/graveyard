@@ -175,6 +175,32 @@ def test_scorecard_fetch_error_is_unavailable(anchors: Any) -> None:
     assert s4["unavailable"] is True and s8["unavailable"] is True
 
 
+def test_scorecard_404_is_not_scanned(anchors: Any) -> None:
+    http = FakeHttp(anchors, error=anchors.NotFoundError("404 from x"))
+    s4, s8 = anchors.collect_scorecard(http, ("a", "b"), None)
+    for s in (s4, s8):
+        assert s["value"] is None
+        assert s["note"] == "not scanned"
+        assert "unavailable" not in s
+
+
+def test_scorecard_depsdev_first_path_unchanged(anchors: Any) -> None:
+    project = {
+        "fetched_at": "2026-11-14T00:00:00Z",
+        "data": {
+            "scorecard": {
+                "overallScore": 6.5,
+                "checks": [{"name": "Maintained", "score": 7}],
+            }
+        },
+    }
+    http = FakeHttp(anchors, error=anchors.NotFoundError("must not be called"))
+    s4, s8 = anchors.collect_scorecard(http, ("a", "b"), project)
+    assert s4["value"] == 7 and s8["value"] == 6.5
+    assert s4["source"].startswith("https://api.deps.dev/v3/projects/")
+    assert "unavailable" not in s4 and "note" not in s4
+
+
 def test_scorecard_absent_is_not_unavailable(anchors: Any) -> None:
     http = FakeHttp(anchors, data={})
     s4, s8 = anchors.collect_scorecard(http, ("a", "b"), None)
@@ -442,3 +468,264 @@ def test_refetch_leaves_other_fixtures_untouched(
     assert (tmp_path / "out" / "npm" / "good.json").read_bytes() == before_good
     rewritten = json.loads((tmp_path / "out" / "npm" / "bad.json").read_text())
     assert rewritten["signals"]["s6"]["value"] == 1
+
+
+# --------------------------------------------------------------------------- #
+# resolve_current_names (MV2-SRC-3, design 12.3)
+# --------------------------------------------------------------------------- #
+class ResolveHttp:
+    """Fake ``Http`` for the resolver: scripted GraphQL data and raw REST replies."""
+
+    def __init__(
+        self,
+        anchors: Any,
+        *,
+        graphql_names: dict[str, str | None] | None = None,
+        graphql_error: Exception | None = None,
+        raw: dict[str, Any] | None = None,
+    ) -> None:
+        self._anchors = anchors
+        self._names = graphql_names or {}
+        self._graphql_error = graphql_error
+        self._raw = raw or {}
+        self.requests: list[str] = []
+
+    def request(self, method: str, url: str, **kwargs: Any) -> Any:
+        self.requests.append(f"{method} {url}")
+        if self._graphql_error is not None:
+            raise self._graphql_error
+        variables = kwargs["body"]["variables"]
+        data: dict[str, Any] = {}
+        i = 0
+        while f"o{i}" in variables:
+            old = f"{variables[f'o{i}']}/{variables[f'n{i}']}"
+            current = self._names.get(old)
+            data[f"r{i}"] = {"nameWithOwner": current} if current else None
+            i += 1
+        return self._anchors.Fetched(url=url, data={"data": data}, fetched_at="t")
+
+    def get_raw(self, url: str) -> Any:
+        self.requests.append(f"GET {url}")
+        reply = self._raw.get(url)
+        if reply is None:
+            return self._anchors.RawReply(404, None, None)
+        if isinstance(reply, Exception):
+            raise reply
+        return reply
+
+
+API = "https://api.github.com"
+
+
+def test_resolver_graphql_names_rename_without_rest(anchors: Any) -> None:
+    http = ResolveHttp(anchors, graphql_names={"visionmedia/express": "expressjs/express"})
+    out = anchors.resolve_current_names(http, [("visionmedia", "express")])
+    assert out == {("visionmedia", "express"): ("expressjs", "express")}
+    assert len(http.requests) == 1  # one shared GraphQL request, no REST
+
+
+def test_resolver_rest_301_route_resolves_rename(anchors: Any) -> None:
+    raw = {
+        f"{API}/repos/fezvrasta/popper.js": anchors.RawReply(
+            301, f"{API}/repositories/54994103", {"message": "Moved Permanently"}
+        ),
+        f"{API}/repositories/54994103": anchors.RawReply(
+            200, None, {"full_name": "floating-ui/floating-ui"}
+        ),
+    }
+    http = ResolveHttp(anchors, graphql_error=anchors.FetchError("down"), raw=raw)
+    out = anchors.resolve_current_names(http, [("fezvrasta", "popper.js")])
+    assert out == {("fezvrasta", "popper.js"): ("floating-ui", "floating-ui")}
+    assert len(http.requests) - 1 <= 2  # at most 2 extra requests beyond the GraphQL batch
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "https://evil.example/repositories/1",
+        "http://api.github.com/repositories/1",
+        "https://api.github.com:8443/repositories/1",
+        "https://api.github.com/repositories/1?x=1",
+        "https://api.github.com/repositories/abc",
+        "https://api.github.com/repos/other/name",
+        "https://user@api.github.com/repositories/1",
+        "/repositories/1",
+        "",
+    ],
+)
+def test_resolver_rejects_invalid_location(anchors: Any, location: str) -> None:
+    raw = {f"{API}/repos/a/b": anchors.RawReply(301, location, None)}
+    http = ResolveHttp(anchors, graphql_error=anchors.FetchError("down"), raw=raw)
+    assert anchors.resolve_current_names(http, [("a", "b")]) == {("a", "b"): None}
+    assert http.requests[-1] == f"GET {API}/repos/a/b"  # the Location was never requested
+
+
+@pytest.mark.parametrize("status", [302, 303, 307, 308])
+def test_resolver_follows_no_other_redirect(anchors: Any, status: int) -> None:
+    raw = {
+        f"{API}/repos/a/b": anchors.RawReply(status, f"{API}/repositories/7", None),
+        f"{API}/repositories/7": anchors.RawReply(200, None, {"full_name": "c/d"}),
+    }
+    http = ResolveHttp(anchors, graphql_error=anchors.FetchError("down"), raw=raw)
+    assert anchors.resolve_current_names(http, [("a", "b")]) == {("a", "b"): None}
+    assert all("/repositories/" not in r for r in http.requests)
+
+
+def test_resolver_second_hop_redirect_or_bad_full_name_is_unresolved(anchors: Any) -> None:
+    for second in (
+        anchors.RawReply(301, f"{API}/repositories/9", None),
+        anchors.RawReply(200, None, {"full_name": "https://evil/x/y"}),
+        anchors.RawReply(200, None, {"full_name": 5}),
+    ):
+        raw = {
+            f"{API}/repos/a/b": anchors.RawReply(301, f"{API}/repositories/7", None),
+            f"{API}/repositories/7": second,
+        }
+        http = ResolveHttp(anchors, graphql_error=anchors.FetchError("down"), raw=raw)
+        assert anchors.resolve_current_names(http, [("a", "b")]) == {("a", "b"): None}
+
+
+def test_resolver_network_failure_is_unresolved_not_raised(anchors: Any) -> None:
+    raw = {f"{API}/repos/a/b": anchors.FetchError("giving up")}
+    http = ResolveHttp(anchors, graphql_error=anchors.FetchError("down"), raw=raw)
+    assert anchors.resolve_current_names(http, [("a", "b")]) == {("a", "b"): None}
+
+
+def test_resolver_dedupes_and_batches_graphql_once(anchors: Any) -> None:
+    http = ResolveHttp(anchors, graphql_names={"a/b": "a/b", "c/d": "e/f"})
+    out = anchors.resolve_current_names(http, [("a", "b"), ("c", "d"), ("a", "b")])
+    assert out == {("a", "b"): ("a", "b"), ("c", "d"): ("e", "f")}
+    assert len(http.requests) == 1
+
+
+# --------------------------------------------------------------------------- #
+# Scorecard keyed by the current name (MV2-SRC-3, design 12.2 and 12.3)
+# --------------------------------------------------------------------------- #
+SC = "https://api.securityscorecards.dev/projects/github.com"
+
+
+class ScorecardHttp:
+    """Fake ``Http.get`` keyed by URL. Value: dict (served), ``"404"``, ``"down"``."""
+
+    def __init__(self, anchors: Any, replies: dict[str, Any]) -> None:
+        self._anchors = anchors
+        self._replies = replies
+        self.urls: list[str] = []
+
+    def get(self, url: str, allow_404: bool = False) -> Any:
+        self.urls.append(url)
+        reply = self._replies.get(url, "404")
+        if reply == "404":
+            raise self._anchors.NotFoundError("404 from x")
+        if reply == "down":
+            raise self._anchors.FetchError("down")
+        return self._anchors.Fetched(url=url, data=reply, fetched_at="t")
+
+
+def _card(score: float, maintained: int) -> dict[str, Any]:
+    return {"score": score, "checks": [{"name": "Maintained", "score": maintained}]}
+
+
+OLD, NEW = ("fezvrasta", "popper.js"), ("floating-ui", "floating-ui")
+
+
+def test_scorecard_current_name_answers_first(anchors: Any) -> None:
+    http = ScorecardHttp(
+        anchors,
+        {
+            f"{SC}/floating-ui/floating-ui": _card(8.0, 9),
+            f"{SC}/fezvrasta/popper.js": _card(1.0, 1),
+        },
+    )
+    s4, s8, answered = anchors.scorecard_lookup(http, OLD, None, NEW)
+    assert (s4["value"], s8["value"], answered) == (9, 8.0, "current")
+    assert s8["source"] == f"{SC}/floating-ui/floating-ui"
+    assert len(http.urls) == 1
+
+
+def test_scorecard_falls_back_to_declared_name(anchors: Any) -> None:
+    http = ScorecardHttp(anchors, {f"{SC}/fezvrasta/popper.js": _card(4.7, 10)})
+    s4, s8, answered = anchors.scorecard_lookup(http, OLD, None, NEW)
+    assert (s4["value"], s8["value"], answered) == (10, 4.7, "declared")
+    assert http.urls == [f"{SC}/floating-ui/floating-ui", f"{SC}/fezvrasta/popper.js"]
+
+
+def test_scorecard_unmoved_or_unresolved_uses_declared_only(anchors: Any) -> None:
+    for current in (None, OLD, ("FezVrasta", "Popper.js")):
+        http = ScorecardHttp(anchors, {f"{SC}/fezvrasta/popper.js": _card(4.7, 10)})
+        s4, _, answered = anchors.scorecard_lookup(http, OLD, None, current)
+        assert s4["value"] == 10 and answered == "declared"
+        assert http.urls == [f"{SC}/fezvrasta/popper.js"]
+
+
+def test_scorecard_depsdev_project_unchanged_when_it_has_data(anchors: Any) -> None:
+    project = {"fetched_at": "t", "data": {"scorecard": {"overallScore": 6.5, "checks": []}}}
+    http = ScorecardHttp(anchors, {})
+    _, s8, answered = anchors.scorecard_lookup(http, OLD, project, NEW)
+    assert s8["value"] == 6.5 and answered == "declared" and http.urls == []
+
+
+def test_scorecard_failure_on_one_name_is_unavailable_not_not_scanned(anchors: Any) -> None:
+    http = ScorecardHttp(anchors, {f"{SC}/floating-ui/floating-ui": "down"})
+    s4, s8, answered = anchors.scorecard_lookup(http, OLD, None, NEW)
+    assert answered is None
+    assert s4["unavailable"] is True and s8["unavailable"] is True
+
+
+def test_scorecard_both_404_is_not_scanned(anchors: Any) -> None:
+    s4, _, _ = anchors.scorecard_lookup(ScorecardHttp(anchors, {}), OLD, None, NEW)
+    assert s4["note"] == "not scanned" and "unavailable" not in s4
+
+
+def test_assemble_adds_repo_moved_from_only_when_moved(anchors: Any) -> None:
+    plain = anchors.assemble(_partial(anchors), _gh(anchors))
+    assert "repo_moved_from" not in plain
+    moved_partial = _partial(anchors)
+    moved_partial.repo_moved_from = "fezvrasta/popper.js"
+    moved = anchors.assemble(moved_partial, _gh(anchors))
+    assert moved["repo_moved_from"] == "fezvrasta/popper.js"
+    assert moved["repo"] == "github.com/a/b"  # GitHub capture keeps the declared name
+    assert {k: v for k, v in moved.items() if k not in ("repo_moved_from", "captured_at")} == {
+        k: v for k, v in plain.items() if k != "captured_at"
+    }
+
+
+@pytest.mark.property
+def test_scorecard_failure_never_yields_a_different_known_value(anchors: Any) -> None:
+    """**Validates: Requirements MV2-SRC-3, MV2-SRC-TEST-6** (SRC-TEST-6 fault property)."""
+    from hypothesis import given
+    from hypothesis import strategies as st
+
+    reply = st.one_of(
+        st.just("404"),
+        st.just("down"),
+        st.just({}),
+        st.builds(
+            _card,
+            st.floats(min_value=0, max_value=10, allow_nan=False),
+            st.integers(min_value=0, max_value=10),
+        ),
+    )
+
+    @given(cur=reply, dec=reply)
+    def check(cur: Any, dec: Any) -> None:
+        both = ScorecardHttp(
+            anchors, {f"{SC}/floating-ui/floating-ui": cur, f"{SC}/fezvrasta/popper.js": dec}
+        )
+        s4, s8, _ = anchors.scorecard_lookup(both, OLD, None, NEW)
+        known = [v for v in (cur, dec) if isinstance(v, dict) and v.get("score") is not None]
+        if s8["value"] is not None:
+            assert s8["value"] in [v["score"] for v in known]
+        # A failure on the current name leaves the declared-name answer untouched.
+        alone = ScorecardHttp(anchors, {f"{SC}/fezvrasta/popper.js": dec})
+        a4, a8, _ = anchors.scorecard_lookup(alone, OLD, None, None)
+        if cur in ("404", "down") and isinstance(dec, dict) and dec.get("score") is not None:
+            assert (s4["value"], s8["value"]) == (a4["value"], a8["value"])
+        # The current name, when it has data, always wins; nothing else is ever reported.
+        if isinstance(cur, dict) and cur.get("score") is not None:
+            assert s8["value"] == cur["score"]
+        # No data anywhere and no failure: the value stays missing.
+        if not known:
+            assert s8["value"] is None
+
+    check()

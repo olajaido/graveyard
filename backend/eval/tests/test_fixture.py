@@ -354,3 +354,13 @@ def test_fixture_that_is_not_a_json_object_names_the_file(tmp_path: Path) -> Non
     (tmp_path / "pypi" / "six.json").write_text("[1, 2]", encoding="utf-8")
     with pytest.raises(FixtureError, match=r"pypi/six\.json.*must be a JSON object"):
         load_fixtures(tmp_path, _keys(("pypi", "six")))
+
+
+def test_unknown_top_level_keys_are_ignored(tmp_path: Path) -> None:
+    """The additive ``repo_moved_from`` key (MV2-SRC-3) does not change loading or Signals."""
+    _set(tmp_path, "six")
+    before = load_fixtures(tmp_path, _keys(("pypi", "six")))[("pypi", "six")]
+    _rewrite(tmp_path / "pypi" / "six.json", repo_moved_from="old/name", another_future_key=1)
+    after = load_fixtures(tmp_path, _keys(("pypi", "six")))[("pypi", "six")]
+    assert after.signals == before.signals and after.warnings == before.warnings
+    assert after.raw["repo_moved_from"] == "old/name"

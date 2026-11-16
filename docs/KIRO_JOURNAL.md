@@ -836,3 +836,17 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** Every script built on synthetic data only; `results.json` stayed byte-identical; `eval/heldout/` holds only the five allowed files.
 - **Corrected:** Design 10.1 rule 1 blocked after a review removal; maintainer chose to read `decisions.tsv` removals, design amended. Order-check append-only is checked per commit, not as one net diff.
 - **Surprise:** Several file layouts (`batch-log.tsv` triples separator, `f_counts` in `draw.json`, capture-log transient classes) were not fixed by the design; sub-agents chose them and flagged them for confirmation.
+
+### 16 Nov — Spec `mortality-model-v2`: T4 (conclusion and v2 mechanism amendment)
+- **Spec/task:** T4.1 to T4.5: conclusion, design 7.5 amendment, maintainer approval ("Approved 16 Nov 2026", commit 4eb096c).
+- **Kiro features:** Spec task DAG, manual stop task, `user_input` hand-off.
+- **Kiro got right:** Nothing under `core/scoring/v2/`, `versions.py` or `weights.v2.yaml` was written before the approval line existed.
+- **Corrected:** T5 ran while T4 waited, as the task text allows.
+- **Surprise:** The scheduler listed only T4.5 as ready, so T5 sub-tasks were started by id.
+
+### 16 Nov — Spec `mortality-model-v2`: T6 (capture-path source changes)
+- **Spec/task:** T6.1, T6.2, T6.3a to T6.3c, T6.4, T6.5: Scorecard 404 recorded as "not scanned"; current-name resolver; Scorecard lookup tries the current name then the declared name; `repo_moved_from` key; autopsy-sources amendment note.
+- **Kiro features:** Spec task DAG, parallel spec-task-execution sub-agents, a binding scope note from the maintainer (Scorecard only, GitHub capture unchanged).
+- **Kiro got right:** `backend/sources` has no code change (probe ran without `--library`; failures were capture-path only). Unmoved fixtures keep the same keys; `eval/results.json` is byte-identical.
+- **Corrected:** The resolver needed a new `Http.get_raw`, because `Http.request` drops the `Location` header. The nameWithOwner step is a separate batched query so the GitHub capture query is unchanged.
+- **Surprise:** For popper.js and inflight the old name has Scorecard data and the current name has none, so the lookup tries both names; one name failing never reads as "not scanned".
