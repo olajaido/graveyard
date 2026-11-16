@@ -799,6 +799,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794842335116
+      },
+      {
+        "executionId": "b4d8fad9-f65e-44cf-974a-64f8d0e9bf53",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869594581
+      },
+      {
+        "executionId": "b4d8fad9-f65e-44cf-974a-64f8d0e9bf53",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794869780356
       }
     ],
     "T5.24 — `check_heldout_order.py`, part 3: checks 6 to 9 (draw record and query-log coverage; capture window `F <= as_of <= F + 3 days`; `capture-log.tsv` rules with `form=not_captured` lines listing rows that were never captured; result files added by exactly one commit with matching provenance hashes; `V1_LOCK.json` files unchanged) and `--tag` mode (creates an annotated tag at `HEAD` only when the checks pass). Tests: `as_of` four days after the freeze date; a second re-capture of one row; a missing grid cell; a result file amended twice; a provenance mismatch; a locked file edited; `--tag` creates nothing on failure.": [

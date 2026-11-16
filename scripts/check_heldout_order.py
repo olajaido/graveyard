@@ -288,8 +288,14 @@ def check_no_data_early(ctx: Context) -> list[Finding]:
     for path in extra:
         findings.append(Finding(RULE_EARLY, 2, f"{path} exists at {FROZEN_TAG}"))
     text = show_blob(ctx.repo, commit, AMENDMENTS_PATH)
-    if text is not None and re.search(r"^## ", text, flags=re.MULTILINE):
-        findings.append(Finding(RULE_EARLY, 2, f"{AMENDMENTS_PATH} has an entry at {FROZEN_TAG}"))
+    if text is not None:
+        headings, problems = scan_amendments(text)
+        if headings:
+            findings.append(
+                Finding(RULE_EARLY, 2, f"{AMENDMENTS_PATH} has an entry at {FROZEN_TAG}")
+            )
+        for problem in problems:
+            findings.append(Finding(RULE_EARLY, 2, f"{AMENDMENTS_PATH} at {FROZEN_TAG}: {problem}"))
     return findings
 
 
@@ -352,6 +358,9 @@ _NOTICE_PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 _ENTRY_HEADER = re.compile(r"^## (\d{4}-\d{2}-\d{2}) (\S.*?)\s*$")
+_DATE_LIKE_HEADER = re.compile(r"^## \d{4}-\d{2}-\d{2}(?:\s|$)")
+_ENTRIES_HEADING = re.compile(r"^## Entries\s*$")
+_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _PATHS_LINE = re.compile(r"^paths:\s*(\S.*?)\s*$")
 _REASON_LINE = re.compile(r"^reason:\s*\S")
 
@@ -366,35 +375,90 @@ class Amendment:
     paths: frozenset[str]
 
 
-def parse_amendments(text: str) -> list[Amendment]:
-    """Entries with a ``## YYYY-MM-DD <name>`` header, a ``paths:`` line and a ``reason:`` line.
+@dataclass
+class _Heading:
+    """A well-formed entry heading and the unfenced lines that follow it."""
 
-    An entry runs to the next ``## `` line. An entry missing either line, or with a date that
-    is not a real calendar date, is ignored (it cannot amend anything).
+    header: str
+    date: str
+    name: str
+    body: list[str]
+
+
+def _valid_date(text: str) -> bool:
+    try:
+        datetime.strptime(text, "%Y-%m-%d")
+    except ValueError:
+        return False
+    return True
+
+
+def scan_amendments(text: str) -> tuple[list[_Heading], list[str]]:
+    """The one AMENDMENTS.md parser: entry headings plus the problems found.
+
+    Lines inside ``` or ~~~ fences are ignored. Under a ``## Entries`` heading every ``## ``
+    heading must be ``## <real YYYY-MM-DD date> <name>``; any other is reported as a problem
+    (never counted, never silently dropped). A file with no ``## Entries`` heading counts every
+    valid-date heading outside fences, and reports date-shaped headings with a bad date.
+    ``None.`` under Entries is no entry.
     """
-    blocks: list[tuple[str, list[str]]] = []
+    has_entries = any(_ENTRIES_HEADING.match(line) for line in text.splitlines())
+    headings: list[_Heading] = []
+    problems: list[str] = []
+    in_entries = not has_entries
+    current: _Heading | None = None
+    fence: str | None = None
     for line in text.splitlines():
-        if line.startswith("## "):
-            blocks.append((line.rstrip(), []))
-        elif blocks:
-            blocks[-1][1].append(line)
+        fence_match = _FENCE.match(line)
+        if fence is not None:
+            if (
+                fence_match
+                and fence_match.group(1)[0] == fence[0]
+                and len(fence_match.group(1)) >= len(fence)
+            ):
+                fence = None
+            continue
+        if fence_match:
+            fence = fence_match.group(1)
+            continue
+        if not line.startswith("## "):
+            if current is not None:
+                current.body.append(line)
+            continue
+        current = None
+        if _ENTRIES_HEADING.match(line):
+            in_entries = True
+            headings = []
+            continue
+        match = _ENTRY_HEADER.match(line)
+        if match is not None and _valid_date(match.group(1)):
+            if in_entries:
+                current = _Heading(line.rstrip(), match.group(1), match.group(2), [])
+                headings.append(current)
+            continue
+        if (has_entries and in_entries) or _DATE_LIKE_HEADER.match(line):
+            problems.append(
+                f"invalid entry heading {line.rstrip()!r} (need '## YYYY-MM-DD <name>')"
+            )
+    return headings, problems
+
+
+def parse_amendments(text: str) -> list[Amendment]:
+    """Entries with a valid ``## YYYY-MM-DD <name>`` header, a ``paths:`` and a ``reason:`` line.
+
+    An entry runs to the next ``## `` line. An entry missing either line, or with a bad heading
+    (see ``scan_amendments``), is ignored here: it cannot amend anything.
+    """
     entries: list[Amendment] = []
-    for header, body in blocks:
-        match = _ENTRY_HEADER.match(header)
-        if match is None:
-            continue
-        try:
-            datetime.strptime(match.group(1), "%Y-%m-%d")
-        except ValueError:
-            continue
+    for heading in scan_amendments(text)[0]:
         paths: set[str] = set()
-        for line in body:
+        for line in heading.body:
             paths_match = _PATHS_LINE.match(line)
             if paths_match:
                 paths.update(p.strip() for p in paths_match.group(1).split(",") if p.strip())
-        if not paths or not any(_REASON_LINE.match(line) for line in body):
+        if not paths or not any(_REASON_LINE.match(line) for line in heading.body):
             continue
-        entries.append(Amendment(header, match.group(1), match.group(2), frozenset(paths)))
+        entries.append(Amendment(heading.header, heading.date, heading.name, frozenset(paths)))
     return entries
 
 

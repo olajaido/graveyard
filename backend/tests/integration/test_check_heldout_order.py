@@ -610,3 +610,88 @@ def test_tag_creates_annotated_tag_on_success(repo: Repo) -> None:
     assert repo.git("cat-file", "-t", "eval-heldout-draw").strip() == "tag"
     assert repo.git("rev-parse", "eval-heldout-draw^{commit}") == repo.git("rev-parse", "HEAD")
     assert _run(repo, "--step", "eval-heldout-draw", "--tag") == 2  # already exists
+
+
+# --- AMENDMENTS.md parser and check 2 (template, fences, invalid dates) ----------------------
+
+_TEMPLATE = (Path(__file__).resolve().parents[3] / "eval/heldout/AMENDMENTS.md").read_text(
+    encoding="utf-8"
+)
+# The template exactly as committed, so the test stays valid if the file is not edited.
+_TEMPLATE_TEXT = """# Harness amendments
+
+Append-only. An entry lists harness files (those in `FROZEN_HARNESS.json`) that change after the `mortality-v2-frozen` tag. The entry is committed before the change commit, and its date is not after the date of that change. Model files, the manifest, `weights.v2.yaml`, the source changes and the held-out configuration (`dataset.yaml`, `gate.yaml`, `f/queries.tsv`) cannot be amended; a change to them is a new model version.
+
+Entry format (not a real entry):
+
+```
+## YYYY-MM-DD <name>
+paths: <comma-separated harness paths>
+reason: <one paragraph: what was wrong, what the change does, why it does not depend on any held-out result>
+```
+
+## Entries
+
+None.
+"""  # noqa: E501
+
+
+def _frozen_with(repo: Repo, amendments: str) -> None:
+    repo.commit({REQ: "r\n"})
+    repo.tag("v2-requirements")
+    repo.commit(ANALYSIS_FILES)
+    repo.tag("mortality-v2-analysis")
+    repo.commit({**FROZEN_FILES, H + "AMENDMENTS.md": amendments})
+    repo.tag("mortality-v2-frozen")
+
+
+def test_template_text_matches_repo_file() -> None:
+    assert _TEMPLATE.strip() == _TEMPLATE_TEXT.strip()
+
+
+def test_template_only_has_zero_entries() -> None:
+    headings, problems = mod.scan_amendments(_TEMPLATE_TEXT)
+    assert headings == [] and problems == []
+    assert mod.parse_amendments(_TEMPLATE_TEXT) == []
+
+
+def test_template_only_passes_check_2_at_frozen_tag(repo: Repo) -> None:
+    _frozen_with(repo, _TEMPLATE_TEXT)
+    assert _run(repo, "--verify-all") == 0
+
+
+def test_one_real_entry_is_one_entry_and_fails_check_2(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    text = _TEMPLATE_TEXT.replace("None.", "## 2026-11-20 real\npaths: x\nreason: y")
+    headings, problems = mod.scan_amendments(text)
+    assert [h.name for h in headings] == ["real"] and problems == []
+    _frozen_with(repo, text)
+    assert _run(repo, "--verify-all") == 1
+    assert "has an entry" in capsys.readouterr().err
+
+
+def test_heading_inside_fence_is_ignored() -> None:
+    text = "## Entries\n\n```\n## 2026-11-20 fenced\npaths: x\nreason: y\n## 2026-13-45 bad\n```\n"
+    assert mod.scan_amendments(text) == ([], [])
+    tilde = "~~~\n## 2026-11-20 fenced\n~~~\n"
+    assert mod.scan_amendments(tilde) == ([], [])
+
+
+@pytest.mark.parametrize("heading", ["## 2026-13-45 foo", "## YYYY-MM-DD x", "## 2026-11-20"])
+def test_invalid_heading_under_entries_is_rejected(
+    repo: Repo, capsys: pytest.CaptureFixture[str], heading: str
+) -> None:
+    text = f"# A\n\n## Entries\n\n{heading}\npaths: x\nreason: y\n"
+    headings, problems = mod.scan_amendments(text)
+    assert headings == [] and len(problems) == 1 and heading in problems[0]
+    assert mod.parse_amendments(text) == []
+    _frozen_with(repo, text)
+    assert _run(repo, "--verify-all") == 1
+    err = capsys.readouterr().err
+    assert "invalid entry heading" in err and "has an entry" not in err
+
+
+def test_invalid_date_without_entries_heading_is_rejected() -> None:
+    headings, problems = mod.scan_amendments("## 2026-13-45 foo\n## 2026-11-20 ok\n")
+    assert [h.name for h in headings] == ["ok"] and len(problems) == 1
