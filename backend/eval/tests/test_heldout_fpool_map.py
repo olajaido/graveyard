@@ -88,9 +88,99 @@ def test_package_pointing_at_longer_repo_does_not_match(script: Any) -> None:
 
 def test_candidate_names(script: Any) -> None:
     names = script.candidate_names("acme/python-widget")
-    assert names == ["python-widget", "widget"]
+    assert names == ["python-widget", "widget", "thon-widget"]
     assert script.candidate_names("acme/pyfoo") == ["pyfoo", "foo"]
-    assert script.candidate_names("acme/Foo_Bar") == ["Foo_Bar", "foo-bar"]
+    assert script.candidate_names("acme/Foo_Bar") == ["foo_bar", "foo-bar"]
+
+
+AFFECTED_REPOS = {
+    "Cesium-vector_provide": ("cesium-vector_provide", "cesium-vector-provide"),
+    "Extractors-SQLite_Transactions": (
+        "extractors-sqlite_transactions",
+        "extractors-sqlite-transactions",
+    ),
+    "GRC_Claw": ("grc_claw", "grc-claw"),
+    "KairosChain_2026": ("kairoschain_2026", "kairoschain-2026"),
+    "MICC_V3": ("micc_v3", "micc-v3"),
+    "SDVX_ASC": ("sdvx_asc", "sdvx-asc"),
+    "T113_LVGL": ("t113_lvgl", "t113-lvgl"),
+    "Trenning_steps": ("trenning_steps", "trenning-steps"),
+    "redmuffin.Blazor.StaticWeb": ("redmuffin.blazor.staticweb", "redmuffin-blazor-staticweb"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(AFFECTED_REPOS))
+def test_candidate_names_for_affected_real_shapes(script: Any, name: str) -> None:
+    lower, norm = AFFECTED_REPOS[name]
+    forms = script.candidate_names(f"o/{name}")
+    assert forms[:2] == [lower, norm]
+
+
+def test_prefixes_are_stripped_independently(script: Any) -> None:
+    assert script.candidate_names("o/python-foo") == ["python-foo", "foo", "thon-foo"]
+    assert script.candidate_names("o/PyYAML") == ["pyyaml", "yaml"]
+    # addition2 literally yields "" for a bare prefix; it fails the syntax and is never looked up
+    assert script.candidate_names("o/py") == ["py", ""]
+    assert script.candidate_names("o/widget") == ["widget"]
+    assert script.candidate_names("o/Widget") == ["widget"]
+
+
+def _addition2_set(repo: str) -> set[str]:
+    """Literal re-implementation of eval/addition2/map_repos_to_packages.py."""
+    import re
+
+    name = repo.split("/")[1]
+
+    def norm(s: str) -> str:
+        return re.sub(r"[-_.]+", "-", s).lower()
+
+    return {
+        name.lower(),
+        norm(name),
+        name.lower().removeprefix("python-"),
+        name.lower().removeprefix("py"),
+    }
+
+
+PARITY_NAMES = [
+    *AFFECTED_REPOS,
+    "python-foo",
+    "Python-Foo_Bar",
+    "pyfoo",
+    "PyYAML",
+    "py",
+    "python-",
+    "py.test",
+    "foo.bar_baz",
+    "a__b--c..d",
+    "plain",
+    "MixedCase",
+    "pythonic",
+    "Py-Thing",
+]
+
+
+@pytest.mark.parametrize("name", PARITY_NAMES)
+def test_candidate_names_match_addition2_set(script: Any, name: str) -> None:
+    forms = script.candidate_names(f"o/{name}")
+    assert set(forms) == _addition2_set(f"o/{name}")
+    assert len(forms) == len(set(forms))
+    assert forms[0] == name.lower()
+
+
+def test_uppercase_repo_leads_to_lowercase_npm_lookup(script: Any, tmp_path: Path) -> None:
+    write_search_outputs(tmp_path, {1: ["o/GRC_Claw"]})
+    registry = FakeRegistry(
+        {
+            "https://registry.npmjs.org/grc_claw/latest": npm_doc(
+                "1.2.3", repository={"url": "git+https://github.com/o/GRC_Claw.git"}
+            )
+        }
+    )
+    rows, _ = script.run_map(tmp_path / "f" / "raw", registry, lambda s: None)
+    assert "https://registry.npmjs.org/grc_claw/latest" in registry.urls
+    assert "https://registry.npmjs.org/grc-claw/latest" in registry.urls
+    assert [(r.ecosystem, r.name, r.repo) for r in rows] == [("npm", "grc_claw", "o/GRC_Claw")]
 
 
 def test_scoped_and_invalid_names_are_skipped_and_counted(script: Any, tmp_path: Path) -> None:
@@ -99,11 +189,21 @@ def test_scoped_and_invalid_names_are_skipped_and_counted(script: Any, tmp_path:
     rows, counts = script.run_map(tmp_path / "f" / "raw", registry, lambda s: None)
     assert rows == []
     assert counts["skipped_scoped"] + counts["repositories_unusable"] >= 1
-    # npm "Upper" is invalid (uppercase), PyPI "upper" is the PEP 503 form
-    assert counts["skipped_invalid"] == 1
+    # the variant set is lowercased, so "Upper" gives "upper" on both registries
+    assert counts["skipped_invalid"] == 0
     assert not any("%40" in u or "@" in u for u in registry.urls)
     assert "https://registry.npmjs.org/Upper/latest" not in registry.urls
+    assert "https://registry.npmjs.org/upper/latest" in registry.urls
     assert "https://pypi.org/pypi/upper/json" in registry.urls
+
+
+def test_invalid_variant_is_skipped_and_counted(script: Any, tmp_path: Path) -> None:
+    # "py_foo": npm variants "py_foo", "py-foo", "_foo"; "_foo" fails the syntax
+    write_search_outputs(tmp_path, {1: ["o/py_foo"]})
+    registry = FakeRegistry({})
+    _, counts = script.run_map(tmp_path / "f" / "raw", registry, lambda s: None)
+    assert counts["skipped_invalid"] == 2  # npm "_foo" and PyPI "-foo"
+    assert not any("/_foo/" in u for u in registry.urls)
 
 
 def test_map_refuses_an_unfinished_search(script: Any, tmp_path: Path) -> None:

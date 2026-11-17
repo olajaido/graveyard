@@ -569,6 +569,8 @@ The `size:` qualifier is placed in the query text, where GitHub's code search sy
 ### 9.3 Map
 For each repository `owner/repo`, candidate package names are the repo name, its PEP 503 form, and the name without a `python-` or `py` prefix. A package counts only if its PyPI JSON (`home_page`, `project_urls`, `download_url`) or its npm latest document (`repository`, `homepage`, `bugs`) contains a GitHub URL whose **parsed** `owner/repo` equals the repository, compared with `core.purl.normalise_repo_url` and `repo_key`. The Addition scripts matched on a substring, which also accepts `github.com/foo/bar-baz` for `foo/bar`; this step does not. Scoped npm names and names failing the syntax are skipped and counted. Output `f/raw/mapped.tsv`: `query_id, repo, ecosystem, name, version`.
 
+*2026-11-17:* Candidate names were corrected to match the pre-registered addition2 variant set (lowercased name, PEP 503 form, `python-` and `py` stripped independently, from the lowercased name) before the draw tag. The exact owner/repo match remains the one declared deviation. Nothing had been labelled. `map` and `build` are re-run before the tag.
+
 ### 9.4 Build (offline)
 Dedupe on `(ecosystem, name)`, keeping the lowest query id. Remove everything in `exclusions.tsv` and the 150 Q candidates. Order by `draw_key(seed, "F", ecosystem, name)`. Walk in that order and skip a package whose lower-cased GitHub owner already has 3 packages in the pool (`owner_cap`). Output `draw/f-pool.tsv`: `order, ecosystem, name, repo, owner, query_id, draw_key`. The two ecosystems share one order. A test rebuilds `f-pool.tsv` byte for byte from `f/raw/mapped.tsv`, `exclusions.tsv` and `q-candidates.tsv`.
 

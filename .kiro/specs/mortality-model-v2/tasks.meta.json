@@ -624,6 +624,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794842336687
+      },
+      {
+        "executionId": "d5a1e75e-2078-4d75-8ee4-c236ddc25b93",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794922092831
+      },
+      {
+        "executionId": "d5a1e75e-2078-4d75-8ee4-c236ddc25b93",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794922348252
       }
     ],
     "T5.9 — Create the step 3 configuration files under `eval/heldout/`: `dataset.yaml` (design 8.1), `gate.yaml` (0.90, 0.10, 25, 20), `f/queries.tsv` (the 200 rows written by `build_grid()`), `README.md` (what the folder is, the tag order, \"no data before the draw\"), and `AMENDMENTS.md` (header and the entry format, no entry). Tests in `backend/eval/tests/test_heldout_config.py`: seed equals the literal in the requirements; numbers equal MV2-SMP-1 and SMP-3; `gate.yaml` loads with `load_gate_config` to `GateConfig(0.90, 0.10, 25, 20)`; `queries.tsv` equals `build_grid()`; `AMENDMENTS.md` has no entry; the set of paths under `eval/heldout/` equals the allowed list of design 13.2 check 2 (plus `FROZEN_HARNESS.json` once T8.1 writes it).": [

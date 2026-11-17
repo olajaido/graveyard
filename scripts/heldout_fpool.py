@@ -34,13 +34,16 @@ Auth: ``gh`` uses its own login (``gh auth login``). This script never reads ``G
 any other environment variable. No test or hook runs this against the network.
 
 ``map`` (design 9.3) reads the complete ``f/raw/query-log.tsv`` and ``f/raw/repos_<id>.txt``. For
-each unique repository it forms candidate package names (repo name, its PEP 503 form, the name
-without a ``python-`` or ``py`` prefix), fetches the registry metadata (npm latest document, PyPI
-JSON) through an injectable fetch, and keeps a package only when a GitHub URL in the metadata
-parses (``core.purl.normalise_repo_url``) to the same repository under ``repo_key``. A URL for
-``foo/bar-baz`` never matches ``foo/bar``. Scoped and syntactically invalid names are skipped and
-counted. Output: ``f/raw/mapped.tsv`` and ``f/raw/map-summary.json``. Not resumable: a failed
-lookup stops the run (after 3 retries) and nothing is written.
+each unique repository it forms candidate package names, the same four forms as
+``eval/addition2/map_repos_to_packages.py``: the lowercased repo name, its PEP 503 form, and the
+lowercased name with ``python-`` removed and with ``py`` removed. The two prefixes are stripped
+independently, so ``python-foo`` also gives ``thon-foo``. The forms are deduplicated in that order.
+It fetches the registry metadata (npm latest document, PyPI JSON) through an injectable fetch, and
+keeps a package only when a GitHub URL in the metadata parses (``core.purl.normalise_repo_url``) to
+the same repository under ``repo_key``. A URL for ``foo/bar-baz`` never matches ``foo/bar``. Scoped
+and syntactically invalid names are skipped and counted. Output: ``f/raw/mapped.tsv`` and
+``f/raw/map-summary.json``. Not resumable: a failed lookup stops the run (after 3 retries) and
+nothing is written.
 
 ``build`` (design 9.4) is offline: ``mapped.tsv``, ``exclusions.tsv``, ``draw/q-candidates.tsv`` and
 the seed in ``draw/draw.json`` give ``draw/f-pool.tsv`` and ``draw/strata.tsv`` (Q rows, then F
@@ -426,14 +429,19 @@ def metadata_url(ecosystem: str, name: str) -> str:
 
 
 def candidate_names(repo: str) -> list[str]:
-    """Raw candidates from the repo name: itself, its PEP 503 form, and without a prefix."""
-    base = repo.split("/", 1)[1]
-    forms = [base, _PEP503_RUN.sub("-", base).lower()]
-    for prefix in ("python-", "py"):  # the first that applies; "python-x" is not also "thon-x"
-        if base.lower().startswith(prefix):
-            stripped = base[len(prefix) :]
-            forms.extend((stripped, _PEP503_RUN.sub("-", stripped).lower()))
-            break
+    """The addition2 variant set for the repo name, in a fixed order, deduplicated.
+
+    Lowercased name, PEP 503 form, then ``python-`` and ``py`` removed from the lowercased
+    name. The prefixes are stripped independently ("python-foo" gives "foo" and "thon-foo");
+    a prefix that is absent leaves the name unchanged.
+    """
+    lower = repo.split("/", 1)[1].lower()
+    forms = [
+        lower,
+        _PEP503_RUN.sub("-", lower),
+        lower.removeprefix("python-"),
+        lower.removeprefix("py"),
+    ]
     return list(dict.fromkeys(forms))
 
 
