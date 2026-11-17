@@ -1,6 +1,8 @@
 # /// script
 # requires-python = "==3.12.*"
-# dependencies = []
+# dependencies = [
+#   "packageurl-python==0.17.6",
+# ]
 # ///
 """Held-out F pool: size calibration and code search (design 9.2; MV2-SMP-2). MAINTAINER-RUN ONLY.
 

@@ -1,6 +1,8 @@
 # /// script
 # requires-python = "==3.12.*"
-# dependencies = []
+# dependencies = [
+#   "pyyaml==6.0.3",
+# ]
 # ///
 """Release held-out batches and report progress (design 10.1; MV2-SMP-3 to 5, MV2-LAB-2).
 

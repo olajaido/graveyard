@@ -597,6 +597,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794841808419
+      },
+      {
+        "executionId": "6df96af7-a033-49e1-bedc-f28e12eb4a08",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794918405663
+      },
+      {
+        "executionId": "6df96af7-a033-49e1-bedc-f28e12eb4a08",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794918579149
       }
     ],
     "T5.8 — `scripts/heldout_fpool.py map` and `build` (design 9.3, 9.4): candidate names (repo name, PEP 503 form, without `python-` or `py` prefix), exact match of the parsed `owner/repo` through `core.purl.normalise_repo_url` and `repo_key`, scoped and invalid names skipped and counted, `mapped.tsv`, then `fpool.build_pool`, `f-pool.tsv`, `strata.tsv` and the extra `draw.json` counts. Tests: a package pointing at `foo/bar-baz` does not match `foo/bar`; scoped names skipped; a fake registry end to end on a toy grid.": [
