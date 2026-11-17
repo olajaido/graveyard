@@ -1,0 +1,7 @@
+ecosystem	name	label	evidence_kind	status	flags	detail
+pypi	azure-mgmt-scheduler	dead	deprecation_notice	found		matched in raw
+pypi	coreschema	dead	archived_repo	found		matched in raw
+pypi	gnupg	ailing	maintainer_statement	found		matched in raw
+pypi	rfc3987	dead	archived_repo	found		matched in raw
+npm	samsam	dead	deprecation_notice	found		matched in raw
+npm	yamljs	ailing	maintainer_statement	found		matched in raw

@@ -1,0 +1,45 @@
+ecosystem	name	reason	evidence_url
+npm	arr-map	README has no status statement	https://github.com/jonschlinkert/arr-map
+npm	benchmark	README has no status statement	https://github.com/bestiejs/benchmark.js
+npm	buffer-more-ints	README has no status statement	https://github.com/dpw/node-buffer-more-ints
+npm	co	README has no status statement	https://github.com/tj/co
+pypi	colorclass	README and changelog have no status statement; last dated changelog entry 2016	https://github.com/Robpol86/colorclass
+npm	cpu-features	README has no status statement and no dated release notes	https://github.com/mscdex/cpu-features
+pypi	databricks-pypi1	PyPI description is empty	https://pypi.org/pypi/databricks-pypi1/json
+npm	expect.js	README has no status statement	https://github.com/Automattic/expect.js
+pypi	fastapi-cache2	release notes carry no dates; no activity in window shown	https://github.com/long2ice/fastapi-cache/releases
+npm	fizzy-ui-utils	README has no status statement	https://github.com/metafizzy/fizzy-ui-utils
+npm	git-remote-origin-url	README has no status statement	https://github.com/sindresorhus/git-remote-origin-url
+pypi	grpc-interceptor	release notes carry no dates; no activity in window shown	https://github.com/d5h-foss/grpc-interceptor/releases
+pypi	gviz-api	README has no status statement	https://github.com/google/google-visualization-python
+npm	hpack.js	README has no status statement	https://github.com/indutny/hpack.js
+npm	is-proto-prop	README has no status statement	https://github.com/dustinspecker/is-proto-prop
+npm	is-svg-path	README has no status statement	https://github.com/dfcreative/is-svg-path
+npm	locate-app	README has no status statement; only links to a changelog	https://github.com/hejny/locate-app
+npm	lodash.support	only status text is on the lodash repo, about lodash not this package, and future tense	https://github.com/lodash/lodash
+pypi	miscreant	README has no status statement; Development Status classifier is metadata	https://github.com/miscreant/miscreant
+pypi	mpire	GitHub releases page empty; PyPI README shows no dated activity in window	https://github.com/sybrenjansen/mpire/releases
+npm	node-ensure	README has no status statement	https://github.com/bauerca/node-ensure
+npm	outlayer	README has no status statement	https://github.com/metafizzy/outlayer
+pypi	pefile	no maintainer or deprecation statement; latest release 2024.8.26 is outside the window so no alive quote	https://github.com/erocarrera/pefile/releases
+pypi	pgserver	no status statement; release page shows no date inside the window	https://github.com/orm011/pgserver/releases
+npm	pinkie	no status statement and no dated activity	https://github.com/floatdrop/pinkie
+pypi	pygetwindow	README says only Still under development, which fits no label	https://github.com/asweigart/pygetwindow
+pypi	pymeta3	no status statement	https://github.com/wbond/pymeta3
+pypi	pytest-base-url	GitHub releases page empty; no dated evidence or status statement	https://github.com/pytest-dev/pytest-base-url/releases
+pypi	pytest-sftpserver	newest history entry 2019-09-16; no status statement	https://github.com/ulope/pytest-sftpserver
+npm	rrweb-cssom	not-maintained text is inherited from the upstream NV/CSSOM README and does not describe this fork; releases undated	https://github.com/rrweb-io/CSSOM
+pypi	sagemaker-schema-inference-artifacts	repo URL from the record returned 404; PyPI description has no status statement	https://github.com/aws/sagemaker-schema-inference-artifacts
+npm	shimmer	no status statement	https://github.com/othiym23/shimmer
+npm	should-type	no status statement or dates	https://github.com/shouldjs/type
+pypi	spake2	no GitHub releases and no status statement	https://github.com/warner/python-spake2
+pypi	starlette-testclient	backport to give people more time to migrate is not a deprecation or EOL notice; newest release undated	https://github.com/Kludex/starlette-testclient/releases
+pypi	swifter	newest changelog entry 2023-07-21 is outside the window; no status statement	https://github.com/jmcarpenter2/swifter/blob/master/docs/changelog.md
+pypi	tensorboard-plugin-wit	record points only to whatif-tool.dev; what-if-tool README has no status statement	https://github.com/pair-code/what-if-tool
+pypi	ulid-py	actively-maintained statement is undated so it fails the 12-month rule; no releases	https://github.com/ahawker/ulid
+npm	utf8-byte-length	no status statement	https://github.com/parshap/utf8-byte-length
+npm	when	no deprecation or status statement	https://github.com/cujojs/when
+pypi	whoosh	only repo URL in the record (Bitbucket) returned 404; PyPI description has no status statement	http://bitbucket.org/mchaput/whoosh
+pypi	wordninja	no status statement	https://github.com/keredson/wordninja
+npm	xhr-mock	no status statement	https://github.com/jameslnewell/xhr-mock
+npm	zlibjs	no status statement in the README text fetched	https://github.com/imaya/zlib.js

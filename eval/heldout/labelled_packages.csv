@@ -1,0 +1,7 @@
+ecosystem,name,version,label,evidence_kind,evidence_url,evidence_quote,labelled_by,reviewed
+pypi,azure-mgmt-scheduler,7.0.0,dead,deprecation_notice,https://pypi.org/pypi/azure-mgmt-scheduler/json,This package has been deprecated and will no longer be maintained after 01-31-2022.,coroner,true
+pypi,coreschema,0.0.4,dead,archived_repo,https://github.com/core-api/python-coreschema,"This repository was archived by the owner on Mar 18, 2019. It is now read-only.",coroner,true
+pypi,gnupg,2.3.1,ailing,maintainer_statement,https://github.com/isislovecruft/python-gnupg,I increasingly have less and less time to deal with maintaining this module.,coroner,true
+pypi,rfc3987,1.3.8,dead,archived_repo,https://github.com/dgerber/rfc3987,"This repository was archived by the owner on Jan 11, 2024. It is now read-only.",coroner,true
+npm,samsam,1.3.0,dead,deprecation_notice,https://registry.npmjs.org/samsam/latest,This package has been deprecated in favour of @sinonjs/samsam,coroner,true
+npm,yamljs,0.3.0,ailing,maintainer_statement,https://github.com/jeremyfa/yaml.js,I don't have much bandwidth to actively provide support to the posted issues asking for new features or bugfixes that don't affect my own use cases of the library.,coroner,true

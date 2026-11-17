@@ -876,3 +876,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - F search: 200 cells (173 with zero hits), 311 repos; map matches the addition2 method; F pool 14.
 - Tooling fixes found by the real run, each before the draw tag and with a design note: top.js shape (']', last entry without comma), legacy npm names, 64 MiB registry cap (ddtrace 41 MB), missing PEP 723 deps, map name variants.
 - Expectation recorded before labelling: with an F pool of 14, the pooled finished-healthy floor of 20 may not be reached (INCONCLUSIVE on that floor; no extension).
+
+## 17 Nov 2026: Held-out T9.6, Q batch 01 labelled and reviewed
+- Batch 01 had 50 Q candidates (25 npm, 25 PyPI). The coroner labelled them in two halves of 25 (01a, 01b), each in a new chat with the coroner agent in Supervised mode.
+- Result: 6 rows (4 dead, 2 ailing) and 44 no-labels. Review: check_versions flagged none; verify_evidence found 6 of 6 quotes; check_still_works did not apply (no alive or finished rows); no decisions. All 6 rows were marked reviewed.
+- The first run of 01b was discarded before merge. The coroner had not fetched the registry records (npm deprecated field, PyPI JSON) and had guessed repo URLs from memory. All 25 candidates were re-run with a registry-first instruction, and the re-run result stands. It added samsam (dead, npm deprecation) and rfc3987 (dead, archived repo). yamljs was ailing in both runs. Re-running all 25 rather than a subset avoids selective re-checking. Both runs' outputs are kept outside the repo.
+- This batch created eval/heldout/labelled_packages.csv (v1 header) and eval/heldout/draw/no-label.tsv (header added after the first append).
+- A yield of 6 out of 50 means the dead floor of 25 may not be reached. The floors are not lowered and the search is not extended.
