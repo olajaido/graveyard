@@ -1,0 +1,201 @@
+id	phrase	filename	band	run_date	file_hits	unique_repos	limit	saturated	status
+1	feature-complete	README.md	<1000	2026-11-17	3	3	100	false	ok
+2	feature-complete	README.md	1000..2999	2026-11-17	5	5	100	false	ok
+3	feature-complete	README.md	3000..5999	2026-11-17	10	10	100	false	ok
+4	feature-complete	README.md	6000..11999	2026-11-17	9	9	100	false	ok
+5	feature-complete	README.md	>=12000	2026-11-17	56	55	100	false	ok
+6	feature-complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+7	feature-complete	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+8	feature-complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+9	feature-complete	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+10	feature-complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+11	feature-complete	README	<1000	2026-11-17	3	3	100	false	ok
+12	feature-complete	README	1000..2999	2026-11-17	5	5	100	false	ok
+13	feature-complete	README	3000..5999	2026-11-17	11	11	100	false	ok
+14	feature-complete	README	6000..11999	2026-11-17	11	11	100	false	ok
+15	feature-complete	README	>=12000	2026-11-17	56	55	100	false	ok
+16	feature-complete	README.txt	<1000	2026-11-17	0	0	100	false	ok
+17	feature-complete	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+18	feature-complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+19	feature-complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+20	feature-complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+21	feature-complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+22	feature-complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+23	feature-complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+24	feature-complete	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+25	feature-complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+26	feature complete	README.md	<1000	2026-11-17	12	10	100	false	ok
+27	feature complete	README.md	1000..2999	2026-11-17	24	24	100	false	ok
+28	feature complete	README.md	3000..5999	2026-11-17	30	30	100	false	ok
+29	feature complete	README.md	6000..11999	2026-11-17	74	74	100	false	ok
+30	feature complete	README.md	>=12000	2026-11-17	67	66	100	false	ok
+31	feature complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+32	feature complete	README.rst	1000..2999	2026-11-17	1	1	100	false	ok
+33	feature complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+34	feature complete	README.rst	6000..11999	2026-11-17	2	2	100	false	ok
+35	feature complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+36	feature complete	README	<1000	2026-11-17	13	11	100	false	ok
+37	feature complete	README	1000..2999	2026-11-17	28	28	100	false	ok
+38	feature complete	README	3000..5999	2026-11-17	30	30	100	false	ok
+39	feature complete	README	6000..11999	2026-11-17	79	79	100	false	ok
+40	feature complete	README	>=12000	2026-11-17	90	77	100	false	ok
+41	feature complete	README.txt	<1000	2026-11-17	1	1	100	false	ok
+42	feature complete	README.txt	1000..2999	2026-11-17	3	3	100	false	ok
+43	feature complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+44	feature complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+45	feature complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+46	feature complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+47	feature complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+48	feature complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+49	feature complete	README.markdown	6000..11999	2026-11-17	1	1	100	false	ok
+50	feature complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+51	considered complete	README.md	<1000	2026-11-17	0	0	100	false	ok
+52	considered complete	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+53	considered complete	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+54	considered complete	README.md	6000..11999	2026-11-17	1	1	100	false	ok
+55	considered complete	README.md	>=12000	2026-11-17	0	0	100	false	ok
+56	considered complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+57	considered complete	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+58	considered complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+59	considered complete	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+60	considered complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+61	considered complete	README	<1000	2026-11-17	0	0	100	false	ok
+62	considered complete	README	1000..2999	2026-11-17	0	0	100	false	ok
+63	considered complete	README	3000..5999	2026-11-17	0	0	100	false	ok
+64	considered complete	README	6000..11999	2026-11-17	1	1	100	false	ok
+65	considered complete	README	>=12000	2026-11-17	0	0	100	false	ok
+66	considered complete	README.txt	<1000	2026-11-17	0	0	100	false	ok
+67	considered complete	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+68	considered complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+69	considered complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+70	considered complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+71	considered complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+72	considered complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+73	considered complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+74	considered complete	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+75	considered complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+76	complete and stable	README.md	<1000	2026-11-17	0	0	100	false	ok
+77	complete and stable	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+78	complete and stable	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+79	complete and stable	README.md	6000..11999	2026-11-17	0	0	100	false	ok
+80	complete and stable	README.md	>=12000	2026-11-17	0	0	100	false	ok
+81	complete and stable	README.rst	<1000	2026-11-17	0	0	100	false	ok
+82	complete and stable	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+83	complete and stable	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+84	complete and stable	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+85	complete and stable	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+86	complete and stable	README	<1000	2026-11-17	0	0	100	false	ok
+87	complete and stable	README	1000..2999	2026-11-17	0	0	100	false	ok
+88	complete and stable	README	3000..5999	2026-11-17	0	0	100	false	ok
+89	complete and stable	README	6000..11999	2026-11-17	0	0	100	false	ok
+90	complete and stable	README	>=12000	2026-11-17	0	0	100	false	ok
+91	complete and stable	README.txt	<1000	2026-11-17	0	0	100	false	ok
+92	complete and stable	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+93	complete and stable	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+94	complete and stable	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+95	complete and stable	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+96	complete and stable	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+97	complete and stable	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+98	complete and stable	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+99	complete and stable	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+100	complete and stable	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+101	stable and complete	README.md	<1000	2026-11-17	0	0	100	false	ok
+102	stable and complete	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+103	stable and complete	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+104	stable and complete	README.md	6000..11999	2026-11-17	0	0	100	false	ok
+105	stable and complete	README.md	>=12000	2026-11-17	0	0	100	false	ok
+106	stable and complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+107	stable and complete	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+108	stable and complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+109	stable and complete	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+110	stable and complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+111	stable and complete	README	<1000	2026-11-17	0	0	100	false	ok
+112	stable and complete	README	1000..2999	2026-11-17	0	0	100	false	ok
+113	stable and complete	README	3000..5999	2026-11-17	0	0	100	false	ok
+114	stable and complete	README	6000..11999	2026-11-17	0	0	100	false	ok
+115	stable and complete	README	>=12000	2026-11-17	0	0	100	false	ok
+116	stable and complete	README.txt	<1000	2026-11-17	0	0	100	false	ok
+117	stable and complete	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+118	stable and complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+119	stable and complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+120	stable and complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+121	stable and complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+122	stable and complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+123	stable and complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+124	stable and complete	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+125	stable and complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+126	is feature complete	README.md	<1000	2026-11-17	0	0	100	false	ok
+127	is feature complete	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+128	is feature complete	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+129	is feature complete	README.md	6000..11999	2026-11-17	0	0	100	false	ok
+130	is feature complete	README.md	>=12000	2026-11-17	0	0	100	false	ok
+131	is feature complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+132	is feature complete	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+133	is feature complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+134	is feature complete	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+135	is feature complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+136	is feature complete	README	<1000	2026-11-17	0	0	100	false	ok
+137	is feature complete	README	1000..2999	2026-11-17	0	0	100	false	ok
+138	is feature complete	README	3000..5999	2026-11-17	0	0	100	false	ok
+139	is feature complete	README	6000..11999	2026-11-17	0	0	100	false	ok
+140	is feature complete	README	>=12000	2026-11-17	0	0	100	false	ok
+141	is feature complete	README.txt	<1000	2026-11-17	0	0	100	false	ok
+142	is feature complete	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+143	is feature complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+144	is feature complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+145	is feature complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+146	is feature complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+147	is feature complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+148	is feature complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+149	is feature complete	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+150	is feature complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+151	considered feature complete	README.md	<1000	2026-11-17	0	0	100	false	ok
+152	considered feature complete	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+153	considered feature complete	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+154	considered feature complete	README.md	6000..11999	2026-11-17	0	0	100	false	ok
+155	considered feature complete	README.md	>=12000	2026-11-17	0	0	100	false	ok
+156	considered feature complete	README.rst	<1000	2026-11-17	0	0	100	false	ok
+157	considered feature complete	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+158	considered feature complete	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+159	considered feature complete	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+160	considered feature complete	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+161	considered feature complete	README	<1000	2026-11-17	0	0	100	false	ok
+162	considered feature complete	README	1000..2999	2026-11-17	0	0	100	false	ok
+163	considered feature complete	README	3000..5999	2026-11-17	0	0	100	false	ok
+164	considered feature complete	README	6000..11999	2026-11-17	0	0	100	false	ok
+165	considered feature complete	README	>=12000	2026-11-17	0	0	100	false	ok
+166	considered feature complete	README.txt	<1000	2026-11-17	0	0	100	false	ok
+167	considered feature complete	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+168	considered feature complete	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+169	considered feature complete	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+170	considered feature complete	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+171	considered feature complete	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+172	considered feature complete	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+173	considered feature complete	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+174	considered feature complete	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+175	considered feature complete	README.markdown	>=12000	2026-11-17	0	0	100	false	ok
+176	no new features planned	README.md	<1000	2026-11-17	0	0	100	false	ok
+177	no new features planned	README.md	1000..2999	2026-11-17	0	0	100	false	ok
+178	no new features planned	README.md	3000..5999	2026-11-17	0	0	100	false	ok
+179	no new features planned	README.md	6000..11999	2026-11-17	0	0	100	false	ok
+180	no new features planned	README.md	>=12000	2026-11-17	0	0	100	false	ok
+181	no new features planned	README.rst	<1000	2026-11-17	0	0	100	false	ok
+182	no new features planned	README.rst	1000..2999	2026-11-17	0	0	100	false	ok
+183	no new features planned	README.rst	3000..5999	2026-11-17	0	0	100	false	ok
+184	no new features planned	README.rst	6000..11999	2026-11-17	0	0	100	false	ok
+185	no new features planned	README.rst	>=12000	2026-11-17	0	0	100	false	ok
+186	no new features planned	README	<1000	2026-11-17	0	0	100	false	ok
+187	no new features planned	README	1000..2999	2026-11-17	0	0	100	false	ok
+188	no new features planned	README	3000..5999	2026-11-17	0	0	100	false	ok
+189	no new features planned	README	6000..11999	2026-11-17	0	0	100	false	ok
+190	no new features planned	README	>=12000	2026-11-17	0	0	100	false	ok
+191	no new features planned	README.txt	<1000	2026-11-17	0	0	100	false	ok
+192	no new features planned	README.txt	1000..2999	2026-11-17	0	0	100	false	ok
+193	no new features planned	README.txt	3000..5999	2026-11-17	0	0	100	false	ok
+194	no new features planned	README.txt	6000..11999	2026-11-17	0	0	100	false	ok
+195	no new features planned	README.txt	>=12000	2026-11-17	0	0	100	false	ok
+196	no new features planned	README.markdown	<1000	2026-11-17	0	0	100	false	ok
+197	no new features planned	README.markdown	1000..2999	2026-11-17	0	0	100	false	ok
+198	no new features planned	README.markdown	3000..5999	2026-11-17	0	0	100	false	ok
+199	no new features planned	README.markdown	6000..11999	2026-11-17	0	0	100	false	ok
+200	no new features planned	README.markdown	>=12000	2026-11-17	0	0	100	false	ok

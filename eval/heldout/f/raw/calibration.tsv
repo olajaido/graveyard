@@ -1,0 +1,24 @@
+band	repo	path	size_bytes	in_band
+<1000	xy-kasumi/Spark-pulser	README.md	790	true
+<1000	natechols/pandemic-arcade	README.md	767	true
+<1000	wwi26ama-prog/prog1-material	code-beispiele/guessing-game/examples/05-random-number/README.md	590	true
+1000..2999	ondras/rot.js	README.md	2871	true
+1000..2999	mesaprotector/sudo-comment	README.md	1795	true
+1000..2999	5aji/SDVX_ASC	README.md	1827	true
+1000..2999	faddat/clay	readme.md	2972	true
+1000..2999	TMS-2-3/VScode	healer-game/rot.js-master/README.md	2871	true
+3000..5999	CopilotKit/CopilotKit	examples/slack/e2e/README.md	3369	true
+3000..5999	merfed/Coffee	Tools/BLP/_Plugins/Photoshop BLP Format Plugin/readme.md	5014	true
+3000..5999	jerelvelarde/opentag	e2e/README.md	3369	true
+3000..5999	samuelludwig/CliJo	README.md	5150	true
+3000..5999	gabrielmoreira/agent-skills-mirror	mirrors/repos/CopilotKit@CopilotKit/examples/slack/e2e/README.md	3369	true
+6000..11999	Hypfer/Valetudo	README.md	7296	true
+6000..11999	stephansturges/MAVERICC	Readme.md	9251	true
+6000..11999	jllodra/cmod-xmplay	README.md	7629	true
+6000..11999	DGAlexandru/NoCloud	README.md	8573	true
+6000..11999	SpaceCypher/snapback	README.md	7289	true
+>=12000	sqlcipher/sqlcipher	ext/jni/README.md	12387	true
+>=12000	bcmyers/argonautica	argonautica-py/README.md	14374	true
+>=12000	bcmyers/argonautica	argonautica-rs/README.md	15482	true
+>=12000	romainpi/astro-loader-storyblok	README.md	33075	true
+>=12000	daniel-ciocirlan/skiff	README.md	33483	true
