@@ -685,14 +685,25 @@ _HTTP_5NN = re.compile(r"^http_5\d\d$")
 # A path of None means the fixture-set hash (sha256 over sorted ``path<TAB>sha256`` lines,
 # path relative to eval/heldout/fixtures/, each line ended by a newline).
 PROVENANCE_SOURCES: tuple[tuple[str, str, str | None], ...] = (
-    ("weights_sha256", FROZEN_TAG, "backend/core/scoring/weights.v2.yaml"),
-    ("manifest_sha256", FROZEN_TAG, FROZEN_MODEL_PATH),
     ("labels_sha256", ANSWER_KEY_TAG, LABELS_CSV),
     ("fixture_set_sha256", CAPTURE_TAG, None),
     ("gate_config_sha256", FROZEN_TAG, HELDOUT_DIR + "gate.yaml"),
     ("frozen_harness_sha256", RESULT_TAG, FROZEN_HARNESS_PATH),
     ("amendments_sha256", RESULT_TAG, AMENDMENTS_PATH),
 )
+
+
+# Per-model provenance (check 8): the result file name gives the model; weights_sha256 is the hash
+# of that model's weights file at FROZEN_TAG. manifest_sha256 is handled in _model_findings.
+MODEL_WEIGHTS: dict[str, str] = {
+    "v1": "backend/core/scoring/weights.v1.yaml",
+    "v2": "backend/core/scoring/weights.v2.yaml",
+}
+NULL_MANIFEST_NOTICE = (
+    "manifest_sha256 is null (the runner at mortality-v2-frozen does not record it); "
+    "FROZEN_MODEL.v2.json unchanged since mortality-v2-frozen"
+)
+_RESULT_NAME = re.compile(r"results\.(v\d+)\.json$")
 
 
 def _sha256(data: bytes) -> str:
@@ -931,6 +942,48 @@ def _expected_hash(ctx: Context, tag: str, path: str | None) -> str | None:
     return None if data is None else _sha256(data)
 
 
+def _model_findings(
+    ctx: Context, result: str, path: str, provenance: dict[str, object]
+) -> list[str]:
+    """Check 8, per-model keys: model_version, weights_sha256 and manifest_sha256."""
+    match = _RESULT_NAME.search(path)
+    model = match.group(1) if match else ""
+    problems: list[str] = []
+    have_model = provenance.get("model_version")
+    if have_model != model:
+        problems.append(f"{path}: provenance model_version is {have_model!r}, expected {model!r}")
+    weights_path = MODEL_WEIGHTS.get(model)
+    frozen = ctx.refs.get(FROZEN_TAG)
+    weights = show_bytes(ctx.repo, frozen, weights_path) if frozen and weights_path else None
+    if weights is None:
+        problems.append(f"{path}: cannot compute weights_sha256 (source file or tag missing)")
+    elif provenance.get("weights_sha256") != _sha256(weights):
+        problems.append(
+            f"{path}: provenance weights_sha256 does not match {weights_path} at {FROZEN_TAG}"
+        )
+    manifest = provenance.get("manifest_sha256")
+    if model == "v1":
+        if manifest is not None:
+            problems.append(f"{path}: provenance manifest_sha256 must be null for v1")
+        return problems
+    at_frozen = show_bytes(ctx.repo, frozen, FROZEN_MODEL_PATH) if frozen else None
+    if at_frozen is None:
+        problems.append(f"{path}: cannot compute manifest_sha256 (source file or tag missing)")
+    elif manifest is None:
+        if show_bytes(ctx.repo, result, FROZEN_MODEL_PATH) != at_frozen:
+            problems.append(
+                f"{path}: manifest_sha256 is null and {FROZEN_MODEL_PATH} changed "
+                f"since {FROZEN_TAG}"
+            )
+        else:
+            print(
+                f"NOTICE [{RULE_RESULT}] check 8: {path}: {NULL_MANIFEST_NOTICE}", file=sys.stderr
+            )
+    elif manifest != _sha256(at_frozen):
+        problems.append(f"{path}: provenance manifest_sha256 does not match the committed bytes")
+    return problems
+
+
 def check_result_files(ctx: Context) -> list[Finding]:
     """Check 8: each result file added by one commit, after capture, with matching hashes."""
     result = ctx.refs.get(RESULT_TAG)
@@ -958,6 +1011,8 @@ def check_result_files(ctx: Context) -> list[Finding]:
         if not isinstance(provenance, dict):
             fail(f"{path} has no provenance object")
             continue
+        for problem in _model_findings(ctx, result, path, provenance):
+            fail(problem)
         for key, want in expected.items():
             have = provenance.get(key)
             if want is None and key == "amendments_sha256":

@@ -38,6 +38,7 @@ ANALYSIS_FILES = {
     LOCKED: "s = 1\n",
 }
 FROZEN_FILES = {
+    "backend/core/scoring/weights.v1.yaml": "w: 0\n",
     "backend/core/scoring/weights.v2.yaml": "w: 1\n",
     "eval/FROZEN_MODEL.v2.json": '{"files": {}}\n',
     H + "README.md": "r\n",
@@ -459,8 +460,6 @@ def _provenance(repo: Repo) -> dict[str, str]:
         for p in root.rglob("*.json")
     )
     return {
-        "weights_sha256": blob("backend/core/scoring/weights.v2.yaml"),
-        "manifest_sha256": blob("eval/FROZEN_MODEL.v2.json"),
         "labels_sha256": blob(H + "labelled_packages.csv"),
         "fixture_set_sha256": _sha("".join(fixtures)),
         "gate_config_sha256": blob(H + "gate.yaml"),
@@ -469,15 +468,46 @@ def _provenance(repo: Repo) -> dict[str, str]:
     }
 
 
-def _results(repo: Repo, tweak: dict[str, str] | None = None) -> dict[str, str]:
-    doc = json.dumps({"provenance": {**_provenance(repo), **(tweak or {})}}) + "\n"
-    return {H + "results.v1.json": doc, H + "results.v2.json": doc}
+def _results(
+    repo: Repo,
+    tweak: dict[str, str] | None = None,
+    v1: dict[str, object | None] | None = None,
+    v2: dict[str, object | None] | None = None,
+) -> dict[str, str]:
+    """Result files as the real runner writes them: per-model weights, null v1 manifest."""
+
+    def blob(rel: str) -> str:
+        return hashlib.sha256((repo.path / rel).read_bytes()).hexdigest()
+
+    base = _provenance(repo)
+    mine: dict[str, dict[str, object | None]] = {
+        "v1": {
+            "model_version": "v1",
+            "weights_sha256": blob("backend/core/scoring/weights.v1.yaml"),
+            "manifest_sha256": None,
+        },
+        "v2": {
+            "model_version": "v2",
+            "weights_sha256": blob("backend/core/scoring/weights.v2.yaml"),
+            "manifest_sha256": blob("eval/FROZEN_MODEL.v2.json"),
+        },
+    }
+    out: dict[str, str] = {}
+    for model, extra in (("v1", v1), ("v2", v2)):
+        prov = {**base, **mine[model], **(tweak or {}), **(extra or {})}
+        out[f"{H}results.{model}.json"] = json.dumps({"provenance": prov}) + "\n"
+    return out
 
 
-def _full_history(repo: Repo, tweak: dict[str, str] | None = None) -> None:
+def _full_history(
+    repo: Repo,
+    tweak: dict[str, str] | None = None,
+    v1: dict[str, object | None] | None = None,
+    v2: dict[str, object | None] | None = None,
+) -> None:
     _to_answer_key(repo)
     _capture(repo)
-    repo.commit(_results(repo, tweak))
+    repo.commit(_results(repo, tweak, v1, v2))
     repo.tag("eval-heldout-result")
 
 
@@ -581,6 +611,67 @@ def test_provenance_mismatch_fails(repo: Repo, capsys: pytest.CaptureFixture[str
     assert _run(repo, "--verify-all") == 1
     err = capsys.readouterr().err
     assert "check 8" in err and "labels_sha256" in err
+
+
+V2_WEIGHTS_SHA = _sha("w: 1\n")
+
+
+def _check8(repo: Repo, capsys: pytest.CaptureFixture[str]) -> tuple[int, str]:
+    code = _run(repo, "--verify-all")
+    return code, capsys.readouterr().err
+
+
+def test_v1_result_with_v1_weights_passes(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:
+    _full_history(repo)
+    code, err = _check8(repo, capsys)
+    assert code == 0 and "FAIL" not in err
+
+
+def test_v1_result_with_v2_weights_fails(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:
+    _full_history(repo, v1={"weights_sha256": V2_WEIGHTS_SHA})
+    code, err = _check8(repo, capsys)
+    assert code == 1 and "check 8" in err and "results.v1.json" in err and "weights_sha256" in err
+
+
+def test_v1_non_null_manifest_fails(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:
+    _full_history(repo, v1={"manifest_sha256": "0" * 64})
+    code, err = _check8(repo, capsys)
+    assert code == 1 and "check 8" in err and "must be null for v1" in err
+
+
+def test_v2_null_manifest_passes_with_notice(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _full_history(repo, v2={"manifest_sha256": None})
+    code, err = _check8(repo, capsys)
+    assert code == 0 and "FAIL" not in err
+    assert "NOTICE" in err and "FROZEN_MODEL.v2.json unchanged since mortality-v2-frozen" in err
+
+
+def test_v2_null_manifest_fails_when_model_changed(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _to_answer_key(repo)
+    repo.commit({"eval/FROZEN_MODEL.v2.json": '{"files": {"x": 1}}\n'})
+    _capture(repo)
+    repo.commit(_results(repo, v2={"manifest_sha256": None}))
+    repo.tag("eval-heldout-result")
+    code, err = _check8(repo, capsys)
+    assert code == 1 and "check 8" in err and "manifest_sha256 is null" in err
+
+
+def test_v2_wrong_manifest_fails(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:
+    _full_history(repo, v2={"manifest_sha256": "0" * 64})
+    code, err = _check8(repo, capsys)
+    assert code == 1 and "check 8" in err and "manifest_sha256" in err
+
+
+def test_model_version_not_matching_file_name_fails(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _full_history(repo, v2={"model_version": "v1"})
+    code, err = _check8(repo, capsys)
+    assert code == 1 and "check 8" in err and "model_version" in err
 
 
 def test_locked_file_edited_fails(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:

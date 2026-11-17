@@ -974,3 +974,8 @@ Limits
   - A lower finished-healthy false-positive rate under v2 is not better discrimination. The rate counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate is equal for both models and is reported, not gated (design 7.5.11, MV2-GATE-4).
 ```
 - No model was re-run. Nothing about v2 changes after this point.
+
+## 17 Nov 2026: Held-out T11.7, provenance check fix (before the result tag)
+- The first `--step eval-heldout-result --tag` attempt failed check 8 and created no tag. Cause: two tooling defects, no tampering. (1) scripts/check_heldout_order.py compared both result files to the v2 weights and manifest; results.v1.json correctly records weights.v1.yaml (f1e5d7f1...), and results.v2.json records weights.v2.yaml (ef632477...). (2) backend/eval/run.py (frozen harness) writes manifest_sha256 = null for every held-out run.
+- Fix in the checker only. It is not a FROZEN_HARNESS file, so no AMENDMENTS entry applies. Check 8 is now model-aware, and a null v2 manifest is accepted only if FROZEN_MODEL.v2.json is byte-identical at the result commit and at mortality-v2-frozen (with a NOTICE). run.py was not changed; its null manifest is recorded as a known defect. The v2 manifest was verified by the T11.1 preflight (--check: matches) and by the runner before scoring.
+- The result files and the results commit (d80e2fd) were not touched. No model was re-run. No result value or verdict changes.

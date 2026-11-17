@@ -164,3 +164,6 @@ Section 8 also holds 2026-11-13 entries for the v1 key (removals, hand checks, t
 - Dead-flagged rate (Dead or Ailing over dead rows, derived from the confusion matrix row for dead: dead 27, ailing 14, alive 3, finished-healthy 1): 41/45.
 
 Held-out figures above are out-of-sample. In-sample and held-out figures must not be pooled or compared as like with like.
+
+## Provenance note
+Both result files record `manifest_sha256: null`: the frozen runner (`backend/eval/run.py`) does not record the model manifest hash. The v2 manifest was verified before the run (T11.1, `manifest --model v2 --check`: matches) and by the runner before scoring, and `FROZEN_MODEL.v2.json` is byte-identical at the result commit and at `mortality-v2-frozen` (checked by `check_heldout_order.py` check 8). The checker's model-aware provenance check was fixed after the first tag attempt failed; the result files were not changed and no model was re-run.
