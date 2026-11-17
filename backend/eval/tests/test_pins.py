@@ -92,7 +92,7 @@ def test_hugovk_accepts_exactly_the_non_increasing_lists(counts: list[int]) -> N
             parse_hugovk(_hugovk(rows), len(rows))
 
 
-GOOD_JS = "export const npmHighImpact = [\n  'lodash',\n  '@babel/core',\n  'left-pad',\n]\n"
+GOOD_JS = "export const npmHighImpact = [\n  'lodash',\n  '@babel/core',\n  'left-pad'\n]\n"
 
 
 def test_top_js_good() -> None:
@@ -100,44 +100,70 @@ def test_top_js_good() -> None:
 
 
 def test_real_npm_top_js_ending() -> None:
-    real = b"export const npmHighImpact = [\n  'a-b',\n  '@s/p',\n  'last-name',\n]\n"
+    real = b"export const npmHighImpact = [\n  'a-b',\n  '@s/p',\n  'last-name'\n]\n"
     assert parse_npm_top_js(real) == ["a-b", "@s/p", "last-name"]
     with pytest.raises(PinError, match="last line is not `]`"):
         parse_npm_top_js(real.replace(b"]\n", b"];\n"))
 
 
+def test_real_npm_top_js_shape() -> None:
+    names = [f"name-{i}" for i in range(50)]
+    text = "export const top = [\n" + "".join(f"  '{n}',\n" for n in names) + "  'last-name'\n]\n"
+    assert parse_npm_top_js(text.encode()) == [*names, "last-name"]
+
+
+def test_single_entry_list_requires_no_comma() -> None:
+    assert parse_npm_top_js(b"export const top = [\n  'only'\n]\n") == ["only"]
+    with pytest.raises(PinError, match="last entry must not end with a comma"):
+        parse_npm_top_js(b"export const top = [\n  'only',\n]\n")
+
+
+def test_missing_comma_on_first_or_middle_entry_rejected() -> None:
+    first = b"export const top = [\n  'a'\n  'b',\n  'c'\n]\n"
+    middle = b"export const top = [\n  'a',\n  'b'\n  'c'\n]\n"
+    with pytest.raises(PinError, match="line 2: entry must end with a comma"):
+        parse_npm_top_js(first)
+    with pytest.raises(PinError, match="line 3: entry must end with a comma"):
+        parse_npm_top_js(middle)
+
+
 def test_top_js_good_no_trailing_newline_and_no_indent() -> None:
-    assert parse_npm_top_js(b"export const top = [\n'a',\n]") == ["a"]
+    assert parse_npm_top_js(b"export const top = [\n'a'\n]") == ["a"]
 
 
 @pytest.mark.parametrize(
     ("text", "match"),
     [
-        ("const top = [\n'a',\n]\n", "first line"),
-        ("export let top = [\n'a',\n]\n", "first line"),
-        ("export const top = [ \n'a',\n]\n", "first line"),
-        ("export const top = [\n'a',\n];\n", "last line"),
-        ("export const top = [\n'a',\n] \n", "last line"),
-        ("export const top = [\n'a',\n ]\n", "last line"),
-        ("export const top = [\n'a',\n],\n", "last line"),
-        ("export const top = [\n'a',\n])\n", "last line"),
-        ("export const top = [\n'a',\n]]\n", "last line"),
-        ("export const top = [\n'a',\n'b',\n", "last line"),
-        ("export const top = [\n'a',\n]\n\n", "last line"),
-        ("export const top = [\n'a',\n]\nexport default top;\n", "last line"),
+        ("const top = [\n'a'\n]\n", "first line"),
+        ("export let top = [\n'a'\n]\n", "first line"),
+        ("export const top = [ \n'a'\n]\n", "first line"),
+        ("export const top = [\n'a'\n];\n", "last line"),
+        ("export const top = [\n'a'\n] \n", "last line"),
+        ("export const top = [\n'a'\n ]\n", "last line"),
+        ("export const top = [\n'a'\n],\n", "last line"),
+        ("export const top = [\n'a'\n])\n", "last line"),
+        ("export const top = [\n'a'\n]]\n", "last line"),
+        ("export const top = [\n'a',\n'b'\n", "last line"),
+        ("export const top = [\n'a'\n]\n\n", "last line"),
+        ("export const top = [\n'a'\n]\nexport default top;\n", "last line"),
         ("export const top = [\n]\n", "no names"),
-        ("export const top = [\n'a'\n]\n", "not a `'name',`"),
-        ('export const top = [\n"a",\n]\n', "not a `'name',`"),
-        ("export const top = [\n'a', 'b',\n]\n", "not a `'name',`"),
-        ("export const top = [\n'a', // x\n]\n", "not a `'name',`"),
-        ("export const top = [\n'a\\u0062',\n]\n", "not a `'name',`"),
-        ("export const top = [\n'',\n]\n", "not a `'name',`"),
-        ("export const top = [\n'a',\n\n]\n", "not a `'name',`"),
-        ("export const top = [\r\n'a',\r\n]\r\n", "carriage return"),
-        ("export const top = [\n'@scope',\n]\n", "invalid npm name"),
-        ("export const top = [\n'@Scope/x',\n]\n", "invalid npm name"),
-        ("export const top = [\n'@a/b/c',\n]\n", "invalid npm name"),
-        ("export const top = [\n'a',\n'a',\n]\n", "duplicate"),
+        ("export const top = [\n'a',\n]\n", "last entry must not end with a comma"),
+        ("export const top = [\n'a',\n'b',\n]\n", "line 3: last entry must not end"),
+        ("export const top = [\n'a'\n'b'\n]\n", "line 2: entry must end with a comma"),
+        ("export const top = [\n'a',\n'b'\n'c'\n]\n", "line 3: entry must end with a comma"),
+        ("export const top = [\n\"a\",\n'z'\n]\n", "not a `'name',`"),
+        ('export const top = [\n"a"\n]\n', "not a `'name'` entry"),
+        ("export const top = [\n'a', 'b',\n'z'\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a', // x\n'z'\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a\\u0062',\n'z'\n]\n", "not a `'name',`"),
+        ("export const top = [\n'',\n'z'\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a',\n\n'z'\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a',\n'z',\n\n]\n", "not a `'name'` entry"),
+        ("export const top = [\r\n'a'\r\n]\r\n", "carriage return"),
+        ("export const top = [\n'@scope'\n]\n", "invalid npm name"),
+        ("export const top = [\n'@Scope/x'\n]\n", "invalid npm name"),
+        ("export const top = [\n'@a/b/c'\n]\n", "invalid npm name"),
+        ("export const top = [\n'a',\n'a'\n]\n", "duplicate"),
     ],
 )
 def test_top_js_bad_shapes(text: str, match: str) -> None:
@@ -147,7 +173,7 @@ def test_top_js_bad_shapes(text: str, match: str) -> None:
 
 def test_top_js_not_utf8_and_size_cap() -> None:
     with pytest.raises(PinError, match="UTF-8"):
-        parse_npm_top_js(b"export const top = [\n'\xff',\n]\n")
+        parse_npm_top_js(b"export const top = [\n'\xff'\n]\n")
     with pytest.raises(PinError, match="cap"):
         parse_npm_top_js(b"x" * (MAX_BYTES + 1))
 
@@ -216,24 +242,26 @@ LEGACY = ["JSONStream", "Base64", "JSV", "-"]
 
 
 def test_invalid_unscoped_names_are_kept_in_order_and_listed_sorted() -> None:
-    body = "".join(f"  '{n}',\n" for n in ["JSONStream", "lodash", "Base64", "@a/b", "JSV", "-"])
-    names = parse_npm_top_js(f"export const top = [\n{body}]\n".encode())
+    body = ",\n".join(f"  '{n}'" for n in ["JSONStream", "lodash", "Base64", "@a/b", "JSV", "-"])
+    names = parse_npm_top_js(f"export const top = [\n{body}\n]\n".encode())
     assert names == ["JSONStream", "lodash", "Base64", "@a/b", "JSV", "-"]
     assert invalid_unscoped_names(names) == sorted(LEGACY)
     assert invalid_unscoped_names(names) == ["-", "Base64", "JSONStream", "JSV"]
 
 
 def test_repeated_invalid_name_does_not_abort_and_counts_once() -> None:
-    names = parse_npm_top_js(b"export const top = [\n'JSV',\n'ok',\n'JSV',\n]\n")
+    names = parse_npm_top_js(b"export const top = [\n'JSV',\n'ok',\n'JSV'\n]\n")
     assert invalid_unscoped_names(names) == ["JSV"]
     with pytest.raises(PinError, match="duplicate"):
-        parse_npm_top_js(b"export const top = [\n'ok',\n'JSV',\n'ok',\n]\n")
+        parse_npm_top_js(b"export const top = [\n'ok',\n'JSV',\n'ok'\n]\n")
 
 
 @pytest.mark.parametrize("text", ["'", "\\"])
 def test_quote_or_backslash_still_aborts(text: str) -> None:
+    with pytest.raises(PinError, match="not a `'name'"):
+        parse_npm_top_js(f"export const top = [\n'a{text}b'\n]\n".encode())
     with pytest.raises(PinError, match="not a `'name',`"):
-        parse_npm_top_js(f"export const top = [\n'a{text}b',\n]\n".encode())
+        parse_npm_top_js(f"export const top = [\n'a{text}b',\n'z'\n]\n".encode())
 
 
 NAME_TABLE = [

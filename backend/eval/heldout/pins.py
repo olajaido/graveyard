@@ -25,6 +25,7 @@ MAX_BYTES = 5 * 1024 * 1024
 _HUGOVK_ROW_KEYS = frozenset({"download_count", "project"})
 _JS_OPEN = re.compile(r"^export const [A-Za-z_$][A-Za-z0-9_$]* = \[$")
 _JS_NAME = re.compile(r"^[ \t]*'([^'\\\r\n]+)',$")
+_JS_LAST = re.compile(r"^[ \t]*'([^'\\\r\n]+)'$")
 _JS_CLOSE = "]"
 _SCOPED = re.compile(r"^@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -115,9 +116,12 @@ def parse_hugovk(data: bytes, top_n: int) -> list[tuple[str, int]]:
 def parse_npm_top_js(data: bytes) -> list[str]:
     """Return the names of the `top.js` member, in file order.
 
-    Exact shape: a first line `export const <id> = [`, then one `'name',` per line, then a
-    last line `]` with no semicolon, as the pinned package writes it (a single trailing newline is
-    allowed; any other final line, including `];`, is rejected). Every name is returned as
+    Exact shape (the real npm-high-impact 1.13.0 file): a first line `export const <id> = [`,
+    then one `'name',` per line for every entry except the last, then the last entry as `'name'`
+    with NO trailing comma, then a last line exactly `]` (no semicolon). A single trailing
+    newline is allowed; any other final line, including `];`, is rejected. A comma on the last
+    entry, a missing comma on an earlier entry, an empty list and blank lines are rejected. A
+    single-entry list is valid only with its one entry comma-less. Every name is returned as
     downloaded. A name starting with `@` must be a well-formed scoped name (else `PinError`);
     scoped names are kept so the caller can count them, and are excluded from the population
     later. An unscoped name that fails `is_valid_npm_name` (the labels.py rule) does not abort:
@@ -142,10 +146,20 @@ def parse_npm_top_js(data: bytes) -> list[str]:
         raise PinError("top.js last line is not `]`")
     names: list[str] = []
     seen: set[str] = set()
+    last_number = len(lines) - 1
     for number, line in enumerate(lines[1:-1], start=2):
-        match = _JS_NAME.fullmatch(line)
-        if match is None:
-            raise PinError(f"top.js line {number} is not a `'name',` entry")
+        if number == last_number:
+            if _JS_NAME.fullmatch(line):
+                raise PinError(f"top.js line {number}: last entry must not end with a comma")
+            match = _JS_LAST.fullmatch(line)
+            if match is None:
+                raise PinError(f"top.js line {number} is not a `'name'` entry")
+        else:
+            match = _JS_NAME.fullmatch(line)
+            if match is None:
+                if _JS_LAST.fullmatch(line):
+                    raise PinError(f"top.js line {number}: entry must end with a comma")
+                raise PinError(f"top.js line {number} is not a `'name',` entry")
         name = match.group(1)
         if name.startswith("@"):
             if not _SCOPED.fullmatch(name):

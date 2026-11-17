@@ -17,9 +17,9 @@ Download mode:
     * npm: reads ``registry.npmjs.org/npm-high-impact/latest``, downloads the tarball from the
       same host, checks ``dist.integrity`` (sha512), reads the single member
       ``package/lib/top.js`` in memory with ``tarfile``. The member must be
-      ``export const <id> = [``, one ``'name',`` per line, then a last line exactly ``]``
-      (no semicolon; the package uses no-semicolon style). Nothing is extracted, installed,
-      imported or executed.
+      ``export const <id> = [``, one ``'name',`` per line for every entry but the last, the
+      last entry ``'name'`` with no comma, then a last line exactly ``]`` (no semicolon).
+      Nothing is extracted, installed, imported or executed.
     * Everything is held in memory and checked first. Files are written only when every check
       passed, ``pins.json`` last. An existing ``pins.json`` is never overwritten.
 

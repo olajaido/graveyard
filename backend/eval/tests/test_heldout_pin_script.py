@@ -21,7 +21,7 @@ import pytest
 
 SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "heldout_pin.py"
 SHA = "a" * 40
-TOP_JS = "export const top = [\n  'left-pad',\n  'ms',\n  '@scope/pkg',\n]\n"
+TOP_JS = "export const top = [\n  'left-pad',\n  'ms',\n  '@scope/pkg'\n]\n"
 
 
 @pytest.fixture(scope="module")
@@ -211,7 +211,7 @@ def test_invalid_unscoped_names_are_recorded_and_snapshot_keeps_all(
     pin: Any, tmp_path: Path
 ) -> None:
     items = ["JSONStream", "ms", "Base64", "@scope/pkg", "JSV", "-"]
-    top = "export const top = [\n" + "".join(f"  '{n}',\n" for n in items) + "]\n"
+    top = "export const top = [\n" + ",\n".join(f"  '{n}'" for n in items) + "\n]\n"
     out = tmp_path / "snap"
     assert run(pin, out, transport(make_tarball(top))) == 0
     entry = json.loads((out / "pins.json").read_text())["sources"]["npm-high-impact"]
