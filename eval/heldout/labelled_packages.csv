@@ -16,3 +16,4 @@ npm,vue-template-compiler,2.7.16,dead,eol_announcement,https://github.com/vuejs/
 npm,cleave.js,1.6.0,dead,deprecation_notice,https://github.com/nosir/cleave.js,Kindly note that this library has been deprecated.,coroner,true
 pypi,opentracing,2.4.0,dead,deprecation_notice,https://github.com/opentracing/opentracing-python,This library is DEPRECATED!,coroner,true
 npm,source-map-url,0.4.1,dead,deprecation_notice,https://github.com/lydell/source-map-url,[DEPRECATED] Tools for working with sourceMappingURL comments.,coroner,true
+npm,rot-js,2.2.1,finished-healthy,feature_complete_readme,https://github.com/ondras/rot.js,"ROguelike Toolkit is largely considered ""feature-complete"", but bugfixes, documentation, and some new features are welcomed.",coroner,true

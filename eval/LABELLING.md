@@ -129,6 +129,7 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-17 | (held-out batch 03b) | n/a | Three candidates (pem, pypng, pyyaml-include) had a record repo URL that was not fetched; only those steps were completed in a follow-up, with no outcome changed. |
 | 2026-11-17 | pypi,types-chardet | dead → removed | Held-out batch 03b. Conditional obsolescence (only for chardet 5.1.0 and later) is not a deprecation of this version; same standard as types-stripe and types-python-slugify in 02b |
 | 2026-11-17 | pypi,uamqp | dead → removed | Held-out batch 03b. No longer in active maintenance is maintenance mode (ailing under section 1), not unmaintained; the deprecation is future tense; review cannot relabel, so removed |
+| 2026-11-17 | (held-out F batch 1) | n/a | Four candidates (kimimaro, moflo, swarmdo, cc-sdd) had truncated READMEs or a repo URL not taken from the record; only those steps were completed in a follow-up, with no outcome changed. kimimaro's repo URL came from its README links because the per-version record was too large to read project_urls. npm,rot-js kept as finished-healthy: its hedged completeness quote matches the v1 precedent pypi,torf (feature complete, but new features welcome). The F pool was exhausted, so the F stopping rule fired. |
 
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)

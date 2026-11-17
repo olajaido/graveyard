@@ -128,3 +128,16 @@ npm	tiny-hashes	usage caveat is not a status statement; no deprecated field	http
 npm	unist-util-remove-position	no status statement; no deprecated field	https://github.com/syntax-tree/unist-util-remove-position
 pypi	unpaddedbase64	no status statement	https://github.com/matrix-org/python-unpaddedbase64
 npm	zhead	no status statement; no deprecated field	https://github.com/harlan-zw/zhead
+pypi	argonautica	feature-complete means parity with the C implementation, not that the package is finished; README lists planned work	https://github.com/bcmyers/argonautica
+npm	astro-loader-storyblok	only completeness text is a historical v1.0.0 release note, not current status; releases continued	https://github.com/romainpi/astro-loader-storyblok
+npm	career-catalyst	no completeness or stability statement	https://github.com/aneudy1702/career-catalyst
+npm	cc-sdd	README describes active development (v3.0 rework); stable refers only to agent integrations	https://raw.githubusercontent.com/gotalab/cc-sdd/HEAD/README.md
+pypi	copilotkit	no completeness or stability statement	https://github.com/CopilotKit/CopilotKit/tree/main/sdk-python
+pypi	doltlite	alpha package; no completeness statement	https://github.com/dolthub/doltlite-python
+npm	hoplist	no completeness or stability statement	https://github.com/akashleo/hoplist
+pypi	kimimaro	README has no completeness statement; Production/Stable classifier is metadata; repo URL from README links because the record was too large to read project_urls	https://raw.githubusercontent.com/seung-lab/kimimaro/HEAD/README.md
+npm	moflo	README describes an actively developed toolkit; no completeness statement	https://raw.githubusercontent.com/eric-cielo/moflo/HEAD/README.md
+pypi	planesections	almost feature complete with features still planned is not a completeness statement	https://github.com/cslotboom/planesections
+pypi	rattr	README says under active development and likely to change significantly	https://github.com/SuadeLabs/rattr
+npm	swarmdo	README describes an actively developed project; no completeness statement	https://raw.githubusercontent.com/SwarmDo/swarmdo/HEAD/README.md
+pypi	tagstudio	README calls it alpha and very rough; the release is yanked	https://github.com/TagStudioDev/TagStudio

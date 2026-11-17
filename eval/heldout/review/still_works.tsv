@@ -1,1 +1,2 @@
 ecosystem	name	version	result	runtime	detail
+npm	rot-js	2.2.1	pass	node:22-slim	refinements: none | added 1 package in 1s | npm notice | npm notice New major version of npm available! 10.9.9 -> 12.2.2 | npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2 | npm notice To update run: npm install -g npm@12.2.2 | npm notice | GRAVEYARD_PHASE=import | required rot-js

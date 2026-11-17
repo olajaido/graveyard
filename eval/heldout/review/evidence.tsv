@@ -16,5 +16,4 @@ npm	vue-template-compiler	dead	eol_announcement	found		matched in raw
 npm	cleave.js	dead	deprecation_notice	found		matched in raw
 pypi	opentracing	dead	deprecation_notice	found		matched in raw
 npm	source-map-url	dead	deprecation_notice	found		matched in raw
-pypi	types-chardet	dead	deprecation_notice	found		matched in html
-pypi	uamqp	dead	maintainer_statement	found		matched in raw
+npm	rot-js	finished-healthy	feature_complete_readme	found		matched in raw
