@@ -122,6 +122,9 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-13 | npm,prettier | alive → kept, checked by hand | verified by maintainer in a browser: blog post dated November 11, 2026 announcing Prettier 3.10; the quote spans two page elements |
 | 2026-11-13 | (capture) | n/a | Full capture, as_of 2026-11-13. GitHub GraphQL batches returned HTTP 502, leaving 64 packages with GitHub or Scorecard signals unavailable. The capture script was changed to split failing batches, and those 64 were re-captured the same evening with --refetch-unavailable, before any result was seen (T13.3). After re-capture every GitHub signal is present. 24 packages keep s4_maintained and s8_overall unavailable: OpenSSF Scorecard returns 404 for their repos (never scanned, or the repo moved: react/react, fastapi/fastapi). A 404 is not transient, so these were not re-run. |
 | 2026-11-16 | (held-out addendum) | n/a | Added the held-out addendum under section 3 (mortality-model-v2, MV2-LAB-1, MV2-LAB-2, MV2-SMP-5). Sections 1, 2 and 6 are unchanged; no row of the v1 set is affected. |
+| 2026-11-17 | (held-out batch 01b) | n/a | First coroner run discarded before merge: registry records were not fetched and repo URLs were taken from memory. All 25 candidates were re-run with a registry-first instruction; the re-run stands. |
+| 2026-11-17 | npm,babylon | dead → removed | Held-out batch 02a. Quote is future tense (will be made read-only) and does not itself state the package is deprecated or unmaintained; same standard as lodash.support in 01a |
+| 2026-11-17 | pypi,flask-mail | ailing → removed | Held-out batch 02a. Generic Pallets-Eco invitation to help maintain; does not state reduced maintenance for this package |
 
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)

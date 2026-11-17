@@ -5,3 +5,11 @@ pypi,gnupg,2.3.1,ailing,maintainer_statement,https://github.com/isislovecruft/py
 pypi,rfc3987,1.3.8,dead,archived_repo,https://github.com/dgerber/rfc3987,"This repository was archived by the owner on Jan 11, 2024. It is now read-only.",coroner,true
 npm,samsam,1.3.0,dead,deprecation_notice,https://registry.npmjs.org/samsam/latest,This package has been deprecated in favour of @sinonjs/samsam,coroner,true
 npm,yamljs,0.3.0,ailing,maintainer_statement,https://github.com/jeremyfa/yaml.js,I don't have much bandwidth to actively provide support to the posted issues asking for new features or bugfixes that don't affect my own use cases of the library.,coroner,true
+npm,boom,7.3.0,dead,deprecation_notice,https://registry.npmjs.org/boom/latest,This module has moved and is now available at @hapi/boom. Please update your dependencies as this version is no longer maintained an may contain bugs and security issues.,coroner,true
+pypi,clickclick,20.10.2,dead,archived_repo,https://github.com/hjacobs/python-clickclick,"This repository was archived by the owner on Oct 3, 2020. It is now read-only.",coroner,true
+npm,copy-concurrently,1.0.5,dead,deprecation_notice,https://registry.npmjs.org/copy-concurrently/latest,This package is no longer supported.,coroner,true
+npm,cucumber-expressions,8.3.0,dead,deprecation_notice,https://registry.npmjs.org/cucumber-expressions/latest,This package is now published under @cucumber/cucumber-expressions,coroner,true
+npm,nkeys.js,1.1.0,dead,deprecation_notice,https://registry.npmjs.org/nkeys.js/latest,Package moved. Use @nats-io/nkeys instead: https://www.npmjs.com/package/@nats-io/nkeys,coroner,true
+pypi,scandir,1.10.0,dead,archived_repo,https://github.com/benhoyt/scandir,"Better directory iterator and faster os.walk(). Archived, as this has been in the stdlib since Python 3.5.",coroner,true
+pypi,shyaml,0.6.2,ailing,maintainer_statement,https://github.com/0k/shyaml,"This Python version remains available and is not archived, but it is in a lethargic state: no new features are planned, and maintenance is limited to critical fixes.",coroner,true
+npm,vue-template-compiler,2.7.16,dead,eol_announcement,https://github.com/vuejs/vue,"Vue has reached End of Life on December 31st, 2023. It no longer receives new features, updates, or fixes.",coroner,true

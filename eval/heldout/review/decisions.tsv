@@ -1,1 +1,3 @@
 ecosystem	name	action	reason
+npm	babylon	remove	quote is future tense (will be made read-only) and does not itself state the package is deprecated or unmaintained; same standard as lodash.support in 01a
+pypi	flask-mail	remove	generic Pallets-Eco invitation to help maintain; does not state reduced maintenance for this package

@@ -5,3 +5,13 @@ pypi	gnupg	ailing	maintainer_statement	found		matched in raw
 pypi	rfc3987	dead	archived_repo	found		matched in raw
 npm	samsam	dead	deprecation_notice	found		matched in raw
 npm	yamljs	ailing	maintainer_statement	found		matched in raw
+npm	babylon	dead	maintainer_statement	found		matched in html
+npm	boom	dead	deprecation_notice	found		matched in raw
+pypi	clickclick	dead	archived_repo	found		matched in raw
+npm	copy-concurrently	dead	deprecation_notice	found		matched in raw
+npm	cucumber-expressions	dead	deprecation_notice	found		matched in raw
+pypi	flask-mail	ailing	maintainer_statement	found		matched in html
+npm	nkeys.js	dead	deprecation_notice	found		matched in raw
+pypi	scandir	dead	archived_repo	found		matched in raw
+pypi	shyaml	ailing	maintainer_statement	found		matched in raw
+npm	vue-template-compiler	dead	eol_announcement	found		matched in raw

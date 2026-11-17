@@ -43,3 +43,43 @@ pypi	whoosh	only repo URL in the record (Bitbucket) returned 404; PyPI descripti
 pypi	wordninja	no status statement	https://github.com/keredson/wordninja
 npm	xhr-mock	no status statement	https://github.com/jameslnewell/xhr-mock
 npm	zlibjs	no status statement in the README text fetched	https://github.com/imaya/zlib.js
+pypi	async-generator	no deprecation, EOL or completeness statement; no dated release notes; no archived banner	https://github.com/python-trio/async_generator
+pypi	azure-schemaregistry	newest dated changelog release 1.3.0 (2024-09-18) is outside the window; no deprecation stated	https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/schemaregistry/azure-schemaregistry/CHANGELOG.md
+npm	bmpimagejs	no status statement and no dated activity	https://github.com/hamzakilic/bmpjs
+pypi	chevron	no status statement; no archived banner	https://github.com/noahmorrison/chevron
+npm	child-process-promise	no deprecated field and no status statement	https://github.com/patrick-steele-idem/child-process-promise
+npm	clsx	releases page shows no dates, so no activity in the window can be quoted	https://github.com/lukeed/clsx/releases
+pypi	coreapi	no deprecation or status statement	https://github.com/core-api/python-client
+npm	cssnano-util-raw-cache	monorepo README says nothing about this package; no deprecated field	https://github.com/cssnano/cssnano
+pypi	dateutils	no status statement	https://github.com/jmcantrell/python-dateutils
+pypi	easyocr	newest dated release note 24 Sep 2024 is outside the window; issue auto-close policy is not a maintenance statement	https://github.com/JaidedAI/EasyOCR
+npm	emmet	releases page shows only an undated entry	https://github.com/emmetio/emmet/releases
+npm	ethereumjs-util	no deprecated field; page documents @ethereumjs/util and does not deprecate the old package	https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/util
+pypi	flake8-docstrings	no status statement and no dated release notes	https://github.com/pycqa/flake8-docstrings
+pypi	flask-babel	no dated release notes and no status statement	https://github.com/python-babel/flask-babel
+pypi	flask-graphql	README only says the code now lives in graphql-server; not a deprecation or unmaintained statement	https://github.com/graphql-python/flask-graphql
+npm	formdata-node	no status statement in the first 4 KB fetched	https://github.com/octet-stream/form-data
+npm	git-describe	no status statement and no dated releases	https://github.com/tvdstaaij/node-git-describe
+npm	individual	no status statement	https://github.com/Raynos/individual
+npm	json-dup-key-validator	no status statement	https://github.com/jackyjieliu/json-dup-key-validator
+npm	micromark-extension-gfm-strikethrough	no status statement and no dated activity	https://github.com/micromark/micromark-extension-gfm-strikethrough
+npm	minipass-json-stream	no status statement and no dated activity	https://github.com/isaacs/minipass-json-stream
+npm	rollup-plugin-svg	no status statement and no dated activity	https://github.com/antony/rollup-plugin-svg
+npm	stackback	no status statement and no dated activity	https://github.com/shtylman/node-stackback
+npm	use-deep-compare	no status statement and no dated activity	https://github.com/sandiiarov/use-deep-compare
+npm	zip-dir	no status statement and no dated activity	https://github.com/jsantell/node-zip-dir
+pypi	oyaml	no status statement and no dated activity	https://github.com/wimglenn/oyaml
+pypi	pybytebuffer	no status statement and no dated activity	https://github.com/iGio90/PyByteBuffer
+pypi	pyscreeze	no status statement and no dated activity	https://github.com/asweigart/pyscreeze
+pypi	requests-auth-aws-sigv4	no status statement and no dated activity	https://github.com/andrewjroth/requests-auth-aws-sigv4
+pypi	semantic-version	no status statement and no dated activity	https://github.com/rbarrois/python-semanticversion
+pypi	shellescape	no status statement and no dated activity	https://github.com/chrissimpkins/shellescape
+pypi	subprocess-tee	no status statement and no dated activity	https://github.com/pycontribs/subprocess-tee
+pypi	pastedeploy	only a Mature classifier, which is registry metadata, not a completeness statement	https://github.com/Pylons/pastedeploy
+pypi	priority	only a Production/Stable classifier, which is registry metadata, not a statement	https://github.com/python-hyper/priority
+pypi	tensorflow-io-gcs-filesystem	release table ends at 0.37.1 (Jul 2024), outside the window; no maintenance or archived statement found	https://github.com/tensorflow/io
+pypi	types-stripe	uninstall notice applies only to stripe 7.1.0 and later; not a deprecation, EOL or unmaintained statement for this version	https://pypi.org/pypi/types-stripe/json
+pypi	types-python-slugify	uninstall notice applies only to python-slugify 8.0.2 and later; not a deprecation, EOL or unmaintained statement for this version	https://pypi.org/pypi/types-python-slugify/json
+npm	write-file-webpack-plugin	not needed with Webpack 5 says the plugin is redundant, not deprecated or unmaintained	https://github.com/gajus/write-file-webpack-plugin
+npm	svg.resize.js	repo now documents the scoped package; no deprecation statement and no npm deprecated field	https://github.com/svgdotjs/svg.resize.js
+npm	username-sync	pointer to the username module for newer Node is not a deprecation or unmaintained statement	https://github.com/stefanpenner/username-sync

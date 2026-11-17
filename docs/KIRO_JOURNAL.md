@@ -883,3 +883,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - The first run of 01b was discarded before merge. The coroner had not fetched the registry records (npm deprecated field, PyPI JSON) and had guessed repo URLs from memory. All 25 candidates were re-run with a registry-first instruction, and the re-run result stands. It added samsam (dead, npm deprecation) and rfc3987 (dead, archived repo). yamljs was ailing in both runs. Re-running all 25 rather than a subset avoids selective re-checking. Both runs' outputs are kept outside the repo.
 - This batch created eval/heldout/labelled_packages.csv (v1 header) and eval/heldout/draw/no-label.tsv (header added after the first append).
 - A yield of 6 out of 50 means the dead floor of 25 may not be reached. The floors are not lowered and the search is not extended.
+
+## 17 Nov 2026: Held-out T9.6, Q batch 02 labelled and reviewed
+- Batch 02 had 50 Q candidates, labelled in two halves (02a, 02b) with the registry-first wrapper (coroner agent, Supervised).
+- Result: 10 rows merged (8 dead, 2 ailing) and 40 no-labels. Review: check_versions flagged none; verify_evidence found 16 of 16 quotes across batches 01 and 02; check_still_works did not apply.
+- Two rows were removed at review (LABELLING section 8): babylon (future-tense move notice) and flask-mail (generic help-maintain invitation). Both decisions were made before any held-out model output existed.
+- Running total: 14 reviewed rows (11 dead, 3 ailing) and 84 no-labels from 100 Q candidates. The dead floor is 11/25.
+- Known limitation: in 02b the fetch tool did not show GitHub's archive banner, so a repo archived only through the banner could be missed. This affects how many labels we get, not whether the labels we have are right.
