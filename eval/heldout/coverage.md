@@ -1,0 +1,148 @@
+# Held-out coverage
+
+Seed: `graveyard-mortality-v2-heldout-1`. Draw date: 2026-11-17.
+
+## Q population filters
+
+Whole snapshot: `snapshot_size`, `scoped`, `syntax_rejected`, `excluded`.
+Examined prefix only: `examined`, `unpublished`, `no_release_date`, `not_quiet`.
+
+| Filter | Covers | npm | pypi |
+| --- | --- | ---: | ---: |
+| `snapshot_size` | whole snapshot | 17338 | 5000 |
+| `scoped` | whole snapshot | 7439 | 0 |
+| `syntax_rejected` | whole snapshot | 4 | 0 |
+| `excluded` | whole snapshot | 83 | 51 |
+| `examined` | examined prefix | 128 | 348 |
+| `unpublished` | examined prefix | 0 | 0 |
+| `no_release_date` | examined prefix | 0 | 0 |
+| `not_quiet` | examined prefix | 53 | 273 |
+| `short_of_budget` | examined prefix | no | no |
+
+## Stratum Q
+
+| Ecosystem | Candidates drawn | dead | finished-healthy | alive | ailing | Rows | No label |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| npm | 75 | 8 | 0 | 0 | 1 | 9 | 65 |
+| pypi | 75 | 6 | 0 | 0 | 2 | 8 | 64 |
+
+`no label` reasons, npm:
+
+- README has a title and test cases only, no status statement: 1
+- README has no status statement: 12
+- README has no status statement and no dated release notes: 1
+- README has no status statement; only links to a changelog: 1
+- README has only an install line and the license: 1
+- README recommends ora instead, which is not a deprecation or unmaintained statement: 1
+- README use-case note is not a deprecation or completeness statement: 1
+- advice to use another library is not a deprecation; no deprecated field: 1
+- monorepo README says nothing about this package; no deprecated field: 1
+- newest release 5.0.5 is undated, so no activity in the window is shown; no deprecated field: 1
+- no deprecated field and no status statement: 1
+- no deprecated field; page documents @ethereumjs/util and does not deprecate the old package: 1
+- no deprecation or status statement: 1
+- no status statement: 5
+- no status statement and no dated activity: 8
+- no status statement and no dated releases: 1
+- no status statement in the README text fetched: 1
+- no status statement in the first 4 KB fetched: 1
+- no status statement or dates: 1
+- no status statement; no deprecated field: 12
+- not needed with Webpack 5 says the plugin is redundant, not deprecated or unmaintained: 1
+- not-maintained text is inherited from the upstream NV/CSSOM README and does not describe this fork; releases undated: 1
+- only status text is on the lodash repo, about lodash not this package, and future tense: 1
+- pointer to the username module for newer Node is not a deprecation or unmaintained statement: 1
+- releases page shows no dates, so no activity in the window can be quoted: 1
+- releases page shows only an undated entry: 1
+- repo URL from the record returned 404; registry record has no deprecated field or statement: 2
+- repo has no README under any standard name; no status statement; no deprecated field: 1
+- repo now documents the scoped package; no deprecation statement and no npm deprecated field: 1
+- repo page now covers @babel/preset-flow and says nothing about this package; no deprecated field: 1
+- usage caveat is not a status statement; no deprecated field: 1
+
+`no label` reasons, pypi:
+
+- GitHub releases page empty; PyPI README shows no dated activity in window: 1
+- GitHub releases page empty; no dated evidence or status statement: 1
+- Launchpad page has bug reports only, no release notes or maintainer statement: 1
+- PyPI description is empty: 1
+- README and changelog have no status statement; last dated changelog entry 2016: 1
+- README has no status statement: 2
+- README has no status statement; Development Status classifier is metadata: 1
+- README now covers reactivex and says nothing about the rx package status: 1
+- README only says the code now lives in graphql-server; not a deprecation or unmaintained statement: 1
+- README says it is maintained but gives no date; no dated activity in the window: 1
+- README says only Still under development, which fits no label: 1
+- actively-maintained statement is undated so it fails the 12-month rule; no releases: 1
+- backport to give people more time to migrate is not a deprecation or EOL notice; newest release undated: 1
+- docs page has no completeness or status statement: 1
+- minimal-compatibility policy for the archived stdlib module is not an explicit completeness statement: 2
+- newest changelog entry 2023-07-21 is outside the window; no status statement: 1
+- newest dated changelog release 1.3.0 (2024-09-18) is outside the window; no deprecation stated: 1
+- newest dated release note 24 Sep 2024 is outside the window; issue auto-close policy is not a maintenance statement: 1
+- newest dated release note is 21 May 2025, before the window; no completeness or deprecation statement: 1
+- newest history entry 2019-09-16; no status statement: 1
+- no GitHub releases and no status statement: 1
+- no GitHub releases to quote; no status statement: 1
+- no dated release notes and no status statement: 1
+- no deprecation or status statement: 1
+- no deprecation, EOL or completeness statement; no dated release notes; no archived banner: 1
+- no maintainer or deprecation statement; latest release 2024.8.26 is outside the window so no alive quote: 1
+- no status statement: 12
+- no status statement and no dated activity: 7
+- no status statement and no dated release notes: 1
+- no status statement; PyPI description empty: 1
+- no status statement; changelog ends 2014: 1
+- no status statement; newest release 2021, outside the window: 1
+- no status statement; no archived banner: 1
+- no status statement; release page shows no date inside the window: 1
+- only a Mature classifier, which is registry metadata, not a completeness statement: 1
+- only a Production/Stable classifier, which is registry metadata, not a statement: 1
+- only repo URL in the record (Bitbucket) returned 404; PyPI description has no status statement: 1
+- production-ready feature claim is not a completeness statement; no dated release note in the window: 1
+- record points only to whatif-tool.dev; what-if-tool README has no status statement: 1
+- release notes carry no dates; no activity in window shown: 2
+- release table ends at 0.37.1 (Jul 2024), outside the window; no maintenance or archived statement found: 1
+- repo URL from the record returned 404; PyPI description has no status statement: 1
+- uninstall notice applies only to python-slugify 8.0.2 and later; not a deprecation, EOL or unmaintained statement for this version: 1
+- uninstall notice applies only to stripe 7.1.0 and later; not a deprecation, EOL or unmaintained statement for this version: 1
+
+## Stratum F
+
+| Ecosystem | Candidates drawn | dead | finished-healthy | alive | ailing | Rows | No label |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| npm | 7 | 0 | 1 | 0 | 0 | 1 | 6 |
+| pypi | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
+
+`no label` reasons, npm:
+
+- README describes active development (v3.0 rework); stable refers only to agent integrations: 1
+- README describes an actively developed project; no completeness statement: 1
+- README describes an actively developed toolkit; no completeness statement: 1
+- no completeness or stability statement: 2
+- only completeness text is a historical v1.0.0 release note, not current status; releases continued: 1
+
+`no label` reasons, pypi:
+
+- README calls it alpha and very rough; the release is yanked: 1
+- README has no completeness statement; Production/Stable classifier is metadata; repo URL from README links because the record was too large to read project_urls: 1
+- README says under active development and likely to change significantly: 1
+- almost feature complete with features still planned is not a completeness statement: 1
+- alpha package; no completeness statement: 1
+- feature-complete means parity with the C implementation, not that the package is finished; README lists planned work: 1
+- no completeness or stability statement: 1
+
+## F query grid
+
+| Cells | Zero-hit | Saturated |
+| ---: | ---: | ---: |
+| 200 | 173 | 0 |
+
+## Limits
+
+- Q covers only quiet, high-download, unscoped packages that are labellable.
+- F is selected by README phrases (as the v1 key was) and covers only packages with such a phrase and a mapped repo.
+- Pooled proportions mix both strata and are not population estimates; per-stratum figures are reported next to them.
+- Counts of registry-dependent filters (not quiet, unpublished, no release date) cover the examined prefix of the Q walk only; counts that need no registry call (snapshot size, scoped, syntax rejected, excluded) cover the whole snapshot.
+- The npm population is every unscoped name of the pinned list, not a top-N cut, while the PyPI population is the top 5,000 ranks; the two are not the same depth of popularity.
+- Saturated query cells reached the result cap, so results beyond it were not seen; they were not re-queried with finer bands.
