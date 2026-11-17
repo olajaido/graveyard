@@ -180,3 +180,28 @@ def test_stop_reason_matches_definition(effective: int, released: int, remaining
     """**Validates: Requirements MV2-SMP-3**"""
     fired = effective >= 20 or released >= 120 or remaining <= 0
     assert (f_stop_reason(effective, released, remaining) is not None) == fired
+
+
+def test_f_batch_not_blocked_by_released_q_keys() -> None:
+    q_released: list[Key] = [("npm", f"q{i}") for i in range(150)]
+    pool: list[Key] = [("pypi", f"f{i}") for i in range(14)]
+    batch = next_f_batch(pool, q_released, f_released=[])
+    assert batch == tuple(pool)
+
+
+def test_f_batch_cap_counts_f_releases_only() -> None:
+    f_done: list[Key] = [("npm", f"done{i}") for i in range(115)]
+    q_done: list[Key] = [("npm", f"q{i}") for i in range(150)]
+    pool: list[Key] = [("pypi", f"f{i}") for i in range(30)]
+    batch = next_f_batch(pool, [*f_done, *q_done], f_released=f_done)
+    assert len(batch) == 5
+    assert batch == tuple(pool[:5])
+
+
+def test_f_batch_never_returns_a_released_key_of_any_stratum() -> None:
+    pool: list[Key] = [("npm", f"p{i}") for i in range(5)]
+    q_released: list[Key] = [pool[0]]
+    f_released: list[Key] = [pool[1]]
+    batch = next_f_batch(pool, [*q_released, *f_released], f_released=f_released)
+    assert batch == tuple(pool[2:])
+    assert pool[0] not in batch and pool[1] not in batch

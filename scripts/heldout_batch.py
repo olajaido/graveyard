@@ -450,7 +450,9 @@ def cmd_next(
         keys = next_q_batch([c.key for c in state.q], state.released)
         orders = {c.key: c.order for c in state.q}
     else:
-        keys = next_f_batch([c.key for c in state.pool], state.released)
+        keys = next_f_batch(
+            [c.key for c in state.pool], state.released, f_released=state.released_in("F")
+        )
         orders = {c.key: c.order for c in state.pool}
     if not keys:
         return 1, f"blocked: no unreleased {stratum} candidates remain\n"

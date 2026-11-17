@@ -48,10 +48,21 @@ def next_q_batch(candidates: Iterable[Key], released: Collection[Key]) -> tuple[
     return tuple(key for eco in sorted(per_eco) for key in per_eco[eco])
 
 
-def next_f_batch(pool: Iterable[Key], released: Collection[Key]) -> tuple[Key, ...]:
-    """Next F batch: up to 20 unreleased pool keys in pool order, never past 120 released."""
+def next_f_batch(
+    pool: Iterable[Key],
+    released: Collection[Key],
+    *,
+    f_released: Collection[Key] | None = None,
+) -> tuple[Key, ...]:
+    """Next F batch: up to 20 unreleased pool keys in pool order, never past 120 F releases.
+
+    `released` holds every released key (all strata) and is what excludes keys. `f_released`
+    holds only the released F keys and is what the 120 cap counts. When it is `None`, the cap
+    counts `released`, which matches callers that release F keys only.
+    """
     taken = set(released)
-    room = min(F_BATCH_SIZE, F_RELEASE_CAP - len(taken))
+    cap_count = len(taken) if f_released is None else len(set(f_released))
+    room = min(F_BATCH_SIZE, F_RELEASE_CAP - cap_count)
     batch: list[Key] = []
     for key in pool:
         if len(batch) >= room:
