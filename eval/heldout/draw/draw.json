@@ -1,0 +1,46 @@
+{
+  "counts": {
+    "npm": {
+      "examined": 128,
+      "excluded": 83,
+      "no_release_date": 0,
+      "not_quiet": 53,
+      "scoped": 7439,
+      "selected": 75,
+      "short_of_budget": false,
+      "snapshot_size": 17338,
+      "syntax_rejected": 4,
+      "unpublished": 0
+    },
+    "pypi": {
+      "examined": 348,
+      "excluded": 51,
+      "no_release_date": 0,
+      "not_quiet": 273,
+      "scoped": 0,
+      "selected": 75,
+      "short_of_budget": false,
+      "snapshot_size": 5000,
+      "syntax_rejected": 0,
+      "unpublished": 0
+    }
+  },
+  "draw_date": "2026-11-17",
+  "pins": {
+    "npm-high-impact": {
+      "downloaded_sha256": "63ed31dacc861ac10c95b47af242a984f210f0170eaea8eaa66ba4a9b8f9d30b",
+      "file": "npm-high-impact.json",
+      "trimmed_sha256": "b7a6883bc9a43747613b16ba06128bd377cf60d35c323da95ef56dca1377f882",
+      "version": "1.13.0"
+    },
+    "pypi-top-5000": {
+      "commit_sha": "29c0d4c38c28c0e6b99e73fa09cb91a2323ca51b",
+      "downloaded_sha256": "3e958a64ebe1de0b6a4ab4c6b465d481f350fd1dfa926c639add36eb34dabc1e",
+      "file": "pypi-top-5000.json",
+      "trimmed_sha256": "514a18b54c6cdda9af73a4453f5d87cc1920c967a36538f663f0482d354ae9fa"
+    }
+  },
+  "q_budget_per_ecosystem": 75,
+  "queries_sha256": "4617f812de04a1f14b92b050a3b86f2622b9e4306f7b3d7176f5687860a17c14",
+  "seed": "graveyard-mortality-v2-heldout-1"
+}
