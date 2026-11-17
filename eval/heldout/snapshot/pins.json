@@ -1,0 +1,37 @@
+{
+  "sources": {
+    "npm-high-impact": {
+      "downloaded_sha256": "63ed31dacc861ac10c95b47af242a984f210f0170eaea8eaa66ba4a9b8f9d30b",
+      "fetched_at": "2026-11-17T11:15:50Z",
+      "file": "npm-high-impact.json",
+      "integrity": "sha512-Dngjb2fyZfj4/7aZ+9kGGGK/IWnBhb45nzHX1ECxi26vXixkKzdixCB81XTwQzyAwc4d39VbcTL+rlS+d7VETA==",
+      "invalid_name_excluded": {
+        "count": 4,
+        "names": [
+          "-",
+          "Base64",
+          "JSONStream",
+          "JSV"
+        ]
+      },
+      "member": "package/lib/top.js",
+      "member_sha256": "bbc16e783283f23d38559a1322d93af27b8a7a884b1fa9c5a1dd84e810684f0c",
+      "package": "npm-high-impact",
+      "row_count": 17338,
+      "trimmed_sha256": "b7a6883bc9a43747613b16ba06128bd377cf60d35c323da95ef56dca1377f882",
+      "url": "https://registry.npmjs.org/npm-high-impact/-/npm-high-impact-1.13.0.tgz",
+      "version": "1.13.0"
+    },
+    "pypi-top-5000": {
+      "commit_sha": "29c0d4c38c28c0e6b99e73fa09cb91a2323ca51b",
+      "downloaded_sha256": "3e958a64ebe1de0b6a4ab4c6b465d481f350fd1dfa926c639add36eb34dabc1e",
+      "fetched_at": "2026-11-17T11:15:50Z",
+      "file": "pypi-top-5000.json",
+      "last_update": "2026-11-01 06:41:05",
+      "row_count": 5000,
+      "source_file": "top-pypi-packages.min.json",
+      "trimmed_sha256": "514a18b54c6cdda9af73a4453f5d87cc1920c967a36538f663f0482d354ae9fa",
+      "url": "https://raw.githubusercontent.com/hugovk/top-pypi-packages/29c0d4c38c28c0e6b99e73fa09cb91a2323ca51b/top-pypi-packages.min.json"
+    }
+  }
+}
