@@ -83,3 +83,48 @@ pypi	types-python-slugify	uninstall notice applies only to python-slugify 8.0.2 
 npm	write-file-webpack-plugin	not needed with Webpack 5 says the plugin is redundant, not deprecated or unmaintained	https://github.com/gajus/write-file-webpack-plugin
 npm	svg.resize.js	repo now documents the scoped package; no deprecation statement and no npm deprecated field	https://github.com/svgdotjs/svg.resize.js
 npm	username-sync	pointer to the username module for newer Node is not a deprecation or unmaintained statement	https://github.com/stefanpenner/username-sync
+pypi	alphashape	no status statement; newest release 2021, outside the window	https://github.com/bellockk/alphashape
+npm	anakjalanan	repo has no README under any standard name; no status statement; no deprecated field	https://github.com/mizukiyakane/anakjalanan
+npm	are-objects	no status statement; no deprecated field	https://github.com/rich-97/are-objects
+npm	babel-plugin-check-es2015-constants	repo URL from the record returned 404; registry record has no deprecated field or statement	https://github.com/babel/babel/tree/master/packages/babel-plugin-check-es2015-constants
+npm	babel-plugin-syntax-export-extensions	repo URL from the record returned 404; registry record has no deprecated field or statement	https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-export-extensions
+npm	babel-preset-flow	repo page now covers @babel/preset-flow and says nothing about this package; no deprecated field	https://github.com/babel/babel/tree/master/packages/babel-preset-flow
+npm	chrome-extension-hot-reload	no status statement; no deprecated field	https://github.com/corupta/chrome-extension-hot-reload
+pypi	clamd	no status statement; changelog ends 2014	https://github.com/graingert/python-clamd
+pypi	clickhouse-sqlalchemy	no GitHub releases to quote; no status statement	https://github.com/xzkostyan/clickhouse-sqlalchemy/releases
+npm	compute-gcd	no status statement; no deprecated field	https://github.com/compute-io/gcd
+npm	csso	newest release 5.0.5 is undated, so no activity in the window is shown; no deprecated field	https://github.com/css/csso/releases
+npm	diffie-hellman	no status statement; no deprecated field	https://github.com/crypto-browserify/diffie-hellman
+pypi	django-rest-polymorphic	no status statement	https://github.com/denisorehovsky/django-rest-polymorphic
+pypi	dkimpy	Launchpad page has bug reports only, no release notes or maintainer statement	https://launchpad.net/dkimpy
+npm	elegant-spinner	README recommends ora instead, which is not a deprecation or unmaintained statement	https://github.com/sindresorhus/elegant-spinner
+pypi	flameprof	no status statement	https://github.com/baverman/flameprof
+npm	github-url-from-git	README has a title and test cases only, no status statement	https://github.com/visionmedia/node-github-url-from-git
+npm	http-reasons	no status statement; no deprecated field	https://github.com/postmanlabs/http-reasons
+pypi	inflection	README has no status statement	https://github.com/jpvanhal/inflection
+npm	mdast-squeeze-paragraphs	README use-case note is not a deprecation or completeness statement	https://github.com/syntax-tree/mdast-squeeze-paragraphs
+pypi	metaphone	no status statement	https://github.com/oubiwann/metaphone
+pypi	mohawk	no status statement	https://github.com/kumar303/mohawk
+npm	node-bitmap	README has only an install line and the license	https://github.com/nowelium/node-bitmap
+npm	nwmatcher	no status statement; no deprecated field	https://github.com/dperini/nwmatcher
+npm	parse-help	no status statement; no deprecated field	https://github.com/sindresorhus/parse-help
+npm	path2	no status statement; no deprecated field	https://github.com/medikoo/path2
+pypi	pathlib-mate	no status statement	https://github.com/MacHu-GWU/pathlib_mate-project
+pypi	pdfrw	no status statement	https://github.com/pmaupin/pdfrw
+pypi	pem	README says it is maintained but gives no date; no dated activity in the window	https://github.com/hynek/pem
+npm	postcss-jsx	no status statement; no deprecated field	https://github.com/gucong3000/postcss-jsx
+pypi	ptyprocess	no status statement	https://github.com/pexpect/ptyprocess
+pypi	pyandoc	no status statement	https://github.com/kennethreitz/pyandoc
+pypi	pypng	newest dated release note is 21 May 2025, before the window; no completeness or deprecation statement	https://gitlab.com/drj11/pypng/-/raw/main/README.md
+pypi	pyyaml-include	production-ready feature claim is not a completeness statement; no dated release note in the window	https://github.com/tanbro/pyyaml-include
+pypi	rx	README now covers reactivex and says nothing about the rx package status	https://github.com/ReactiveX/RxPY
+npm	s.color	advice to use another library is not a deprecation; no deprecated field	https://github.com/TheRealSyler/s.color
+pypi	sortedcontainers	docs page has no completeness or status statement	https://grantjenks.com/docs/sortedcontainers/
+npm	sqlstring	no status statement; no deprecated field	https://github.com/mysqljs/sqlstring
+pypi	standard-imghdr	minimal-compatibility policy for the archived stdlib module is not an explicit completeness statement	https://github.com/youknowone/python-deadlib
+pypi	standard-sunau	minimal-compatibility policy for the archived stdlib module is not an explicit completeness statement	https://github.com/youknowone/python-deadlib
+pypi	systemd-python	no status statement; PyPI description empty	https://github.com/systemd/python-systemd
+npm	tiny-hashes	usage caveat is not a status statement; no deprecated field	https://github.com/jbt/tiny-hashes
+npm	unist-util-remove-position	no status statement; no deprecated field	https://github.com/syntax-tree/unist-util-remove-position
+pypi	unpaddedbase64	no status statement	https://github.com/matrix-org/python-unpaddedbase64
+npm	zhead	no status statement; no deprecated field	https://github.com/harlan-zw/zhead

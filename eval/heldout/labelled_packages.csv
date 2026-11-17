@@ -13,3 +13,6 @@ npm,nkeys.js,1.1.0,dead,deprecation_notice,https://registry.npmjs.org/nkeys.js/l
 pypi,scandir,1.10.0,dead,archived_repo,https://github.com/benhoyt/scandir,"Better directory iterator and faster os.walk(). Archived, as this has been in the stdlib since Python 3.5.",coroner,true
 pypi,shyaml,0.6.2,ailing,maintainer_statement,https://github.com/0k/shyaml,"This Python version remains available and is not archived, but it is in a lethargic state: no new features are planned, and maintenance is limited to critical fixes.",coroner,true
 npm,vue-template-compiler,2.7.16,dead,eol_announcement,https://github.com/vuejs/vue,"Vue has reached End of Life on December 31st, 2023. It no longer receives new features, updates, or fixes.",coroner,true
+npm,cleave.js,1.6.0,dead,deprecation_notice,https://github.com/nosir/cleave.js,Kindly note that this library has been deprecated.,coroner,true
+pypi,opentracing,2.4.0,dead,deprecation_notice,https://github.com/opentracing/opentracing-python,This library is DEPRECATED!,coroner,true
+npm,source-map-url,0.4.1,dead,deprecation_notice,https://github.com/lydell/source-map-url,[DEPRECATED] Tools for working with sourceMappingURL comments.,coroner,true

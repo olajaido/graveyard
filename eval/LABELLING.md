@@ -125,6 +125,10 @@ A later change to a label or its evidence is logged here, with a reason. "The mo
 | 2026-11-17 | (held-out batch 01b) | n/a | First coroner run discarded before merge: registry records were not fetched and repo URLs were taken from memory. All 25 candidates were re-run with a registry-first instruction; the re-run stands. |
 | 2026-11-17 | npm,babylon | dead → removed | Held-out batch 02a. Quote is future tense (will be made read-only) and does not itself state the package is deprecated or unmaintained; same standard as lodash.support in 01a |
 | 2026-11-17 | pypi,flask-mail | ailing → removed | Held-out batch 02a. Generic Pallets-Eco invitation to help maintain; does not state reduced maintenance for this package |
+| 2026-11-17 | (held-out batch 03a) | n/a | First coroner run discarded before merge: registry-first step not shown for every candidate, two candidates not checked, no URL per no-label. All 25 re-run; the re-run stands. Five candidates in the re-run lacked a required step (README or record repo URL not fetched); only those steps were completed in a follow-up, with no outcome changed. |
+| 2026-11-17 | (held-out batch 03b) | n/a | Three candidates (pem, pypng, pyyaml-include) had a record repo URL that was not fetched; only those steps were completed in a follow-up, with no outcome changed. |
+| 2026-11-17 | pypi,types-chardet | dead → removed | Held-out batch 03b. Conditional obsolescence (only for chardet 5.1.0 and later) is not a deprecation of this version; same standard as types-stripe and types-python-slugify in 02b |
+| 2026-11-17 | pypi,uamqp | dead → removed | Held-out batch 03b. No longer in active maintenance is maintenance mode (ailing under section 1), not unmaintained; the deprecation is future tense; review cannot relabel, so removed |
 
 
 ## 9. Candidate plan (fixed 13 Nov 2026, before labelling)

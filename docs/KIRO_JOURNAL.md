@@ -890,3 +890,9 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - Two rows were removed at review (LABELLING section 8): babylon (future-tense move notice) and flask-mail (generic help-maintain invitation). Both decisions were made before any held-out model output existed.
 - Running total: 14 reviewed rows (11 dead, 3 ailing) and 84 no-labels from 100 Q candidates. The dead floor is 11/25.
 - Known limitation: in 02b the fetch tool did not show GitHub's archive banner, so a repo archived only through the banner could be missed. This affects how many labels we get, not whether the labels we have are right.
+
+## 17 Nov 2026: Held-out T9.6, Q batch 03 labelled and reviewed; Q stratum complete
+- Batch 03 had 50 Q candidates, labelled in two halves. The first run of 03a was discarded before merge (registry step not shown for every candidate, no URL per no-label), and all 25 were re-run. Where a run left a required step undone (5 candidates in 03a, 3 in 03b), only those steps were completed in a follow-up; no outcome changed. Both are recorded in LABELLING section 8.
+- Result: 5 rows merged (all dead) and 45 no-labels. Review: check_versions flagged none; verify_evidence found 19 of 19. Two rows were removed at review: types-chardet (conditional obsolescence, the same standard as the 02b types stubs) and uamqp (its quote supports ailing, not dead, and review cannot relabel).
+- Q stratum total: 150 candidates gave 17 reviewed rows (14 dead, 3 ailing), 129 no-labels and 4 removed at review. The dead floor is 14/25. The F stratum comes next; floors are not lowered and the search is not extended.
+- The wrapper now spells out the registry-first steps: the per-version JSON for truncated PyPI records, fetching the README when the repo page shows none, and a table per no-label candidate.

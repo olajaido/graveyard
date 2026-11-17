@@ -1,3 +1,5 @@
 ecosystem	name	action	reason
 npm	babylon	remove	quote is future tense (will be made read-only) and does not itself state the package is deprecated or unmaintained; same standard as lodash.support in 01a
 pypi	flask-mail	remove	generic Pallets-Eco invitation to help maintain; does not state reduced maintenance for this package
+pypi	types-chardet	remove	conditional obsolescence (only for chardet 5.1.0 and later) is not a deprecation of this version; same standard as types-stripe and types-python-slugify in 02b
+pypi	uamqp	remove	no longer in active maintenance is maintenance mode (ailing under section 1), not unmaintained; the deprecation is future tense; review cannot relabel, so removed
