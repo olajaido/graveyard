@@ -553,6 +553,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794841268174
+      },
+      {
+        "executionId": "32936953-6041-4ee4-82cc-5c73a4149e71",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794914607016
+      },
+      {
+        "executionId": "32936953-6041-4ee4-82cc-5c73a4149e71",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794914824744
       }
     ],
     "T5.6 — `heldout/fpool.py`, grid and build (design 9.1, 9.4): `build_grid()` (8 phrases × 5 filenames × 5 byte bands = 200 rows, ids stable) and `build_pool(mapped, exclusions, q_candidates, seed, owner_cap)`. Tests: phrases and filenames are exactly the sets of the design; bands are disjoint and cover every integer from 0; 200 rows with no duplicates; pool dedupe keeps the lowest query id; exclusions and Q candidates removed; owner cap applied in draw order; byte-for-byte rebuild from fixed inputs.": [
@@ -1368,6 +1378,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794841270816
+      },
+      {
+        "executionId": "6d584d02-ea68-4a66-9002-b73b9badfdef",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794917877628
+      },
+      {
+        "executionId": "6d584d02-ea68-4a66-9002-b73b9badfdef",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794918006396
       }
     ],
     "T5.15a — Gate code for `dead_flagged_rate` (requirements A9, MV2-GATE-8; design 7.5.8). `metrics.dead_flagged_rate(c)` beside `fh_flagged_rate` (row `dead`: `dead` + `ailing` over the row sum; `None` when the row sum is 0). In `gate.py`: `CheckName` gains `\"dead_flagged_rate\"`; `load_gate_config` accepts the optional key `min_dead_flagged_rate` (number in [0, 1]) and still returns the four-field `GateConfig` (no new field: `build_results` writes `asdict(config)`); new `load_min_dead_flagged_rate(path) -> float | None`; `evaluate_gate(reviewed, cfg, *, min_dead_flagged_rate=None)` appends the fifth check only when the value is given. In `run.py`, the `heldout` dataset reads the value and passes it; the `v1` dataset does not. Tests: hand-computed `dead_flagged_rate` tables (41/45 as the v1 key's dead row; empty row gives `None`; `unknown`, `alive` and `finished-healthy` count as not flagged); unknown keys still rejected; the optional key out of range or non-numeric rejected; the real `eval/heldout/gate.yaml` loads to `GateConfig(0.90, 0.10, 25, 20)` and 0.85; the real `eval/gate.yaml` gives `None`; without the value `evaluate_gate` returns the four checks as before; `test_gate.py`, `test_report.py` and `test_real_results_fresh.py` pass without other edits. **Stop if `eval/results.json` would change.**": [

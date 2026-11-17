@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import importlib.util
 import re
+import subprocess
+import sys
 from pathlib import Path
+from types import ModuleType
 
+import pytest
 import yaml
 
 from eval.heldout.fpool import build_grid, grid_tsv
@@ -12,8 +17,6 @@ from eval.heldout.fpool import build_grid, grid_tsv
 ROOT = Path(__file__).resolve().parents[3]
 HELDOUT = ROOT / "eval" / "heldout"
 SEED = "graveyard-mortality-v2-heldout-1"
-ALLOWED = {"README.md", "dataset.yaml", "gate.yaml", "f/queries.tsv", "AMENDMENTS.md"}
-OPTIONAL = {"FROZEN_HARNESS.json"}
 
 
 def _load(path: Path) -> dict[str, object]:
@@ -71,7 +74,37 @@ def test_amendments_has_no_entry() -> None:
     assert re.search(r"^## \d{4}-\d{2}-\d{2} ", text, re.MULTILINE) is None
 
 
+def _load_order_script() -> ModuleType:
+    path = ROOT / "scripts" / "check_heldout_order.py"
+    spec = importlib.util.spec_from_file_location("check_heldout_order", path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["check_heldout_order"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def test_paths_under_heldout_are_the_allowed_list() -> None:
-    found = {p.relative_to(HELDOUT).as_posix() for p in HELDOUT.rglob("*") if p.is_file()}
-    assert found >= ALLOWED
-    assert found <= ALLOWED | OPTIONAL
+    """Check 2 of check_heldout_order.py: the tree at the frozen tag, not the working tree."""
+    order = _load_order_script()
+    tag = order.FROZEN_TAG
+    try:
+        verify = subprocess.run(
+            ["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        pytest.skip("git is not available")
+    if verify.returncode != 0:
+        pytest.skip(f"tag {tag} does not exist in this repository")
+    out = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", "-z", tag, "--", order.HELDOUT_DIR],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8")
+    found = {p for p in out.split("\0") if p}
+    print(sorted(found))
+    assert found == set(order.FROZEN_HELDOUT_ALLOWED)

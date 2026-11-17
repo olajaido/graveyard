@@ -185,3 +185,68 @@ def test_legacy_invalid_names_are_counted_as_syntax_rejected_not_drawn(
     assert (npm["snapshot_size"], npm["scoped"], npm["syntax_rejected"]) == (17, 1, 4)
     drawn = (heldout / "draw" / "q-candidates.tsv").read_text()
     assert not any(f"\t{n}\t" in drawn for n in legacy)
+
+
+# --- registry response size cap (real make_http_fetch path, httpx.MockTransport) ---
+MIB = 1024 * 1024
+
+
+def _client(body_size: int, hits: list[int] | None = None) -> Any:
+    """A client whose transport streams `body_size` bytes of whitespace-padded JSON."""
+    import httpx
+
+    head, tail = b'{"info": {"version": "1.0"}, "releases": {}}', b""
+    pad = b" " * MIB
+
+    def body() -> Iterator[bytes]:
+        left = body_size - len(head)
+        yield head
+        while left > 0:
+            piece = pad[: min(left, MIB)]
+            left -= len(piece)
+            yield piece
+        yield tail
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if hits is not None:
+            hits.append(1)
+        return httpx.Response(200, content=body())
+
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+def test_response_cap_is_64_mib(script: Any) -> None:
+    assert script.MAX_RESPONSE_BYTES == 64 * MIB
+
+
+def test_7_mb_registry_document_is_accepted(script: Any) -> None:
+    from datetime import date
+
+    with _client(7 * MIB) as client:
+        registry = script.Registry(
+            script.make_http_fetch(client), lambda _s: None, lambda: 0.0, date(2026, 11, 15), "s"
+        )
+        doc = registry._get("pypi", "ddtrace")
+    assert doc == {"info": {"version": "1.0"}, "releases": {}}
+
+
+def test_response_exactly_at_cap_is_accepted(script: Any) -> None:
+    with _client(64 * MIB) as client:
+        status, body = script.make_http_fetch(client)("https://pypi.org/pypi/x/json")
+    assert (status, len(body)) == (200, 64 * MIB)
+
+
+def test_response_over_cap_is_rejected_then_draw_stops_after_retries(script: Any) -> None:
+    from datetime import date
+
+    url = "https://pypi.org/pypi/x/json"
+    with _client(64 * MIB + 1) as client, pytest.raises(script.FetchError, match="size cap"):
+        script.make_http_fetch(client)(url)
+    hits: list[int] = []
+    with _client(64 * MIB + 1, hits) as client:
+        registry = script.Registry(
+            script.make_http_fetch(client), lambda _s: None, lambda: 0.0, date(2026, 11, 15), "s"
+        )
+        with pytest.raises(script.DrawStopped, match="size cap"):
+            registry._get("pypi", "x")
+    assert len(hits) == script.RETRIES + 1

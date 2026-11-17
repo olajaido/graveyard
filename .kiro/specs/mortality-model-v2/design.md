@@ -516,6 +516,8 @@ For each ecosystem:
 
 Why walk lazily: filtering the whole snapshot first would need about 5,000 PyPI and 9,900 npm registry requests. The walk gives the same first 75 (property test, section 8.2) with far fewer. There is no full-population run (decision 2 of section 16.1), so the counts of registry-dependent filters (not quiet, unpublished, no date) cover the examined prefix only, and the report says so as a limitation.
 
+**Note, 2026-11-17.** The response size cap for registry JSON (npm and PyPI) was raised from 25 MiB to 64 MiB (decoded bytes, still checked while streaming) during the first real draw, before any candidate was labelled. Resumption keeps the already-examined prefix: `q-examined.tsv` rows are not recomputed. No seed, population, pin or rule changed.
+
 ### 8.6 Outputs (committed at the draw tag)
 | File | Content |
 |---|---|
