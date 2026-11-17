@@ -169,3 +169,19 @@ def test_existing_draw_json_is_not_overwritten(script: Any, tmp_path: Path) -> N
     before = (heldout / "draw" / "draw.json").read_bytes()
     assert run(script, root, heldout, fake) == 1
     assert (heldout / "draw" / "draw.json").read_bytes() == before
+
+
+def test_legacy_invalid_names_are_counted_as_syntax_rejected_not_drawn(
+    script: Any, tmp_path: Path
+) -> None:
+    root = tmp_path / "legacy"
+    write_repo(root)
+    heldout = root / "heldout"
+    legacy = ["JSONStream", "Base64", "JSV", "-"]
+    write_snapshots(heldout, NPM[:12] + ["@scope/x"] + legacy, PYPI)
+    assert run(script, root, heldout, FakeRegistry(states(), default="quiet")) == 0
+    doc = json.loads((heldout / "draw" / "draw.json").read_text())
+    npm = doc["counts"]["npm"]
+    assert (npm["snapshot_size"], npm["scoped"], npm["syntax_rejected"]) == (17, 1, 4)
+    drawn = (heldout / "draw" / "q-candidates.tsv").read_text()
+    assert not any(f"\t{n}\t" in drawn for n in legacy)

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 from typing import Any
 
@@ -9,14 +11,18 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
+from eval.heldout.draw import normalise_name
 from eval.heldout.pins import (
     MAX_BYTES,
     PinError,
+    invalid_unscoped_names,
+    is_valid_npm_name,
     parse_hugovk,
     parse_npm_top_js,
     sha256_hex,
     verify_pins,
 )
+from eval.labels import HEADER, parse_labels_lenient
 
 
 def _hugovk(rows: list[Any], **extra: Any) -> bytes:
@@ -128,11 +134,9 @@ def test_top_js_good_no_trailing_newline_and_no_indent() -> None:
         ("export const top = [\n'',\n]\n", "not a `'name',`"),
         ("export const top = [\n'a',\n\n]\n", "not a `'name',`"),
         ("export const top = [\r\n'a',\r\n]\r\n", "carriage return"),
-        ("export const top = [\n'Upper',\n]\n", "invalid npm name"),
         ("export const top = [\n'@scope',\n]\n", "invalid npm name"),
         ("export const top = [\n'@Scope/x',\n]\n", "invalid npm name"),
         ("export const top = [\n'@a/b/c',\n]\n", "invalid npm name"),
-        ("export const top = [\n'has space',\n]\n", "invalid npm name"),
         ("export const top = [\n'a',\n'a',\n]\n", "duplicate"),
     ],
 )
@@ -206,3 +210,48 @@ def test_verify_pins_reports_every_bad_source() -> None:
     }
     problems = verify_pins(pins, files)
     assert [p.split(":")[0] for p in problems] == ["one", "three"]
+
+
+LEGACY = ["JSONStream", "Base64", "JSV", "-"]
+
+
+def test_invalid_unscoped_names_are_kept_in_order_and_listed_sorted() -> None:
+    body = "".join(f"  '{n}',\n" for n in ["JSONStream", "lodash", "Base64", "@a/b", "JSV", "-"])
+    names = parse_npm_top_js(f"export const top = [\n{body}]\n".encode())
+    assert names == ["JSONStream", "lodash", "Base64", "@a/b", "JSV", "-"]
+    assert invalid_unscoped_names(names) == sorted(LEGACY)
+    assert invalid_unscoped_names(names) == ["-", "Base64", "JSONStream", "JSV"]
+
+
+def test_repeated_invalid_name_does_not_abort_and_counts_once() -> None:
+    names = parse_npm_top_js(b"export const top = [\n'JSV',\n'ok',\n'JSV',\n]\n")
+    assert invalid_unscoped_names(names) == ["JSV"]
+    with pytest.raises(PinError, match="duplicate"):
+        parse_npm_top_js(b"export const top = [\n'ok',\n'JSV',\n'ok',\n]\n")
+
+
+@pytest.mark.parametrize("text", ["'", "\\"])
+def test_quote_or_backslash_still_aborts(text: str) -> None:
+    with pytest.raises(PinError, match="not a `'name',`"):
+        parse_npm_top_js(f"export const top = [\n'a{text}b',\n]\n".encode())
+
+
+NAME_TABLE = [
+    "lodash", "a", "0x", "a.b_c-d", "left-pad", "JSONStream", "Base64", "JSV", "-", "_x", ".x",
+    "has space", "a/b", "", "\u00e9", "@a/b", "A", "x\n",
+]  # fmt: skip
+
+
+@pytest.mark.parametrize("name", NAME_TABLE)
+def test_pins_validator_agrees_with_labels_merge_rule(name: str) -> None:
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\n")
+    writer.writerow(HEADER)
+    writer.writerow(
+        ["npm", name, "1.0.0", "alive", "release_notes", "https://e.com/x", "q", "coroner", "no"]
+    )
+    _, errors = parse_labels_lenient(buf.getvalue())
+    rejected_by_merge = any(", name:" in e for e in errors)
+    assert is_valid_npm_name(name) == (not rejected_by_merge)
+    # draw.py has its own identical pattern; for npm it must accept exactly the same names.
+    assert is_valid_npm_name(name) == (normalise_name("npm", name) == name)

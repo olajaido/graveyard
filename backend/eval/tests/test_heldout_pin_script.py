@@ -205,3 +205,38 @@ def test_failure_leaves_no_files_and_existing_pins_not_overwritten(
     assert run(pin, out, transport(make_tarball())) == 1
     assert (out / "pins.json").read_text() == "{}"
     assert [p.name for p in out.iterdir()] == ["pins.json"]
+
+
+def test_invalid_unscoped_names_are_recorded_and_snapshot_keeps_all(
+    pin: Any, tmp_path: Path
+) -> None:
+    items = ["JSONStream", "ms", "Base64", "@scope/pkg", "JSV", "-"]
+    top = "export const top = [\n" + "".join(f"  '{n}',\n" for n in items) + "]\n"
+    out = tmp_path / "snap"
+    assert run(pin, out, transport(make_tarball(top))) == 0
+    entry = json.loads((out / "pins.json").read_text())["sources"]["npm-high-impact"]
+    assert entry["invalid_name_excluded"] == {
+        "count": 4,
+        "names": ["-", "Base64", "JSONStream", "JSV"],
+    }
+    assert entry["row_count"] == 6
+    assert len(json.loads((out / "npm-high-impact.json").read_text())) == 6
+    assert pin.main(["--verify", "--out-dir", str(out)]) == 0
+
+
+def test_valid_names_only_records_zero_invalid(pin: Any, tmp_path: Path) -> None:
+    out = tmp_path / "snap"
+    assert run(pin, out, transport(make_tarball())) == 0
+    entry = json.loads((out / "pins.json").read_text())["sources"]["npm-high-impact"]
+    assert entry["invalid_name_excluded"] == {"count": 0, "names": []}
+
+
+@pytest.mark.parametrize(
+    "top", ["export const top = [\n  'JSV',\n  ms,\n]\n", "export const top = [\n  'JSV',\n];\n"]
+)
+def test_structural_error_still_aborts_with_invalid_names_present(
+    pin: Any, tmp_path: Path, top: str
+) -> None:
+    out = tmp_path / "snap"
+    assert run(pin, out, transport(make_tarball(top))) == 1
+    assert not out.exists() or list(out.iterdir()) == []

@@ -18,7 +18,7 @@ import re
 from collections.abc import Mapping
 from typing import Any, NoReturn
 
-from eval.heldout.draw import normalise_name
+from eval.labels import _NAME_RE as _LABELS_NPM_NAME
 
 MAX_BYTES = 5 * 1024 * 1024
 
@@ -28,6 +28,16 @@ _JS_NAME = re.compile(r"^[ \t]*'([^'\\\r\n]+)',$")
 _JS_CLOSE = "]"
 _SCOPED = re.compile(r"^@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+
+def is_valid_npm_name(name: str) -> bool:
+    """True when `eval.labels` accepts `name` for an npm row (the rule the merge applies)."""
+    return _LABELS_NPM_NAME.fullmatch(name) is not None
+
+
+def invalid_unscoped_names(names: list[str]) -> list[str]:
+    """Sorted distinct unscoped names that the labels validator rejects (excluded from the draw)."""
+    return sorted({n for n in names if not n.startswith("@") and not is_valid_npm_name(n)})
 
 
 class PinError(ValueError):
@@ -107,9 +117,12 @@ def parse_npm_top_js(data: bytes) -> list[str]:
 
     Exact shape: a first line `export const <id> = [`, then one `'name',` per line, then a
     last line `]` with no semicolon, as the pinned package writes it (a single trailing newline is
-    allowed; any other final line, including `];`, is rejected). Each name is an unscoped name valid
-    under `normalise_name("npm", ...)` or a well-formed scoped name; scoped names are kept so the
-    caller can count them, and are excluded from the population later. Duplicates are rejected.
+    allowed; any other final line, including `];`, is rejected). Every name is returned as
+    downloaded. A name starting with `@` must be a well-formed scoped name (else `PinError`);
+    scoped names are kept so the caller can count them, and are excluded from the population
+    later. An unscoped name that fails `is_valid_npm_name` (the labels.py rule) does not abort:
+    the caller lists it with `invalid_unscoped_names` and it is excluded from the population.
+    A duplicate among the other names is rejected; a repeated invalid name is not.
     """
     _check_size(data, "top.js")
     try:
@@ -134,8 +147,12 @@ def parse_npm_top_js(data: bytes) -> list[str]:
         if match is None:
             raise PinError(f"top.js line {number} is not a `'name',` entry")
         name = match.group(1)
-        if normalise_name("npm", name) != name and not _SCOPED.fullmatch(name):
-            raise PinError(f"top.js line {number}: invalid npm name {name!r}")
+        if name.startswith("@"):
+            if not _SCOPED.fullmatch(name):
+                raise PinError(f"top.js line {number}: invalid npm name {name!r}")
+        elif not is_valid_npm_name(name):
+            names.append(name)
+            continue
         if name in seen:
             raise PinError(f"top.js line {number}: duplicate name {name!r}")
         seen.add(name)

@@ -492,6 +492,8 @@ Run once, at the draw (step 4). Hosts: `api.github.com`, `raw.githubusercontent.
 
 **Note, 2026-11-17.** The expected `top.js` shape is corrected: `export const <id> = [`, then one `'name',` per line, then a last non-empty line that is exactly `]`, with no semicolon, matching the no-semicolon style of the pinned package. The first real run (T9.1) aborted on the earlier `];` rule before any file was written. No population, seed, pin, snapshot or rule changed.
 
+**Note, 2026-11-17.** Four legacy or invalid unscoped npm names in the pinned `npm-high-impact` 1.13.0 (`JSONStream`, `Base64`, `JSV`, `-`) are excluded before any draw and recorded in `pins.json` as `invalid_name_excluded` (`count` and the sorted `names`). The snapshot file still lists every name as downloaded; the draw already counts them as `syntax_rejected`. No seed, pin or rule changed: the rule that unscoped names failing the npm-name validation are outside the population already follows from the syntax filter (MV2-POP-1, MV2-POP-3).
+
 ### 8.4 Exclusions (`eval/heldout/exclusions.py`, pure; the script `heldout_draw.py` reads the files)
 Inputs, as file texts: `eval/LABELLING.md`; the nine files in `backend/core/scoring/tests/fixtures/anchors/` (the ecosystem of each anchor comes from its `purl`); `eval/addition1/pools.tsv`, `eval/addition2/pool.tsv`, `eval/addition3/pool.tsv`; `eval/labelled_packages.csv`.
 - `parse_plan(text)` reads the lists under "### npm (54)", "### PyPI (47)" and the reserve lines `npm: …` and `PyPI: …` of `LABELLING.md` section 9. It checks the parsed counts against the stated 54, 47 and 15 and raises when they differ.

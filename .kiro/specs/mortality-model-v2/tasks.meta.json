@@ -516,6 +516,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794840666989
+      },
+      {
+        "executionId": "dd141400-40c1-4e7a-ba78-b167e513d56d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794907199578
+      },
+      {
+        "executionId": "dd141400-40c1-4e7a-ba78-b167e513d56d",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794908873163
       }
     ],
     "T5.5 — `scripts/heldout_draw.py` (design 8.5, 8.6): exclusions, the lazy Q walk in draw order, `q-examined.tsv` (resumable), `q-candidates.tsv`, `draw.json`, `--draw-date` not in the future; a 404 is `unpublished`; any other failure retries 3 times then stops with a non-zero exit and no skipping. Tests with a fake registry: stop on failure and resume gives the same candidates as an uninterrupted run; short population records `short_of_budget`; `test_q_replay.py` replays `q-candidates.tsv` from `q-examined.tsv` on synthetic data.": [

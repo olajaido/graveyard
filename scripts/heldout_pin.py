@@ -57,6 +57,7 @@ sys.path.insert(0, str(REPO_ROOT / "backend"))
 from eval.heldout.pins import (  # noqa: E402
     MAX_BYTES,
     PinError,
+    invalid_unscoped_names,
     parse_hugovk,
     parse_npm_top_js,
     sha256_hex,
@@ -213,6 +214,7 @@ def pin_npm(client: httpx.Client) -> tuple[bytes, dict[str, Any]]:
     check_integrity(tarball, integrity)
     member = read_member(tarball, NPM_MEMBER)
     names = parse_npm_top_js(member)
+    invalid = invalid_unscoped_names(names)
     trimmed = canonical(names)
     entry = {
         "file": NPM_SNAPSHOT,
@@ -225,6 +227,7 @@ def pin_npm(client: httpx.Client) -> tuple[bytes, dict[str, Any]]:
         "member_sha256": sha256_hex(member),
         "trimmed_sha256": sha256_hex(trimmed),
         "row_count": len(names),
+        "invalid_name_excluded": {"count": len(invalid), "names": invalid},
         "fetched_at": now_iso(),
     }
     return trimmed, entry
