@@ -1,0 +1,96 @@
+{
+  "package": "boom",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/boom@7.3.0",
+  "resolved_version": "7.3.0",
+  "latest_version": "7.3.0",
+  "repo": "github.com/hapijs/boom",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:32:43Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/boom/versions/7.3.0",
+      "fetched_at": "2026-11-17T21:32:18Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/boom/versions/7.3.0",
+      "fetched_at": "2026-11-17T21:32:18Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/boom/versions/7.3.0"
+      ],
+      "note": "resolved 7.3.0: True; latest 7.3.0: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2018-11-28",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/boom/versions/7.3.0",
+      "fetched_at": "2026-11-17T21:32:18Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-08-02",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "pushedAt for hapijs/boom"
+    },
+    "s4_maintained": {
+      "value": 1,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fhapijs%2Fboom",
+      "fetched_at": "2026-11-17T21:32:18Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for hapijs/boom"
+    },
+    "s6_open_issues": {
+      "value": 5,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "all-time open issues for hapijs/boom"
+    },
+    "s6_closed_issues": {
+      "value": 174,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "all-time closed issues for hapijs/boom"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:32:19Z",
+      "note": "querybatch for npm:boom@7.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fhapijs%2Fboom",
+      "fetched_at": "2026-11-17T21:32:18Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 1967323,
+      "source": "https://api.npmjs.org/downloads/point/last-week/boom",
+      "fetched_at": "2026-11-17T21:32:20Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/boom/versions/7.3.0",
+      "fetched_at": "2026-11-17T21:32:18Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "isArchived for hapijs/boom"
+    }
+  }
+}

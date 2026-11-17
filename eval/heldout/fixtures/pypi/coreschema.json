@@ -1,0 +1,91 @@
+{
+  "package": "coreschema",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/coreschema@0.0.4",
+  "resolved_version": "0.0.4",
+  "latest_version": "0.0.4",
+  "repo": "github.com/core-api/python-coreschema",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/coreschema/json",
+      "fetched_at": "2026-11-17T21:35:02Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-02-08",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/coreschema/versions/0.0.4",
+      "fetched_at": "2026-11-17T21:35:02Z"
+    },
+    "s3_last_push_at": {
+      "value": "2018-12-20",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for core-api/python-coreschema"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fcore-api%2Fpython-coreschema",
+      "fetched_at": "2026-11-17T21:35:03Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for core-api/python-coreschema"
+    },
+    "s6_open_issues": {
+      "value": 8,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for core-api/python-coreschema"
+    },
+    "s6_closed_issues": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for core-api/python-coreschema"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:04Z",
+      "note": "querybatch for PyPI:coreschema@0.0.4; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 1.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fcore-api%2Fpython-coreschema",
+      "fetched_at": "2026-11-17T21:35:03Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 199222,
+      "source": "https://pypistats.org/api/packages/coreschema/recent",
+      "fetched_at": "2026-11-17T21:35:04Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for core-api/python-coreschema"
+    }
+  }
+}

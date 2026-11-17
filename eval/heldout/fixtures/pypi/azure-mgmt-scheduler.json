@@ -1,0 +1,91 @@
+{
+  "package": "azure-mgmt-scheduler",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/azure-mgmt-scheduler@7.0.0",
+  "resolved_version": "7.0.0",
+  "latest_version": "7.0.0",
+  "repo": "github.com/azure/azure-sdk-for-python",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/azure-mgmt-scheduler/json",
+      "fetched_at": "2026-11-17T21:34:59Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2024-10-31",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/azure-mgmt-scheduler/versions/7.0.0",
+      "fetched_at": "2026-11-17T21:34:59Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-11-17",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for azure/azure-sdk-for-python"
+    },
+    "s4_maintained": {
+      "value": 10,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fazure%2Fazure-sdk-for-python",
+      "fetched_at": "2026-11-17T21:35:00Z"
+    },
+    "s5_committers": {
+      "value": 125,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for azure/azure-sdk-for-python; truncated at 10 pages, value is a lower bound"
+    },
+    "s6_open_issues": {
+      "value": 771,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for azure/azure-sdk-for-python"
+    },
+    "s6_closed_issues": {
+      "value": 11846,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for azure/azure-sdk-for-python"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:01Z",
+      "note": "querybatch for PyPI:azure-mgmt-scheduler@7.0.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 6.9,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fazure%2Fazure-sdk-for-python",
+      "fetched_at": "2026-11-17T21:35:00Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 240322,
+      "source": "https://pypistats.org/api/packages/azure-mgmt-scheduler/recent",
+      "fetched_at": "2026-11-17T21:35:02Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for azure/azure-sdk-for-python"
+    }
+  }
+}

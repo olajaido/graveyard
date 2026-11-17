@@ -1,0 +1,96 @@
+{
+  "package": "cleave.js",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/cleave.js@1.6.0",
+  "resolved_version": "1.6.0",
+  "latest_version": "1.6.0",
+  "repo": "github.com/nosir/cleave.js",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/cleave.js/versions/1.6.0",
+      "fetched_at": "2026-11-17T21:35:31Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/cleave.js/versions/1.6.0",
+      "fetched_at": "2026-11-17T21:35:31Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/cleave.js/versions/1.6.0"
+      ],
+      "note": "resolved 1.6.0: False; latest 1.6.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-05-19",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/cleave.js/versions/1.6.0",
+      "fetched_at": "2026-11-17T21:35:31Z"
+    },
+    "s3_last_push_at": {
+      "value": "2023-11-25",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for nosir/cleave.js"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnosir%2Fcleave.js",
+      "fetched_at": "2026-11-17T21:35:32Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for nosir/cleave.js"
+    },
+    "s6_open_issues": {
+      "value": 187,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for nosir/cleave.js"
+    },
+    "s6_closed_issues": {
+      "value": 329,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for nosir/cleave.js"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:33Z",
+      "note": "querybatch for npm:cleave.js@1.6.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.5,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fnosir%2Fcleave.js",
+      "fetched_at": "2026-11-17T21:35:32Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 451130,
+      "source": "https://api.npmjs.org/downloads/point/last-week/cleave.js",
+      "fetched_at": "2026-11-17T21:35:33Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/cleave.js/versions/1.6.0",
+      "fetched_at": "2026-11-17T21:35:31Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for nosir/cleave.js"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "package": "clickclick",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/clickclick@20.10.2",
+  "resolved_version": "20.10.2",
+  "latest_version": "20.10.2",
+  "repo": null,
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/clickclick/json",
+      "fetched_at": "2026-11-17T21:35:16Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-10-03",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/clickclick/versions/20.10.2",
+      "fetched_at": "2026-11-17T21:35:16Z"
+    },
+    "s3_last_push_at": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s4_maintained": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:16Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s5_committers": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_open_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s6_closed_issues": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:16Z",
+      "note": "querybatch for PyPI:clickclick@20.10.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:16Z",
+      "note": "no GitHub repo resolved"
+    },
+    "s9_weekly_downloads": {
+      "value": 602221,
+      "source": "https://pypistats.org/api/packages/clickclick/recent",
+      "fetched_at": "2026-11-17T21:35:16Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "no GitHub repo resolved"
+    }
+  }
+}

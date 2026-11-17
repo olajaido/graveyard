@@ -1,0 +1,106 @@
+{
+  "package": "vue-template-compiler",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/vue-template-compiler@2.7.16",
+  "resolved_version": "2.7.16",
+  "latest_version": "2.7.16",
+  "repo": "github.com/vuejs/vue",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-template-compiler/versions/2.7.16",
+      "fetched_at": "2026-11-17T21:35:28Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-template-compiler/versions/2.7.16",
+      "fetched_at": "2026-11-17T21:35:28Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/vue-template-compiler/versions/2.7.16"
+      ],
+      "note": "resolved 2.7.16: False; latest 2.7.16: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2023-12-24",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-template-compiler/versions/2.7.16",
+      "fetched_at": "2026-11-17T21:35:28Z"
+    },
+    "s3_last_push_at": {
+      "value": "2024-10-10",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for vuejs/vue"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fvuejs%2Fvue",
+      "fetched_at": "2026-11-17T21:35:29Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for vuejs/vue"
+    },
+    "s6_open_issues": {
+      "value": 368,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for vuejs/vue"
+    },
+    "s6_closed_issues": {
+      "value": 9663,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for vuejs/vue"
+    },
+    "s7_advisories": {
+      "value": [
+        {
+          "id": "GHSA-g3ch-rx76-35fx",
+          "has_fix": false,
+          "published_at": "2024-07-23",
+          "fixed_versions": []
+        }
+      ],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:30Z",
+      "extra_sources": [
+        "https://api.osv.dev/v1/vulns/GHSA-g3ch-rx76-35fx"
+      ],
+      "note": "querybatch for npm:vue-template-compiler@2.7.16; 1 advisories"
+    },
+    "s8_overall": {
+      "value": 3,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fvuejs%2Fvue",
+      "fetched_at": "2026-11-17T21:35:29Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2542714,
+      "source": "https://api.npmjs.org/downloads/point/last-week/vue-template-compiler",
+      "fetched_at": "2026-11-17T21:35:31Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/vue-template-compiler/versions/2.7.16",
+      "fetched_at": "2026-11-17T21:35:28Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for vuejs/vue"
+    }
+  }
+}

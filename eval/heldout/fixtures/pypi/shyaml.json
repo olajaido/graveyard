@@ -1,0 +1,91 @@
+{
+  "package": "shyaml",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/shyaml@0.6.2",
+  "resolved_version": "0.6.2",
+  "latest_version": "0.6.2",
+  "repo": "github.com/0k/shyaml",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/shyaml/json",
+      "fetched_at": "2026-11-17T21:35:25Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2020-12-15",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/shyaml/versions/0.6.2",
+      "fetched_at": "2026-11-17T21:35:25Z"
+    },
+    "s3_last_push_at": {
+      "value": "2026-01-30",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for 0k/shyaml"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2F0k%2Fshyaml",
+      "fetched_at": "2026-11-17T21:35:26Z"
+    },
+    "s5_committers": {
+      "value": 1,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for 0k/shyaml"
+    },
+    "s6_open_issues": {
+      "value": 13,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for 0k/shyaml"
+    },
+    "s6_closed_issues": {
+      "value": 30,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for 0k/shyaml"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:27Z",
+      "note": "querybatch for PyPI:shyaml@0.6.2; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2F0k%2Fshyaml",
+      "fetched_at": "2026-11-17T21:35:26Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 209722,
+      "source": "https://pypistats.org/api/packages/shyaml/recent",
+      "fetched_at": "2026-11-17T21:35:27Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:35:51Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for 0k/shyaml"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "package": "source-map-url",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/source-map-url@0.4.1",
+  "resolved_version": "0.4.1",
+  "latest_version": "0.4.1",
+  "repo": "github.com/lydell/source-map-url",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/source-map-url/versions/0.4.1",
+      "fetched_at": "2026-11-17T21:35:35Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/source-map-url/versions/0.4.1",
+      "fetched_at": "2026-11-17T21:35:35Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/source-map-url/versions/0.4.1"
+      ],
+      "note": "resolved 0.4.1: True; latest 0.4.1: True"
+    },
+    "s2_latest_release_at": {
+      "value": "2021-02-01",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/source-map-url/versions/0.4.1",
+      "fetched_at": "2026-11-17T21:35:35Z"
+    },
+    "s3_last_push_at": {
+      "value": "2022-01-11",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for lydell/source-map-url"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Flydell%2Fsource-map-url",
+      "fetched_at": "2026-11-17T21:35:36Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for lydell/source-map-url"
+    },
+    "s6_open_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for lydell/source-map-url"
+    },
+    "s6_closed_issues": {
+      "value": 2,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for lydell/source-map-url"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:37Z",
+      "note": "querybatch for npm:source-map-url@0.4.1; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Flydell%2Fsource-map-url",
+      "fetched_at": "2026-11-17T21:35:36Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 10606948,
+      "source": "https://api.npmjs.org/downloads/point/last-week/source-map-url",
+      "fetched_at": "2026-11-17T21:35:37Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": true,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/source-map-url/versions/0.4.1",
+      "fetched_at": "2026-11-17T21:35:35Z"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for lydell/source-map-url"
+    }
+  }
+}

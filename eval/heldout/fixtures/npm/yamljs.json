@@ -1,0 +1,96 @@
+{
+  "package": "yamljs",
+  "ecosystem": "npm",
+  "purl": "pkg:npm/yamljs@0.3.0",
+  "resolved_version": "0.3.0",
+  "latest_version": "0.3.0",
+  "repo": "github.com/jeremyfa/yaml.js",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:35:51Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/yamljs/versions/0.3.0",
+      "fetched_at": "2026-11-17T21:35:13Z",
+      "extra_sources": [
+        "https://api.github.com/graphql"
+      ],
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/yamljs/versions/0.3.0",
+      "fetched_at": "2026-11-17T21:35:13Z",
+      "extra_sources": [
+        "https://api.deps.dev/v3/systems/npm/packages/yamljs/versions/0.3.0"
+      ],
+      "note": "resolved 0.3.0: False; latest 0.3.0: False"
+    },
+    "s2_latest_release_at": {
+      "value": "2017-06-24",
+      "source": "https://api.deps.dev/v3/systems/npm/packages/yamljs/versions/0.3.0",
+      "fetched_at": "2026-11-17T21:35:13Z"
+    },
+    "s3_last_push_at": {
+      "value": "2021-03-29",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "pushedAt for jeremyfa/yaml.js"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjeremyfa%2Fyaml.js",
+      "fetched_at": "2026-11-17T21:35:14Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for jeremyfa/yaml.js"
+    },
+    "s6_open_issues": {
+      "value": 51,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time open issues for jeremyfa/yaml.js"
+    },
+    "s6_closed_issues": {
+      "value": 55,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "all-time closed issues for jeremyfa/yaml.js"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:35:15Z",
+      "note": "querybatch for npm:yamljs@0.3.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 2.8,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fjeremyfa%2Fyaml.js",
+      "fetched_at": "2026-11-17T21:35:14Z"
+    },
+    "s9_weekly_downloads": {
+      "value": 2005353,
+      "source": "https://api.npmjs.org/downloads/point/last-week/yamljs",
+      "fetched_at": "2026-11-17T21:35:16Z"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": false,
+      "source": "https://api.deps.dev/v3/systems/npm/packages/yamljs/versions/0.3.0",
+      "fetched_at": "2026-11-17T21:35:13Z"
+    },
+    "repo_archived": {
+      "value": false,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:35:41Z",
+      "note": "isArchived for jeremyfa/yaml.js"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "package": "scandir",
+  "ecosystem": "pypi",
+  "purl": "pkg:pypi/scandir@1.10.0",
+  "resolved_version": "1.10.0",
+  "latest_version": "1.10.0",
+  "repo": "github.com/benhoyt/scandir",
+  "as_of": "2026-11-17",
+  "captured_at": "2026-11-17T21:32:43Z",
+  "signals": {
+    "s1_declared_death": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+    },
+    "s1b_version_deprecated": {
+      "value": null,
+      "source": "https://pypi.org/pypi/scandir/json",
+      "fetched_at": "2026-11-17T21:32:20Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "s2_latest_release_at": {
+      "value": "2019-03-09",
+      "source": "https://api.deps.dev/v3/systems/pypi/packages/scandir/versions/1.10.0",
+      "fetched_at": "2026-11-17T21:32:20Z"
+    },
+    "s3_last_push_at": {
+      "value": "2025-05-27",
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "pushedAt for benhoyt/scandir"
+    },
+    "s4_maintained": {
+      "value": 0,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbenhoyt%2Fscandir",
+      "fetched_at": "2026-11-17T21:32:21Z"
+    },
+    "s5_committers": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "distinct commit authors 2025-11-17..2026-11-17 for benhoyt/scandir"
+    },
+    "s6_open_issues": {
+      "value": 0,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "all-time open issues for benhoyt/scandir"
+    },
+    "s6_closed_issues": {
+      "value": 97,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "all-time closed issues for benhoyt/scandir"
+    },
+    "s7_advisories": {
+      "value": [],
+      "source": "https://api.osv.dev/v1/querybatch",
+      "fetched_at": "2026-11-17T21:32:22Z",
+      "note": "querybatch for PyPI:scandir@1.10.0; 0 advisories"
+    },
+    "s8_overall": {
+      "value": 3.4,
+      "source": "https://api.deps.dev/v3/projects/github.com%2Fbenhoyt%2Fscandir",
+      "fetched_at": "2026-11-17T21:32:21Z"
+    },
+    "s9_weekly_downloads": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:32:40Z",
+      "note": "downloads: FetchError: giving up after retries: HTTP 502 from https://pypistats.org/api/packages/scandir/recent"
+    }
+  },
+  "paths": null,
+  "services_affected": null,
+  "shared_repo": false,
+  "s1_parts": {
+    "registry_deprecated": {
+      "value": null,
+      "source": null,
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "PyPI exposes no deprecation signal"
+    },
+    "repo_archived": {
+      "value": true,
+      "source": "https://api.github.com/graphql",
+      "fetched_at": "2026-11-17T21:32:43Z",
+      "note": "isArchived for benhoyt/scandir"
+    }
+  }
+}
