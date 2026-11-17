@@ -1,0 +1,1670 @@
+{
+  "as_of": "2026-11-17",
+  "gate": {
+    "checks": [
+      {
+        "den": null,
+        "name": "sample_dead",
+        "num": 14,
+        "passed": false,
+        "reason": "insufficient sample",
+        "threshold": 25.0,
+        "value": 14.0
+      },
+      {
+        "den": null,
+        "name": "sample_finished_healthy",
+        "num": 1,
+        "passed": false,
+        "reason": "insufficient sample",
+        "threshold": 20.0,
+        "value": 1.0
+      },
+      {
+        "den": 17,
+        "name": "dead_precision",
+        "num": 13,
+        "passed": false,
+        "reason": "below threshold",
+        "threshold": 0.9,
+        "value": 0.7647058823529411
+      },
+      {
+        "den": 1,
+        "name": "finished_healthy_fpr",
+        "num": 1,
+        "passed": false,
+        "reason": "above threshold",
+        "threshold": 0.1,
+        "value": 1.0
+      },
+      {
+        "den": 14,
+        "name": "dead_flagged_rate",
+        "num": 13,
+        "passed": true,
+        "reason": "ok",
+        "threshold": 0.85,
+        "value": 0.9285714285714286
+      }
+    ],
+    "config": {
+      "max_finished_healthy_fpr": 0.1,
+      "min_dead_precision": 0.9,
+      "min_reviewed_dead": 25,
+      "min_reviewed_finished_healthy": 20
+    },
+    "passed": false
+  },
+  "heldout": {
+    "amendments": [],
+    "by_ecosystem": {
+      "npm": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 1,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 8,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 1,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 10,
+          "num": 8,
+          "value": 0.8
+        },
+        "dead_precision_wilson": [
+          0.49015684672072335,
+          0.9433190520193067
+        ],
+        "dead_recall": {
+          "den": 8,
+          "num": 8,
+          "value": 1.0
+        },
+        "finished_healthy_flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "finished_healthy_fpr": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "finished_healthy_fpr_wilson": [
+          0.20654329147389294,
+          1.0
+        ],
+        "rows": 10,
+        "unknown": 0
+      },
+      "pypi": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 2,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 5,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 7,
+          "num": 5,
+          "value": 0.7142857142857143
+        },
+        "dead_precision_wilson": [
+          0.35892909014821267,
+          0.9177828342909844
+        ],
+        "dead_recall": {
+          "den": 6,
+          "num": 5,
+          "value": 0.8333333333333334
+        },
+        "finished_healthy_flagged_rate": null,
+        "finished_healthy_fpr": null,
+        "finished_healthy_fpr_wilson": null,
+        "rows": 8,
+        "unknown": 0
+      }
+    },
+    "by_stratum": {
+      "F": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 1,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 1,
+          "num": 0,
+          "value": 0.0
+        },
+        "dead_precision_wilson": [
+          0.0,
+          0.7934567085261071
+        ],
+        "dead_recall": null,
+        "finished_healthy_flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "finished_healthy_fpr": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "finished_healthy_fpr_wilson": [
+          0.20654329147389294,
+          1.0
+        ],
+        "rows": 1,
+        "unknown": 0
+      },
+      "Q": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 3,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 13,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 16,
+          "num": 13,
+          "value": 0.8125
+        },
+        "dead_precision_wilson": [
+          0.5699064013154177,
+          0.9340852122641324
+        ],
+        "dead_recall": {
+          "den": 14,
+          "num": 13,
+          "value": 0.9285714285714286
+        },
+        "finished_healthy_flagged_rate": null,
+        "finished_healthy_fpr": null,
+        "finished_healthy_fpr_wilson": null,
+        "rows": 17,
+        "unknown": 0
+      }
+    },
+    "changed_since_draw": [],
+    "checks": [
+      {
+        "den": null,
+        "name": "sample_dead",
+        "num": 14,
+        "passed": false,
+        "reason": "insufficient sample",
+        "threshold": 25.0,
+        "value": 14.0
+      },
+      {
+        "den": null,
+        "name": "sample_finished_healthy",
+        "num": 1,
+        "passed": false,
+        "reason": "insufficient sample",
+        "threshold": 20.0,
+        "value": 1.0
+      },
+      {
+        "den": 17,
+        "name": "dead_precision",
+        "num": 13,
+        "passed": false,
+        "proportion": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411,
+          "wilson": [
+            0.5273775411082839,
+            0.9044511092832406
+          ]
+        },
+        "reason": "below threshold",
+        "threshold": 0.9,
+        "value": 0.7647058823529411
+      },
+      {
+        "den": 1,
+        "name": "finished_healthy_fpr",
+        "num": 1,
+        "passed": false,
+        "proportion": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0,
+          "wilson": [
+            0.20654329147389294,
+            1.0
+          ]
+        },
+        "reason": "above threshold",
+        "threshold": 0.1,
+        "value": 1.0
+      },
+      {
+        "den": 14,
+        "name": "dead_flagged_rate",
+        "num": 13,
+        "passed": true,
+        "proportion": {
+          "den": 14,
+          "num": 13,
+          "value": 0.9285714285714286,
+          "wilson": [
+            0.6853073044604219,
+            0.9872781138877085
+          ]
+        },
+        "reason": "ok",
+        "threshold": 0.85,
+        "value": 0.9285714285714286
+      }
+    ],
+    "coverage": {
+      "counts": {
+        "npm": {
+          "examined": 128,
+          "excluded": 83,
+          "no_release_date": 0,
+          "not_quiet": 53,
+          "scoped": 7439,
+          "selected": 75,
+          "short_of_budget": false,
+          "snapshot_size": 17338,
+          "syntax_rejected": 4,
+          "unpublished": 0
+        },
+        "pypi": {
+          "examined": 348,
+          "excluded": 51,
+          "no_release_date": 0,
+          "not_quiet": 273,
+          "scoped": 0,
+          "selected": 75,
+          "short_of_budget": false,
+          "snapshot_size": 5000,
+          "syntax_rejected": 0,
+          "unpublished": 0
+        }
+      },
+      "draw_date": "2026-11-17",
+      "seed": "graveyard-mortality-v2-heldout-1"
+    },
+    "declared": {
+      "precision": {
+        "den": 10,
+        "num": 10,
+        "value": 1.0
+      },
+      "recall": {
+        "den": 14,
+        "num": 10,
+        "value": 0.7142857142857143
+      }
+    },
+    "deprecated_slice": {
+      "declared": {
+        "by_label": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 10,
+          "finished-healthy": 0
+        },
+        "by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 10,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "rows": 10
+      },
+      "not_declared": {
+        "by_label": {
+          "ailing": 1,
+          "alive": 0,
+          "dead": 2,
+          "finished-healthy": 1
+        },
+        "by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 4,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "rows": 4
+      },
+      "unknown": {
+        "by_label": {
+          "ailing": 2,
+          "alive": 0,
+          "dead": 2,
+          "finished-healthy": 0
+        },
+        "by_predicted": {
+          "ailing": 0,
+          "alive": 1,
+          "dead": 3,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "rows": 4
+      }
+    },
+    "floors": {
+      "dead": {
+        "count": 14,
+        "met": false,
+        "minimum": 25
+      },
+      "finished_healthy": {
+        "count": 1,
+        "met": false,
+        "minimum": 20
+      }
+    },
+    "headline": {
+      "dead_flagged_rate": {
+        "confirmed": false,
+        "direction": "at least",
+        "passed": true,
+        "proportion": {
+          "den": 14,
+          "num": 13,
+          "value": 0.9285714285714286,
+          "wilson": [
+            0.6853073044604219,
+            0.9872781138877085
+          ]
+        },
+        "status": "point estimate only",
+        "threshold": 0.85
+      },
+      "dead_precision": {
+        "confirmed": false,
+        "direction": "at least",
+        "passed": false,
+        "proportion": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411,
+          "wilson": [
+            0.5273775411082839,
+            0.9044511092832406
+          ]
+        },
+        "status": "point estimate only",
+        "threshold": 0.9
+      },
+      "finished_healthy_fpr": {
+        "confirmed": false,
+        "direction": "at most",
+        "passed": false,
+        "proportion": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0,
+          "wilson": [
+            0.20654329147389294,
+            1.0
+          ]
+        },
+        "status": "point estimate only",
+        "threshold": 0.1
+      }
+    },
+    "limits": [
+      "Q covers only quiet, high-download, unscoped packages that are labellable.",
+      "F is selected by README phrases (as the v1 key was) and covers only packages with such a phrase and a mapped repo.",
+      "Pooled proportions mix two strata and are not population estimates; per-stratum figures are reported next to them.",
+      "Counts of registry-dependent Q filters (not quiet, unpublished, no release date) cover the examined prefix of the Q walk, not the whole snapshot.",
+      "The PyPI population is the top 5,000 by downloads, while the npm population is every unscoped name of npmHighImpact. These are different depths of popularity, so per-ecosystem results are not comparable.",
+      "A Scorecard 404 is recorded as 'not scanned' here and as 'unavailable' in the v1 fixtures.",
+      "The dead-flagged check cannot tell v1 from v2. The only class change is Dead to Ailing, so both models flag the same rows (Dead or Ailing) and their dead-flagged rates and finished-healthy flagged rates are equal on any dataset. A failure of this check is a failure for both models and points at the signals, not at the mechanism (design 7.5.11).",
+      "A lower finished-healthy false-positive rate under v2 is not better discrimination. The rate counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate is equal for both models and is reported, not gated (design 7.5.11, MV2-GATE-4)."
+    ],
+    "not_captured": [],
+    "not_evaluable": [
+      "sample_dead",
+      "sample_finished_healthy",
+      "dead_precision",
+      "finished_healthy_fpr",
+      "dead_flagged_rate"
+    ],
+    "recaptured": [],
+    "score_based_dead": {
+      "count": 7,
+      "denominator": 7,
+      "numerator": 3,
+      "precision": 0.42857142857142855,
+      "text": "3/7",
+      "wilson": [
+        0.15821692226262685,
+        0.7495457695909742
+      ]
+    },
+    "undeclared_high_mortality": {
+      "by_label": {
+        "ailing": 3,
+        "alive": 0,
+        "dead": 3,
+        "finished-healthy": 1
+      },
+      "by_predicted": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 7,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "gated": false,
+      "packages": [
+        {
+          "ecosystem": "npm",
+          "label": "dead",
+          "mortality": 87.23477070499658,
+          "name": "cleave.js",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "npm",
+          "label": "finished-healthy",
+          "mortality": 61.739561943874065,
+          "name": "rot-js",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "npm",
+          "label": "dead",
+          "mortality": 74.52566735112937,
+          "name": "vue-template-compiler",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "npm",
+          "label": "ailing",
+          "mortality": 87.2,
+          "name": "yamljs",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "pypi",
+          "label": "dead",
+          "mortality": 100.0,
+          "name": "clickclick",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "pypi",
+          "label": "ailing",
+          "mortality": 79.27898699520877,
+          "name": "gnupg",
+          "predicted": "dead"
+        },
+        {
+          "ecosystem": "pypi",
+          "label": "ailing",
+          "mortality": 63.0,
+          "name": "shyaml",
+          "predicted": "dead"
+        }
+      ],
+      "rows": 7,
+      "threshold_dead": 60.0
+    },
+    "unflagged_dead": [
+      {
+        "ecosystem": "pypi",
+        "name": "azure-mgmt-scheduler",
+        "predicted": "alive"
+      }
+    ],
+    "verdict": "INCONCLUSIVE"
+  },
+  "labels_sha256": "874153636f3eb60a459d352efdf5010011e47bfe970e9be6e46a359186ce05a4",
+  "model_version": "v1",
+  "provenance": {
+    "amendments_sha256": "f5972553ae22795607ebc96ae416a9b9e7cb0a4b44d573aa8fcca0be1a53491a",
+    "as_of": "2026-11-17",
+    "batch_log_sha256": "32cde9cb5ee23e94ab12398d55f5cf36535b39d5d389dda3bfac70a43f0faaa5",
+    "capture_log_sha256": "c6ed5688f8eb038d49264f9c78531163c96d090c5bb74bfc70287ce963133594",
+    "draw_date": "2026-11-17",
+    "fixture_set_sha256": "87f7cd6847241cb721ea33c86cb90036e681cdbed18a42fa3eee77d31e5d84a0",
+    "frozen_harness_sha256": "001d99d5b4b60f67e649cc31b34eb96a0cb7be352213781bfe3afe7c9a84f3a0",
+    "gate_config_sha256": "6131db9f8b6f502298ec092250a1fd569e19c7361fad988444512b5f55db5975",
+    "labels_sha256": "874153636f3eb60a459d352efdf5010011e47bfe970e9be6e46a359186ce05a4",
+    "manifest_sha256": null,
+    "model_version": "v1",
+    "seed": "graveyard-mortality-v2-heldout-1",
+    "snapshot_hashes": {
+      "npm-high-impact": "b7a6883bc9a43747613b16ba06128bd377cf60d35c323da95ef56dca1377f882",
+      "pypi-top-5000": "514a18b54c6cdda9af73a4453f5d87cc1920c967a36538f663f0482d354ae9fa"
+    },
+    "weights_sha256": "f1e5d7f1e821c1091e24e892b4924b1649fa57917296d6411df0369015c27c4f"
+  },
+  "rows": [
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": null,
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 16.164681724845995,
+      "name": "azure-mgmt-scheduler",
+      "predicted": "alive",
+      "reviewed": true,
+      "unverified": [],
+      "version": "7.0.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 29.390330408810897,
+        "predicted": "alive",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 96.27777777777779,
+      "name": "coreschema",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.0.4",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 97.27272727272727,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 79.27898699520877,
+      "name": "gnupg",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.3.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.54545454545455,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "rfc3987",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.3.8",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "samsam",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 91.63636363636363,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "ailing",
+      "mortality": 87.2,
+      "name": "yamljs",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 94.9090909090909,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "boom",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "7.3.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 90.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 100.0,
+      "name": "clickclick",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "20.10.2",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 93.0,
+      "name": "copy-concurrently",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.0.5",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.25,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 100.0,
+      "name": "cucumber-expressions",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "8.3.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 100.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 0.7,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "nkeys.js",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.1.0",
+      "without_github": {
+        "confidence": 0.25,
+        "mortality": 90.0,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "scandir",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.10.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.81818181818181,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "mortality": 63.0,
+      "name": "shyaml",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.6.2",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": true,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 74.52566735112937,
+      "name": "vue-template-compiler",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.7.16",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 92.25872689938397,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 87.23477070499658,
+      "name": "cleave.js",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "1.6.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 95.45454545454545,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "pypi",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "opentracing",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.4.0",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 93.45454545454544,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "declared",
+      "ecosystem": "npm",
+      "label": "dead",
+      "mortality": 90.0,
+      "name": "source-map-url",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "0.4.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 96.36363636363636,
+        "predicted": "dead",
+        "unverified": []
+      },
+      "wounded": false
+    },
+    {
+      "confidence": 1.0,
+      "cursed": false,
+      "dead_reason": "score",
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "mortality": 61.739561943874065,
+      "name": "rot-js",
+      "predicted": "dead",
+      "reviewed": true,
+      "unverified": [],
+      "version": "2.2.1",
+      "without_github": {
+        "confidence": 0.55,
+        "mortality": 71.12687449443096,
+        "predicted": "dead",
+        "unverified": [
+          "github"
+        ]
+      },
+      "wounded": false
+    }
+  ],
+  "schema": "graveyard.eval",
+  "schema_version": 1,
+  "views": {
+    "all": {
+      "accuracy": {
+        "den": 18,
+        "num": 13,
+        "value": 0.7222222222222222
+      },
+      "bands": {
+        "full": {
+          "accuracy": {
+            "den": 14,
+            "num": 9,
+            "value": 0.6428571428571429
+          },
+          "dead_precision": {
+            "den": 13,
+            "num": 9,
+            "value": 0.6923076923076923
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 13,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 14
+        },
+        "low": {
+          "accuracy": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "dead_precision": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 2,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 2
+        },
+        "medium": {
+          "accuracy": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "dead_precision": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 2,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 2
+        },
+        "none": {
+          "accuracy": null,
+          "dead_precision": null,
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 0
+        }
+      },
+      "confusion": {
+        "ailing": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 3,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "alive": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead": {
+          "ailing": 0,
+          "alive": 1,
+          "dead": 13,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "finished-healthy": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 1,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      },
+      "dead_precision_wilson": [
+        0.5273775411082839,
+        0.9044511092832406
+      ],
+      "finished_healthy": {
+        "false_positive_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "false_positive_rate_wilson": [
+          0.20654329147389294,
+          1.0
+        ],
+        "flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        }
+      },
+      "per_label": {
+        "ailing": {
+          "precision": null,
+          "recall": {
+            "den": 3,
+            "num": 0,
+            "value": 0.0
+          }
+        },
+        "alive": {
+          "precision": {
+            "den": 1,
+            "num": 0,
+            "value": 0.0
+          },
+          "recall": null
+        },
+        "dead": {
+          "precision": {
+            "den": 17,
+            "num": 13,
+            "value": 0.7647058823529411
+          },
+          "recall": {
+            "den": 14,
+            "num": 13,
+            "value": 0.9285714285714286
+          }
+        },
+        "finished-healthy": {
+          "precision": null,
+          "recall": {
+            "den": 1,
+            "num": 0,
+            "value": 0.0
+          }
+        }
+      },
+      "rows": 18,
+      "slices": {
+        "dead_precision_by_ecosystem": {
+          "npm": {
+            "den": 10,
+            "num": 8,
+            "value": 0.8
+          },
+          "pypi": {
+            "den": 7,
+            "num": 5,
+            "value": 0.7142857142857143
+          }
+        },
+        "dead_precision_by_reason": {
+          "declared": {
+            "den": 10,
+            "num": 10,
+            "value": 1.0
+          },
+          "score": {
+            "den": 7,
+            "num": 3,
+            "value": 0.42857142857142855
+          }
+        },
+        "dead_recall_by_ecosystem": {
+          "npm": {
+            "den": 8,
+            "num": 8,
+            "value": 1.0
+          },
+          "pypi": {
+            "den": 6,
+            "num": 5,
+            "value": 0.8333333333333334
+          }
+        },
+        "dead_recall_by_evidence_kind": {
+          "archived_repo": {
+            "den": 4,
+            "num": 4,
+            "value": 1.0
+          },
+          "deprecation_notice": {
+            "den": 9,
+            "num": 8,
+            "value": 0.8888888888888888
+          },
+          "eol_announcement": {
+            "den": 1,
+            "num": 1,
+            "value": 1.0
+          },
+          "maintainer_statement": null
+        }
+      },
+      "unknown": 0,
+      "unverified": {
+        "by_label": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0
+        },
+        "by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead_precision_gate_eligible": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411
+        },
+        "missing_risks": {
+          "r2": 0,
+          "r3": 2,
+          "r4": 4,
+          "r5": 2,
+          "r6": 2,
+          "r7": 0,
+          "r8": 4
+        },
+        "partial_evidence": 1,
+        "unverified": 0
+      }
+    },
+    "reviewed": {
+      "accuracy": {
+        "den": 18,
+        "num": 13,
+        "value": 0.7222222222222222
+      },
+      "bands": {
+        "full": {
+          "accuracy": {
+            "den": 14,
+            "num": 9,
+            "value": 0.6428571428571429
+          },
+          "dead_precision": {
+            "den": 13,
+            "num": 9,
+            "value": 0.6923076923076923
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 13,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 14
+        },
+        "low": {
+          "accuracy": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "dead_precision": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 2,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 2
+        },
+        "medium": {
+          "accuracy": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "dead_precision": {
+            "den": 2,
+            "num": 2,
+            "value": 1.0
+          },
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 2,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 2
+        },
+        "none": {
+          "accuracy": null,
+          "dead_precision": null,
+          "predicted": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "rows": 0
+        }
+      },
+      "confusion": {
+        "ailing": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 3,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "alive": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead": {
+          "ailing": 0,
+          "alive": 1,
+          "dead": 13,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "finished-healthy": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 1,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      },
+      "dead_precision_wilson": [
+        0.5273775411082839,
+        0.9044511092832406
+      ],
+      "finished_healthy": {
+        "false_positive_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "false_positive_rate_wilson": [
+          0.20654329147389294,
+          1.0
+        ],
+        "flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        }
+      },
+      "per_label": {
+        "ailing": {
+          "precision": null,
+          "recall": {
+            "den": 3,
+            "num": 0,
+            "value": 0.0
+          }
+        },
+        "alive": {
+          "precision": {
+            "den": 1,
+            "num": 0,
+            "value": 0.0
+          },
+          "recall": null
+        },
+        "dead": {
+          "precision": {
+            "den": 17,
+            "num": 13,
+            "value": 0.7647058823529411
+          },
+          "recall": {
+            "den": 14,
+            "num": 13,
+            "value": 0.9285714285714286
+          }
+        },
+        "finished-healthy": {
+          "precision": null,
+          "recall": {
+            "den": 1,
+            "num": 0,
+            "value": 0.0
+          }
+        }
+      },
+      "rows": 18,
+      "slices": {
+        "dead_precision_by_ecosystem": {
+          "npm": {
+            "den": 10,
+            "num": 8,
+            "value": 0.8
+          },
+          "pypi": {
+            "den": 7,
+            "num": 5,
+            "value": 0.7142857142857143
+          }
+        },
+        "dead_precision_by_reason": {
+          "declared": {
+            "den": 10,
+            "num": 10,
+            "value": 1.0
+          },
+          "score": {
+            "den": 7,
+            "num": 3,
+            "value": 0.42857142857142855
+          }
+        },
+        "dead_recall_by_ecosystem": {
+          "npm": {
+            "den": 8,
+            "num": 8,
+            "value": 1.0
+          },
+          "pypi": {
+            "den": 6,
+            "num": 5,
+            "value": 0.8333333333333334
+          }
+        },
+        "dead_recall_by_evidence_kind": {
+          "archived_repo": {
+            "den": 4,
+            "num": 4,
+            "value": 1.0
+          },
+          "deprecation_notice": {
+            "den": 9,
+            "num": 8,
+            "value": 0.8888888888888888
+          },
+          "eol_announcement": {
+            "den": 1,
+            "num": 1,
+            "value": 1.0
+          },
+          "maintainer_statement": null
+        }
+      },
+      "unknown": 0,
+      "unverified": {
+        "by_label": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0
+        },
+        "by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 0,
+          "finished-healthy": 0,
+          "unknown": 0
+        },
+        "dead_precision_gate_eligible": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411
+        },
+        "missing_risks": {
+          "r2": 0,
+          "r3": 2,
+          "r4": 4,
+          "r5": 2,
+          "r6": 2,
+          "r7": 0,
+          "r8": 4
+        },
+        "partial_evidence": 1,
+        "unverified": 0
+      }
+    },
+    "without_github": {
+      "all": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 3,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 13,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 1,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411
+        },
+        "dead_precision_gate_eligible": {
+          "den": 8,
+          "num": 8,
+          "value": 1.0
+        },
+        "finished_healthy_fpr": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "rows": 18,
+        "unverified": 9,
+        "unverified_by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 9,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      },
+      "reviewed": {
+        "confusion": {
+          "ailing": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 3,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "alive": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 0,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "dead": {
+            "ailing": 0,
+            "alive": 1,
+            "dead": 13,
+            "finished-healthy": 0,
+            "unknown": 0
+          },
+          "finished-healthy": {
+            "ailing": 0,
+            "alive": 0,
+            "dead": 1,
+            "finished-healthy": 0,
+            "unknown": 0
+          }
+        },
+        "dead_precision": {
+          "den": 17,
+          "num": 13,
+          "value": 0.7647058823529411
+        },
+        "dead_precision_gate_eligible": {
+          "den": 8,
+          "num": 8,
+          "value": 1.0
+        },
+        "finished_healthy_fpr": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "flagged_rate": {
+          "den": 1,
+          "num": 1,
+          "value": 1.0
+        },
+        "rows": 18,
+        "unverified": 9,
+        "unverified_by_predicted": {
+          "ailing": 0,
+          "alive": 0,
+          "dead": 9,
+          "finished-healthy": 0,
+          "unknown": 0
+        }
+      }
+    }
+  },
+  "weights_sha256": "f1e5d7f1e821c1091e24e892b4924b1649fa57917296d6411df0369015c27c4f"
+}

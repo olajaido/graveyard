@@ -87,9 +87,8 @@ An empty labelled set therefore fails the gate on insufficient sample (exit 1). 
 
 ## Held-out set (mortality model v2)
 
-*Draft. Finalised in T11.6 of the mortality-model-v2 spec.*
 
-The held-out set tests the v2 model on packages that were not used to build or tune it. It is separate from the v1 set above. Nothing is labelled or captured for it yet, and `eval/heldout/` does not exist.
+The held-out set tests the v2 model on packages that were not used to build or tune it. It is separate from the v1 set above. Its data, results and comparison are in `eval/heldout/`, and the written result is in [`docs/heldout-result.md`](../docs/heldout-result.md).
 
 ### Two strata
 
@@ -102,12 +101,18 @@ Candidates from both ecosystems come from one draw order. They go to the coroner
 
 The `coroner` agent labels under `LABELLING.md` (sections 1, 2, 4, 5 and 6 unchanged, plus the held-out addendum in section 3). It receives `(ecosystem, name, version)` only. Every candidate it receives gets a row or a recorded `no label: <reason>`, and a `no label` candidate is not replaced. A candidate skipped because its page contained instructions is recorded as `no label` with the page URL.
 
+### Result
+Each model was run once on the held-out set (18 reviewed rows: 14 dead, 3 ailing, 1 finished-healthy). Both verdicts are INCONCLUSIVE because the sample floors are not met (dead 14 of 25, finished-healthy 1 of 20). The proportions in `results.v1.json` and `results.v2.json` are point estimates only. `docs/heldout-result.md` has the figures.
+### Populations
+- Q draws from the pinned `npm-high-impact` list (every unscoped name) and the pinned `top-pypi-packages` list (top 5,000 by downloads). The two lists have different depths of popularity, so per-ecosystem results are not comparable. The root README section "Third-party components" gives the pinned versions and licences.
+- F draws from a 200-cell code-search query grid over README completeness and stability phrases.
 ### Limits
 
 - Q covers only quiet, high-download, unscoped, labellable packages. It says nothing about other packages.
 - F is selected by README phrases and covers only packages that have such a phrase and a mapped repo.
 - Pooled proportions mix both strata. They are not population estimates, so read the per-stratum figures next to them.
-- The v1 key was used to build and check the model, so v1-key figures are in-sample. Only the held-out figures are out-of-sample.
+- The v1 key was used to build and check the model, so v1-key figures, including `results.v2-insample.json`, are in-sample diagnostics and not validation. Only the held-out figures are out-of-sample.
+- The dead-flagged check cannot tell v1 from v2, and a lower finished-healthy false-positive rate under v2 is not better discrimination (design 7.5.11). `docs/heldout-result.md` explains both.
 - Every held-out package joins the exclusion list once its result is recorded. A later model needs a new seed and a new draw.
 
 ## Frozen weights

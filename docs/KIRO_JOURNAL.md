@@ -906,3 +906,71 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - New fine-grained token (public repos read-only), loaded with read -rs; never printed or written. The trial captured 3 rows (npm/boom, pypi/scandir, npm/rot-js), then the full capture ran with --skip-existing. as_of 2026-11-17 for every fixture.
 - 18 of 18 fixtures written, exit 0, no failures, no unavailable signals. No re-captures and no not-captured rows, so capture-log.tsv is header-only.
 - Nulls as captured (not transient, so not re-captured): clickclick has no GitHub repo resolved from its record, so all GitHub signals are null, including s1; cucumber-expressions has a record repo URL that returns 404, so its GitHub signals are null; Scorecard s4/s8 are null for rfc3987, nkeys.js and clickclick.
+
+## 17 Nov 2026: Held-out T11.1 to T11.4, one run per model
+- Preflight: both manifests match. The order check without --tag reported only the result artefacts not yet created (expected before the runs); every other check passed and no tag was created. 18 labelled rows, 18 fixtures, 0 not captured.
+- v2, run once, exit 4 (INCONCLUSIVE):
+```
+eval: held-out verdict INCONCLUSIVE
+  not evaluable: sample_dead, sample_finished_healthy, dead_precision, finished_healthy_fpr, dead_flagged_rate
+  sample_dead: value 14.000, threshold 25.000, n 14/None (insufficient sample)
+  sample_finished_healthy: value 1.000, threshold 20.000, n 1/None (insufficient sample)
+HELD-OUT VERDICT: INCONCLUSIVE
+  not evaluable: sample_dead, sample_finished_healthy, dead_precision, finished_healthy_fpr, dead_flagged_rate
+Checks (all five are printed whatever the verdict)
+  sample_dead: 14 (minimum 25) FAIL [insufficient sample]
+  sample_finished_healthy: 1 (minimum 20) FAIL [insufficient sample]
+  dead_precision: 10/10 = 1.000  95% interval [0.722, 1.000] (threshold 0.900) pass [ok]
+  finished_healthy_fpr: 0/1 = 0.000  95% interval [0.000, 0.793] (threshold 0.100) pass [ok]
+  dead_flagged_rate: 13/14 = 0.929  95% interval [0.685, 0.987] (threshold 0.850) pass [ok]
+Headline (pooled over two strata; not population estimates)
+  dead_precision: 10/10 = 1.000  95% interval [0.722, 1.000], at least 0.900, point estimate only
+  finished_healthy_fpr: 0/1 = 0.000  95% interval [0.000, 0.793], at most 0.100, point estimate only
+  dead_flagged_rate: 13/14 = 0.929  95% interval [0.685, 0.987], at least 0.850, point estimate only
+  score-based Dead precision: none by construction (count 0)
+Floors: dead 14 of 25, finished-healthy 1 of 20
+Unflagged dead rows: 1; undeclared with mortality at or above 60 (ungated): 7; not captured: 0; changed since draw: 0
+Limits
+  - Q covers only quiet, high-download, unscoped packages that are labellable.
+  - F is selected by README phrases (as the v1 key was) and covers only packages with such a phrase and a mapped repo.
+  - Pooled proportions mix two strata and are not population estimates; per-stratum figures are reported next to them.
+  - Counts of registry-dependent Q filters (not quiet, unpublished, no release date) cover the examined prefix of the Q walk, not the whole snapshot.
+  - The PyPI population is the top 5,000 by downloads, while the npm population is every unscoped name of npmHighImpact. These are different depths of popularity, so per-ecosystem results are not comparable.
+  - A Scorecard 404 is recorded as 'not scanned' here and as 'unavailable' in the v1 fixtures.
+  - The dead-flagged check cannot tell v1 from v2. The only class change is Dead to Ailing, so both models flag the same rows (Dead or Ailing) and their dead-flagged rates and finished-healthy flagged rates are equal on any dataset. A failure of this check is a failure for both models and points at the signals, not at the mechanism (design 7.5.11).
+  - A lower finished-healthy false-positive rate under v2 is not better discrimination. The rate counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate is equal for both models and is reported, not gated (design 7.5.11, MV2-GATE-4).
+```
+- v1, run once, exit 4 (INCONCLUSIVE):
+```
+eval: held-out verdict INCONCLUSIVE
+  not evaluable: sample_dead, sample_finished_healthy, dead_precision, finished_healthy_fpr, dead_flagged_rate
+  sample_dead: value 14.000, threshold 25.000, n 14/None (insufficient sample)
+  sample_finished_healthy: value 1.000, threshold 20.000, n 1/None (insufficient sample)
+  dead_precision: value 0.765, threshold 0.900, n 13/17 (below threshold)
+  finished_healthy_fpr: value 1.000, threshold 0.100, n 1/1 (above threshold)
+HELD-OUT VERDICT: INCONCLUSIVE
+  not evaluable: sample_dead, sample_finished_healthy, dead_precision, finished_healthy_fpr, dead_flagged_rate
+Checks (all five are printed whatever the verdict)
+  sample_dead: 14 (minimum 25) FAIL [insufficient sample]
+  sample_finished_healthy: 1 (minimum 20) FAIL [insufficient sample]
+  dead_precision: 13/17 = 0.765  95% interval [0.527, 0.904] (threshold 0.900) FAIL [below threshold]
+  finished_healthy_fpr: 1/1 = 1.000  95% interval [0.207, 1.000] (threshold 0.100) FAIL [above threshold]
+  dead_flagged_rate: 13/14 = 0.929  95% interval [0.685, 0.987] (threshold 0.850) pass [ok]
+Headline (pooled over two strata; not population estimates)
+  dead_precision: 13/17 = 0.765  95% interval [0.527, 0.904], at least 0.900, point estimate only
+  finished_healthy_fpr: 1/1 = 1.000  95% interval [0.207, 1.000], at most 0.100, point estimate only
+  dead_flagged_rate: 13/14 = 0.929  95% interval [0.685, 0.987], at least 0.850, point estimate only
+  score-based Dead precision: 3/7 = 0.429  95% interval [0.158, 0.750] (count 7)
+Floors: dead 14 of 25, finished-healthy 1 of 20
+Unflagged dead rows: 1; undeclared with mortality at or above 60 (ungated): 7; not captured: 0; changed since draw: 0
+Limits
+  - Q covers only quiet, high-download, unscoped packages that are labellable.
+  - F is selected by README phrases (as the v1 key was) and covers only packages with such a phrase and a mapped repo.
+  - Pooled proportions mix two strata and are not population estimates; per-stratum figures are reported next to them.
+  - Counts of registry-dependent Q filters (not quiet, unpublished, no release date) cover the examined prefix of the Q walk, not the whole snapshot.
+  - The PyPI population is the top 5,000 by downloads, while the npm population is every unscoped name of npmHighImpact. These are different depths of popularity, so per-ecosystem results are not comparable.
+  - A Scorecard 404 is recorded as 'not scanned' here and as 'unavailable' in the v1 fixtures.
+  - The dead-flagged check cannot tell v1 from v2. The only class change is Dead to Ailing, so both models flag the same rows (Dead or Ailing) and their dead-flagged rates and finished-healthy flagged rates are equal on any dataset. A failure of this check is a failure for both models and points at the signals, not at the mechanism (design 7.5.11).
+  - A lower finished-healthy false-positive rate under v2 is not better discrimination. The rate counts predicted Dead only, and v2 withholds Dead without a declaration, so the same finished-healthy rows move from Dead to Ailing. The finished-healthy flagged rate is equal for both models and is reported, not gated (design 7.5.11, MV2-GATE-4).
+```
+- No model was re-run. Nothing about v2 changes after this point.

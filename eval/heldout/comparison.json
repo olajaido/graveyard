@@ -1,0 +1,213 @@
+{
+  "by_label": {
+    "ailing": {
+      "ailing": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 3,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "unknown": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      }
+    },
+    "alive": {
+      "ailing": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "unknown": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      }
+    },
+    "dead": {
+      "ailing": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 1,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 3,
+        "alive": 0,
+        "dead": 10,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "unknown": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      }
+    },
+    "finished-healthy": {
+      "ailing": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "alive": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "dead": {
+        "ailing": 1,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "finished-healthy": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      },
+      "unknown": {
+        "ailing": 0,
+        "alive": 0,
+        "dead": 0,
+        "finished-healthy": 0,
+        "unknown": 0
+      }
+    }
+  },
+  "changed": 7,
+  "changed_rows": [
+    {
+      "ecosystem": "npm",
+      "label": "dead",
+      "name": "cleave.js",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "npm",
+      "label": "finished-healthy",
+      "name": "rot-js",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "npm",
+      "label": "dead",
+      "name": "vue-template-compiler",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "npm",
+      "label": "ailing",
+      "name": "yamljs",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "pypi",
+      "label": "dead",
+      "name": "clickclick",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "name": "gnupg",
+      "v1": "dead",
+      "v2": "ailing"
+    },
+    {
+      "ecosystem": "pypi",
+      "label": "ailing",
+      "name": "shyaml",
+      "v1": "dead",
+      "v2": "ailing"
+    }
+  ],
+  "note": "Descriptive only (MV2-GATE-7); not a model run and not a gate input.",
+  "rows": 18,
+  "schema": "graveyard-heldout-comparison",
+  "schema_version": 1,
+  "shared": {
+    "as_of": "2026-11-17",
+    "fixture_set_sha256": "87f7cd6847241cb721ea33c86cb90036e681cdbed18a42fa3eee77d31e5d84a0",
+    "labels_sha256": "874153636f3eb60a459d352efdf5010011e47bfe970e9be6e46a359186ce05a4"
+  }
+}
