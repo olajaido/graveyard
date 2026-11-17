@@ -26,6 +26,18 @@
     }
   },
   "draw_date": "2026-11-17",
+  "f_counts": {
+    "cells_run": 200,
+    "cells_saturated": 0,
+    "cells_zero_hits": 173,
+    "grid_size": 200,
+    "mapped_packages": 15,
+    "pool_size": 14,
+    "skipped_invalid": 0,
+    "skipped_scoped": 0,
+    "total_file_hits": 626,
+    "unique_repositories": 311
+  },
   "pins": {
     "npm-high-impact": {
       "downloaded_sha256": "63ed31dacc861ac10c95b47af242a984f210f0170eaea8eaa66ba4a9b8f9d30b",

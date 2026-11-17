@@ -869,3 +869,10 @@ Nine findings, all applied before the first task ran (12.7 credits). Kiro restru
 - **Kiro got right:** The in-sample run reproduced the temp-copy figures exactly (Dead precision 27/28, finished-healthy FPR 0/20, dead_flagged_rate 41/45); both manifest checks stayed green after the type cleanups.
 - **Corrected:** `check_heldout_order.py` counted the AMENDMENTS.md template as an entry; a shared fence-aware parser fixed it before the tag.
 - **Surprise:** Probe and test files sit outside both frozen closures, so removing their `type: ignore` comments needed no regeneration.
+
+## 17 Nov — mortality-model-v2: T9.1–T9.4 held-out draw (maintainer)
+- Pins: npm-high-impact 1.13.0 (4 legacy names excluded), top-pypi-packages @29c0d4c (top 5,000).
+- Q draw (seed graveyard-mortality-v2-heldout-1, draw date 2026-11-17): 75 npm + 75 pypi quiet packages; replay test passes.
+- F search: 200 cells (173 with zero hits), 311 repos; map matches the addition2 method; F pool 14.
+- Tooling fixes found by the real run, each before the draw tag and with a design note: top.js shape (']', last entry without comma), legacy npm names, 64 MiB registry cap (ddtrace 41 MB), missing PEP 723 deps, map name variants.
+- Expectation recorded before labelling: with an F pool of 14, the pooled finished-healthy floor of 20 may not be reached (INCONCLUSIVE on that floor; no extension).

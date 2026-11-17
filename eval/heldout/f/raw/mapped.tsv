@@ -1,0 +1,16 @@
+query_id	repo	ecosystem	name	version
+2	ondras/rot.js	npm	rot-js	2.2.1
+3	CopilotKit/CopilotKit	pypi	copilotkit	0.1.97
+5	bcmyers/argonautica	pypi	argonautica	0.1.5
+5	dolthub/doltlite	pypi	doltlite	0.51.13
+5	romainpi/astro-loader-storyblok	npm	astro-loader-storyblok	1.0.19
+28	cslotboom/planesections	pypi	planesections	1.4.2
+29	akashleo/hoplist	npm	hoplist	1.2.2
+29	aneudy1702/career-catalyst	npm	career-catalyst	1.0.3
+29	eric-cielo/moflo	npm	moflo	4.13.7
+29	seung-lab/kimimaro	pypi	kimimaro	5.9.0
+29	SwarmDo/swarmdo	npm	swarmdo	1.63.4
+30	SuadeLabs/rattr	pypi	rattr	0.2.5
+30	TagStudioDev/TagStudio	pypi	tagstudio	9.1.1
+32	maykinmedia/zgw-consumers-oas	pypi	zgw-consumers-oas	1.1.0
+40	gotalab/cc-sdd	npm	cc-sdd	3.1.0
