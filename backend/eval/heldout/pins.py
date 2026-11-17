@@ -25,7 +25,7 @@ MAX_BYTES = 5 * 1024 * 1024
 _HUGOVK_ROW_KEYS = frozenset({"download_count", "project"})
 _JS_OPEN = re.compile(r"^export const [A-Za-z_$][A-Za-z0-9_$]* = \[$")
 _JS_NAME = re.compile(r"^[ \t]*'([^'\\\r\n]+)',$")
-_JS_CLOSE = "];"
+_JS_CLOSE = "]"
 _SCOPED = re.compile(r"^@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -106,7 +106,8 @@ def parse_npm_top_js(data: bytes) -> list[str]:
     """Return the names of the `top.js` member, in file order.
 
     Exact shape: a first line `export const <id> = [`, then one `'name',` per line, then a
-    last line `];` (a single trailing newline is allowed). Each name is an unscoped name valid
+    last line `]` with no semicolon, as the pinned package writes it (a single trailing newline is
+    allowed; any other final line, including `];`, is rejected). Each name is an unscoped name valid
     under `normalise_name("npm", ...)` or a well-formed scoped name; scoped names are kept so the
     caller can count them, and are excluded from the population later. Duplicates are rejected.
     """
@@ -125,7 +126,7 @@ def parse_npm_top_js(data: bytes) -> list[str]:
     if not _JS_OPEN.fullmatch(lines[0]):
         raise PinError("top.js first line is not `export const <id> = [`")
     if lines[-1] != _JS_CLOSE:
-        raise PinError("top.js last line is not `];`")
+        raise PinError("top.js last line is not `]`")
     names: list[str] = []
     seen: set[str] = set()
     for number, line in enumerate(lines[1:-1], start=2):

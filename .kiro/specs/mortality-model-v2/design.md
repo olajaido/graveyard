@@ -490,6 +490,8 @@ Run once, at the draw (step 4). Hosts: `api.github.com`, `raw.githubusercontent.
 
 **Record (`snapshot/pins.json`).** For each source: URL, commit SHA or package version, `dist.integrity`, SHA-256 of the downloaded bytes, SHA-256 of the trimmed file, row count, fetch time. A later run with `--verify` re-downloads nothing; it re-hashes the committed files against `pins.json`.
 
+**Note, 2026-11-17.** The expected `top.js` shape is corrected: `export const <id> = [`, then one `'name',` per line, then a last non-empty line that is exactly `]`, with no semicolon, matching the no-semicolon style of the pinned package. The first real run (T9.1) aborted on the earlier `];` rule before any file was written. No population, seed, pin, snapshot or rule changed.
+
 ### 8.4 Exclusions (`eval/heldout/exclusions.py`, pure; the script `heldout_draw.py` reads the files)
 Inputs, as file texts: `eval/LABELLING.md`; the nine files in `backend/core/scoring/tests/fixtures/anchors/` (the ecosystem of each anchor comes from its `purl`); `eval/addition1/pools.tsv`, `eval/addition2/pool.tsv`, `eval/addition3/pool.tsv`; `eval/labelled_packages.csv`.
 - `parse_plan(text)` reads the lists under "### npm (54)", "### PyPI (47)" and the reserve lines `npm: …` and `PyPI: …` of `LABELLING.md` section 9. It checks the parsed counts against the stated 54, 47 and 15 and raises when they differ.

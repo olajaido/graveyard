@@ -21,7 +21,7 @@ import pytest
 
 SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "heldout_pin.py"
 SHA = "a" * 40
-TOP_JS = "export const top = [\n  'left-pad',\n  'ms',\n  '@scope/pkg',\n];\n"
+TOP_JS = "export const top = [\n  'left-pad',\n  'ms',\n  '@scope/pkg',\n]\n"
 
 
 @pytest.fixture(scope="module")

@@ -489,6 +489,16 @@
         "executionId": "b7b3286e-fefe-470d-ac22-5a6935fb923e",
         "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
         "timestamp": 1794840337068
+      },
+      {
+        "executionId": "d06181ac-2157-4a8a-ba28-42454033c0f0",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794905615089
+      },
+      {
+        "executionId": "d06181ac-2157-4a8a-ba28-42454033c0f0",
+        "chatSessionId": "sess_9da0eb91-b86f-44fe-a05c-a7596c1bd5c9",
+        "timestamp": 1794905893873
       }
     ],
     "T5.4 — `scripts/heldout_pin.py` (design 8.3): resolves the commit-pinned raw URL for the PyPI file, downloads the npm tarball from `registry.npmjs.org`, checks `dist.integrity`, reads one member in memory with `tarfile`, writes `snapshot/*.json` and `pins.json`, `--verify` re-hashes. Hosts allow-listed, no redirects off host, size caps. Tests with a fake transport and a synthetic tarball: integrity mismatch aborts; extra members are never read; wrong member shape aborts; no file is written on failure.": [

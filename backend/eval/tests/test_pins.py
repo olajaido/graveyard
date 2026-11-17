@@ -86,40 +86,54 @@ def test_hugovk_accepts_exactly_the_non_increasing_lists(counts: list[int]) -> N
             parse_hugovk(_hugovk(rows), len(rows))
 
 
-GOOD_JS = "export const npmHighImpact = [\n  'lodash',\n  '@babel/core',\n  'left-pad',\n];\n"
+GOOD_JS = "export const npmHighImpact = [\n  'lodash',\n  '@babel/core',\n  'left-pad',\n]\n"
 
 
 def test_top_js_good() -> None:
     assert parse_npm_top_js(GOOD_JS.encode()) == ["lodash", "@babel/core", "left-pad"]
 
 
+def test_real_npm_top_js_ending() -> None:
+    real = b"export const npmHighImpact = [\n  'a-b',\n  '@s/p',\n  'last-name',\n]\n"
+    assert parse_npm_top_js(real) == ["a-b", "@s/p", "last-name"]
+    with pytest.raises(PinError, match="last line is not `]`"):
+        parse_npm_top_js(real.replace(b"]\n", b"];\n"))
+
+
 def test_top_js_good_no_trailing_newline_and_no_indent() -> None:
-    assert parse_npm_top_js(b"export const top = [\n'a',\n];") == ["a"]
+    assert parse_npm_top_js(b"export const top = [\n'a',\n]") == ["a"]
 
 
 @pytest.mark.parametrize(
     ("text", "match"),
     [
-        ("const top = [\n'a',\n];\n", "first line"),
-        ("export let top = [\n'a',\n];\n", "first line"),
-        ("export const top = [ \n'a',\n];\n", "first line"),
-        ("export const top = [\n'a',\n]\n", "last line"),
-        ("export const top = [\n'a',\n];\nexport default top;\n", "last line"),
-        ("export const top = [\n];\n", "no names"),
-        ("export const top = [\n'a'\n];\n", "not a `'name',`"),
-        ('export const top = [\n"a",\n];\n', "not a `'name',`"),
-        ("export const top = [\n'a', 'b',\n];\n", "not a `'name',`"),
-        ("export const top = [\n'a', // x\n];\n", "not a `'name',`"),
-        ("export const top = [\n'a\\u0062',\n];\n", "not a `'name',`"),
-        ("export const top = [\n'',\n];\n", "not a `'name',`"),
-        ("export const top = [\n'a',\n\n];\n", "not a `'name',`"),
-        ("export const top = [\r\n'a',\r\n];\r\n", "carriage return"),
-        ("export const top = [\n'Upper',\n];\n", "invalid npm name"),
-        ("export const top = [\n'@scope',\n];\n", "invalid npm name"),
-        ("export const top = [\n'@Scope/x',\n];\n", "invalid npm name"),
-        ("export const top = [\n'@a/b/c',\n];\n", "invalid npm name"),
-        ("export const top = [\n'has space',\n];\n", "invalid npm name"),
-        ("export const top = [\n'a',\n'a',\n];\n", "duplicate"),
+        ("const top = [\n'a',\n]\n", "first line"),
+        ("export let top = [\n'a',\n]\n", "first line"),
+        ("export const top = [ \n'a',\n]\n", "first line"),
+        ("export const top = [\n'a',\n];\n", "last line"),
+        ("export const top = [\n'a',\n] \n", "last line"),
+        ("export const top = [\n'a',\n ]\n", "last line"),
+        ("export const top = [\n'a',\n],\n", "last line"),
+        ("export const top = [\n'a',\n])\n", "last line"),
+        ("export const top = [\n'a',\n]]\n", "last line"),
+        ("export const top = [\n'a',\n'b',\n", "last line"),
+        ("export const top = [\n'a',\n]\n\n", "last line"),
+        ("export const top = [\n'a',\n]\nexport default top;\n", "last line"),
+        ("export const top = [\n]\n", "no names"),
+        ("export const top = [\n'a'\n]\n", "not a `'name',`"),
+        ('export const top = [\n"a",\n]\n', "not a `'name',`"),
+        ("export const top = [\n'a', 'b',\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a', // x\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a\\u0062',\n]\n", "not a `'name',`"),
+        ("export const top = [\n'',\n]\n", "not a `'name',`"),
+        ("export const top = [\n'a',\n\n]\n", "not a `'name',`"),
+        ("export const top = [\r\n'a',\r\n]\r\n", "carriage return"),
+        ("export const top = [\n'Upper',\n]\n", "invalid npm name"),
+        ("export const top = [\n'@scope',\n]\n", "invalid npm name"),
+        ("export const top = [\n'@Scope/x',\n]\n", "invalid npm name"),
+        ("export const top = [\n'@a/b/c',\n]\n", "invalid npm name"),
+        ("export const top = [\n'has space',\n]\n", "invalid npm name"),
+        ("export const top = [\n'a',\n'a',\n]\n", "duplicate"),
     ],
 )
 def test_top_js_bad_shapes(text: str, match: str) -> None:
@@ -129,7 +143,7 @@ def test_top_js_bad_shapes(text: str, match: str) -> None:
 
 def test_top_js_not_utf8_and_size_cap() -> None:
     with pytest.raises(PinError, match="UTF-8"):
-        parse_npm_top_js(b"export const top = [\n'\xff',\n];\n")
+        parse_npm_top_js(b"export const top = [\n'\xff',\n]\n")
     with pytest.raises(PinError, match="cap"):
         parse_npm_top_js(b"x" * (MAX_BYTES + 1))
 
