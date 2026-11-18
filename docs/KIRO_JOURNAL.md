@@ -979,3 +979,8 @@ Limits
 - The first `--step eval-heldout-result --tag` attempt failed check 8 and created no tag. Cause: two tooling defects, no tampering. (1) scripts/check_heldout_order.py compared both result files to the v2 weights and manifest; results.v1.json correctly records weights.v1.yaml (f1e5d7f1...), and results.v2.json records weights.v2.yaml (ef632477...). (2) backend/eval/run.py (frozen harness) writes manifest_sha256 = null for every held-out run.
 - Fix in the checker only. It is not a FROZEN_HARNESS file, so no AMENDMENTS entry applies. Check 8 is now model-aware, and a null v2 manifest is accepted only if FROZEN_MODEL.v2.json is byte-identical at the result commit and at mortality-v2-frozen (with a NOTICE). run.py was not changed; its null manifest is recorded as a known defect. The v2 manifest was verified by the T11.1 preflight (--check: matches) and by the runner before scoring.
 - The result files and the results commit (d80e2fd) were not touched. No model was re-run. No result value or verdict changes.
+
+## 18 Nov 2026: mortality-model-v2 closed
+- Result tag eval-heldout-result at 3217fe0. Held-out verdict: INCONCLUSIVE for both v2 and v1 (floors: dead 14/25, finished-healthy 1/20), as recorded before labelling began.
+- Point estimates only: v2 Dead precision 10/10 [0.722, 1.000] against v1 13/17 [0.527, 0.904]; v1 score-based Dead 3/7. The dead-flagged rate is 13/14 for both, equal by design. The one unflagged dead row is azure-mgmt-scheduler: its deprecation appears only as PyPI description text (future work: PEP 792 status markers, v3).
+- T11.8 final gate clean except the known v1 red test; coverage of new modules is at or above 85%. Any later model change is v3 with a new seed and a new draw.
