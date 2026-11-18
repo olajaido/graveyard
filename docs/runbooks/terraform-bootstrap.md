@@ -1,0 +1,190 @@
+# Runbook: bootstrap the Terraform foundation
+
+Applies `infra/bootstrap` once, from your workstation, and moves its state into the bucket it creates. After this,
+CI can plan the `dev` and `prod` roots. Spec: `.kiro/specs/infra-foundation` (requirements INF-BOOT, INF-OIDC, INF-COST).
+
+**Who runs it:** the maintainer, with an AWS administrator session. CI never plans or applies this root, and no CI role
+can read its state. **The AWS account is shared with other projects.** Nothing here may import, read through a data
+source, or change a resource that this stack did not create: the existing GitHub OIDC provider, the existing anomaly
+monitors and any already-active cost allocation tag belong to someone else.
+
+Placeholders in this file: `<account-id>` is your 12-digit AWS account ID, `<bucket>` the state bucket name,
+`<key-arn>` the state KMS key ARN. Never paste real values into this file or into a commit.
+
+## 1. Before you start
+
+1. Install Terraform **1.17.2** (`terraform version` prints it). The lock files and saved plans need the same
+   version as CI. `infra/.tool-versions` is the one place that records it.
+2. Sign in to AWS with an administrator session and confirm the account:
+   `aws sts get-caller-identity`. It must be the account you mean to use.
+3. Work from a clean checkout of `main`: `git status` shows nothing for `infra/`.
+
+## 2. Shared-account checks (do these first)
+
+| # | Check | How | What to do with the answer |
+|---|-------|-----|----------------------------|
+| a | The GitHub OIDC provider exists and lists the audience `sts.amazonaws.com` | `aws iam list-open-id-connect-providers`, then `aws iam get-open-id-connect-provider --open-id-connect-provider-arn <provider-arn>` and read `ClientIDList` | Present with the audience: leave `create_oidc_provider = false`. Missing: see section 10. Never import or edit it. |
+| b | The account's billing currency | Billing console, Preferences | USD: keep the default (40 USD). GBP: set `budget_limit = { amount = "30", unit = "GBP" }`. |
+| c | Which of the cost allocation tag keys `Project` and `Env` are already active | Billing console, Cost allocation tags | Put into `activate_cost_allocation_tag_keys` only the keys that are **not** active. Graveyard never manages an active key (section 8). |
+| d | Existing anomaly monitors | **Do nothing.** Do not list, import or edit them. | The stack creates its own custom monitor `graveyard-project`. |
+
+## 3. Configure
+
+```sh
+cd infra/bootstrap
+cp terraform.tfvars.example terraform.tfvars   # git-ignored; fill it in
+```
+
+Set `allowed_account_ids` (one account), `alert_emails` (1 to 10 addresses), and, if section 2 says so,
+`budget_limit`. Leave `create_oidc_provider = false` and `activate_cost_allocation_tag_keys = []` for now.
+Check `git status`: `terraform.tfvars` must not be listed.
+
+## 4. First apply, with local state
+
+1. Create `local_backend_override.tf` (git-ignored by `*_override.tf`):
+   ```hcl
+   terraform {
+     backend "local" {}
+   }
+   ```
+2. `terraform init`
+3. `terraform plan -out=bootstrap.tfplan`
+   - It must create **no** `aws_iam_openid_connect_provider` (with `create_oidc_provider = false`).
+   - It must create exactly one anomaly monitor, the custom one, and no other monitor.
+   - It must change or destroy **nothing** that Terraform did not create. **If the plan touches an existing resource,
+     stop and do not apply.**
+   - If you set `create_oidc_provider = true` (section 10): the plan must show no thumbprint error or diff (V4b).
+4. **Policy check (V9), part 1: the policies the plan can show.** IAM Access Analyzer reads each policy document.
+   A plan leaves out any policy that holds a value known only after the apply (the bucket name and the KMS key ARN),
+   so part 1 covers the service policies and the boundaries, and part 2 (step 6) covers the rest.
+   ```sh
+   terraform show -json bootstrap.tfplan > /tmp/bootstrap-plan.json
+   jq -r '.. | objects | select(.type? == "aws_iam_policy") | .values.policy? // empty' /tmp/bootstrap-plan.json |
+   while IFS= read -r doc; do
+     aws accessanalyzer validate-policy --policy-type IDENTITY_POLICY --policy-document "$doc" \
+       --query 'findings[].[findingType,issueCode,locations[0].span.start.line]' --output text
+   done
+   rm /tmp/bootstrap-plan.json
+   ```
+   **Any `ERROR` or `SECURITY_WARNING`: stop before the apply and fix the policy by a reviewed change.**
+   Record how many `WARNING` and `SUGGESTION` findings there were (section 14).
+5. `terraform apply bootstrap.tfplan`, then delete `bootstrap.tfplan`. Note the outputs.
+6. **Policy check (V9), part 2: everything, from the state** (the bucket and key policies and the policies that name
+   the bucket). Same loop over `terraform show -json`, and for the other policy types:
+   ```sh
+   # identity policies (state, plan-state, apply-state, guards): as in step 4 but from `terraform show -json`
+   # trust policies:
+   aws accessanalyzer validate-policy --policy-type RESOURCE_POLICY \
+     --validate-policy-resource-type AWS::IAM::AssumeRolePolicyDocument --policy-document "$doc"
+   # the bucket policy:
+   aws accessanalyzer validate-policy --policy-type RESOURCE_POLICY \
+     --validate-policy-resource-type AWS::S3::Bucket --policy-document "$doc"
+   ```
+   **A finding of type `ERROR` or `SECURITY_WARNING`: fix by a reviewed change before CI uses these roles.**
+
+## 5. Move the state into the bucket
+
+1. From the outputs, write `infra/bootstrap/backend.hcl` (git-ignored; shape in `backend.hcl.example`):
+   `bucket = "<bucket>"` and `kms_key_id = "<key-arn>"` (output `state_kms_key_arn`).
+2. Delete `local_backend_override.tf`.
+3. `terraform init -migrate-state -backend-config=backend.hcl` and answer **yes**.
+4. Check the state is in the bucket and encrypted:
+   `aws s3api head-object --bucket <bucket> --key bootstrap/terraform.tfstate` succeeds and shows
+   `ServerSideEncryption: aws:kms`.
+5. `terraform plan` shows **no changes** (INF-BOOT-5).
+6. Delete `terraform.tfstate` and `terraform.tfstate.backup` from `infra/bootstrap/`. `git status` lists neither them
+   nor `backend.hcl`.
+7. Optional, to try an env root from your machine: write `infra/envs/dev/backend.hcl` and `terraform.tfvars` (shapes in the
+   `.example` files), run `terraform init -backend-config=backend.hcl` and `terraform plan`. It shows no changes.
+
+Then set the GitHub variables, the secret and the environments: `docs/runbooks/github-environments.md`.
+
+## 6. Changing the bootstrap root later
+
+From your workstation only, with Terraform 1.17.2:
+`terraform init -backend-config=backend.hcl`, `terraform plan`, review, `terraform apply`. A change to a policy needs
+the same V9 check as the first apply. CI plans the env roots only.
+
+## 7. Recovery: the bucket exists but the local state is lost
+
+`prevent_destroy` stops an accidental `destroy` of the bucket and the key. If you lost the local state before the
+migration, either delete the (empty) bucket, key alias and roles by hand and start again, or import them by name:
+`terraform import module.state.aws_s3_bucket.state <bucket>` and the same for the key, alias and roles. Do not import
+the OIDC provider or any anomaly monitor: this stack never manages them.
+
+## 8. Cost allocation tags (INF-TAG-4, F2, V7)
+
+The budget and the anomaly monitor are filtered to the `Project` tag. Until `Project` is an **active** cost allocation
+tag, and tagged resources have billed, both read 0. Attribution starts on the day a tag is activated and is not
+retroactive.
+
+1. Billing console, Cost allocation tags: note which of `Project` and `Env` are already active. **Graveyard does not
+   manage an active key at all** (other projects may rely on it).
+2. A user-defined key can be activated only after AWS has seen it on a billed resource, up to 24 hours after the first
+   tagged resource. For keys that are not active: apply once with `activate_cost_allocation_tag_keys = []`, deploy
+   something tagged, then the next day put those keys in the set and apply again.
+3. If activation fails because AWS has not seen the key yet, write the error text in section 14 (V7) and retry the
+   next day. If it still fails after 48 hours, stop and ask.
+4. The tag resource has `prevent_destroy`, so a destroy cannot deactivate a key.
+
+## 9. Missing service-linked roles
+
+The CI roles never create a service-linked role (INF-SHARED-3). If an apply fails with a message that names one,
+create it once by hand, with an administrator session:
+`aws iam create-service-linked-role --aws-service-name <service>.amazonaws.com`. In an account that other projects
+use, most already exist.
+
+## 10. If the shared GitHub OIDC provider is removed or loses its audience (F3)
+
+The CI roles trust the provider by ARN and cannot work without it. This stack does not manage it and cannot repair it.
+
+1. Check section 2a again. If the provider exists but the audience is gone, ask its owner to restore `sts.amazonaws.com`.
+2. If the provider is really gone, set `create_oidc_provider = true` in `terraform.tfvars` and apply (section 6). The
+   provider is created with `prevent_destroy`. Applying this while the provider still exists fails with an
+   "already exists" error, which is safe: change nothing and go back to step 1.
+
+## 11. Accepted risk (O8)
+
+Anyone who can push a branch to this repository can change `ci.yml` in a pull request and use the plan role, which
+reads the dev and prod state and can write `plans/*`. Only the maintainer can push, pull requests from forks get no
+token, and the version-ID and SHA-256 check in `deploy.yml` stops a plan written from a pull request from being applied.
+
+## 12. What the CI roles cannot do
+
+By design (INF-SHARED): create service-linked roles, write account-wide log policies, set up log delivery, create
+CloudFront cache or response-headers policies, change any anomaly monitor, budget or cost allocation tag, or touch a
+resource that is not named `graveyard-*` or tagged `Project=graveyard`. If a later spec needs one of these it asks for a
+reviewed change to the bootstrap root.
+
+## 13. Hand checks of the roles: deferred
+
+**Deferred to the ship-week security review (PRD section 16, W4).** This spec is complete without them. Until then the
+denials are asserted by the module tests and by Access Analyzer (section 4). The review runs H1 to H4 on a throwaway
+branch and workflow, and H5 to H10 as described. H7 to H10 need the throwaway branch added to the `dev` environment's
+deployment-branch rule: add it, run the checks, remove it at once. Never edit an IAM trust policy by hand (it would
+drift from Terraform). If a call that should be denied succeeds, stop, delete what it created, and record the number.
+
+| # | Attempt | Expected | Result |
+|---|---------|----------|--------|
+| H1 | assume `graveyard-dev-apply` from a job with no environment | access denied on `AssumeRoleWithWebIdentity` | |
+| H2 | assume `graveyard-prod-apply` from a job with `environment: dev` | access denied | |
+| H3 | a job with `environment: prod` on a branch that is not `main` | blocked by the deployment-branch rule before it runs | |
+| H4 | assume the plan role from a branch push (not `main`, not a pull request) | access denied | |
+| H5 | with the plan role: `s3api put-object` to `envs/dev/terraform.tfstate` | access denied | |
+| H6 | with the plan role: `s3api get-object` on `bootstrap/terraform.tfstate` | access denied | |
+| H7 | with `graveyard-dev-apply`: create an SNS topic `graveyard-prod-x` | access denied | |
+| H8 | with `graveyard-dev-apply`: read `envs/prod/terraform.tfstate` | access denied | |
+| H9 | with `graveyard-dev-apply`: create a role `graveyard-dev/graveyard-dev-x` without the boundary | access denied | |
+| H10 | with `graveyard-dev-apply`: `iam:UpdateAssumeRolePolicy` on `graveyard-dev-apply` | access denied | |
+
+## 14. Results to record (no account IDs)
+
+| Item | Result |
+|------|--------|
+| V4b: first plan with `create_oidc_provider = true` shows no thumbprint problem (only if used) | |
+| V7: error text of activating a tag AWS has not seen yet | |
+| V9: Access Analyzer, part 1 and part 2: number of ERROR, SECURITY_WARNING, WARNING and SUGGESTION findings | |
+| V10: billing currency and the budget limit set | |
+| V15: second plan shows no diff on the anomaly monitor's specification | |
+| V16: which of `Project` and `Env` were already active | |
+| V17: the shared OIDC provider was present with the audience `sts.amazonaws.com` | |

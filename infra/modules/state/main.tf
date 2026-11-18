@@ -3,6 +3,9 @@ resource "random_id" "suffix" {
 }
 
 resource "aws_s3_bucket" "state" {
+  #checkov:skip=CKV_AWS_18:No access logging: a second bucket for one maintainer's state adds cost and noise. CloudTrail data events are the hardening path (PRD 10.3).
+  #checkov:skip=CKV_AWS_144:No cross-region replication: Graveyard is single-region by design (eu-west-2, data residency) and versioning covers recovery.
+  #checkov:skip=CKV2_AWS_62:No event notifications: nothing consumes events from the state bucket.
   bucket = local.bucket_name
 
   lifecycle {

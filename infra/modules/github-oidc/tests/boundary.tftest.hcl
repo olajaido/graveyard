@@ -169,14 +169,14 @@ run "bedrock_is_limited_to_the_exact_profiles_and_foundation_models" {
           Sid       = "ExceptionE5ModelNarrate"
           Effect    = "Allow"
           Action    = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"]
-          Resource  = ["arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-haiku-5-5"]
+          Resource  = ["arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-north-1::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-south-1::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-south-2::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-west-1::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-haiku-5-5", "arn:aws:bedrock:eu-west-3::foundation-model/anthropic.claude-haiku-5-5"]
           Condition = { StringEquals = { "bedrock:InferenceProfileArn" = "arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.anthropic.claude-haiku-5-5" } }
         } &&
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE5ModelRites"][0] == {
           Sid       = "ExceptionE5ModelRites"
           Effect    = "Allow"
           Action    = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"]
-          Resource  = ["arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-sonnet-5-5"]
+          Resource  = ["arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-north-1::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-south-1::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-south-2::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-west-1::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-sonnet-5-5", "arn:aws:bedrock:eu-west-3::foundation-model/anthropic.claude-sonnet-5-5"]
           Condition = { StringEquals = { "bedrock:InferenceProfileArn" = "arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.anthropic.claude-sonnet-5-5" } }
         }
       )

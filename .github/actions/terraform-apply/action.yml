@@ -1,0 +1,121 @@
+name: terraform-apply
+description: >-
+  Apply exactly the plan that ci.yml saved for this run, after checking it. The calling job must check out the same
+  commit first (an action in this repository can only be used once the repository is checked out). The plan is
+  fetched by its S3 version ID and is applied only if its SHA-256 and its stored commit, run and env all match
+  (INF-CI-7). (infra-foundation design 8.5)
+
+inputs:
+  env:
+    description: dev or prod.
+    required: true
+  version-id:
+    description: S3 version ID of the saved plan, from the plan job's outputs.
+    required: true
+  sha256:
+    description: SHA-256 (hex) of the saved plan file, from the plan job's outputs.
+    required: true
+  account-id:
+    description: AWS account ID, from the repository secret AWS_ACCOUNT_ID.
+    required: true
+  aws-region:
+    description: Region of the state bucket.
+    required: false
+    default: eu-west-2
+  state-bucket:
+    description: Name of the state bucket, from the repository variable TF_STATE_BUCKET.
+    required: true
+  state-kms-key-id:
+    description: ID (UUID) of the state KMS key, from the repository variable TF_STATE_KMS_KEY_ID.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Check the inputs
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        VERSION_ID: ${{ inputs.version-id }}
+        EXPECTED_SHA256: ${{ inputs.sha256 }}
+      run: |
+        set -euo pipefail
+        case "$ENV_NAME" in
+          dev | prod) ;;
+          *) echo "env must be dev or prod" >&2; exit 1 ;;
+        esac
+        # A bounded repeat count above 255 is not portable across grep builds, so the length is checked on its own.
+        if [ -z "$VERSION_ID" ] || [ "${#VERSION_ID}" -gt 1024 ] || ! printf '%s' "$VERSION_ID" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+          echo "version-id is missing or malformed" >&2
+          exit 1
+        fi
+        printf '%s' "$EXPECTED_SHA256" | grep -Eq '^[0-9a-f]{64}$' || { echo "sha256 is missing or malformed" >&2; exit 1; }
+
+    - name: Initialise with the apply role of this env
+      uses: ./.github/actions/terraform-init
+      with:
+        root: infra/envs/${{ inputs.env }}
+        with-backend: "true"
+        role: graveyard-ci/graveyard-${{ inputs.env }}-apply
+        account-id: ${{ inputs.account-id }}
+        aws-region: ${{ inputs.aws-region }}
+        state-bucket: ${{ inputs.state-bucket }}
+        state-kms-key-id: ${{ inputs.state-kms-key-id }}
+
+    - name: Fetch the saved plan by version ID
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        VERSION_ID: ${{ inputs.version-id }}
+        STATE_BUCKET: ${{ inputs.state-bucket }}
+        RUN_ID: ${{ github.run_id }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        META_FILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan.meta.json
+      run: |
+        set -euo pipefail
+        aws s3api get-object \
+          --bucket "$STATE_BUCKET" \
+          --key "plans/${RUN_ID}/${ENV_NAME}.tfplan" \
+          --version-id "$VERSION_ID" \
+          --query Metadata --output json \
+          "$PLANFILE" > "$META_FILE"
+
+    - name: Verify the saved plan before applying it
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        EXPECTED_SHA256: ${{ inputs.sha256 }}
+        COMMIT_SHA: ${{ github.sha }}
+        RUN_ID: ${{ github.run_id }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        META_FILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan.meta.json
+      run: |
+        set -euo pipefail
+        fail() { echo "refusing to apply: $1" >&2; exit 1; }
+        actual_sha256="$(sha256sum "$PLANFILE" | cut -d' ' -f1)"
+        stored_commit="$(jq -r '.["commit-sha"] // ""' "$META_FILE")"
+        stored_run="$(jq -r '.["run-id"] // ""' "$META_FILE")"
+        stored_env="$(jq -r '.["env"] // ""' "$META_FILE")"
+        [ "$actual_sha256" = "$EXPECTED_SHA256" ] || fail "the plan's SHA-256 differs from the one the plan job reported"
+        [ "$stored_commit" = "$COMMIT_SHA" ] || fail "the plan was made for another commit"
+        [ "$stored_run" = "$RUN_ID" ] || fail "the plan belongs to another run"
+        [ "$stored_env" = "$ENV_NAME" ] || fail "the plan is for another env"
+        echo "The saved plan matches: sha256, commit, run and env."
+
+    - name: Apply the saved plan
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+      run: |
+        set -euo pipefail
+        # Terraform itself refuses a stale plan, if the state changed after the plan was made.
+        terraform -chdir="infra/envs/$ENV_NAME" apply -input=false -lock-timeout=5m "$PLANFILE"
+
+    - name: Delete the local plan files
+      if: always()
+      shell: bash
+      env:
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        META_FILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan.meta.json
+      run: rm -f "$PLANFILE" "$META_FILE"

@@ -35,15 +35,19 @@ graveyard/
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/
-│   ├── modules/{web,api,workflow,data,ai,github_app,observability}
+│   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
+│   ├── .tflint.hcl
+│   ├── modules/{state,github-oidc,cost,web,api,workflow,data,ai,github-app,observability}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
-│   └── bootstrap/               # state bucket (S3 native locking), OIDC role
+│   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action
 ├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
 ├── eval/                        # data only: labelled set, fixtures, staging, gate.yaml, LABELLING.md, README.md, results.json
 ├── docs/{PRD.md,KIRO_JOURNAL.md,ARCHITECTURE.md,runbooks/}
 ├── scripts/hooks/               # incl. sync-power.py (writes the .kiro copies of the Power; --check mode)
+├── scripts/ci/                  # local-checks.sh (pinned images), guards, changed_paths, tests/
 ├── .github/workflows/{ci.yml,deploy.yml,vigil.yml}
+├── .github/actions/{terraform-init,terraform-plan,terraform-apply}/
 ├── LICENSE (Apache-2.0)  NOTICE  README.md  SECURITY.md
 ```
 
@@ -53,7 +57,7 @@ graveyard/
 - Python modules: snake_case. Classes: PascalCase.
 - TypeScript/React: kebab-case file names for components, PascalCase for component names.
 - Spec directories: kebab-case, matching the spec name from the PRD spec table.
-- Terraform modules: one resource family per module; module name = directory name.
+- Terraform modules: one resource family per module; module name = directory name (hyphenated, e.g. `github-oidc`); resource labels inside may be snake_case.
 - Infrastructure env roots: `envs/dev/` and `envs/prod/` only.
 - Hooks: `.kiro/hooks/<name>.json` using kebab-case.
 - Agents: `.kiro/agents/<name>.json` using lowercase.
@@ -70,7 +74,8 @@ graveyard/
 - `backend/workflow/` contains Step Functions task handlers only.
 - `backend/rites/` contains remediation generators and codemod rules. No scoring.
 - `backend/narrate/` contains Bedrock prompts and validators only.
-- `infra/modules/` contains reusable Terraform modules. No environment-specific values.
+- `infra/modules/` contains reusable Terraform modules. No environment-specific values, no data sources (roots pass values in), and policies are built with `jsonencode` in `locals`.
+- `infra/bootstrap/` is applied locally by a maintainer once; CI never applies it.
 - `infra/envs/` contains thin roots that call modules with tfvars. No resource definitions here.
 - `backend/eval/` may import `core`, `cli.gate` and `sources` types. Nothing imports it. The repo-root `eval/` folder holds data only.
 

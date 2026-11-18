@@ -98,7 +98,8 @@ cmd_validate() {
 
 cmd_test() {
   local d found=0
-  for d in $(module_dirs); do
+  # Modules, and any root that has tests of its own (the bootstrap root plans all three modules offline).
+  for d in $(module_dirs) $(existing_dirs); do
     compgen -G "$REPO/$d/tests/*.tftest.hcl" >/dev/null || continue
     found=1
     echo "test: $d"
@@ -151,6 +152,8 @@ cmd_lock() {
   local dir="${1:-}"
   [ -n "$dir" ] || die "usage: local-checks.sh lock DIR"
   [ -d "$REPO/$dir" ] || die "no such directory: $dir"
+  # A root with module calls needs its modules installed before providers can be locked.
+  run_in "$TERRAFORM_IMAGE" "$dir" nocache -- init -backend=false -input=false >/dev/null
   run_in "$TERRAFORM_IMAGE" "$dir" nocache -- providers lock -platform=linux_amd64 -platform=darwin_arm64 -platform=linux_arm64
 }
 

@@ -58,11 +58,11 @@ Semver/PEP 440 range matching has no required properties: OSV `querybatch` match
 ## CI/CD Pipeline
 
 ```
-PR:    lint ─┬─ unit+property ─┬─ integration ─┬─ build (web, lambdas, syft image) ─ tf plan (dev+prod, PR comment)
+PR:    lint ─┬─ unit+property ─┬─ integration ─┬─ build (web, lambdas, syft image) ─ tf plan (dev+prod, job summary)
              └─ security scans ┘               └─ eval
 main:  [all of the above] → apply dev → contract + e2e on dev → manual approval (prod) → apply prod → smoke test → alias shift
 ```
 
 - Jobs run in parallel wherever there is no dependency.
-- AWS access via OIDC: plan role (read-only) and apply role restricted to `main` and `prod` environment.
+- AWS access via OIDC: per-environment roles: read-only plan role (trusts PRs and `main`) and an apply role per environment restricted to `main` and the matching GitHub environment.
 - Caching: pnpm store, uv cache, Docker layer cache (`cache-from: type=gha`), Terraform plugin cache.

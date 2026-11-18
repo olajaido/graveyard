@@ -121,8 +121,8 @@ variable "bedrock_rites_profile_id" {
 
 variable "bedrock_foundation_model_regions" {
   type        = list(string)
-  default     = ["eu-west-2"]
-  description = "Regions of the foundation-model ARNs that the two eu. profiles route to. The ADR and the PRD do not list the routing regions, so the default is the one confirmed region, eu-west-2: a call routed elsewhere is denied (fails closed) until a reviewed change adds the region (design V19)."
+  default     = ["eu-central-1", "eu-north-1", "eu-south-1", "eu-south-2", "eu-west-1", "eu-west-2", "eu-west-3"]
+  description = "Regions of the foundation-model ARNs that the two eu. profiles route to. The default is the seven regions that list-inference-profiles in eu-west-2 returned for eu.anthropic.claude-haiku-5-5 and eu.anthropic.claude-sonnet-5-5 (read by the maintainer, 18 Nov 2026). A region that is not listed is denied (fails closed), so a change in routing needs a reviewed change here (design V19). Exact regions only, never eu-*."
 
   validation {
     condition     = length(var.bedrock_foundation_model_regions) > 0 && alltrue([for r in var.bedrock_foundation_model_regions : can(regex("^eu-[a-z]+-[0-9]+$", r))])

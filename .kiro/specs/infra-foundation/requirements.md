@@ -261,7 +261,7 @@ Decided on 18 Nov 2026. The flag IDs stay because the design refers to them.
 
 Residual risks the decisions leave, recorded so they are not forgotten:
 - **E6 can touch other projects' origin access controls.** An unattached OAC of another project can be updated or deleted, and updating an attached one can change how its distribution signs requests. AWS refusing to delete an attached OAC limits only deletion.
-- **E5 depends on the profile routing.** The routing regions of the two `eu.` profiles are not written down in ADR 0001 or the PRD. The foundation-model regions are a variable (`bedrock_foundation_model_regions`) with the default `["eu-west-2"]`, the one region confirmed by ADR 0001. If a profile routes elsewhere, InvokeModel is denied (it fails closed) until a reviewed bootstrap change adds the region (V19).
+- **E5 depends on the profile routing.** The two profiles route to seven EU regions (read by the maintainer from `list-inference-profiles` in eu-west-2, 18 Nov 2026; the IDs equal PRD §10.2). The foundation-model regions are a variable (`bedrock_foundation_model_regions`) whose default is exactly those seven, with no wildcard. If AWS adds a routing region later, InvokeModel is denied (it fails closed) until a reviewed bootstrap change adds it (V19).
 
 ---
 

@@ -1,0 +1,18 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Never commit the real file.
+
+# The one account this root may touch (INF-CFG-2). 123456789012 is the AWS documentation placeholder.
+allowed_account_ids = ["123456789012"]
+
+# Budget and anomaly notifications, 1 to 10 addresses (INF-COST-5).
+alert_emails = ["alerts@example.com"]
+
+# The shared account already has a GitHub OIDC provider owned by another project. Leave this false: the root
+# never imports, reads or manages it (SA3). Set true only if that provider is gone.
+create_oidc_provider = false
+
+# Default is 40 USD. If the account's billing currency is GBP, use { amount = "30", unit = "GBP" } (decision C8).
+# budget_limit = { amount = "40", unit = "USD" }
+
+# Cost allocation tag keys are account-wide (F2). Check the Billing console first and list only the keys that are
+# NOT already active. Graveyard never manages an active key. Leave empty until then (runbook).
+activate_cost_allocation_tag_keys = []

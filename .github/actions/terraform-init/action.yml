@@ -1,0 +1,119 @@
+name: terraform-init
+description: >-
+  Install the pinned Terraform, restore the provider cache, and initialise one root. With with-backend true it
+  assumes a CI role through OIDC and uses the S3 backend; otherwise it initialises with -backend=false and needs
+  no AWS access. With an empty root it only installs Terraform. (infra-foundation design 8.5)
+
+inputs:
+  root:
+    description: Terraform root or module directory to initialise, for example infra/envs/dev. Empty means install Terraform only.
+    required: false
+    default: ""
+  with-backend:
+    description: "'true' to assume the role and use the S3 backend, 'false' for -backend=false."
+    required: false
+    default: "false"
+  role:
+    description: Role path and name below the account, for example graveyard-ci/graveyard-plan. Needed with with-backend true.
+    required: false
+    default: ""
+  account-id:
+    description: AWS account ID, from the repository secret AWS_ACCOUNT_ID so that GitHub masks it. Needed with with-backend true.
+    required: false
+    default: ""
+  aws-region:
+    description: Region of the state bucket.
+    required: false
+    default: eu-west-2
+  state-bucket:
+    description: Name of the state bucket, from the repository variable TF_STATE_BUCKET.
+    required: false
+    default: ""
+  state-kms-key-id:
+    description: ID (UUID) of the state KMS key, from the repository variable TF_STATE_KMS_KEY_ID.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Read the pinned Terraform version
+      id: versions
+      shell: bash
+      run: |
+        set -euo pipefail
+        version="$(awk '$1 == "terraform" { print $2 }' infra/.tool-versions)"
+        case "$version" in
+          [0-9]*.[0-9]*.[0-9]*) ;;
+          *) echo "infra/.tool-versions has no exact terraform version" >&2; exit 1 ;;
+        esac
+        echo "terraform=$version" >> "$GITHUB_OUTPUT"
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+      with:
+        terraform_version: ${{ steps.versions.outputs.terraform }}
+        # The wrapper changes exit codes and stdout, which -detailed-exitcode and saved plans need.
+        terraform_wrapper: false
+
+    - name: Set up the provider cache
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p "$HOME/.terraform.d/plugin-cache"
+        {
+          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache"
+          echo "TF_IN_AUTOMATION=1"
+          echo "TF_INPUT=0"
+        } >> "$GITHUB_ENV"
+
+    - name: Restore the provider cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.terraform.d/plugin-cache
+        key: tf-${{ runner.os }}-${{ hashFiles('infra/**/.terraform.lock.hcl') }}
+
+    - name: Assume the CI role
+      if: inputs.with-backend == 'true'
+      uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.account-id }}:role/${{ inputs.role }}
+        aws-region: ${{ inputs.aws-region }}
+        role-duration-seconds: 3600
+        mask-aws-account-id: true
+        allowed-account-ids: ${{ inputs.account-id }}
+
+    - name: Initialise with the S3 backend
+      if: inputs.with-backend == 'true' && inputs.root != ''
+      shell: bash
+      env:
+        ROOT: ${{ inputs.root }}
+        ACCOUNT_ID: ${{ inputs.account-id }}
+        REGION: ${{ inputs.aws-region }}
+        STATE_BUCKET: ${{ inputs.state-bucket }}
+        STATE_KEY_ID: ${{ inputs.state-kms-key-id }}
+        BACKEND_FILE: ${{ runner.temp }}/backend.hcl
+      run: |
+        set -euo pipefail
+        if [ -z "$STATE_BUCKET" ] || [ -z "$STATE_KEY_ID" ] || [ -z "$ACCOUNT_ID" ]; then
+          echo "state-bucket, state-kms-key-id and account-id are required with the backend" >&2
+          exit 1
+        fi
+        # The key ARN holds the account ID, so it is built here from the masked secret and written to a file:
+        # it never appears on a command line or in the repository (INF-STATE-7, INF-CI-14).
+        {
+          printf 'bucket     = "%s"\n' "$STATE_BUCKET"
+          printf 'kms_key_id = "arn:aws:kms:%s:%s:key/%s"\n' "$REGION" "$ACCOUNT_ID" "$STATE_KEY_ID"
+        } > "$BACKEND_FILE"
+        # The wrong-account guard of INF-CFG-2: the root refuses to run in any other account.
+        echo "TF_VAR_allowed_account_ids=[\"$ACCOUNT_ID\"]" >> "$GITHUB_ENV"
+        terraform -chdir="$ROOT" init -input=false -lockfile=readonly -backend-config="$BACKEND_FILE"
+
+    - name: Initialise without a backend
+      if: inputs.with-backend != 'true' && inputs.root != ''
+      shell: bash
+      env:
+        ROOT: ${{ inputs.root }}
+      run: |
+        set -euo pipefail
+        terraform -chdir="$ROOT" init -backend=false -input=false -lockfile=readonly

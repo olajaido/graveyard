@@ -531,7 +531,7 @@ flowchart LR
 ### 10.3 Deliberate deviations (flagged)
 
 - **No VPC.** There are no private data stores that need one: DynamoDB, S3, Bedrock and Secrets Manager are reached over IAM-authenticated AWS endpoints. A VPC with NAT would add about £25–30 a month and a single point of failure for no security gain at this scale. *Revisit if* private repos or self-hosted runners are added.
-- **Single production environment** plus local and `dev` stacks in the same personal AWS account, separated by state key and name prefix. This is acceptable for a hackathon. Document the multi-account path (Organizations, separate prod account) in the README as "production hardening".
+- **Single production environment** plus local and `dev` stacks in the same AWS account, which is shared with other projects (deviation from "personal account"; see infra-foundation INF-SHARED), separated by state key and name prefix. This is acceptable for a hackathon. Document the multi-account path (Organizations, separate prod account) in the README as "production hardening".
 
 ### 10.4 Data model (DynamoDB single table `graveyard`)
 
@@ -741,7 +741,7 @@ The structure is modelled on the 2025 2nd-place entry, with the sections this ye
 | Performance | p95 scan ≤ 90 s cold for 1,000 unique packages, ≤ 10 s warm; certificate open ≤ 300 ms; LCP ≤ 2.5 s |
 | Availability | Best effort, but **monitored** until 29 Jan 2027: CloudWatch Synthetics canary every 30 min (landing + demo scan) → SNS email |
 | Scalability | 20 concurrent scans; WAF rate-based rule 100 requests per 5 min per IP; API Gateway throttle of 20 rps steady and 50 burst |
-| Cost | ≤ £30/month: AWS Budgets alarms at 50%, 80% and 100%; Bedrock tokens per scan capped; `GRAVEYARD_KILL_SWITCH` SSM parameter switches the app to cached-demo-only mode |
+| Cost | ≤ £30/month: AWS Budgets alarms at 50%, 80% and 100% (filtered to the `Project=graveyard` cost-allocation tag because the account is shared; email only, no SNS); Bedrock tokens per scan capped; `GRAVEYARD_KILL_SWITCH` SSM parameter switches the app to cached-demo-only mode |
 | Graceful degradation | **Cached-demo mode must look intentional, never broken.** It shows a calm banner ("The crypt is resting — showing a recent exhumation of the Haunted House"), keeps every page navigable, and the Haunted House demo works end to end from cache with no external calls. A 2025 finalist lost judge-testing time when an LLM API key ran out of credits; that must be impossible here |
 | Security | §13 |
 | Accessibility | WCAG 2.2 AA (GY-6), axe-core in CI with zero serious violations |
@@ -761,7 +761,7 @@ The structure is modelled on the 2025 2nd-place entry, with the sections this ye
 - Per-source error rate > 10% over 15 min (`SourceErrors{source}`)
 - Kill switch or degraded mode activated (notify immediately, so you know judges are seeing the cached path)
 - Synthetics canary failure
-- AWS Budgets thresholds
+- AWS Budgets thresholds (email notification, not SNS: AWS sends email for DAILY anomaly frequency, and the budget uses email subscribers)
 - WAF `BlockedRequests` spike (informational)
 
 ---
@@ -851,9 +851,11 @@ graveyard/
 │   └── tests/{unit,property,integration,fixtures}
 ├── web/                         # Next.js app
 ├── infra/
-│   ├── modules/{web,api,workflow,data,ai,github_app,observability}
+│   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
+│   ├── .tflint.hcl
+│   ├── modules/{state,github-oidc,cost,web,api,workflow,data,ai,github-app,observability}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
-│   └── bootstrap/               # state bucket (S3 native locking), OIDC role
+│   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action
 ├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
 ├── eval/                        # labelled set + harness
@@ -872,7 +874,7 @@ graveyard/
 - `lifecycle { ignore_changes = [...] }` only where justified, e.g. Lambda image digest if it is deployed by CI.
 - S3: block public access, OAC for CloudFront, SSE-KMS, versioning on the state and artefact buckets, TLS-only bucket policy.
 - CloudFront: TLS 1.2+, HSTS, security headers policy (CSP, X-Content-Type-Options, Referrer-Policy, frame-ancestors none); WAF with AWS managed Common, KnownBadInputs and IP reputation rule sets plus a rate-based rule.
-- **State:** a separate bootstrap root; remote state in S3 with `use_lockfile = true`; state bucket versioned and encrypted; no local state committed.
+- **State:** a separate bootstrap root, applied locally once; remote state in S3 with `use_lockfile = true`; state bucket versioned and encrypted, with a 7-day expiry on the `plans/` prefix; no local state committed. IAM policies are built with `jsonencode` in `locals`.
 
 ### 14.2 Docker (Syft Lambda image)
 
@@ -958,14 +960,14 @@ Solo, alongside a day job and a job transition. Plan for **about 2.5 hrs on week
 ### 17.1 CI/CD pipeline (GitHub Actions)
 
 ```
-PR:    lint ─┬─ unit+property ─┬─ integration ─┬─ build (web, lambdas, syft image) ─ tf plan (dev+prod, PR comment)
+PR:    lint ─┬─ unit+property ─┬─ integration ─┬─ build (web, lambdas, syft image) ─ tf plan (dev+prod, job summary)
              └─ security scans ┘               └─ eval
 main:  [all of the above] → apply dev → contract + e2e on dev → ⏸ manual approval (environment: prod) → apply prod → smoke test → alias shift
 ```
 
 - Caching: pnpm store, uv cache, Docker layer cache (`cache-from: type=gha`), Terraform plugin cache.
 - Jobs run in parallel wherever there is no dependency.
-- AWS access via **OIDC** roles: a plan role (read-only) and an apply role restricted to `main` and the `prod` environment.
+- AWS access via **OIDC** roles: per-environment roles: a read-only plan role that trusts pull requests and `main`, and an apply role per environment restricted to `main` and the matching GitHub environment (`prod` needs approval).
 
 ---
 
