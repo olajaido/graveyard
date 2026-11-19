@@ -62,6 +62,21 @@ run "the_tag_filter_passes_the_case_through_unchanged" {
   }
 }
 
+# The monitor key and the budget filter both come from var.project_tag_key, with "user:" added once.
+run "the_user_prefixed_key_comes_from_the_single_tag_key_source" {
+  command = plan
+  variables {
+    project_tag_key = "Team"
+  }
+  assert {
+    condition     = jsondecode(aws_ce_anomaly_monitor.project.monitor_specification).Tags.Key == "user:Team"
+    error_message = "The monitor key must be user: plus the tag key variable."
+  }
+  assert {
+    condition     = join(",", [for f in aws_budgets_budget.monthly.cost_filter : join(",", f.values)]) == "user:Team$graveyard"
+    error_message = "The budget filter must be user:<key>$<value> from the same variable."
+  }
+}
 run "the_limit_and_the_unit_pass_through" {
   command = plan
 
@@ -124,18 +139,27 @@ run "the_anomaly_monitor_is_custom_on_the_project_tag" {
   }
 
   assert {
-    condition     = join(",", sort(keys(jsondecode(aws_ce_anomaly_monitor.project.monitor_specification)))) == "And,CostCategories,Dimensions,Not,Or,Tags"
-    error_message = "The specification must have the six keys of the provider's example."
+    condition     = join(",", sort(keys(jsondecode(aws_ce_anomaly_monitor.project.monitor_specification)))) == "And,CostCategories,Dimensions,Not,Or,ProductAttributes,Tags"
+    error_message = "The specification must have the six keys of the provider's example and ProductAttributes, which AWS returns as null."
   }
 
   assert {
-    condition     = alltrue([for k in ["And", "CostCategories", "Dimensions", "Not", "Or"] : jsondecode(aws_ce_anomaly_monitor.project.monitor_specification)[k] == null])
+    condition     = alltrue([for k in ["And", "CostCategories", "Dimensions", "Not", "Or", "ProductAttributes"] : jsondecode(aws_ce_anomaly_monitor.project.monitor_specification)[k] == null])
     error_message = "Only Tags may be set in the specification."
   }
 
   assert {
-    condition     = jsondecode(aws_ce_anomaly_monitor.project.monitor_specification).Tags == { Key = "Project", MatchOptions = null, Values = ["graveyard"] }
-    error_message = "The Tags expression must be Key Project, Values graveyard, and the API default match options."
+    condition     = jsondecode(aws_ce_anomaly_monitor.project.monitor_specification).Tags == { Key = "user:Project", MatchOptions = null, Values = ["graveyard"] }
+    error_message = "The Tags expression must be Key user:Project, Values graveyard, and the API default match options."
+  }
+  # The exact text that Terraform sends and compares with what AWS returns (V15). Any difference is a perpetual diff.
+  assert {
+    condition     = aws_ce_anomaly_monitor.project.monitor_specification == "{\"And\":null,\"CostCategories\":null,\"Dimensions\":null,\"Not\":null,\"Or\":null,\"ProductAttributes\":null,\"Tags\":{\"Key\":\"user:Project\",\"MatchOptions\":null,\"Values\":[\"graveyard\"]}}"
+    error_message = "The rendered monitor_specification must be exactly the form AWS stores."
+  }
+  assert {
+    condition     = aws_ce_anomaly_monitor.project.tags != null && length(aws_ce_anomaly_monitor.project.tags) == 0
+    error_message = "tags must be an explicit empty map (AWS returns {}), or every plan shows {} -> null."
   }
 
   assert {

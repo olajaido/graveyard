@@ -81,13 +81,13 @@ class Bootstrap(unittest.TestCase):
         for name in ("terraform.tfvars.example", "backend.hcl.example"):
             self.assertIn("123456789012", self.files[name])
         # The maintainer's real files may exist locally (T20, T21); they must be git-ignored and never tracked.
-        for name in ("terraform.tfvars", "backend.hcl"):
-            if name in self.files:
-                path = str(BOOT / name)
-                ignored = subprocess.run(["git", "check-ignore", "-q", path], cwd=REPO_ROOT).returncode == 0
-                tracked = subprocess.run(["git", "ls-files", "--error-unmatch", path], cwd=REPO_ROOT, capture_output=True).returncode == 0
+        for name in ("terraform.tfvars", "backend.hcl", "terraform.tfstate", "bootstrap.tfplan", "local_backend_override.tf"):
+            path = BOOT / name
+            self.assertNotIn(name, self.files)
+            if path.exists():
+                ignored = subprocess.run(["git", "check-ignore", "-q", str(path)], cwd=REPO_ROOT).returncode == 0
+                tracked = subprocess.run(["git", "ls-files", "--error-unmatch", str(path)], cwd=REPO_ROOT, capture_output=True).returncode == 0
                 self.assertTrue(ignored and not tracked, name)
-
     def test_lock_files_of_the_root_and_every_module(self) -> None:
         self.assertEqual(t.lock_problems(self.files[".terraform.lock.hcl"], {"aws": "6.73.0", "random": "3.9.1"}), [])
         for module, providers in MODULES.items():

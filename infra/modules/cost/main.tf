@@ -1,22 +1,26 @@
 locals {
+  # Cost Explorer and Budgets address a user-defined cost allocation tag as "user:<Key>". It is built from the one
+  # Project tag-key source (var.project_tag_key); there is no second literal.
+  user_tag_key = format("user:%s", var.project_tag_key)
   # Budgets tag filter format is "user:<Key>$<Value>" (provider docs, V14). format() keeps the $ literal.
-  budget_tag_filter = format("user:%s$%s", var.project_tag_key, var.project_tag_value)
-
-  # The custom monitor watches Graveyard-tagged spend only (SA2). The form is the provider's own example, with the
-  # other five expression keys null and MatchOptions null so the API default (EQUALS, CASE_SENSITIVE) applies (V15).
+  budget_tag_filter = format("%s$%s", local.user_tag_key, var.project_tag_value)
+  # The custom monitor watches Graveyard-tagged spend only (SA2). This is the form AWS stores and returns (V15,
+  # first real re-plan 19 Nov 2026): Tags.Key is "user:Project", ProductAttributes is returned as null, and the other
+  # siblings and MatchOptions are null, so the API default (EQUALS, CASE_SENSITIVE) applies. Any other form shows
+  # as a diff that forces replacement on every plan.
   monitor_specification = jsonencode({
-    And            = null
-    CostCategories = null
-    Dimensions     = null
-    Not            = null
-    Or             = null
+    And               = null
+    CostCategories    = null
+    Dimensions        = null
+    Not               = null
+    Or                = null
+    ProductAttributes = null
     Tags = {
-      Key          = var.project_tag_key
+      Key          = local.user_tag_key
       MatchOptions = null
       Values       = [var.project_tag_value]
     }
   })
-
   budget_notifications = [
     { type = "ACTUAL", threshold = 50 },
     { type = "ACTUAL", threshold = 80 },
@@ -57,6 +61,9 @@ resource "aws_ce_anomaly_monitor" "project" {
   name                  = var.anomaly_monitor_name
   monitor_type          = "CUSTOM"
   monitor_specification = local.monitor_specification
+  # AWS returns tags = {} for this resource. An explicit empty map matches it, so there is no {} -> null diff. The
+  # provider's default_tags still apply: they are merged into tags_all, not into this argument.
+  tags = {}
 }
 
 # DAILY: AWS sends email for DAILY and WEEKLY; IMMEDIATE needs SNS (V6), and SNS is out of scope (C6).

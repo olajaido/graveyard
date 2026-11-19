@@ -7,6 +7,7 @@ and on bad samples (a rule that never fails is worthless).
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 from typing import Dict, List
 
@@ -27,8 +28,14 @@ def code(text: str) -> str:
     return "\n".join(re.sub(r"(^|\s)(#|//).*$", r"\1", line) for line in text.splitlines())
 
 
+def _git_ignored(path: Path) -> bool:
+    return subprocess.run(["git", "check-ignore", "-q", str(path)], cwd=path.parent).returncode == 0
+
+
 def read_dir(path: Path) -> Dict[str, str]:
-    return {p.name: p.read_text(encoding="utf-8") for p in sorted(path.iterdir()) if p.is_file()}
+    """Text of the committed files of a directory. Git-ignored local files (the maintainer's tfvars, state, plan and
+    backend override from the manual tasks) are skipped: they may be binary and are never part of the repository."""
+    return {p.name: p.read_text(encoding="utf-8") for p in sorted(path.iterdir()) if p.is_file() and not _git_ignored(p)}
 
 
 def backend_problems(text: str, key: str) -> List[str]:

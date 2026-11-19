@@ -526,24 +526,26 @@ E1 to E3 stay account-wide for X-Ray and CloudWatch quotas and cost. E5 is exact
 
 Resources:
 - `aws_budgets_budget.monthly`: `budget_type = "COST"`, `time_unit = "MONTHLY"`, `limit_amount`/`limit_unit` from the input; `cost_filter { name = "TagKeyValue", values = [local.budget_tag_filter] }` where `local.budget_tag_filter = format("user:%s$%s", var.project_tag_key, var.project_tag_value)` is `user:Project$graveyard` (SA1, V14); four `notification` blocks: `ACTUAL` `GREATER_THAN` 50, 80, 100 `PERCENTAGE`, and `FORECASTED` 100; each with `subscriber_email_addresses = var.alert_emails`.
-- `aws_ce_anomaly_monitor.project`: `monitor_type = "CUSTOM"` and `monitor_specification = local.monitor_specification` (SA2, V15), where the local is, in the form of the provider's own example:
-
+- `aws_ce_anomaly_monitor.project`: `monitor_type = "CUSTOM"`, `monitor_specification = local.monitor_specification` (SA2, V15) and `tags = {}`. The local is the form AWS stores and returns (V15, found by the first real re-plan, 19 Nov 2026):
   ```hcl
   locals {
+    user_tag_key = format("user:%s", var.project_tag_key)   # one source; the budget filter uses it too
     monitor_specification = jsonencode({
-      And            = null
-      CostCategories = null
-      Dimensions     = null
-      Not            = null
-      Or             = null
+      And               = null
+      CostCategories    = null
+      Dimensions        = null
+      Not               = null
+      Or                = null
+      ProductAttributes = null       # AWS returns it as null
       Tags = {
-        Key          = var.project_tag_key
-        MatchOptions = null            # API default: EQUALS and CASE_SENSITIVE
+        Key          = local.user_tag_key   # AWS stores "user:Project"
+        MatchOptions = null                 # API default: EQUALS and CASE_SENSITIVE
         Values       = [var.project_tag_value]
       }
     })
   }
   ```
+  `tags = {}` matches what AWS returns, so the plan shows no `{}` to `null` change; `default_tags` still apply through `tags_all`.
 - `aws_ce_anomaly_subscription.email`: `monitor_arn_list = [aws_ce_anomaly_monitor.project.arn]` (only our monitor), `frequency = "DAILY"`, one `EMAIL` subscriber per address, `threshold_expression` on `ANOMALY_TOTAL_IMPACT_ABSOLUTE` `GREATER_THAN_OR_EQUAL` the threshold.
 - `aws_ce_cost_allocation_tag.key` with `for_each = var.activate_cost_allocation_tag_keys`, `tag_key = each.key`, `status = "Active"`, and `lifecycle { prevent_destroy = true }` (F2). Only keys that are not active yet are put in the set, so Terraform never takes over a key that another project may rely on.
 
@@ -988,7 +990,7 @@ Every "to verify" item, who checks it and what stops the work. Tasks refer to th
 | V12 | checkov 3.4.5 findings match the expected skips of §5.1 | agent (pinned image, offline) | A finding outside the expected list: stop and ask before adding a skip. |
 | V13 | Live denial checks H1–H10 (§10.3) | MANUAL, **deferred to the ship-week security review (PRD §16 W4)**, tasks T27 | Any call that should be denied succeeds: stop, delete what it created, record the check number. Not a gate for this spec. |
 | V14 | The budget tag filter format is `user:<Key>$<Value>` | agent (provider docs, read 18 Nov 2026: the provider's own example is `user:business-unit$human_resources`) | Docs show another format: stop and ask. Whether the budget then counts any spend is MANUAL and only possible once tagged resources exist and `Project` is active (V7), so it is checked first in `infra-serverless`. |
-| V15 | The `CUSTOM` monitor specification form (`Tags` with null siblings and `MatchOptions = null`) is accepted by AWS and stable | agent (provider docs, read 18 Nov 2026) and MANUAL (T22: the second plan after apply shows no diff on the monitor) | A diff on `monitor_specification` after apply: stop; send the agent the plan diff with the account ID removed; align the nulls and `MatchOptions` with what AWS returned. |
+| V15 | The `CUSTOM` monitor specification form is accepted by AWS and stable | agent (provider docs, read 18 Nov 2026) and MANUAL (the plan after apply shows no diff on the monitor) | **Found by the first real re-plan (19 Nov 2026): a perpetual diff that forces replacement.** AWS stores `Tags.Key` as `user:Project` (the config had `Project`) and returns `ProductAttributes` as null (the config omitted it); `tags` came back `{}` against a null config. Fixed in the module: `Tags.Key` is `user:` plus the one `project_tag_key` source, `ProductAttributes = null` is included, `tags = {}`. Tests assert the exact rendered JSON; mutations (drop `user:`, drop `ProductAttributes`, drop `tags`) are each caught. **Closed only when the maintainer's next plan shows no diff on `module.cost.aws_ce_anomaly_monitor.project`.** If it still differs: send the agent the diff with the account ID removed. |
 | V16 | Whether the cost allocation tag keys `Project` and `Env` are already active in the shared account | MANUAL (T20) | A key is already active: leave it out of `activate_cost_allocation_tag_keys`; Graveyard does not manage it. **Closed 19 Nov 2026: `Project` listed, Inactive (activated by the first apply); `Env` not active, not managed.** |
 | V17 | The shared account's GitHub OIDC provider exists and lists `sts.amazonaws.com` (maintainer-checked 18 Nov; not checkable by the agent) | MANUAL (T20, again before T21) | Missing, or the audience is gone: stop. Do not set `create_oidc_provider = true` until the maintainer has confirmed the provider is really absent (F3). **Closed 19 Nov 2026 (maintainer): present with `sts.amazonaws.com`; `create_oidc_provider = false`. Re-check before T21 only if time has passed.** |
 | V18 | Whether Bedrock on-demand spend appears under the `Project` tag filter (F1) | deferred to `infra-serverless`, MANUAL | Not attributed: the token caps are the only control; record it. Not a gate for this spec. |
