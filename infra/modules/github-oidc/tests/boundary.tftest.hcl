@@ -72,7 +72,7 @@ run "the_region_deny_is_in_both_boundaries" {
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyOutsideRegion"][0] == {
           Sid       = "DenyOutsideRegion"
           Effect    = "Deny"
-          NotAction = ["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"]
+          NotAction = ["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation", "bedrock:InvokeModel"]
           Resource  = "*"
           Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" } }
         } &&
@@ -86,6 +86,85 @@ run "the_region_deny_is_in_both_boundaries" {
       )
     ])
     error_message = "Both region denies must be in both boundaries."
+  }
+}
+
+# V20: cross-region inference is evaluated in each destination region. bedrock:InvokeModel is handled only by
+# DenyInvokeModelOutsideRegion: denied outside eu-west-2 unless the call came through one of the two approved
+# profiles. The negated operator is true when the key is absent, so a direct call is still denied.
+run "invoke_model_outside_the_region_is_denied_unless_it_came_through_an_approved_profile" {
+  command = plan
+
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyInvokeModelOutsideRegion"][0] == {
+          Sid      = "DenyInvokeModelOutsideRegion"
+          Effect   = "Deny"
+          Action   = ["bedrock:InvokeModel"]
+          Resource = "*"
+          Condition = {
+            StringNotEquals = {
+              "aws:RequestedRegion" = "eu-west-2"
+              "bedrock:InferenceProfileArn" = [
+                "arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.anthropic.claude-haiku-5-5",
+                "arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.anthropic.claude-sonnet-5-5",
+              ]
+            }
+          }
+        }
+      )
+    ])
+    error_message = "The exemption must name exactly the two approved profile ARNs, for bedrock:InvokeModel only, with the region condition."
+  }
+
+  # No wildcard anywhere in the exemption, and only a negated operator (so a missing key still denies).
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        !strcontains(jsonencode([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyInvokeModelOutsideRegion"][0].Condition), "*") &&
+        keys([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyInvokeModelOutsideRegion"][0].Condition) == ["StringNotEquals"]
+      )
+    ])
+    error_message = "The exemption must have no wildcard and use StringNotEquals only."
+  }
+
+  # Exactly one action is added to the general deny's exemptions, and the streaming call is not it.
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        setsubtract(
+          toset([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyOutsideRegion"][0].NotAction),
+          toset(["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"])
+        ) == toset(["bedrock:InvokeModel"])
+      )
+    ])
+    error_message = "Only bedrock:InvokeModel may be added to the general region deny's exemptions."
+  }
+
+  # The profile ARNs in the exemption are the ones the E5 allow names.
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "DenyInvokeModelOutsideRegion"][0].Condition.StringNotEquals["bedrock:InferenceProfileArn"] ==
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE5Profiles"][0].Resource
+      )
+    ])
+    error_message = "The exempt profiles must be the E5 profiles."
+  }
+}
+
+run "the_exempt_profiles_follow_the_variables" {
+  command = plan
+
+  variables {
+    bedrock_narrate_profile_id = "eu.example.narrate-1"
+    bedrock_rites_profile_id   = "eu.example.rites-2"
+  }
+
+  assert {
+    condition     = [for s in jsondecode(aws_iam_policy.ci["graveyard-dev-boundary"].policy).Statement : s if s.Sid == "DenyInvokeModelOutsideRegion"][0].Condition.StringNotEquals["bedrock:InferenceProfileArn"] == ["arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.example.narrate-1", "arn:aws:bedrock:eu-west-2:123456789012:inference-profile/eu.example.rites-2"]
+    error_message = "The exempt profile ARNs must follow the profile variables."
   }
 }
 

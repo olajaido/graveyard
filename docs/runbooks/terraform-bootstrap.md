@@ -24,8 +24,8 @@ Placeholders in this file: `<account-id>` is your 12-digit AWS account ID, `<buc
 | # | Check | How | What to do with the answer |
 |---|-------|-----|----------------------------|
 | a | The GitHub OIDC provider exists and lists the audience `sts.amazonaws.com` | `aws iam list-open-id-connect-providers`, then `aws iam get-open-id-connect-provider --open-id-connect-provider-arn <provider-arn>` and read `ClientIDList` | Present with the audience: leave `create_oidc_provider = false`. Missing: see section 10. Never import or edit it. |
-| b | The account's billing currency | Billing console, Preferences | USD: keep the default (40 USD). GBP: set `budget_limit = { amount = "30", unit = "GBP" }`. |
-| c | Which of the cost allocation tag keys `Project` and `Env` are already active | Billing console, Cost allocation tags | Put into `activate_cost_allocation_tag_keys` only the keys that are **not** active. Graveyard never manages an active key (section 8). |
+| b | The account's billing currency | Billing console, Preferences | USD (this account, checked 19 Nov 2026): keep the default (40 USD). GBP: set `budget_limit = { amount = "30", unit = "GBP" }`. |
+| c | Which of the cost allocation tag keys `Project` and `Env` are already active | Billing console, Cost allocation tags | Put into `activate_cost_allocation_tag_keys` only the keys that are **not** active. Graveyard never manages an active key (section 8). This account (19 Nov 2026): `Project` is listed but Inactive, so set `["Project"]`; `Env` is not active and is not needed, so leave it out. |
 | d | Existing anomaly monitors | **Do nothing.** Do not list, import or edit them. | The stack creates its own custom monitor `graveyard-project`. |
 
 ## 3. Configure
@@ -36,7 +36,7 @@ cp terraform.tfvars.example terraform.tfvars   # git-ignored; fill it in
 ```
 
 Set `allowed_account_ids` (one account), `alert_emails` (1 to 10 addresses), and, if section 2 says so,
-`budget_limit`. Leave `create_oidc_provider = false` and `activate_cost_allocation_tag_keys = []` for now.
+`budget_limit`. Leave `create_oidc_provider = false` and set `activate_cost_allocation_tag_keys = ["Project"]`; the first apply activates `Project`.
 Check `git status`: `terraform.tfvars` must not be listed.
 
 ## 4. First apply, with local state
@@ -120,9 +120,10 @@ retroactive.
 
 1. Billing console, Cost allocation tags: note which of `Project` and `Env` are already active. **Graveyard does not
    manage an active key at all** (other projects may rely on it).
-2. A user-defined key can be activated only after AWS has seen it on a billed resource, up to 24 hours after the first
-   tagged resource. For keys that are not active: apply once with `activate_cost_allocation_tag_keys = []`, deploy
-   something tagged, then the next day put those keys in the set and apply again.
+2. A user-defined key can be activated only after AWS has seen it on a billed resource. In this account AWS has already
+   seen `Project` (listed, Inactive, 19 Nov 2026), so the first apply activates it with
+   `activate_cost_allocation_tag_keys = ["Project"]`. Afterwards check in the Billing console that `Project` shows
+   Active (task T25). A key that AWS has not seen yet would have to wait until a tagged resource has billed.
 3. If activation fails because AWS has not seen the key yet, write the error text in section 14 (V7) and retry the
    next day. If it still fails after 48 hours, stop and ask.
 4. The tag resource has `prevent_destroy`, so a destroy cannot deactivate a key.
@@ -184,7 +185,7 @@ drift from Terraform). If a call that should be denied succeeds, stop, delete wh
 | V4b: first plan with `create_oidc_provider = true` shows no thumbprint problem (only if used) | |
 | V7: error text of activating a tag AWS has not seen yet | |
 | V9: Access Analyzer, part 1 and part 2: number of ERROR, SECURITY_WARNING, WARNING and SUGGESTION findings | |
-| V10: billing currency and the budget limit set | |
+| V10: billing currency and the budget limit set | USD, default 40 USD (19 Nov 2026) |
 | V15: second plan shows no diff on the anomaly monitor's specification | |
-| V16: which of `Project` and `Env` were already active | |
-| V17: the shared OIDC provider was present with the audience `sts.amazonaws.com` | |
+| V16: which of `Project` and `Env` were already active | Neither. `Project` listed, Inactive (activated by the first apply); `Env` not active, not managed (19 Nov 2026) |
+| V17: the shared OIDC provider was present with the audience `sts.amazonaws.com` | Present with the audience (19 Nov 2026) |

@@ -14,5 +14,6 @@ create_oidc_provider = false
 # budget_limit = { amount = "40", unit = "USD" }
 
 # Cost allocation tag keys are account-wide (F2). Check the Billing console first and list only the keys that are
-# NOT already active. Graveyard never manages an active key. Leave empty until then (runbook).
-activate_cost_allocation_tag_keys = []
+# NOT already active. Graveyard never manages an active key. In the shared account `Project` was listed but
+# Inactive on 19 Nov 2026, so the first apply activates it. `Env` is not needed (runbook section 8).
+activate_cost_allocation_tag_keys = ["Project"]

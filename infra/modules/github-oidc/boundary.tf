@@ -15,6 +15,30 @@ locals {
     for region in var.bedrock_foundation_model_regions : "arn:${local.p}:bedrock:${region}::foundation-model/${trimprefix(id, "eu.")}"
   ] }
 
+  # Region deny for workload roles (INF-REG-2, V20). Cross-region inference is evaluated in each destination
+  # region, so the general deny would block calls routed outside eu-west-2. bedrock:InvokeModel is therefore
+  # handled only by DenyInvokeModelOutsideRegion: it is denied outside the region unless the call came through
+  # one of the two approved profiles. A negated operator is true when the key is absent (IAM docs), so a direct
+  # call with no bedrock:InferenceProfileArn is still denied. Every other action, including
+  # bedrock:InvokeModelWithResponseStream, stays under the general deny.
+  boundary_region_deny = concat(
+    [
+      merge(local.region_deny[0], { NotAction = concat(local.region_deny[0].NotAction, ["bedrock:InvokeModel"]) }),
+      {
+        Sid      = "DenyInvokeModelOutsideRegion"
+        Effect   = "Deny"
+        Action   = ["bedrock:InvokeModel"]
+        Resource = "*"
+        Condition = {
+          StringNotEquals = {
+            "aws:RequestedRegion"         = local.r
+            "bedrock:InferenceProfileArn" = [local.bedrock_profile_arn.narrate, local.bedrock_profile_arn.rites]
+          }
+        }
+      },
+    ],
+    slice(local.region_deny, 1, length(local.region_deny)),
+  )
   boundary_docs = { for e in local.env_list : e => jsonencode({
     Version = "2012-10-17"
     Statement = concat(
@@ -56,7 +80,7 @@ locals {
         { Sid = "DenyIam", Effect = "Deny", Action = ["iam:*"], Resource = "*" },
         { Sid = "DenyCost", Effect = "Deny", Action = ["budgets:*", "ce:*"], Resource = "*" },
       ],
-      local.region_deny,
+      local.boundary_region_deny,
     )
   }) }
 
