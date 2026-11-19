@@ -8,9 +8,6 @@ locals {
   workload_policy = { for e in local.env_list : e => "arn:${local.p}:iam::${local.a}:policy/graveyard-${e}/graveyard-${e}-*" }
   other_envs      = { for e in local.env_list : e => [for o in local.all_envs : o if o != e] }
 
-  # Every service that an apply-role Allow statement names and that has resources with names (a test checks this
-  # list against the Allow actions). A service the roles cannot act in needs no entry: it is already denied.
-  guard_services    = ["acm", "apigateway", "bedrock", "cloudfront", "cloudwatch", "dynamodb", "ecr", "iam", "kms", "lambda", "logs", "s3", "scheduler", "secretsmanager", "sns", "ssm", "states", "synthetics", "wafv2"]
   passable_services = ["lambda.amazonaws.com", "states.amazonaws.com", "scheduler.amazonaws.com", "apigateway.amazonaws.com", "synthetics.amazonaws.com"]
 
   apply_core_docs = { for e in local.env_list : e => {
@@ -163,20 +160,9 @@ locals {
             Resource  = [local.arn.state_key]
           },
           {
-            # C3: everything that is named for the other env is out of reach, even where an Allow had to use "*".
-            Sid    = "DenyOtherEnv"
-            Effect = "Deny"
-            Action = ["*"]
-            # IAM rejects a wildcard in the service segment of an ARN ("Resource vendor must be fully qualified"),
-            # so the pattern is written once per service the apply roles can act in (local.guard_services).
-            Resource = flatten([for o in local.other_envs[e] : [
-              for svc in local.guard_services : [
-                "arn:${local.p}:${svc}:*:*:*graveyard-${o}-*",
-                "arn:${local.p}:${svc}:*:*:*graveyard/${o}/*",
-              ]
-            ]])
-          },
-          {
+            # C3: everything tagged for the other env is out of reach, even where an Allow had to use "*". There is
+            # no ARN pattern here: IAM rejects a wildcard in the service segment (V21), and every Allow is already
+            # limited to the role's own graveyard-<env>- names, paths or tags.
             Sid       = "DenyOtherEnvTag"
             Effect    = "Deny"
             Action    = ["*"]

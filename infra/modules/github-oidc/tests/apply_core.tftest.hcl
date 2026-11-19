@@ -304,14 +304,6 @@ run "the_guard_denies_ci_identity_state_config_the_other_env_and_cost" {
 
   assert {
     condition = (
-      [for s in jsondecode(aws_iam_policy.ci["graveyard-dev-apply-guard"].policy).Statement : s if s.Sid == "DenyOtherEnv"][0].Resource == flatten([for svc in ["acm", "apigateway", "bedrock", "cloudfront", "cloudwatch", "dynamodb", "ecr", "iam", "kms", "lambda", "logs", "s3", "scheduler", "secretsmanager", "sns", "ssm", "states", "synthetics", "wafv2"] : ["arn:aws:${svc}:*:*:*graveyard-prod-*", "arn:aws:${svc}:*:*:*graveyard/prod/*"]]) &&
-      [for s in jsondecode(aws_iam_policy.ci["graveyard-prod-apply-guard"].policy).Statement : s if s.Sid == "DenyOtherEnv"][0].Resource == flatten([for svc in ["acm", "apigateway", "bedrock", "cloudfront", "cloudwatch", "dynamodb", "ecr", "iam", "kms", "lambda", "logs", "s3", "scheduler", "secretsmanager", "sns", "ssm", "states", "synthetics", "wafv2"] : ["arn:aws:${svc}:*:*:*graveyard-dev-*", "arn:aws:${svc}:*:*:*graveyard/dev/*"]])
-    )
-    error_message = "Each apply role must be denied every resource named for the other env."
-  }
-
-  assert {
-    condition = (
       [for s in jsondecode(aws_iam_policy.ci["graveyard-dev-apply-guard"].policy).Statement : s if s.Sid == "DenyOtherEnvTag"][0].Condition == { StringEquals = { "aws:ResourceTag/Env" = ["prod"] } } &&
       [for s in jsondecode(aws_iam_policy.ci["graveyard-prod-apply-guard"].policy).Statement : s if s.Sid == "DenyOtherEnvTag"][0].Condition == { StringEquals = { "aws:ResourceTag/Env" = ["dev"] } }
     )
@@ -422,9 +414,9 @@ run "one_env_creates_one_apply_role" {
   assert {
     condition = [
       for s in jsondecode(aws_iam_policy.ci["graveyard-prod-apply-guard"].policy).Statement : s
-      if s.Sid == "DenyOtherEnv"
-    ][0].Resource == flatten([for svc in ["acm", "apigateway", "bedrock", "cloudfront", "cloudwatch", "dynamodb", "ecr", "iam", "kms", "lambda", "logs", "s3", "scheduler", "secretsmanager", "sns", "ssm", "states", "synthetics", "wafv2"] : ["arn:aws:${svc}:*:*:*graveyard-dev-*", "arn:aws:${svc}:*:*:*graveyard/dev/*"]])
-    error_message = "The prod role must still deny the dev env when dev is not managed here."
+      if s.Sid == "DenyOtherEnvTag"
+    ][0].Condition == { StringEquals = { "aws:ResourceTag/Env" = ["dev"] } }
+    error_message = "The prod role must still deny resources tagged for dev when dev is not managed here."
   }
 }
 

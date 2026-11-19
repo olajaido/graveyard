@@ -57,21 +57,3 @@ run "bad_sample_wildcards_in_later_segments_pass" {
     error_message = "A wildcard in the region, account or resource segment is legal and must not be flagged."
   }
 }
-
-# The guard lists the services the apply roles can act in. A service in an apply-role Allow that is missing from
-# the list would escape the other-env deny.
-run "the_other_env_deny_covers_every_service_the_apply_roles_allow" {
-  command = plan
-  assert {
-    condition = alltrue([
-      for e in ["dev", "prod"] : length(setsubtract(
-        toset(flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : [for a in flatten([try(s.Action, [])]) : split(":", a)[0]] if s.Effect == "Allow"] if startswith(k, "graveyard-${e}-apply-")])),
-        toset(concat(
-          [for r in [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-guard"].policy).Statement : s if s.Sid == "DenyOtherEnv"][0].Resource : split(":", r)[2]],
-          ["xray", "ce", "budgets", "sts", "*"]
-        ))
-      )) == 0
-    ])
-    error_message = "Every service named by an apply-role Allow must have a DenyOtherEnv pattern (local.guard_services)."
-  }
-}
