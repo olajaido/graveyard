@@ -39,8 +39,8 @@ run "the_budget_is_filtered_to_the_project_tag_and_not_to_the_account" {
   }
 
   assert {
-    condition     = aws_budgets_budget.monthly.name == "graveyard-monthly"
-    error_message = "The default budget name must be graveyard-monthly."
+    condition     = aws_budgets_budget.monthly.name == "graveyard-project-monthly"
+    error_message = "The default budget name must be graveyard-project-monthly."
   }
 }
 

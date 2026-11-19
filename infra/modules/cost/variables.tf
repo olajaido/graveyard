@@ -1,6 +1,6 @@
 variable "budget_name" {
   type        = string
-  default     = "graveyard-monthly"
+  default     = "graveyard-project-monthly"
   description = "Name of the monthly budget. It is unique within the account, and the account is shared with other projects."
 
   validation {

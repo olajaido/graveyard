@@ -213,12 +213,29 @@ def check_module_policies(files: Files) -> List[Finding]:
     return found
 
 
+# IAM: "Resource vendor must be fully qualified and cannot contain regexes". The partition and service segments of an
+# ARN in a policy may be a literal or an interpolation, never contain * or ? (found when CreatePolicy rejected the
+# apply guards). Interpolations are checked by the terraform tests, which see the rendered JSON.
+ARN_HEAD = re.compile(r'"arn:((?:\$\{[^}]*\}|[^:"$])*):((?:\$\{[^}]*\}|[^:"$])*)(?=[:"])')
+INTERPOLATION = re.compile(r"\$\{[^}]*\}")
+def check_arn_segments(files: Files) -> List[Finding]:
+    found: List[Finding] = []
+    for path, text in sorted(files.items()):
+        if not path.startswith("infra/") or not path.endswith(".tf"):
+            continue
+        for number, line in enumerate(_strip_block_comments(text).splitlines(), 1):
+            for match in ARN_HEAD.finditer(strip_comment(line)):
+                for label, segment in (("partition", match.group(1)), ("service", match.group(2))):
+                    if re.search(r"[*?]", INTERPOLATION.sub("", segment)):
+                        found.append(Finding("arn-segments", path, number, f"the {label} segment of an ARN must not contain * or ?: {match.group(0)[1:]}"))
+    return found
 CHECKS: Dict[str, Callable[[Files], List[Finding]]] = {
     "account-ids": check_account_ids,
     "tracked-files": check_tracked_files,
     "workflow-triggers": check_workflow_triggers,
     "action-pins": check_action_pins,
     "module-policies": check_module_policies,
+    "arn-segments": check_arn_segments,
 }
 
 

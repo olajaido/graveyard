@@ -209,6 +209,26 @@ class ActionPins(GuardCase):
         self.assertEqual(self.findings("action-pins"), [])
 
 
+class ArnSegments(GuardCase):
+    def test_wildcard_service_fails(self) -> None:
+        self.write("infra/modules/m/p.tf", 'r = "arn:${local.p}:*:*:*:*graveyard-x-*"\n')
+        self.assertEqual(len(self.findings("arn-segments")), 1)
+    def test_wildcard_partition_and_question_mark_fail(self) -> None:
+        self.write("infra/modules/m/p.tf", 'a = "arn:*:s3:::b"\nb = "arn:aws:s3?:::b"\nc = "arn:aws*:s3:::b"\n')
+        self.assertEqual(len(self.findings("arn-segments")), 3)
+    def test_partial_arn_with_a_wildcard_service_fails(self) -> None:
+        self.write("infra/modules/m/p.tf", 'a = "arn:${local.p}:*"\n')
+        self.assertEqual(len(self.findings("arn-segments")), 1)
+    def test_wildcards_in_later_segments_pass(self) -> None:
+        self.write(
+            "infra/modules/m/p.tf",
+            'a = "arn:${local.p}:${svc}:*:*:*graveyard-x-*"\nb = "arn:${local.p}:s3:::bucket/*"\nc = "arn:${local.p}:iam::${local.a}:role/*"\nd = "*"\n',
+        )
+        self.assertEqual(self.findings("arn-segments"), [])
+    def test_comments_and_tests_are_not_scanned(self) -> None:
+        self.write("infra/modules/m/p.tf", '# "arn:aws:*:*:*:*x"\n')
+        self.write("infra/modules/m/tests/a.tftest.hcl", 'r = "arn:aws:*:*:*:*x"\n')
+        self.assertEqual(self.findings("arn-segments"), [])
 class ModulePolicies(GuardCase):
     def test_data_source_in_a_module_fails(self) -> None:
         self.write("infra/modules/x/main.tf", 'data "aws_caller_identity" "current" {}\n')
@@ -243,7 +263,7 @@ class ModulePolicies(GuardCase):
 
 class Runner(GuardCase):
     def test_all_runs_every_check(self) -> None:
-        self.write("infra/modules/x/main.tf", f'data "a" "b" {{}}\nx = "{FAKE_ACCOUNT}"\n')
+        self.write("infra/modules/x/main.tf", f'data "a" "b" {{}}\nx = "{FAKE_ACCOUNT}"\ny = "arn:aws:*:*:*:*z"\n')
         self.write("infra/bootstrap/backend.hcl", "x", force=True)
         self.write(".github/workflows/w.yml", "on: pull_request_target\njobs:\n  a:\n    steps:\n      - uses: a/b@v1\n")
         names = {f.check for f in self.findings()}

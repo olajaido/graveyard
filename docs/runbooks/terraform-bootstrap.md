@@ -26,7 +26,8 @@ Placeholders in this file: `<account-id>` is your 12-digit AWS account ID, `<buc
 | a | The GitHub OIDC provider exists and lists the audience `sts.amazonaws.com` | `aws iam list-open-id-connect-providers`, then `aws iam get-open-id-connect-provider --open-id-connect-provider-arn <provider-arn>` and read `ClientIDList` | Present with the audience: leave `create_oidc_provider = false`. Missing: see section 10. Never import or edit it. |
 | b | The account's billing currency | Billing console, Preferences | USD (this account, checked 19 Nov 2026): keep the default (40 USD). GBP: set `budget_limit = { amount = "30", unit = "GBP" }`. |
 | c | Which of the cost allocation tag keys `Project` and `Env` are already active | Billing console, Cost allocation tags | Put into `activate_cost_allocation_tag_keys` only the keys that are **not** active. Graveyard never manages an active key (section 8). This account (19 Nov 2026): `Project` is listed but Inactive, so set `["Project"]`; `Env` is not active and is not needed, so leave it out. |
-| d | Existing anomaly monitors | **Do nothing.** Do not list, import or edit them. | The stack creates its own custom monitor `graveyard-project`. |
+| d | Existing budgets | The Billing console, Budgets, **read only** | The account already has a hand-made, account-wide budget `graveyard-monthly` (USD 30, no filters), found at the first apply on 19 Nov 2026. **Graveyard leaves it alone: never import, edit or delete it.** Graveyard's own budget is `graveyard-project-monthly` (Project tag filter, USD 40 default). A `DuplicateRecordException` means a name clash with another budget: choose a different `budget_name`, never import. |
+| e | Existing anomaly monitors | **Do nothing.** Do not list, import or edit them. | The stack creates its own custom monitor `graveyard-project`. |
 
 ## 3. Configure
 
