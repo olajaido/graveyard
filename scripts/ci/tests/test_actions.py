@@ -173,8 +173,10 @@ class Execution(unittest.TestCase):
         for f in (self.out, self.env_file, self.summary):
             f.write_text("")
 
-    def run_step(self, action: str, fragment: str, env: Dict[str, str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+    def run_step(self, action: str, fragment: str, env: Dict[str, str], cwd: Optional[Path] = None, script: Optional[str] = None) -> subprocess.CompletedProcess:
         step = a.step_named(a.action_steps(action), fragment)
+        if script is not None:
+            step = {"run": script}
         full = {
             "PATH": f"{self.shims.bin}:{os.environ.get('PATH', '')}",
             "HOME": str(self.tmp),
@@ -184,7 +186,9 @@ class Execution(unittest.TestCase):
             "CALLS": str(self.shims.log),
             **env,
         }
-        return subprocess.run(["bash", "-c", step["run"]], env=full, cwd=cwd or self.tmp, capture_output=True, text=True)
+        # The way GitHub runs `shell: bash`: errexit and pipefail are on before the script starts. Running with plain
+        # `bash -c` hid a bug: a nonzero exit of the plan command ended the step before its own exit-code check.
+        return subprocess.run(["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", step["run"]], env=full, cwd=cwd or self.tmp, capture_output=True, text=True)
 
     def outputs(self) -> Dict[str, str]:
         return dict(line.split("=", 1) for line in self.out.read_text().splitlines() if "=" in line)
@@ -251,22 +255,58 @@ class Execution(unittest.TestCase):
             self.assertEqual(self.run_step("terraform-plan", "Check the env name", {"ENV_NAME": env}).returncode, code, env)
 
     # ---- plan exit codes
-    def test_plan_maps_exit_codes(self) -> None:
-        for code, expected in ((0, "false"), (2, "true")):
-            self.shims.make("terraform", f'echo "$@" >> "$CALLS"\nexit {code}\n')
-            self.out.write_text("")
-            done = self.run_step("terraform-plan", "Plan", {"ENV_NAME": "dev", "PLANFILE": str(self.tmp / "dev.tfplan")})
-            self.assertEqual(done.returncode, 0, done.stderr)
-            self.assertEqual(self.outputs()["has_changes"], expected)
-        self.shims.make("terraform", 'echo "$@" >> "$CALLS"\nexit 1\n')
+    def plan_with_exit(self, code: int, script: Optional[str] = None) -> subprocess.CompletedProcess:
+        """Run the Plan step, as GitHub runs it, with a fake terraform that exits with `code`."""
+        self.shims.make("terraform", f'echo "$@" >> "$CALLS"\nexit {code}\n')
         self.out.write_text("")
-        done = self.run_step("terraform-plan", "Plan", {"ENV_NAME": "dev", "PLANFILE": str(self.tmp / "dev.tfplan")})
-        self.assertEqual(done.returncode, 1)
-        self.assertEqual(self.outputs(), {})
+        return self.run_step("terraform-plan", "Plan", {"ENV_NAME": "dev", "PLANFILE": str(self.tmp / "dev.tfplan")}, script=script)
+    def test_plan_exit_code_0_is_success_without_changes(self) -> None:
+        done = self.plan_with_exit(0)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(self.outputs(), {"has_changes": "false"})
+    def test_plan_exit_code_2_is_success_with_changes(self) -> None:
+        # -detailed-exitcode: 2 means "succeeded, there are changes". It must not fail the step.
+        done = self.plan_with_exit(2)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(self.outputs(), {"has_changes": "true"})
+    def test_plan_any_other_exit_code_fails_the_step_with_that_code_and_no_output(self) -> None:
+        for code in (1, 3, 127):
+            done = self.plan_with_exit(code)
+            self.assertEqual(done.returncode, code, f"exit {code}: {done.stderr}")
+            self.assertEqual(self.outputs(), {}, code)
+            self.assertIn(f"exit code {code}", done.stderr)
+    def test_plan_runs_terraform_with_the_expected_flags(self) -> None:
+        self.plan_with_exit(0)
         call = self.shims.calls()[-1]
         for flag in ("-chdir=infra/envs/dev", "plan", "-input=false", "-lock-timeout=5m", "-detailed-exitcode", f"-out={self.tmp}/dev.tfplan"):
             self.assertIn(flag, call)
-
+    def test_the_plan_step_is_run_with_errexit_in_these_tests(self) -> None:
+        # The harness must keep the GitHub flags, or the bare `terraform plan; code=$?` bug would pass again.
+        self.assertIn('"--noprofile", "--norc", "-e", "-o", "pipefail"', Path(__file__).read_text(encoding="utf-8"))
+    # ---- mutations of the Plan step: each must be seen failing by the tests above
+    def test_a_plan_step_that_treats_exit_code_2_as_a_failure_is_caught(self) -> None:
+        step = a.step_named(a.action_steps("terraform-plan"), "Plan")["run"]
+        self.assertIn("2) has_changes=true ;;", step)
+        bad = step.replace("2) has_changes=true ;;", '2) echo "changes" >&2; exit 1 ;;')
+        done = self.plan_with_exit(2, script=bad)
+        self.assertNotEqual(done.returncode, 0, "the mutant must fail on exit code 2, which the real step passes")
+    def test_a_plan_step_that_reads_the_code_after_errexit_is_caught(self) -> None:
+        # The original bug: with errexit on, the bare command ends the step on exit code 2 before `code=$?` is read.
+        step = a.step_named(a.action_steps("terraform-plan"), "Plan")["run"]
+        self.assertIn('|| code=$?', step)
+        bad = step.replace("code=0\n", "").replace(' || code=$?', "\n        code=$?")
+        bad = "\n".join(line.lstrip() if line.startswith("        ") else line for line in bad.splitlines()) + "\n"
+        self.assertNotEqual(bad, step)
+        done = self.plan_with_exit(2, script=bad)
+        self.assertNotEqual(done.returncode, 0, "the mutant must fail on exit code 2")
+        self.assertEqual(self.outputs(), {})
+    def test_a_plan_step_that_swallows_real_errors_is_caught(self) -> None:
+        step = a.step_named(a.action_steps("terraform-plan"), "Plan")["run"]
+        bad = step.replace('*) echo "terraform plan failed with exit code $code" >&2; exit "$code" ;;', "*) has_changes=false ;;")
+        self.assertNotEqual(bad, step)
+        done = self.plan_with_exit(1, script=bad)
+        self.assertEqual(done.returncode, 0, "the mutant must wrongly succeed on exit code 1")
+        self.assertNotEqual(self.outputs(), {}, "so the tests above, which expect a failure and no output, would catch it")
     # ---- summary
     def test_summary_masks_the_account_and_is_cut_at_900_kb(self) -> None:
         self.shims.make("terraform", f'echo "arn:aws:iam::{PLACEHOLDER}:role/x and {PLACEHOLDER}"\nhead -c 1200000 /dev/zero | tr "\\0" "a"\n')

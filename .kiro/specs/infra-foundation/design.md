@@ -631,7 +631,7 @@ The anomaly monitor needs no command: it is a new custom monitor, and the runboo
 
 ### 6.4 Env roots
 
-`infra/envs/dev/main.tf` has no module calls yet and a comment that `infra-serverless`, `infra-edge` and `observability` add them. The root still declares the backend, provider, tags and the two variables, so `init`, `validate`, `plan` and `apply` work and the CI path is exercised end to end from day one: a pull request shows "No changes" for both envs, and the deploy jobs are skipped.
+`infra/envs/dev/main.tf` has no module calls yet and a comment that `infra-serverless`, `infra-edge` and `observability` add them. The root still declares the backend, provider, tags and the two variables, so `init`, `validate`, `plan` and `apply` work and the CI path is exercised end to end from day one: the first run shows `Changes to Outputs: + name_prefix` for both envs (a plan with changes, exit code 2), and the merge to `main` runs an output-only apply through `deploy.yml`; after it, runs show "No changes" and the deploy jobs are skipped.
 
 `infra-edge` will add, in both env roots:
 

@@ -69,9 +69,12 @@ runs:
         ENV_NAME: ${{ inputs.env }}
         PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
       run: |
+        # GitHub starts bash with errexit on, so a bare `terraform plan -detailed-exitcode` that exits 2 (changes) would
+        # end the step before the code is read. `|| code=$?` keeps the exit code and lets errexit stay on for every
+        # other command: 0 is no changes, 2 is changes (both succeed), anything else is a failure.
         set -uo pipefail
-        terraform -chdir="infra/envs/$ENV_NAME" plan -input=false -lock-timeout=5m -detailed-exitcode -out="$PLANFILE"
-        code=$?
+        code=0
+        terraform -chdir="infra/envs/$ENV_NAME" plan -input=false -lock-timeout=5m -detailed-exitcode -out="$PLANFILE" || code=$?
         case "$code" in
           0) has_changes=false ;;
           2) has_changes=true ;;
