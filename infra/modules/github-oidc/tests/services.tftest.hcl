@@ -71,6 +71,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
       "graveyard-dev-apply-edge/CreateDistributions",
       "graveyard-dev-apply-edge/CreateCloudFrontFunctions",
       "graveyard-dev-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-ops/ExceptionE7",
       "graveyard-dev-apply-edge/AcmRequest",
       "graveyard-dev-apply-edge/ReadStar",
       "graveyard-dev-apply-ops/CreateGuardrails",
@@ -82,6 +83,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
       "graveyard-prod-apply-edge/CreateDistributions",
       "graveyard-prod-apply-edge/CreateCloudFrontFunctions",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-apply-edge/AcmRequest",
       "graveyard-prod-apply-edge/ReadStar",
       "graveyard-prod-apply-ops/CreateGuardrails",
@@ -120,8 +122,8 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
     condition = toset(flatten([
       for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])])
       if startswith(x.stmt.Sid, "Exception")
-    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl"])
-    error_message = "The exception statements in the CI roles must be exactly E4 and E6."
+    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    error_message = "The exception statements in the CI roles must be exactly E4, E6 and E7."
   }
 
   assert {
@@ -205,7 +207,7 @@ run "every_write_is_limited_to_a_graveyard_name_a_graveyard_path_or_the_project_
 
   assert {
     condition = !anytrue(flatten([
-      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) || startswith(a, "organizations:") || startswith(a, "account:")]
+      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) || startswith(a, "organizations:") || startswith(a, "account:")]
     ]))
     error_message = "No action of INF-SHARED-3 may be allowed."
   }
@@ -355,7 +357,7 @@ run "removed_actions_stay_removed_in_a_single_env_run" {
 
   assert {
     condition = !anytrue(flatten([
-      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a)]
+      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a)]
     ]))
     error_message = "The removed actions must stay removed."
   }
@@ -363,5 +365,29 @@ run "removed_actions_stay_removed_in_a_single_env_run" {
   assert {
     condition     = toset([for k, p in aws_iam_policy.ci : k if startswith(k, "graveyard-dev-")]) == toset([])
     error_message = "A prod-only run must have no dev policy."
+  }
+}
+run "kms_grants_are_limited_to_graveyard_keys_and_aws_services" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-data"].policy).Statement : s if s.Sid == "KmsCreateGrant"][0] == {
+          Sid      = "KmsCreateGrant"
+          Effect   = "Allow"
+          Action   = ["kms:CreateGrant"]
+          Resource = ["arn:aws:kms:eu-west-2:123456789012:key/*"]
+          Condition = {
+            StringEquals = { "aws:ResourceTag/Env" = e, "aws:ResourceTag/Project" = "graveyard" }
+            Bool         = { "kms:GrantIsForAWSResource" = "true" }
+          }
+        }
+      )
+    ])
+    error_message = "kms:CreateGrant must need the Project and Env tags of the key and kms:GrantIsForAWSResource = true."
+  }
+  assert {
+    condition     = !anytrue([for k, p in aws_iam_policy.ci : contains(flatten([for s in jsondecode(p.policy).Statement : try(s.Action, []) if s.Effect == "Allow" && !endswith(k, "-apply-data")]), "kms:CreateGrant")])
+    error_message = "Only the apply data policies may allow kms:CreateGrant."
   }
 }

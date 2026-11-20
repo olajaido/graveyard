@@ -49,6 +49,8 @@ locals {
         { Sid = "DynamoDbItems", Effect = "Allow", Action = ["dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"], Resource = [local.res[e].table] },
         { Sid = "S3Objects", Effect = "Allow", Action = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"], Resource = [local.res[e].bucket] },
         { Sid = "StatesExecute", Effect = "Allow", Action = ["states:StartExecution", "states:DescribeExecution", "states:StopExecution"], Resource = [local.res[e].state_machine, "arn:${local.p}:states:${local.r}:${local.a}:execution:graveyard-${e}-*"] },
+        # scan-backend (19 Nov 2026): the Distributed Map runs Express child executions, whose ARNs use the express: type.
+        { Sid = "StatesExpressExecutions", Effect = "Allow", Action = ["states:DescribeExecution", "states:StopExecution"], Resource = ["arn:${local.p}:states:${local.r}:${local.a}:express:graveyard-${e}-*"] },
         { Sid = "LambdaInvoke", Effect = "Allow", Action = ["lambda:InvokeFunction"], Resource = [local.res[e].function] },
         { Sid = "SecretValues", Effect = "Allow", Action = ["secretsmanager:GetSecretValue"], Resource = [local.res[e].secret] },
         { Sid = "SnsPublish", Effect = "Allow", Action = ["sns:Publish"], Resource = [local.res[e].topic] },
@@ -59,6 +61,8 @@ locals {
         { Sid = "ExceptionE2", Effect = "Allow", Action = ["xray:PutTelemetryRecords"], Resource = "*" },
         # Exception E3: PutMetricData has no resource ARN; the namespace condition is the limit.
         { Sid = "ExceptionE3", Effect = "Allow", Action = ["cloudwatch:PutMetricData"], Resource = "*", Condition = { StringEquals = { "cloudwatch:namespace" = "Graveyard/${e}" } } },
+        # Exception E7 (approved 19 Nov 2026): log delivery for the state machine role. No resource-level permissions.
+        { Sid = "ExceptionE7", Effect = "Allow", Action = local.act.logs_delivery, Resource = "*" },
         # Exception E5 (approved, narrowed 18 Nov 2026): the exact profiles and the exact foundation models behind them.
         # No eu-* and no foundation-model/*. The model statements also require the call to come through its own profile.
         { Sid = "ExceptionE5Profiles", Effect = "Allow", Action = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"], Resource = [local.bedrock_profile_arn.narrate, local.bedrock_profile_arn.rites] },
