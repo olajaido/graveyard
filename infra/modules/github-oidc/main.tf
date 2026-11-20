@@ -7,8 +7,12 @@ locals {
   r             = var.region
   global_region = "us-east-1"
   oidc_host     = "token.actions.githubusercontent.com"
-  repo          = "${var.repo_owner}/${var.repo_name}"
-  env_list      = sort(tolist(var.envs))
+  # GitHub's immutable subject (the repository's OIDC customization has use_immutable_subject = true, found at the
+  # first CI run, T24): "repo:<owner>@<owner id>/<repo>@<repo id>:...". The IDs close repository-name reuse: a deleted
+  # and recreated repository of the same name has other IDs, so it cannot assume the roles. The old
+  # "repo:<owner>/<repo>:..." form is never emitted by such a repository and is not trusted.
+  repo     = "${var.repo_owner}@${var.repo_owner_id}/${var.repo_name}@${var.repo_id}"
+  env_list = sort(tolist(var.envs))
 
   # The Project tag, written exactly as in the PRD section 14.1 tag set (case-sensitive).
   tag_project_key   = "Project"

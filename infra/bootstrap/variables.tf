@@ -31,6 +31,16 @@ variable "repo_name" {
   description = "GitHub repository name."
 }
 
+variable "repo_owner_id" {
+  type        = string
+  default     = "102736714"
+  description = "Numeric GitHub ID of the repository owner (public). From `gh api repos/<owner>/<repo>/actions/oidc/customization/sub`: sub_claim_prefix is repo:<owner>@<owner id>/<repo>@<repo id>."
+}
+variable "repo_id" {
+  type        = string
+  default     = "1443508961"
+  description = "Numeric GitHub ID of the repository (public). See repo_owner_id."
+}
 variable "create_oidc_provider" {
   type        = bool
   default     = false

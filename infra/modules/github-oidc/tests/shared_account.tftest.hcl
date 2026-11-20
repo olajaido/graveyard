@@ -13,6 +13,8 @@ variables {
   partition         = "aws"
   repo_owner        = "olajaido"
   repo_name         = "graveyard"
+  repo_owner_id     = "102736714"
+  repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
 }

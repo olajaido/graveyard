@@ -29,6 +29,8 @@ module "github_oidc" {
 
   repo_owner           = var.repo_owner
   repo_name            = var.repo_name
+  repo_owner_id        = var.repo_owner_id
+  repo_id              = var.repo_id
   envs                 = ["dev", "prod"]
   ci_path              = "/graveyard-ci/"
   create_oidc_provider = var.create_oidc_provider

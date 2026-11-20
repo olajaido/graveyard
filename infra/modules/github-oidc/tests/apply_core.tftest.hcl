@@ -8,6 +8,8 @@ variables {
   partition         = "aws"
   repo_owner        = "olajaido"
   repo_name         = "graveyard"
+  repo_owner_id     = "102736714"
+  repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
 }
@@ -32,8 +34,8 @@ run "each_apply_role_trusts_exactly_its_own_environment" {
 
   assert {
     condition = (
-      jsondecode(aws_iam_role.apply["dev"].assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:olajaido/graveyard:environment:dev" &&
-      jsondecode(aws_iam_role.apply["prod"].assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:olajaido/graveyard:environment:prod"
+      jsondecode(aws_iam_role.apply["dev"].assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:olajaido@102736714/graveyard@1443508961:environment:dev" &&
+      jsondecode(aws_iam_role.apply["prod"].assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:olajaido@102736714/graveyard@1443508961:environment:prod"
     )
     error_message = "Each apply role must trust exactly its own environment subject."
   }

@@ -88,6 +88,12 @@ class Bootstrap(unittest.TestCase):
                 ignored = subprocess.run(["git", "check-ignore", "-q", str(path)], cwd=REPO_ROOT).returncode == 0
                 tracked = subprocess.run(["git", "ls-files", "--error-unmatch", str(path)], cwd=REPO_ROOT, capture_output=True).returncode == 0
                 self.assertTrue(ignored and not tracked, name)
+    def test_the_immutable_subject_ids_are_public_digits_passed_to_the_module(self) -> None:
+        text = self.files["variables.tf"]
+        self.assertEqual(t.default_of(text, "repo_owner_id"), '"102736714"')
+        self.assertEqual(t.default_of(text, "repo_id"), '"1443508961"')
+        self.assertIn("repo_owner_id        = var.repo_owner_id", self.main)
+        self.assertIn("repo_id              = var.repo_id", self.main)
     def test_lock_files_of_the_root_and_every_module(self) -> None:
         self.assertEqual(t.lock_problems(self.files[".terraform.lock.hcl"], {"aws": "6.73.0", "random": "3.9.1"}), [])
         for module, providers in MODULES.items():

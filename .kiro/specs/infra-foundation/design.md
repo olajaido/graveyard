@@ -278,6 +278,7 @@ S3 does not allow `expired_object_delete_marker` and a current-version `expirati
 |-------|------|-------|
 | `account_id`, `partition` | string | From the root's data sources (§4.3). |
 | `repo_owner`, `repo_name` | string | `olajaido`, `graveyard` (INF-OIDC-5). |
+| `repo_owner_id`, `repo_id` | string, digits only, no default | The numeric GitHub IDs, part of the immutable OIDC subject. The bootstrap root defaults are `102736714` and `1443508961`. |
 | `envs` | set(string) | `["dev", "prod"]`. Validation: subset of those two. |
 | `ci_path` | string | `/graveyard-ci/`. IAM path for the CI roles and the boundaries. |
 | `state_bucket_name`, `state_kms_key_arn` | string | From `state`. |
@@ -330,8 +331,8 @@ An apply role's IAM write statements cover only `role/graveyard-<env>/*` and `po
       "StringEquals": {
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
         "token.actions.githubusercontent.com:sub": [
-          "repo:olajaido/graveyard:pull_request",
-          "repo:olajaido/graveyard:ref:refs/heads/main"
+          "repo:olajaido@102736714/graveyard@1443508961:pull_request",
+          "repo:olajaido@102736714/graveyard@1443508961:ref:refs/heads/main"
         ]
       }
     }
@@ -339,7 +340,9 @@ An apply role's IAM write statements cover only `role/graveyard-<env>/*` and `po
 }
 ```
 
-The apply roles have the same shape with one subject each: `repo:olajaido/graveyard:environment:dev` or `…:environment:prod`. `max_session_duration = 3600` (INF-OIDC-6).
+The apply roles have the same shape with one subject each: `repo:olajaido@102736714/graveyard@1443508961:environment:dev` or `…:environment:prod`.
+
+**Immutable subject (found at the first CI run, T24, 19 Nov 2026).** The plan jobs failed with `Not authorized to perform sts:AssumeRoleWithWebIdentity`. Cause: the repository's OIDC customization is `use_default = true`, `use_immutable_subject = true` (`gh api repos/olajaido/graveyard/actions/oidc/customization/sub`), `sub_claim_prefix = repo:olajaido@102736714/graveyard@1443508961`. GitHub therefore emits `repo:<owner>@<owner id>/<repo>@<repo id>:<context>`, not the older `repo:<owner>/<repo>:<context>` that the first draft trusted. The module takes `repo_owner_id` and `repo_id` (digits only, no default; the bootstrap root sets the public values), builds `local.repo` as `<owner>@<owner id>/<repo>@<repo id>`, and trusts only the new form, with `StringEquals` and exact subjects. The old form is not trusted. The IDs also close repository-name reuse: if the repository were deleted and a new one created with the same name, its IDs would differ and it could not assume these roles. The IDs are public, not secrets, and no account ID is involved. `max_session_duration = 3600` (INF-OIDC-6).
 
 How the subjects map to jobs:
 - A `ci.yml` job with no `environment:` on a pull request gets `…:pull_request`; on a push to `main` it gets `…:ref:refs/heads/main`. Both may assume the plan role.
@@ -576,6 +579,8 @@ module "github_oidc" {
   partition         = data.aws_partition.current.partition
   repo_owner        = var.repo_owner          # default "olajaido"
   repo_name         = var.repo_name           # default "graveyard"
+  repo_owner_id     = var.repo_owner_id       # default "102736714" (public)
+  repo_id           = var.repo_id             # default "1443508961" (public)
   envs              = ["dev", "prod"]
   ci_path           = "/graveyard-ci/"
   state_bucket_name = module.state.bucket_name
@@ -849,7 +854,7 @@ variables {
 run "plan_trust_has_exact_subjects" {
   command = plan
   assert {
-    condition     = jsondecode(aws_iam_role.plan.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == ["repo:olajaido/graveyard:pull_request", "repo:olajaido/graveyard:ref:refs/heads/main"]
+    condition     = jsondecode(aws_iam_role.plan.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == ["repo:olajaido@102736714/graveyard@1443508961:pull_request", "repo:olajaido@102736714/graveyard@1443508961:ref:refs/heads/main"]
     error_message = "Plan role trust must list exactly the two subjects."
   }
 }
@@ -998,6 +1003,7 @@ Every "to verify" item, who checks it and what stops the work. Tasks refer to th
 | V18 | Whether Bedrock on-demand spend appears under the `Project` tag filter (F1) | deferred to `infra-serverless`, MANUAL | Not attributed: the token caps are the only control; record it. Not a gate for this spec. |
 | V20 | Whether the region deny (INF-REG-2) blocks Bedrock cross-region inference in the workload boundaries | agent (AWS docs, read 19 Nov 2026) and MANUAL (first live Bedrock call in `infra-serverless`) | **Open until the first live call from `narrate` or `rites` succeeds with the boundary attached.** Docs read: `cross-region-inference.html` (SCP: "allow all destination Regions in profile"); `geographic-cross-region-inference.html` (grant the foundation model in all destination regions); `inference-profiles-prereq.html`; Service Authorization Reference, Amazon Bedrock (`bedrock:InferenceProfileArn` is a condition key of `bedrock:InvokeModel` on the `foundation-model`, `inference-profile` and `application-inference-profile` resource types, and of `InvokeModelWithResponseStream`); IAM condition operators page: "If the policy condition requires that the key is *not* matched, such as `StringNotLike` or `ArnNotLike`, and the right key is not present, the condition is *true*" (it applies to all operators except `...IfExists` and `Null`). Reasoning: in a Deny, `StringNotEquals` on `bedrock:InferenceProfileArn` is true when the key is absent, so a direct foundation-model call with no profile is still denied outside eu-west-2; `StringNotEquals` with a list means "none of these", so only the two approved profiles are exempt; the two keys are ANDed. The docs do not state the value of `aws:RequestedRegion` for the destination-region check (read as the destination region) and do not say that `bedrock:InferenceProfileArn` is set on that check (the AWS examples for geographic profiles use it in the Allow, so it is assumed). Built 19 Nov 2026 as in 5.2.5; dev boundary 5,495 of 6,144 characters; 70 github-oidc tests; mutations (wildcard profile, region condition dropped, streaming added) each fail the tests. If the first live call is denied: send the agent the CloudTrail denial, then widen to the 14 foundation-model ARNs (no room: it needs a size decision) or remove the exemption. |
 | V21 | IAM accepts the ARNs of every policy at `CreatePolicy` | found at the first real apply (T21.5, 19 Nov 2026): `graveyard-dev-apply-guard` and `graveyard-prod-apply-guard` were refused with `MalformedPolicyDocument: Resource vendor must be fully qualified and cannot contain regexes`; `graveyard-plan-guard` was accepted | **Closed by removal (19 Nov 2026).** Cause: `DenyOtherEnv` used `arn:<p>:*:*:*:*graveyard-<other>-*`, a wildcard in the service (vendor) segment. The plan guard was accepted because every ARN in it has a literal service; wildcards in the region, account and resource segments are legal. The two apply guards were deferred in V9 because they hold after-apply values, so Access Analyzer never saw them. Decision: delete `DenyOtherEnv` (a per-service pattern list was tried and dropped). Cross-env access stays prevented by (a) every Allow scoped to the role's own names, paths and tags, with tests, and (b) `DenyOtherEnvTag`. What stays: the test `arn_segments.tftest.hcl` (no `*` or `?` in the partition or service segment of any Resource or NotResource, four bad samples) and the `arn-segments` guard in `scripts/ci/guards.py`. They check ARN text, not IAM's own validation, so a successful `CreatePolicy` of the two guards is the last proof. |
+| V22 | The subject format that GitHub emits for this repository | found at the first CI run (T24, 19 Nov 2026) | **Fixed.** `use_immutable_subject = true`, `sub_claim_prefix = repo:olajaido@102736714/graveyard@1443508961`, so every subject carries the owner and repository IDs. The trust policies now use that form only (design §5.2). Tests: exact subjects for the plan and both apply roles, no old-format subject, digits-only IDs; mutations (old format, owner ID missing, repository ID missing, a wildcard in the subject, the ID validation relaxed) are each caught. Closed when the next CI plan job assumes `graveyard-plan`. If GitHub changes the setting, the IDs are read again with the `gh api` call above. |
 | V19 | The regions the two `eu.` inference profiles route to | **Closed 18 Nov 2026:** read by the maintainer with `aws bedrock list-inference-profiles --region eu-west-2`; both profiles route to the same seven regions. The output is a point-in-time reading: AWS can add a region to a profile. | A call is denied because AWS added a routing region: add it to `bedrock_foundation_model_regions` in a reviewed bootstrap change. Not a gate. |
 
 **Deferral record (18 Nov 2026).** H1–H10 (V13) are out of this spec's critical path by maintainer decision. They stay in the runbook with empty result columns and the line "Deferred to the ship-week security review (PRD §16 W4)". **First exercise of the apply path:** the env roots are empty, so the saved-plan, version-ID check and apply steps of §8.5 are first run by `infra-serverless`, not here; no test-only resource is added (INF-LAY-2).

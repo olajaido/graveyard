@@ -49,6 +49,22 @@ variable "repo_name" {
   }
 }
 
+variable "repo_owner_id" {
+  type        = string
+  description = "Numeric GitHub ID of the repository owner (a public ID, not a secret). Part of the immutable OIDC subject."
+  validation {
+    condition     = can(regex("^[0-9]+$", var.repo_owner_id))
+    error_message = "repo_owner_id must be digits only, so a trust subject can never hold a wildcard."
+  }
+}
+variable "repo_id" {
+  type        = string
+  description = "Numeric GitHub ID of the repository (a public ID, not a secret). Part of the immutable OIDC subject."
+  validation {
+    condition     = can(regex("^[0-9]+$", var.repo_id))
+    error_message = "repo_id must be digits only, so a trust subject can never hold a wildcard."
+  }
+}
 variable "envs" {
   type        = set(string)
   default     = ["dev", "prod"]

@@ -28,9 +28,17 @@ Settings, Environments, New environment.
 | `dev` | Selected branches and tags: `main` only | none | not applicable | 0 |
 | `prod` | Selected branches and tags: `main` only | `olajaido` | **off**: the maintainer is the only reviewer, so turning it on would block every prod apply | 0 |
 
-Why the names matter: the apply roles trust exactly the subjects `repo:olajaido/graveyard:environment:dev` and
-`repo:olajaido/graveyard:environment:prod`, so a job can assume `graveyard-dev-apply` or `graveyard-prod-apply` only
+Why the names matter: the apply roles trust exactly the subjects `repo:olajaido@102736714/graveyard@1443508961:environment:dev` and
+`repo:olajaido@102736714/graveyard@1443508961:environment:prod`, so a job can assume `graveyard-dev-apply` or `graveyard-prod-apply` only
 when it runs in the environment of the same name. The deployment-branch rule is what limits that to `main`.
+
+The subject contains the owner and repository IDs because this repository uses GitHub's immutable OIDC subject (found at the first CI run, 19 Nov 2026: the plan jobs failed with `Not authorized to perform sts:AssumeRoleWithWebIdentity` while the roles trusted the older `repo:olajaido/graveyard:...` form). Check or re-read it with:
+
+```sh
+gh api repos/olajaido/graveyard/actions/oidc/customization/sub
+```
+
+`use_immutable_subject` must be `true` and `sub_claim_prefix` must equal `repo:olajaido@102736714/graveyard@1443508961`. The IDs are public and live in the bootstrap root (`repo_owner_id`, `repo_id`). The immutable form also closes repository-name reuse: a repository recreated under the same name has other IDs and cannot assume these roles. If the IDs ever differ from the root's defaults, change them in a reviewed bootstrap change and apply it from your workstation; do not edit an IAM trust policy by hand.
 
 ## 3. Check it
 
