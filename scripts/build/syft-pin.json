@@ -1,0 +1,6 @@
+{
+  "version": "1.56.0",
+  "url": "https://github.com/anchore/syft/releases/download/v1.56.0/syft_1.56.0_linux_arm64.tar.gz",
+  "sha256": "ace61b9397ae28189c674ae332d67a8074dafd71e87724dfb8b22412d8253bb5",
+  "checksums_source": "https://github.com/anchore/syft/releases/download/v1.56.0/syft_1.56.0_checksums.txt"
+}

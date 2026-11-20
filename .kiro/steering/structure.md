@@ -18,12 +18,15 @@ graveyard/
 ├── powers/graveyard/            # Kiro Power (Agent Plugins): plugin.json, mcp.json, skills/ (incl. hook template); source of the .kiro copies
 ├── backend/
 │   ├── pyproject.toml          # uv-managed; Python 3.12; pytest, ruff, mypy config
-│   ├── core/                    # pure logic: purl, versions, scoring, graph, sources (PBT heavy)
+│   ├── core/                    # pure logic: purl, versions, scoring, graph, sources, scan (PBT heavy)
 │   │   ├── scoring/tests/       # colocated tests + fixtures/anchors/ for the scoring core
 │   │   ├── bands.py             # pure: confidence band constants (none, low, medium, full); no import from core.scoring
+│   │   ├── scan/                # pure: scan IDs, error codes, record and cursor builders (no I/O)
 │   │   ├── install/             # pure: install-command parser and hook payload extractor (no I/O)
 │   │   └── sources/             # pure half of the source clients: parsers, has_fix, repo resolution, signal assembly
 │   │       └── tests/fixtures/recorded/   # recorded HTTP cassette shared with backend/sources/tests
+│   ├── exhume/                  # GitHub side of a scan: repo validation, tree selection, Reader app JWT and token, trees and blobs (httpx client passed in)
+│   ├── scan/                    # table and artefacts bucket (Protocols + boto3 adapters, clients passed in), SSM limits
 │   ├── sources/                 # I/O half of the source clients: async gateway, per-source clients, cache, session (imports core.sources)
 │   ├── workflow/                # Step Functions task handlers
 │   ├── api/                     # handlers + openapi.yaml
@@ -37,14 +40,14 @@ graveyard/
 ├── infra/
 │   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
 │   ├── .tflint.hcl
-│   ├── modules/{state,github-oidc,cost,web,api,workflow,data,ai,github-app,observability}
+│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,web,ai}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
 │   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action
-├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
 ├── eval/                        # data only: labelled set, fixtures, staging, gate.yaml, LABELLING.md, README.md, results.json
 ├── docs/{PRD.md,KIRO_JOURNAL.md,ARCHITECTURE.md,runbooks/}
 ├── scripts/hooks/               # incl. sync-power.py (writes the .kiro copies of the Power; --check mode)
+├── scripts/build/               # deterministic lambda.zip and syft-layer.zip builders, syft-pin.json (SHA-256 pin); stdlib tests
 ├── scripts/ci/                  # local-checks.sh (pinned images), guards, changed_paths, tests/
 ├── .github/workflows/{ci.yml,deploy.yml,vigil.yml}
 ├── .github/actions/{terraform-init,terraform-plan,terraform-apply}/
@@ -71,7 +74,8 @@ graveyard/
 - `backend/sources/` contains only external API clients and caching: the async HTTP gateway, per-source clients, the cache protocol and in-memory cache, and the session. It imports `core.sources` and, from `core.scoring`, only the data-type module `core.scoring.types` (any other `core.scoring` module, and the package itself, is forbidden; tests excepted). No scoring logic, no response parsing rules. Its tests may read the cassette in `core/sources/tests/fixtures/recorded/` through a path relative to `__file__`.
 - Neither `core/sources` nor `sources` reads environment variables, logs or prints. Secrets, contact strings and tokens are passed in by the caller (`workflow/` or a script).
 - `backend/cli/` is glue: no scoring, no parsing, no HTTP. It calls `core.graph`, `sources` and `core.scoring` (only `score_package`, `sort_results` and the result types), formats the results, and runs Syft through one module (`syft.py`, the only user of `subprocess`). It reads the environment only in `__main__.py` and imports no HTTP client. Its tests and fixtures are colocated in `cli/tests/`.
-- `backend/workflow/` contains Step Functions task handlers only.
+- `backend/workflow/` contains Step Functions task handlers only. `workflow/runtime.py` and `api/runtime.py` are the only files that read environment variables and build boto3 clients (names only, never a secret).
+- `backend/core/scan/` is pure: IDs, error codes, record and cursor builders. `backend/exhume/` and `backend/scan/` take their clients as arguments and read no environment variable.
 - `backend/rites/` contains remediation generators and codemod rules. No scoring.
 - `backend/narrate/` contains Bedrock prompts and validators only.
 - `infra/modules/` contains reusable Terraform modules. No environment-specific values, no data sources (roots pass values in), and policies are built with `jsonencode` in `locals`.

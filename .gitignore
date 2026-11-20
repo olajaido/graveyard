@@ -35,3 +35,5 @@ backend.hcl
 .DS_Store
 
 # NEVER add .kiro/ here — disqualification risk
+# Build output of scripts/build (lambda.zip, syft-layer.zip)
+/build/

@@ -22,7 +22,7 @@ inclusion: always
 | Data | DynamoDB single table, on-demand, TTL |
 | Artefacts | S3 with SSE-KMS, lifecycle rules (7-day uploads, 30-day reports) |
 | LLM | Amazon Bedrock (Claude via EU cross-region inference profile), Bedrock Guardrails |
-| SBOM | Syft (pinned version, pinned image digest) |
+| SBOM | Syft (pinned version) as a Lambda layer, binary verified by pinned SHA-256 (deviation D7: no container image) |
 | Codemods | ast-grep (JS/TS), LibCST (Python) |
 | GitHub auth | GitHub App (not OAuth app or PAT); fine-grained, per-repo, short-lived installation tokens |
 | IaC | Terraform ≥ 1.10, S3 backend with native lockfile locking (`use_lockfile = true`) |

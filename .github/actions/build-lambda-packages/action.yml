@@ -1,0 +1,27 @@
+name: build-lambda-packages
+description: >-
+  Build lambda.zip and syft-layer.zip into build/ (scan-backend SB-CI-1, SB-CI-2). Both builds are reproducible, so the plan
+  job and the apply job of one commit produce the same files. The SHA-256 values are exported as TF_VAR_lambda_zip_sha256 and
+  TF_VAR_syft_layer_sha256 for the steps that follow; the Terraform modules fail when a file differs from its hash. Nothing is
+  uploaded: Terraform reads the files from the workspace. The Syft tarball is checked against scripts/build/syft-pin.json.
+runs:
+  using: composite
+  steps:
+    - name: Set up uv
+      uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      with:
+        version: "0.11.8"
+        enable-cache: false
+    - name: Build the packages
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p build
+        lambda_sha="$(python3 scripts/build/build_lambda_zip.py build/lambda.zip)"
+        layer_sha="$(python3 scripts/build/build_syft_layer.py build/syft-layer.zip)"
+        printf '%s' "$lambda_sha" | grep -Eq '^[0-9a-f]{64}$'
+        printf '%s' "$layer_sha" | grep -Eq '^[0-9a-f]{64}$'
+        echo "TF_VAR_lambda_zip_sha256=$lambda_sha" >> "$GITHUB_ENV"
+        echo "TF_VAR_syft_layer_sha256=$layer_sha" >> "$GITHUB_ENV"
+        echo "lambda.zip $lambda_sha"
+        echo "syft-layer.zip $layer_sha"

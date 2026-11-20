@@ -51,6 +51,7 @@ from core.sources.model import ItemError, SourceResult, SourceStats
 from sources import SourceSession
 
 __all__ = [
+    "augment_service",
     "PURL_INPUTS",
     "Inputs",
     "analyse",
@@ -99,7 +100,7 @@ PURL_INPUTS: Final = Inputs(
 # ------------------------------------------------------------------------------ input stage
 
 
-def _augment(
+def augment_service(
     service: str, bom: Mapping[str, Any], scopes: ScopeResult | None
 ) -> tuple[Mapping[str, Any], int, tuple[CliWarning, ...]]:
     """Add the root -> direct edges the lockfile declares (CLI-AUG-7).
@@ -136,7 +137,7 @@ def _from_sbom(opts: Options, path: Path) -> Inputs:
         root = ServiceDir(path=".", directory=path, lockfiles=names)
         scopes, warnings, used = read_scopes(root)
         lockfiles = tuple((".", name, ok) for name, ok in used)
-    bom, added, augment_warnings = _augment(".", bom, scopes)
+    bom, added, augment_warnings = augment_service(".", bom, scopes)
     return Inputs(
         mode="sbom",
         services=(ServiceInput(path=".", bom=bom, scopes=scopes),),
@@ -159,7 +160,7 @@ def _from_syft(opts: Options, path: Path, env: CliEnvironment) -> Inputs:
     for service in services:  # sequential; a failure here is fatal (D6)
         raw = run_syft(exe, service, all_paths, opts.syft_timeout, env.syft_env)
         scopes, service_warnings, used = read_scopes(service)
-        bom, added, augment_warnings = _augment(service.path, raw, scopes)
+        bom, added, augment_warnings = augment_service(service.path, raw, scopes)
         inputs.append(ServiceInput(path=service.path, bom=bom, scopes=scopes))
         warnings.extend(service_warnings)
         warnings.extend(augment_warnings)
@@ -350,3 +351,6 @@ def analyse(
     results, stats = asyncio.run(autopsy_requests(requests, env, transport, clock))
     inputs = dataclasses.replace(inputs, cli_warnings=(*inputs.cli_warnings, *_token_warnings(env)))
     return rank(nodes, results, stats, graph, inputs, opts, as_of)
+
+
+_augment = augment_service  # the name used before the scan backend needed it

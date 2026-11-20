@@ -266,6 +266,9 @@ class Runner(GuardCase):
         self.write("infra/modules/x/main.tf", f'data "a" "b" {{}}\nx = "{FAKE_ACCOUNT}"\ny = "arn:aws:*:*:*:*z"\n')
         self.write("infra/bootstrap/backend.hcl", "x", force=True)
         self.write(".github/workflows/w.yml", "on: pull_request_target\njobs:\n  a:\n    steps:\n      - uses: a/b@v1\n")
+        self.write("scripts/build/x.py", "x = 1\n")  # no pin file next to it
+        self.write("backend/api/routes.py", 'ROUTES = ("GET /v1/a",)\n')
+        self.write("infra/modules/api/variables.tf", 'default = ["GET /v1/b"]\n')
         names = {f.check for f in self.findings()}
         self.assertEqual(names, set(guards.CHECKS))
 
@@ -304,6 +307,51 @@ class RealRepository(unittest.TestCase):
         with redirect_stderr(stderr):
             code = guards.main([], root=REPO_ROOT)
         self.assertEqual(code, 0, stderr.getvalue())
+
+
+class BuildPins(GuardCase):
+    GOOD = (
+        '{"version": "1.56.0", "url": "https://github.com/anchore/syft/releases/download/v1.56.0/syft_1.56.0_linux_arm64.tar.gz",'
+        ' "sha256": "' + SHA64 + '"}'
+    )
+
+    def test_a_complete_pin_passes(self) -> None:
+        self.write("scripts/build/syft-pin.json", self.GOOD)
+        self.assertEqual(self.findings("build-pins"), [])
+
+    def test_no_build_directory_passes(self) -> None:
+        self.assertEqual(self.findings("build-pins"), [])
+
+    def test_a_short_hash_fails(self) -> None:
+        self.write("scripts/build/syft-pin.json", self.GOOD.replace(SHA64, "abc"))
+        self.assertEqual(len(self.findings("build-pins")), 1)
+
+    def test_another_url_fails(self) -> None:
+        self.write("scripts/build/syft-pin.json", self.GOOD.replace("anchore/syft", "evil/syft"))
+        self.assertEqual(len(self.findings("build-pins")), 1)
+
+    def test_latest_in_a_script_fails(self) -> None:
+        self.write("scripts/build/syft-pin.json", self.GOOD)
+        self.write("scripts/build/build_x.py", "URL = 'https://x/releases/latest/download'\n")
+        self.assertEqual(len(self.findings("build-pins")), 1)
+
+
+class ApiRoutes(GuardCase):
+    CODE = 'ROUTES = ("POST /v1/scans", "GET /v1/scans/{scanId}")\n'
+
+    def test_equal_sets_pass(self) -> None:
+        self.write("backend/api/routes.py", self.CODE)
+        self.write("infra/modules/api/variables.tf", 'default = ["GET /v1/scans/{scanId}", "POST /v1/scans"]\n')
+        self.assertEqual(self.findings("api-routes"), [])
+
+    def test_a_missing_route_fails(self) -> None:
+        self.write("backend/api/routes.py", self.CODE)
+        self.write("infra/modules/api/variables.tf", 'default = ["POST /v1/scans"]\n')
+        self.assertEqual(len(self.findings("api-routes")), 1)
+
+    def test_before_the_module_exists_passes(self) -> None:
+        self.write("backend/api/routes.py", self.CODE)
+        self.assertEqual(self.findings("api-routes"), [])
 
 
 if __name__ == "__main__":

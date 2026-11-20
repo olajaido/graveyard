@@ -3,7 +3,7 @@
 
     changed_paths.py --base <sha> --head <sha> [--merge-base]
 
-`infra` is true when a file under infra/, .github/, scripts/ci/ or docs/runbooks/ changed
+`infra` is true when a file under infra/, .github/, scripts/ci/, scripts/build/, docs/runbooks/ or a backend package that goes into lambda.zip changed
 between the two commits. It is also true, so that nothing is skipped by mistake, when the base
 is empty or all zeros (a new branch or a first push) or when git cannot produce the diff.
 `--merge-base` diffs `base...head` (pull requests); without it `base head` (pushes).
@@ -20,7 +20,12 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
-PATTERNS = ("infra/", ".github/", "scripts/ci/", "docs/runbooks/")
+# scan-backend: the Lambda zips are built from the backend packages and scripts/build, so a change there changes the plan.
+PATTERNS = (
+    "infra/", ".github/", "scripts/ci/", "scripts/build/", "docs/runbooks/",
+    "backend/core/", "backend/sources/", "backend/cli/", "backend/exhume/", "backend/scan/",
+    "backend/workflow/", "backend/api/", "backend/pyproject.toml", "backend/uv.lock",
+)
 ZERO = "0" * 40
 
 

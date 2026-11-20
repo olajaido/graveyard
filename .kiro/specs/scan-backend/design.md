@@ -214,3 +214,18 @@ PRD §10.2 and `tech.md` name "Syft (pinned version, pinned image digest)" in a 
 | GitHub tree `truncated` for very large monorepos | Fails with `TREE_TRUNCATED`; a per-directory fetch is a later change. |
 | Deps.dev or OSV slow for 2,000 purls in 5 minutes | `max-purls` and the 20 percent batch tolerance; cached batches speed up reruns. A real timing is a dev-scan check. |
 | Syft layer: binary build mismatch or cold start | The hash pin stops a wrong binary; memory 1 GB, timeout 120 s; the Map runs services in parallel. |
+
+## 13. Implementation notes (20 Nov 2026, tasks T1 to T16)
+Where the build differs from, or adds to, the text above. Requirements still win.
+- **Dependencies (T1, `check-before-adding-dependency`).** `aws-lambda-powertools` 3.41.0 (Alive), `aws-xray-sdk` 2.16.0 (Resting, 4.2 M downloads a week), `boto3` 1.44.7 (Alive), `PyJWT` 2.15.1 (Resting), `cryptography` 50.0.2 (Alive). No advisory in OSV for any of them. GitHub signals were unavailable to the checker (no token), so confidence is 0.55. Extra `aws` in `pyproject.toml`; `boto3` is not put in `lambda.zip` (the runtime provides it).
+- **Cache and node keys.** Items use the case-folded package key (`PKG#npm/jsonstream@1.3.5`, `NODE#...`) instead of the raw purl, so one package has one item whatever its spelling. The API compares keys the same way.
+- **DynamoDB floats.** Nodes and the autopsy cache are one JSON string in `doc` (the resource API takes no floats). Only the scan `META` item uses native attributes.
+- **Unknown state.** A node the model marks `Unknown` (too few signals) is counted as `unscored` and is not a grave (no verdict, no accusation).
+- **Environment.** `workflow/runtime.py` and `api/runtime.py` both read the environment (names only).
+- **Roles.** `finalise` also has `GetItem` (it reads `createdAt` for `ScanDurationSeconds`), and `api` has `UpdateItem` (a failed start marks the scan failed).
+- **Failure routing.** `HandleError` routes input errors (`INVALID_INPUT`, `REPO_NOT_FOUND`, `NO_MANIFESTS`, `TOO_LARGE`, `TREE_TRUNCATED`, `TOO_MANY_PACKAGES`) to `MarkFailedUser` and the workflow ends as a success; operational codes go to `MarkFailedOps` and unknown names to `MarkFailedInternal`, and both end as a failed execution, so `ExecutionsFailed` counts only operational failures. Only fixed codes are stored.
+- **API access log group.** `/aws/vendedlogs/states/graveyard-<env>-api-access` instead of `/graveyard/<env>/api-access` (SB-API-9). That name is one the apply role may create (`log_groups` pattern) and, as a vended-logs path, needs no log resource policy (`logs:PutResourcePolicy` is not granted, SB-PERM-5).
+- **DynamoDB throttle alarm.** `ThrottledRequests` needs an `Operation` dimension, so the alarm sums `ReadThrottleEvents` and `WriteThrottleEvents` of the table.
+- **Roots.** The env roots have no data source (an existing test says so); the account ID is `var.allowed_account_ids[0]` and the partition is `aws`. Each root has a `tests/root.tftest.hcl` that plans the whole root with a mock provider.
+- **CI.** The new composite action `build-lambda-packages` runs in the plan and apply jobs (setup-uv pinned by SHA, uv 0.11.8). `changed_paths.py` also treats `scripts/build/` and the backend packages that go into `lambda.zip` as a change, so a code change plans and deploys.
+- **Known red test.** `eval/tests/test_real_gate.py::test_gate_passes_on_committed_data` fails; it is the v1 gate that failed by design (journal, 18 Nov). Nothing else is red: ruff, `mypy --strict core`, `mypy` over every package, 8,905 other tests, 844 property tests, `local-checks.sh all`.

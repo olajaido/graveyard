@@ -155,7 +155,7 @@ cmd_actionlint() {
 }
 
 cmd_guards() {
-  (cd "$REPO" && python3 -m unittest discover -s scripts/ci/tests)
+  (cd "$REPO" && python3 -m unittest discover -s scripts/ci/tests && python3 -m unittest discover -s scripts/build/tests)
   if [ -f "$REPO/scripts/ci/guards.py" ]; then (cd "$REPO" && python3 scripts/ci/guards.py); fi
   if [ -f "$REPO/scripts/ci/check_kiro_not_ignored.py" ]; then (cd "$REPO" && python3 scripts/ci/check_kiro_not_ignored.py); fi
 }

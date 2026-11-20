@@ -51,6 +51,8 @@ runs:
         fi
         printf '%s' "$EXPECTED_SHA256" | grep -Eq '^[0-9a-f]{64}$' || { echo "sha256 is missing or malformed" >&2; exit 1; }
 
+    - name: Build the Lambda packages (the apply checks them against the planned hashes)
+      uses: ./.github/actions/build-lambda-packages
     - name: Initialise with the apply role of this env
       uses: ./.github/actions/terraform-init
       with:

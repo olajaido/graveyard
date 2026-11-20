@@ -15,6 +15,14 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = ["mcp==2.3.0"]
+# Lambda runtime dependencies (scan-backend). boto3 is provided by the Lambda runtime and left out of lambda.zip.
+aws = [
+    "aws-lambda-powertools==3.41.0",
+    "aws-xray-sdk==2.16.0",
+    "boto3==1.44.7",
+    "PyJWT==2.15.1",
+    "cryptography==50.0.2",
+]
 [project.scripts]
 graveyard = "cli.__main__:main"
 graveyard-mcp = "mcp_server.__main__:main"
@@ -31,7 +39,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["core", "sources", "cli", "mcp_server"]
+packages = ["core", "sources", "cli", "mcp_server", "exhume", "scan", "workflow", "api"]
 exclude = ["**/tests/**", "**/__pycache__/**"]
 
 # The backend is installed as a package so that the graveyard console script exists; core/, sources/, cli/ and mcp_server/ are the wheel's top-level packages.
@@ -44,7 +52,7 @@ markers = [
     "property: Hypothesis property-based tests",
     "syft: contract tests that run the real Syft 1.56.0 binary (skipped when it is not found)",
 ]
-testpaths = ["core", "sources", "cli", "mcp_server", "eval", "tests"]
+testpaths = ["core", "sources", "cli", "mcp_server", "exhume", "scan", "workflow", "api", "eval", "tests"]
 pythonpath = ["."]
 
 [tool.ruff]
@@ -56,9 +64,13 @@ extend-exclude = [".venv", ".mypy_cache", ".ruff_cache"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["core", "sources", "cli", "mcp_server", "eval"]
+known-first-party = ["core", "sources", "cli", "mcp_server", "exhume", "scan", "workflow", "api", "eval"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["core", "sources", "cli", "mcp_server", "eval"]
+files = ["core", "sources", "cli", "mcp_server", "exhume", "scan", "workflow", "api", "eval"]
+
+[[tool.mypy.overrides]]
+module = ["boto3", "boto3.*", "botocore", "botocore.*", "aws_xray_sdk", "aws_xray_sdk.*"]
+ignore_missing_imports = true
