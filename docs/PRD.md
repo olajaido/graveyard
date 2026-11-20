@@ -521,7 +521,7 @@ flowchart LR
 | Data | **DynamoDB** single table, on-demand, TTL | Serverless, cheap, TTL gives the autopsy cache for free |
 | Artefacts | **S3** with SSE-KMS, lifecycle rule (7-day expiry for uploads, 30 days for reports) | |
 | LLM | **Amazon Bedrock** with EU cross-region inference profiles: `eu.anthropic.claude-haiku-5-5` for narrate, `eu.anthropic.claude-sonnet-5-5` for rites; **Bedrock Guardrails** | Sponsor-native; Guardrails covers the prompt-attack filter. Model IDs in SSM. ✅ Profiles confirmed in `eu-west-2` (ADR 0001). Use `eu.` profiles only, never `global.` |
-| SBOM | **Syft** (pinned version, pinned image digest) | Mature lockfile coverage; avoids writing parsers |
+| SBOM | **Syft v1.56.0** (pinned version) as a **Lambda layer**: the linux arm64 binary, downloaded at build time and verified against a pinned SHA-256 (`scripts/build/syft-pin.json`) | Mature lockfile coverage; avoids writing parsers. A layer needs no ECR repository, image push or digest plumbing (deviation D7, see §10.3) |
 | Codemods | **ast-grep** (JS/TS), **LibCST** (Python) | Deterministic rewrites; the LLM only *chooses* the rule |
 | Auth to GitHub | **GitHub App** (not an OAuth app or PAT) | Fine-grained, per-repo, short-lived installation tokens |
 | IaC | **Terraform ≥ 1.10**, S3 backend with **native lockfile locking** (`use_lockfile = true`) | Current best practice; DynamoDB state locking is deprecated |
@@ -529,6 +529,7 @@ flowchart LR
 | Region | **eu-west-2 (London)**; CloudFront global; ACM certificate in us-east-1 | Latency and data residency for a UK author |
 
 ### 10.3 Deliberate deviations (flagged)
+- **Syft as a Lambda layer, not a container image (D7, scan-backend, 19 Nov 2026).** The pinned arm64 binary is verified by SHA-256 at build time and packaged as a layer. This removes the ECR repository, the image-push permission and the digest-before-plan ordering problem. The supply-chain control is the same (an exact version and a hash); the image digest is replaced by the tarball hash.
 
 - **No VPC.** There are no private data stores that need one: DynamoDB, S3, Bedrock and Secrets Manager are reached over IAM-authenticated AWS endpoints. A VPC with NAT would add about £25–30 a month and a single point of failure for no security gain at this scale. *Revisit if* private repos or self-hosted runners are added.
 - **Single production environment** plus local and `dev` stacks in the same AWS account, which is shared with other projects (deviation from "personal account"; see infra-foundation INF-SHARED), separated by state key and name prefix. This is acceptable for a hackathon. Document the multi-account path (Organizations, separate prod account) in the README as "production hardening".
@@ -842,6 +843,8 @@ graveyard/
 ├── backend/
 │   ├── core/                    # pure logic: purl, versions, scoring, graph (PBT heavy)
 │   ├── sources/                 # osv, depsdev, scorecard, npm, pypi, github clients
+│   ├── exhume/                  # GitHub side of a scan (tree, blobs, Reader app token)
+│   ├── scan/                    # table and artefacts storage adapters, SSM limits
 │   ├── workflow/                # Step Functions task handlers
 │   ├── api/                     # handlers + openapi.yaml
 │   ├── rites/                   # reincarnate, seal, necromancy; codemod rules
@@ -853,11 +856,11 @@ graveyard/
 ├── infra/
 │   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
 │   ├── .tflint.hcl
-│   ├── modules/{state,github-oidc,cost,web,api,workflow,data,ai,github-app,observability}
+│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,web,ai}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
 │   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action
-├── docker/syft-lambda/          # multi-stage Dockerfile + .dockerignore
+├── scripts/build/               # lambda.zip and syft-layer.zip builders, syft pin
 ├── eval/                        # labelled set + harness
 ├── docs/{PRD.md,KIRO_JOURNAL.md,ARCHITECTURE.md,runbooks/}
 ├── scripts/hooks/

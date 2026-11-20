@@ -103,7 +103,17 @@ locals {
       "kms:EnableKeyRotation", "kms:DisableKeyRotation", "kms:PutKeyPolicy", "kms:ScheduleKeyDeletion", "kms:CancelKeyDeletion",
       "kms:UpdateKeyDescription", "kms:CreateAlias", "kms:TagResource", "kms:UntagResource",
     ]
-    kms_read     = ["kms:DescribeKey", "kms:GetKeyPolicy", "kms:GetKeyRotationStatus", "kms:ListResourceTags"]
+    kms_read = ["kms:DescribeKey", "kms:GetKeyPolicy", "kms:GetKeyRotationStatus", "kms:ListResourceTags"]
+    # scan-backend, 19 Nov 2026: a DynamoDB table or secret with a customer-managed key makes the service ask for a grant
+    # in the caller's name. Allowed only on Graveyard keys and only for grants that an AWS service uses (kms:GrantIsForAWSResource).
+    kms_grant = ["kms:CreateGrant"]
+    # Exception E7 (scan-backend, approved 19 Nov 2026): CloudWatch Logs log delivery, used by Step Functions execution
+    # logging and API Gateway access logs. These actions have no resource-level permissions, so the resource is *.
+    # logs:PutResourcePolicy is NOT part of E7 (INF-SHARED-3 still forbids it).
+    logs_delivery = [
+      "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
+      "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups",
+    ]
     alias_write  = ["kms:CreateAlias", "kms:UpdateAlias", "kms:DeleteAlias"]
     ssm_write    = ["ssm:PutParameter", "ssm:DeleteParameter", "ssm:DeleteParameters", "ssm:AddTagsToResource", "ssm:RemoveTagsFromResource"]
     ssm_read     = ["ssm:GetParameter", "ssm:GetParameters", "ssm:ListTagsForResource"]

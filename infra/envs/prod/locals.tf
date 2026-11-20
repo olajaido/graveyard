@@ -14,3 +14,9 @@ locals {
   # Every named resource of this root starts with this prefix (INF-NAME-1).
   name_prefix = "graveyard-${local.env}"
 }
+locals {
+  account_id = var.allowed_account_ids[0]
+  partition  = "aws"
+  # The env's workload boundary, made by the bootstrap root (INF-APPLY-7). Every workload role carries it (INF-APPLY-4).
+  boundary_arn = "arn:${local.partition}:iam::${local.account_id}:policy/graveyard-ci/${local.name_prefix}-boundary"
+}

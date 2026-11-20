@@ -24,7 +24,7 @@ class ChangedPaths(RepoCase):
         return changed_paths.changed(self.repo, base, self.head(), merge_base)
 
     def test_each_pattern_is_true(self) -> None:
-        for path in ("infra/main.tf", ".github/workflows/ci.yml", "scripts/ci/guards.py", "docs/runbooks/terraform-bootstrap.md"):
+        for path in ("infra/main.tf", ".github/workflows/ci.yml", "scripts/ci/guards.py", "docs/runbooks/terraform-bootstrap.md", "scripts/build/build_lambda_zip.py", "backend/workflow/fetch.py", "backend/core/scan/ids.py", "backend/uv.lock"):
             with self.subTest(path=path):
                 base = self.base_commit() if path == "infra/main.tf" else self.head()
                 self.assertTrue(self.change(path, base))

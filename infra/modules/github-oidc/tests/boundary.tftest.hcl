@@ -226,8 +226,8 @@ run "the_x_ray_and_metric_exceptions_are_exactly_the_approved_ones" {
         for s in jsondecode(p.policy).Statement : "${k}/${s.Sid}"
         if s.Effect == "Allow" && contains(flatten([try(s.Resource, [])]), "*")
       ]
-    ])) == toset(["graveyard-dev-boundary/ExceptionE1", "graveyard-dev-boundary/ExceptionE2", "graveyard-dev-boundary/ExceptionE3", "graveyard-prod-boundary/ExceptionE1", "graveyard-prod-boundary/ExceptionE2", "graveyard-prod-boundary/ExceptionE3"])
-    error_message = "Only E1, E2 and E3 may allow * as a resource in a boundary."
+    ])) == toset(["graveyard-dev-boundary/ExceptionE1", "graveyard-dev-boundary/ExceptionE2", "graveyard-dev-boundary/ExceptionE3", "graveyard-dev-boundary/ExceptionE7", "graveyard-prod-boundary/ExceptionE1", "graveyard-prod-boundary/ExceptionE2", "graveyard-prod-boundary/ExceptionE3", "graveyard-prod-boundary/ExceptionE7"])
+    error_message = "Only E1, E2, E3 and E7 may allow * as a resource in a boundary."
   }
 }
 
@@ -341,4 +341,30 @@ run "a_us_region_is_rejected" {
   }
 
   expect_failures = [var.bedrock_foundation_model_regions]
+}
+run "log_delivery_exception_and_express_executions_are_exactly_the_approved_ones" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE7"][0] == {
+          Sid      = "ExceptionE7"
+          Effect   = "Allow"
+          Action   = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
+          Resource = "*"
+        } &&
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "StatesExpressExecutions"][0] == {
+          Sid      = "StatesExpressExecutions"
+          Effect   = "Allow"
+          Action   = ["states:DescribeExecution", "states:StopExecution"]
+          Resource = ["arn:aws:states:eu-west-2:123456789012:express:graveyard-${e}-*"]
+        }
+      )
+    ])
+    error_message = "E7 and the Express execution statement must be exactly the approved ones, limited to the env's own names."
+  }
+  assert {
+    condition     = !contains(flatten([for s in jsondecode(aws_iam_policy.ci["graveyard-dev-boundary"].policy).Statement : try(s.Action, []) if s.Effect == "Allow"]), "logs:PutResourcePolicy")
+    error_message = "logs:PutResourcePolicy is not part of E7."
+  }
 }

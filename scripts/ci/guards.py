@@ -21,6 +21,7 @@ Findings go to stderr as `<check>: <path>:<line>: <reason>`.
 from __future__ import annotations
 
 import fnmatch
+import json
 import re
 import subprocess
 import sys
@@ -229,6 +230,53 @@ def check_arn_segments(files: Files) -> List[Finding]:
                     if re.search(r"[*?]", INTERPOLATION.sub("", segment)):
                         found.append(Finding("arn-segments", path, number, f"the {label} segment of an ARN must not contain * or ?: {match.group(0)[1:]}"))
     return found
+SYFT_PIN = "scripts/build/syft-pin.json"
+ROUTE_KEY = re.compile(r'"((?:GET|POST|PUT|PATCH|DELETE) /v1/[^"]*)"')
+
+
+def check_build_pins(files: Files) -> List[Finding]:
+    """The Syft layer pin is complete and nothing under scripts/build/ says "latest" (scan-backend SB-SBOM-3)."""
+    found: List[Finding] = []
+    pin_text = files.get(SYFT_PIN)
+    if pin_text is None:
+        if any(path.startswith("scripts/build/") for path in files):
+            return [Finding("build-pins", SYFT_PIN, 1, "the Syft pin file is missing")]
+        return []
+    try:
+        pin = json.loads(pin_text)
+    except ValueError:
+        return [Finding("build-pins", SYFT_PIN, 1, "the Syft pin file is not JSON")]
+    if not isinstance(pin, dict) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", str(pin.get("version", ""))):
+        found.append(Finding("build-pins", SYFT_PIN, 1, "version must be an exact x.y.z"))
+    if not str(pin.get("url", "")).startswith("https://github.com/anchore/syft/releases/download/v"):
+        found.append(Finding("build-pins", SYFT_PIN, 1, "url must be a pinned anchore/syft release download"))
+    if not re.fullmatch(r"[0-9a-f]{64}", str(pin.get("sha256", ""))):
+        found.append(Finding("build-pins", SYFT_PIN, 1, "sha256 must be 64 hex characters"))
+    for path, text in sorted(files.items()):
+        if path.startswith("scripts/build/") and not path.startswith("scripts/build/tests/"):
+            for number, line in enumerate(text.splitlines(), 1):
+                if re.search(r"\blatest\b", line, re.IGNORECASE):
+                    found.append(Finding("build-pins", path, number, '"latest" is not allowed in a build script'))
+    return found
+
+
+def _route_keys(text: str) -> set:
+    return set(ROUTE_KEY.findall(text))
+
+
+def check_api_routes(files: Files) -> List[Finding]:
+    """The route keys of backend/api/routes.py equal those of the api Terraform module (SB-API-7)."""
+    code = files.get("backend/api/routes.py")
+    module = files.get("infra/modules/api/variables.tf")
+    if code is None or module is None:
+        return []  # the spec has not reached these files yet
+    in_code, in_module = _route_keys(code), _route_keys(module)
+    if in_code == in_module:
+        return []
+    differ = ", ".join(sorted(in_code ^ in_module))
+    return [Finding("api-routes", "infra/modules/api/variables.tf", 1, f"route keys differ from backend/api/routes.py: {differ}")]
+
+
 CHECKS: Dict[str, Callable[[Files], List[Finding]]] = {
     "account-ids": check_account_ids,
     "tracked-files": check_tracked_files,
@@ -236,6 +284,8 @@ CHECKS: Dict[str, Callable[[Files], List[Finding]]] = {
     "action-pins": check_action_pins,
     "module-policies": check_module_policies,
     "arn-segments": check_arn_segments,
+    "build-pins": check_build_pins,
+    "api-routes": check_api_routes,
 }
 
 

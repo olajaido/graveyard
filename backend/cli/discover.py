@@ -22,7 +22,7 @@ GLOB_CHARS: Final = frozenset("*?[]{}")
 MAX_SHOWN_PATH_CHARS: Final = 100
 
 
-def _is_lockfile_name(name: str) -> bool:
+def is_lockfile_name(name: str) -> bool:
     return name in EXACT_LOCKFILES or fnmatch.fnmatchcase(name, REQUIREMENTS_GLOB)
 
 
@@ -48,7 +48,7 @@ def lockfiles_in(directory: Path) -> tuple[str, ...]:
     return tuple(
         name
         for name in names
-        if _is_lockfile_name(name) and _is_regular_file(os.path.join(base, name))
+        if is_lockfile_name(name) and _is_regular_file(os.path.join(base, name))
     )
 
 
@@ -62,7 +62,7 @@ def find_services(root: Path) -> tuple[ServiceDir, ...]:
         lockfiles = tuple(
             name
             for name in sorted(filenames)
-            if _is_lockfile_name(name) and _is_regular_file(os.path.join(current, name))
+            if is_lockfile_name(name) and _is_regular_file(os.path.join(current, name))
         )
         if not lockfiles:
             continue
@@ -89,3 +89,6 @@ def find_services(root: Path) -> tuple[ServiceDir, ...]:
                 "* ? [ ] { }; rename the directory"
             )
     return tuple(services)
+
+
+_is_lockfile_name = is_lockfile_name  # kept so nothing that imported the old name breaks

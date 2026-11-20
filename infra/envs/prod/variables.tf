@@ -18,3 +18,39 @@ variable "allowed_account_ids" {
     error_message = "Give exactly one 12-digit account ID."
   }
 }
+variable "lambda_zip_path" {
+  type        = string
+  default     = "../../../build/lambda.zip"
+  description = "Path of lambda.zip, built by scripts/build/build_lambda_zip.py in the same CI job (SB-CI-1)."
+}
+variable "lambda_zip_sha256" {
+  type        = string
+  description = "Hex SHA-256 of lambda.zip, printed by the build script. CI passes it as TF_VAR_lambda_zip_sha256 (SB-CI-2)."
+  validation {
+    condition     = can(regex("^[0-9a-f]{64}$", var.lambda_zip_sha256))
+    error_message = "Give 64 lower-case hex characters."
+  }
+}
+variable "syft_layer_zip_path" {
+  type        = string
+  default     = "../../../build/syft-layer.zip"
+  description = "Path of syft-layer.zip, built by scripts/build/build_syft_layer.py in the same CI job (SB-SBOM-3)."
+}
+variable "syft_layer_sha256" {
+  type        = string
+  description = "Hex SHA-256 of syft-layer.zip, printed by the build script. CI passes it as TF_VAR_syft_layer_sha256 (SB-CI-2)."
+  validation {
+    condition     = can(regex("^[0-9a-f]{64}$", var.syft_layer_sha256))
+    error_message = "Give 64 lower-case hex characters."
+  }
+}
+variable "sources_contact" {
+  type        = string
+  default     = "https://github.com/olajaido/graveyard"
+  description = "Contact in the User-Agent of the source clients (SB-CFG-1). A public project URL by default; not a secret."
+}
+variable "cors_allowed_origins" {
+  type        = list(string)
+  default     = []
+  description = "Browser origins the API allows. Empty until the web app exists (SB-API-9)."
+}

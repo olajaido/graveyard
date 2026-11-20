@@ -51,6 +51,8 @@ runs:
           *) echo "env must be dev or prod" >&2; exit 1 ;;
         esac
 
+    - name: Build the Lambda packages (their hashes go into the plan)
+      uses: ./.github/actions/build-lambda-packages
     - name: Initialise with the plan role
       uses: ./.github/actions/terraform-init
       with:

@@ -28,6 +28,8 @@ locals {
         { Sid = "KmsCreateKey", Effect = "Allow", Action = ["kms:CreateKey"], Resource = "*", Condition = local.cond_create[e] },
         { Sid = "KmsTagNewKey", Effect = "Allow", Action = ["kms:TagResource"], Resource = [local.gen.kms_key], Condition = local.cond_create[e] },
         { Sid = "KmsManageKeys", Effect = "Allow", Action = concat(local.act.kms_write, local.act.kms_read), Resource = [local.gen.kms_key], Condition = local.cond_use[e] },
+        # scan-backend (19 Nov 2026): grants for AWS services (DynamoDB, Secrets Manager) on Graveyard keys only.
+        { Sid = "KmsCreateGrant", Effect = "Allow", Action = local.act.kms_grant, Resource = [local.gen.kms_key], Condition = merge(local.cond_use[e], { Bool = { "kms:GrantIsForAWSResource" = "true" } }) },
         { Sid = "KmsAliases", Effect = "Allow", Action = local.act.alias_write, Resource = [local.res[e].kms_alias] },
         { Sid = "Ssm", Effect = "Allow", Action = concat(local.act.ssm_write, local.act.ssm_read), Resource = [local.res[e].parameter] },
         { Sid = "SecretContainers", Effect = "Allow", Action = concat(local.act.secret_write, local.act.secret_read), Resource = [local.res[e].secret] },
@@ -73,6 +75,8 @@ locals {
         { Sid = "CreateGuardrails", Effect = "Allow", Action = ["bedrock:CreateGuardrail"], Resource = "*", Condition = local.cond_create[e] },
         { Sid = "TagNewGuardrails", Effect = "Allow", Action = ["bedrock:TagResource"], Resource = [local.gen.guardrail], Condition = local.cond_create[e] },
         { Sid = "ManageGuardrails", Effect = "Allow", Action = concat(local.act.br_write, local.act.br_read), Resource = [local.gen.guardrail], Condition = local.cond_use[e] },
+        # Exception E7 (approved 19 Nov 2026): log delivery for Step Functions and API Gateway logs. No resource-level permissions.
+        { Sid = "ExceptionE7", Effect = "Allow", Action = local.act.logs_delivery, Resource = "*" },
         # AWS requires * for these list and describe calls. Metadata reads only.
         { Sid = "ReadStar", Effect = "Allow", Action = local.star_reads.ops, Resource = "*" },
       ]

@@ -984,3 +984,7 @@ Limits
 - Result tag eval-heldout-result at 3217fe0. Held-out verdict: INCONCLUSIVE for both v2 and v1 (floors: dead 14/25, finished-healthy 1/20), as recorded before labelling began.
 - Point estimates only: v2 Dead precision 10/10 [0.722, 1.000] against v1 13/17 [0.527, 0.904]; v1 score-based Dead 3/7. The dead-flagged rate is 13/14 for both, equal by design. The one unflagged dead row is azure-mgmt-scheduler: its deprecation appears only as PyPI description text (future work: PEP 792 status markers, v3).
 - T11.8 final gate clean except the known v1 red test; coverage of new modules is at or above 85%. Any later model change is v3 with a new seed and a new draw.
+## 20 Nov 2026: scan-backend spec and build
+- Spec `scan-backend` (lean) covers infra-serverless, exhume-github, syft-sbom-lambda and autopsy-workflow. Review decisions of 19 Nov: Syft as a Lambda layer (D7), one bootstrap change first (kms:CreateGrant, exception E7, Express execution ARNs: amendment A1 of infra-foundation), concurrency capped at about 50 per env.
+- The agent ran no `terraform plan` or `apply` and no `aws` CLI. Terraform was checked offline with `terraform test` (mock provider) through `scripts/ci/local-checks.sh`; the Python side with unit tests and one integration test over the handlers in state-machine order.
+- Not verified until the first CI apply and the first dev scan: the Distributed Map permissions at run time, the zip hash precondition under a saved plan, and the access log group (SB-PERM-5).
