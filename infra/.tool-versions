@@ -1,0 +1,4 @@
+terraform 1.17.2
+tflint 0.66.0
+checkov 3.4.5
+actionlint 1.7.12

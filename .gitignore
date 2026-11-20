@@ -21,6 +21,10 @@ out/
 crash.log
 *.tfvars
 !*.tfvars.example
+*.tfplan
+backend.hcl
+*_override.tf
+.terraform.d/
 
 # Secrets / env
 .env

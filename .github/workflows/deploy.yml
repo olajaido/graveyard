@@ -1,0 +1,106 @@
+name: deploy
+
+# Applies the plans that ci.yml saved for this run (infra-foundation, design 8.2). It is called by ci.yml only:
+# there is no workflow_dispatch, because a manual run would have no saved plan to apply.
+#
+# Each apply job runs in the GitHub environment of the same name. That is what the apply role trusts (decision
+# C2, C3), and the environment's own rules decide the rest: deployment from main only, and for prod a required
+# reviewer (INF-CI-9, docs/runbooks/github-environments.md).
+
+on:
+  workflow_call:
+    inputs:
+      dev_has_changes:
+        description: "'true' when the dev plan has changes."
+        type: string
+        required: true
+      dev_version_id:
+        description: S3 version ID of the saved dev plan.
+        type: string
+        required: true
+      dev_sha256:
+        description: SHA-256 of the saved dev plan file.
+        type: string
+        required: true
+      prod_has_changes:
+        description: "'true' when the prod plan has changes."
+        type: string
+        required: true
+      prod_version_id:
+        description: S3 version ID of the saved prod plan.
+        type: string
+        required: true
+      prod_sha256:
+        description: SHA-256 of the saved prod plan file.
+        type: string
+        required: true
+    secrets:
+      AWS_ACCOUNT_ID:
+        description: AWS account ID. A secret only so that GitHub masks it everywhere.
+        required: true
+
+permissions: {}
+
+jobs:
+  apply-dev:
+    if: inputs.dev_has_changes == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: dev
+    concurrency:
+      group: deploy-dev
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # The commit that was planned. An action of this repository can be used only after the checkout.
+      - name: Check out the planned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Apply the saved dev plan
+        uses: ./.github/actions/terraform-apply
+        with:
+          env: dev
+          version-id: ${{ inputs.dev_version_id }}
+          sha256: ${{ inputs.dev_sha256 }}
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+
+  # Prod waits for dev, and runs when dev succeeded or had nothing to apply. A failed or cancelled dev stops it
+  # (INF-CI-8). The job then waits for the required reviewer of the prod environment.
+  apply-prod:
+    needs: apply-dev
+    if: >-
+      !cancelled() &&
+      inputs.prod_has_changes == 'true' &&
+      (needs.apply-dev.result == 'success' || needs.apply-dev.result == 'skipped')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: prod
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out the planned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Apply the saved prod plan
+        uses: ./.github/actions/terraform-apply
+        with:
+          env: prod
+          version-id: ${{ inputs.prod_version_id }}
+          sha256: ${{ inputs.prod_sha256 }}
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}

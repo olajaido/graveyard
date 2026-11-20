@@ -1,0 +1,152 @@
+name: terraform-plan
+description: >-
+  Plan one env root with the read-only plan role, write the plan text to the job summary, and (on main only) store
+  the binary plan in the state bucket under plans/<run id>/. A plan is never uploaded as a workflow artifact, because
+  artifacts of a public repository are readable by anyone (decision C5). (infra-foundation design 8.5)
+
+inputs:
+  env:
+    description: dev or prod.
+    required: true
+  upload:
+    description: "'true' to store the plan in the state bucket when it has changes (push to main), otherwise 'false'."
+    required: false
+    default: "false"
+  account-id:
+    description: AWS account ID, from the repository secret AWS_ACCOUNT_ID.
+    required: true
+  aws-region:
+    description: Region of the state bucket.
+    required: false
+    default: eu-west-2
+  state-bucket:
+    description: Name of the state bucket, from the repository variable TF_STATE_BUCKET.
+    required: true
+  state-kms-key-id:
+    description: ID (UUID) of the state KMS key, from the repository variable TF_STATE_KMS_KEY_ID.
+    required: true
+
+outputs:
+  has_changes:
+    description: "'true' when the plan has changes, otherwise 'false'."
+    value: ${{ steps.plan.outputs.has_changes }}
+  version_id:
+    description: S3 version ID of the stored plan. Empty when nothing was stored.
+    value: ${{ steps.upload.outputs.version_id }}
+  sha256:
+    description: SHA-256 (hex) of the stored plan file. Empty when nothing was stored.
+    value: ${{ steps.upload.outputs.sha256 }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check the env name
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+      run: |
+        set -euo pipefail
+        case "$ENV_NAME" in
+          dev | prod) ;;
+          *) echo "env must be dev or prod" >&2; exit 1 ;;
+        esac
+
+    - name: Initialise with the plan role
+      uses: ./.github/actions/terraform-init
+      with:
+        root: infra/envs/${{ inputs.env }}
+        with-backend: "true"
+        role: graveyard-ci/graveyard-plan
+        account-id: ${{ inputs.account-id }}
+        aws-region: ${{ inputs.aws-region }}
+        state-bucket: ${{ inputs.state-bucket }}
+        state-kms-key-id: ${{ inputs.state-kms-key-id }}
+
+    - name: Plan
+      id: plan
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+      run: |
+        # GitHub starts bash with errexit on, so a bare `terraform plan -detailed-exitcode` that exits 2 (changes) would
+        # end the step before the code is read. `|| code=$?` keeps the exit code and lets errexit stay on for every
+        # other command: 0 is no changes, 2 is changes (both succeed), anything else is a failure.
+        set -uo pipefail
+        code=0
+        terraform -chdir="infra/envs/$ENV_NAME" plan -input=false -lock-timeout=5m -detailed-exitcode -out="$PLANFILE" || code=$?
+        case "$code" in
+          0) has_changes=false ;;
+          2) has_changes=true ;;
+          *) echo "terraform plan failed with exit code $code" >&2; exit "$code" ;;
+        esac
+        echo "has_changes=$has_changes" >> "$GITHUB_OUTPUT"
+
+    - name: Write the plan to the job summary
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        ACCOUNT_ID: ${{ inputs.account-id }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        RAW_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.txt
+        MASKED_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.masked.txt
+      run: |
+        set -euo pipefail
+        # The summary is not guaranteed to go through log masking, so the account ID is replaced here, and the
+        # text is cut at 900 KB (the limit is 1 MiB per step). Terraform has already redacted sensitive values.
+        # Files, not a pipe: head closing a pipe early would make pipefail fail the step on a large plan.
+        terraform -chdir="infra/envs/$ENV_NAME" show -no-color "$PLANFILE" > "$RAW_TEXT"
+        sed "s/$ACCOUNT_ID/<account>/g" "$RAW_TEXT" > "$MASKED_TEXT"
+        {
+          echo "### Terraform plan: $ENV_NAME"
+          echo '```'
+          head -c 900000 "$MASKED_TEXT"
+          echo
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        rm -f "$RAW_TEXT" "$MASKED_TEXT"
+
+    - name: Store the plan in the state bucket
+      id: upload
+      if: inputs.upload == 'true' && steps.plan.outputs.has_changes == 'true'
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        ACCOUNT_ID: ${{ inputs.account-id }}
+        REGION: ${{ inputs.aws-region }}
+        STATE_BUCKET: ${{ inputs.state-bucket }}
+        STATE_KEY_ID: ${{ inputs.state-kms-key-id }}
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        COMMIT_SHA: ${{ github.sha }}
+        RUN_ID: ${{ github.run_id }}
+      run: |
+        set -euo pipefail
+        sha256="$(sha256sum "$PLANFILE" | cut -d' ' -f1)"
+        # The bucket policy requires the key ARN exactly (DenyWrongKey), so it is built, not abbreviated.
+        key_arn="arn:aws:kms:${REGION}:${ACCOUNT_ID}:key/${STATE_KEY_ID}"
+        version_id="$(aws s3api put-object \
+          --bucket "$STATE_BUCKET" \
+          --key "plans/${RUN_ID}/${ENV_NAME}.tfplan" \
+          --body "$PLANFILE" \
+          --server-side-encryption aws:kms \
+          --ssekms-key-id "$key_arn" \
+          --checksum-algorithm SHA256 \
+          --metadata "commit-sha=${COMMIT_SHA},run-id=${RUN_ID},env=${ENV_NAME}" \
+          --query VersionId --output text)"
+        if [ -z "$version_id" ] || [ "$version_id" = "None" ]; then
+          echo "the state bucket returned no version ID: is versioning on?" >&2
+          exit 1
+        fi
+        {
+          echo "version_id=$version_id"
+          echo "sha256=$sha256"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Delete the local plan file
+      if: always()
+      shell: bash
+      env:
+        PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        RAW_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.txt
+        MASKED_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.masked.txt
+      run: rm -f "$PLANFILE" "$RAW_TEXT" "$MASKED_TEXT"

@@ -23,6 +23,10 @@ The hook is not installed automatically: ask the agent to set it up through the 
 
 See [`powers/graveyard/README.md`](powers/graveyard/README.md) for the full install steps, the dry-run check, exit codes and limits.
 
+## Production hardening
+
+Graveyard currently shares an AWS account with other projects. The INF-SHARED controls (name prefixes, `Project` tag conditions, a tag-filtered budget) reduce the blast radius but do not replace account separation. Before real production use, move Graveyard into its own account (or organisation unit) and tighten the roles accordingly.
+
 ## Third-party components
 
 The held-out evaluation draws candidates from two third-party lists, pinned in `eval/heldout/snapshot/pins.json`. Only package names and download counts are used.

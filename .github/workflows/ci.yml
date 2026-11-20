@@ -1,0 +1,305 @@
+name: ci
+
+# Static checks, offline tests and plans for the Terraform code (infra-foundation, design 8.1). Later specs add the
+# application jobs (lint, unit, property, integration, eval) to this file.
+#
+# Triggers are pull_request and push to main only: never pull_request_target (INF-OIDC-9). A plan on a pull request
+# is read-only and is never stored. A plan on main is stored in the state bucket and handed to deploy.yml.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # INF-KIRO-1: .kiro/ must be committed and must never be git-ignored. Runs on every change, whatever the path filter says.
+  kiro-not-ignored:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Fail if .kiro is ignored or has no tracked files
+        run: python3 scripts/ci/check_kiro_not_ignored.py
+
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - name: Check out with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Did infra, workflows, CI scripts or runbooks change
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            python3 scripts/ci/changed_paths.py --base "$PR_BASE" --head "$PR_HEAD" --merge-base >> "$GITHUB_OUTPUT"
+          else
+            python3 scripts/ci/changed_paths.py --base "$PUSH_BEFORE" --head "$PUSH_SHA" >> "$GITHUB_OUTPUT"
+          fi
+      # INF-CI-10: a fork or Dependabot pull request gets no OIDC token, so its plans are skipped, not failed.
+      - name: Say why the plans are skipped
+        if: github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.actor == 'dependabot[bot]')
+        run: |
+          echo "Plan skipped: no OIDC token for fork or Dependabot pull requests" >> "$GITHUB_STEP_SUMMARY"
+
+  guards:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test the guards and the CI scripts
+        run: python3 -m unittest discover -s scripts/ci/tests
+      - name: Run the guards
+        run: python3 scripts/ci/guards.py
+
+  tf-fmt:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Terraform
+        uses: ./.github/actions/terraform-init
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff infra
+
+  tf-validate:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        root:
+          - infra/bootstrap
+          - infra/envs/dev
+          - infra/envs/prod
+          - infra/modules/state
+          - infra/modules/github-oidc
+          - infra/modules/cost
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Terraform and initialise without a backend
+        uses: ./.github/actions/terraform-init
+        with:
+          root: ${{ matrix.root }}
+      - name: terraform validate
+        env:
+          ROOT: ${{ matrix.root }}
+        run: terraform -chdir="$ROOT" validate
+
+  tf-test:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        root:
+          - infra/modules/state
+          - infra/modules/github-oidc
+          - infra/modules/cost
+          - infra/bootstrap
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Terraform and initialise without a backend
+        uses: ./.github/actions/terraform-init
+        with:
+          root: ${{ matrix.root }}
+      - name: terraform test, offline with mocked providers and no credentials
+        env:
+          ROOT: ${{ matrix.root }}
+        run: terraform -chdir="$ROOT" test
+
+  # tflint, checkov and actionlint run from the images pinned by digest in scripts/ci/local-checks.sh, the same
+  # script and images the maintainer and the agent use locally (design 7.3).
+  tflint:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Restore the tflint plugin cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/graveyard-tf-plugins
+          key: tflint-${{ runner.os }}-${{ hashFiles('infra/.tflint.hcl', 'infra/.tool-versions') }}
+      - name: tflint
+        # The workflow token (contents: read) goes to this step only. local-checks.sh hands it to the tflint
+        # container of `tflint --init` and nothing else, so the ruleset download from api.github.com is not
+        # rate limited on the shared runner IP (decision T24, design section 0). The cache above makes most
+        # runs skip the download.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/ci/local-checks.sh tflint
+
+  checkov:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: checkov (terraform and github_actions)
+        run: scripts/ci/local-checks.sh checkov
+
+  actionlint:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        run: scripts/ci/local-checks.sh actionlint
+
+  # Plans use the read-only plan role. A plan job has no environment: its OIDC subject is pull_request or the main
+  # branch, which is what the plan role trusts (decision C2). They are two named jobs, not a matrix, because the
+  # outputs of a matrix job overwrite each other and deploy.yml needs both envs' version IDs.
+  plan-dev:
+    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint]
+    if: >-
+      needs.changes.outputs.infra == 'true' &&
+      (github.event_name == 'push' ||
+      (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      has_changes: ${{ steps.plan.outputs.has_changes }}
+      version_id: ${{ steps.plan.outputs.version_id }}
+      sha256: ${{ steps.plan.outputs.sha256 }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Plan dev
+        id: plan
+        uses: ./.github/actions/terraform-plan
+        with:
+          env: dev
+          upload: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+
+  plan-prod:
+    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint]
+    if: >-
+      needs.changes.outputs.infra == 'true' &&
+      (github.event_name == 'push' ||
+      (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      has_changes: ${{ steps.plan.outputs.has_changes }}
+      version_id: ${{ steps.plan.outputs.version_id }}
+      sha256: ${{ steps.plan.outputs.sha256 }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Plan prod
+        id: plan
+        uses: ./.github/actions/terraform-plan
+        with:
+          env: prod
+          upload: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+
+  # Apply happens only from main, in deploy.yml, and only when a plan has changes. Nothing is inherited: the one
+  # secret is passed by name.
+  deploy:
+    needs: [plan-dev, plan-prod]
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      (needs.plan-dev.outputs.has_changes == 'true' || needs.plan-prod.outputs.has_changes == 'true')
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy.yml
+    with:
+      dev_has_changes: ${{ needs.plan-dev.outputs.has_changes }}
+      dev_version_id: ${{ needs.plan-dev.outputs.version_id }}
+      dev_sha256: ${{ needs.plan-dev.outputs.sha256 }}
+      prod_has_changes: ${{ needs.plan-prod.outputs.has_changes }}
+      prod_version_id: ${{ needs.plan-prod.outputs.version_id }}
+      prod_sha256: ${{ needs.plan-prod.outputs.sha256 }}
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

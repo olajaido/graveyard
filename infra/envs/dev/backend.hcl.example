@@ -1,0 +1,4 @@
+# Copy to backend.hcl (git-ignored). The values come from the outputs of infra/bootstrap.
+# The KMS ARN contains the account ID, so this file is never committed.
+bucket     = "graveyard-tfstate-xxxxxxxx"
+kms_key_id = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
