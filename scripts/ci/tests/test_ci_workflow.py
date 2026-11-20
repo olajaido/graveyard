@@ -54,7 +54,10 @@ class RealFiles(unittest.TestCase):
         text = CI + DEPLOY
         for name in ("vars.TF_STATE_BUCKET", "vars.TF_STATE_KMS_KEY_ID", "vars.AWS_REGION", "secrets.AWS_ACCOUNT_ID"):
             self.assertIn(name, text)
-        self.assertNotRegex(text, r"secrets\.(?!AWS_ACCOUNT_ID\b)[A-Z_]+")
+        # The one other secret: the workflow token, in the tflint job of ci.yml only (decision T24).
+        self.assertNotRegex(text, r"secrets\.(?!AWS_ACCOUNT_ID\b|GITHUB_TOKEN\b)[A-Z_]+")
+        self.assertNotIn("secrets.GITHUB_TOKEN", DEPLOY)
+        self.assertEqual(CI.count("secrets.GITHUB_TOKEN"), 1)
         self.assertNotIn("secrets: inherit", text)
 
     @unittest.skipUnless(shutil.which("ruby"), "ruby is on the CI runners; skipped where it is not installed")
@@ -70,6 +73,10 @@ class RealFiles(unittest.TestCase):
         self.assertNotEqual(done.returncode, 0)
 
 
+def CI_WITH_TFLINT_WRITE() -> list:
+    marker = "  tflint:\n    needs: changes\n    if: needs.changes.outputs.infra == 'true'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 15\n    permissions:\n      contents: read\n"
+    assert marker in CI
+    return rules.ci_problems(CI.replace(marker, marker + "      pull-requests: write\n", 1))
 class BrokenCi(unittest.TestCase):
     """Each change below breaks one rule of ci.yml, and the rules must notice."""
 
@@ -96,6 +103,14 @@ class BrokenCi(unittest.TestCase):
         self.assertCaught(self.broken("  tflint:\n    needs: changes\n    if: needs.changes.outputs.infra == 'true'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 15\n    permissions:\n      contents: read\n",
                                       "  tflint:\n    needs: changes\n    if: needs.changes.outputs.infra == 'true'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 15\n    permissions:\n      contents: read\n      id-token: write\n"), "id-token")
 
+    def test_the_token_in_another_job(self) -> None:
+        self.assertCaught(self.broken("      - name: actionlint\n        run: scripts/ci/local-checks.sh actionlint", "      - name: actionlint\n        env:\n          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n        run: scripts/ci/local-checks.sh actionlint"), "tflint job only")
+    def test_the_token_removed_from_the_tflint_step(self) -> None:
+        self.assertCaught(self.broken("        env:\n          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n        run: scripts/ci/local-checks.sh tflint", "        run: scripts/ci/local-checks.sh tflint"), "tflint job only")
+    def test_the_tflint_job_with_more_than_read_access(self) -> None:
+        self.assertCaught(CI_WITH_TFLINT_WRITE(), "exactly contents: read")
+    def test_the_tflint_cache_removed(self) -> None:
+        self.assertCaught(self.broken("hashFiles('infra/.tflint.hcl', 'infra/.tool-versions')", "hashFiles('infra/.tool-versions')"), "plugin cache")
     def test_write_permission_on_contents(self) -> None:
         self.assertCaught(self.broken("permissions:\n      contents: read\n", "permissions:\n      contents: write\n"), "contents must be read")
 

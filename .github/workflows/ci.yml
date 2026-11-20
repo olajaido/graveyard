@@ -180,6 +180,12 @@ jobs:
           path: ~/.cache/graveyard-tf-plugins
           key: tflint-${{ runner.os }}-${{ hashFiles('infra/.tflint.hcl', 'infra/.tool-versions') }}
       - name: tflint
+        # The workflow token (contents: read) goes to this step only. local-checks.sh hands it to the tflint
+        # container of `tflint --init` and nothing else, so the ruleset download from api.github.com is not
+        # rate limited on the shared runner IP (decision T24, design section 0). The cache above makes most
+        # runs skip the download.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: scripts/ci/local-checks.sh tflint
 
   checkov:

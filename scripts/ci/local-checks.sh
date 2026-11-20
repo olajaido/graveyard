@@ -5,6 +5,10 @@
 # Every container gets the repository and a provider cache mounted, and no variable
 # from the host environment. Nothing here talks to a cloud account or a state backend.
 #
+# The one exception (design section 0, decision T24): on a CI runner (CI=true) with GITHUB_TOKEN set, the tflint
+# container of `tflint --init` receives GITHUB_TOKEN and nothing else, so the plugin download is not rate limited
+# on the shared runner IP. Locally nothing is forwarded.
+#
 # Usage: scripts/ci/local-checks.sh <fmt|fmt-write|validate|test|tflint|checkov|actionlint|guards|lock DIR|all>
 set -euo pipefail
 
@@ -51,9 +55,17 @@ run_in() {
   local cache_args=()
   if [ "$use_cache" = "cache" ]; then
     mkdir -p "$CACHE"
-    cache_args=(-v "$CACHE:/plugin-cache" -e TF_PLUGIN_CACHE_DIR=/plugin-cache -e TFLINT_PLUGIN_DIR=/plugin-cache/tflint)
+    # TF_DATA_DIR keeps the offline runs out of a directory's own .terraform, which holds the backend that a real
+    # `terraform init` (a manual task) configured. An s3 backend there makes even `init -backend=false` ask for credentials.
+    local data_dir="/plugin-cache/data/${workdir//\//_}"
+    cache_args=(-v "$CACHE:/plugin-cache" -e TF_PLUGIN_CACHE_DIR=/plugin-cache -e "TF_DATA_DIR=$data_dir" -e TFLINT_PLUGIN_DIR=/plugin-cache/tflint)
   fi
-  docker run --rm --user "$(id -u):$(id -g)" -v "$REPO:/repo" ${cache_args[@]+"${cache_args[@]}"} -e TF_IN_AUTOMATION=1 -e CHECKPOINT_DISABLE=1 -e HOME=/tmp -w "/repo/$workdir" ${extra[@]+"${extra[@]}"} "$image" "$@"
+  # The exception above: tflint --init on a CI runner, GITHUB_TOKEN only.
+  local token_args=()
+  if [ "${FORWARD_GITHUB_TOKEN:-}" = "1" ] && [ "$image" = "$TFLINT_IMAGE" ] && [ "${CI:-}" = "true" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
+    token_args=(-e GITHUB_TOKEN)
+  fi
+  docker run --rm --user "$(id -u):$(id -g)" -v "$REPO:/repo" ${cache_args[@]+"${cache_args[@]}"} ${token_args[@]+"${token_args[@]}"} -e TF_IN_AUTOMATION=1 -e CHECKPOINT_DISABLE=1 -e HOME=/tmp -w "/repo/$workdir" ${extra[@]+"${extra[@]}"} "$image" "$@"
 }
 
 tf() { local dir="$1"; shift; run_in "$TERRAFORM_IMAGE" "$dir" cache -- "$@"; }
@@ -112,7 +124,7 @@ cmd_test() {
 cmd_tflint() {
   [ -d "$REPO/infra" ] || die "no infra/ directory"
   local d found=0 config="--config=/repo/infra/.tflint.hcl"
-  run_in "$TFLINT_IMAGE" infra cache -- --init "$config"
+  FORWARD_GITHUB_TOKEN=1 run_in "$TFLINT_IMAGE" infra cache -- --init "$config"
   # Roots: the tag rule runs here, because provider default_tags are visible and local module calls are followed.
   for d in $(existing_dirs); do
     found=1

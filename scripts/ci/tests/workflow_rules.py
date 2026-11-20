@@ -66,6 +66,22 @@ def ci_problems(text: str) -> List[str]:
         has_id_token = "id-token" in job["permissions"]
         if has_id_token != (name in OIDC_JOBS):
             p.append(f"{name}: id-token: write belongs to exactly the plan jobs and deploy")
+    # Decision T24: the workflow token reaches the tflint job only (plugin download, rate limit), read-only, with the
+    # plugin cache restored before it. No other job may name it.
+    holders = [name for name, job in jobs.items() if any("secrets.GITHUB_TOKEN" in line for line in job["lines"])]
+    if holders != ["tflint"]:
+        p.append(f"secrets.GITHUB_TOKEN may appear in the tflint job only, found in {holders}")
+    else:
+        tflint = jobs["tflint"]
+        if tflint["permissions"] != {"contents": "read"}:
+            p.append("tflint: permissions must be exactly contents: read")
+        if sum(line.count("secrets.GITHUB_TOKEN") for line in tflint["lines"]) != 1:
+            p.append("tflint: secrets.GITHUB_TOKEN must appear exactly once")
+        if not any("actions/cache@" in s.get("uses", "") and "tflint.hcl" in "\n".join(tflint["lines"]) for s in tflint["steps"]):
+            p.append("tflint: must restore a plugin cache keyed on infra/.tflint.hcl")
+        step = next((s for s in tflint["steps"] if "local-checks.sh tflint" in s.get("run", "")), None)
+        if step is None or step.get("env", {}).get("GITHUB_TOKEN") != "${{ secrets.GITHUB_TOKEN }}":
+            p.append("tflint: the tflint step must set GITHUB_TOKEN in its own env")
     k = jobs["kiro-not-ignored"]
     if k["needs"] or "if" in k["keys"]:
         p.append("kiro-not-ignored must have no needs and no if (INF-KIRO-1)")

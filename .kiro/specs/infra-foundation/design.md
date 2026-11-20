@@ -12,6 +12,8 @@
 
 **The agent never runs `terraform init`, `plan` or `apply` against a real backend or AWS, never runs the `aws` CLI, and never reads `~/.aws` or any `AWS_*` environment variable. The agent's Terraform commands are limited to `terraform fmt`, `terraform init -backend=false`, `terraform validate`, `terraform providers lock` and `terraform test`; `terraform test` runs offline, with `mock_provider` blocks, no credentials and no backend. The agent runs Terraform, tflint, checkov and actionlint from the images pinned by digest in §2, through `scripts/ci/local-checks.sh`, which mounts only the repository and a plugin cache and passes no host environment variables into the container. The only network the agent uses is reading public release metadata and downloading the pinned providers, plugins and images from public registries (Terraform Registry, GitHub, Docker Hub, GHCR). Every real `init`, `plan` or `apply`, every AWS CLI call, and every change to GitHub settings (environments, variables, secrets) is a MANUAL task done by the maintainer.**
 
+**One narrow exception to "no variable from the host environment" (decision T24, 19 Nov 2026).** The first CI run failed in `tflint --init` with `403 API rate limit exceeded` from `api.github.com` (the ruleset download, on a shared runner IP). `local-checks.sh` now passes `GITHUB_TOKEN`, and nothing else, to the tflint container of `tflint --init`, and only when `CI=true` and `GITHUB_TOKEN` is set. On a workstation nothing is forwarded, so the agent's runs are unchanged. `test_local_checks.py` allows this exact block once and fails on any other forwarded variable (bad samples: a different variable, a second variable beside it, the CI condition or the image condition removed, a second copy, the switch on another call). The token is the workflow token with `contents: read`, given to the one `tflint` step of `ci.yml`; `test_ci_workflow.py` checks that no other job names it.
+
 ---
 
 ## 1. Overview
@@ -672,7 +674,7 @@ rule "aws_resource_missing_tags" {
 }
 ```
 
-tflint runs with `--recursive` from `infra/`, with `GITHUB_TOKEN` set so plugin download is not rate-limited and the plugin's signature is checked.
+tflint runs per directory through `local-checks.sh`, locally and in CI. On a CI runner the `tflint --init` container receives `GITHUB_TOKEN` (the workflow token, `contents: read`) so the ruleset download from `api.github.com` is not rate limited; this is the one exception of §0. The `tflint` job also restores `~/.cache/graveyard-tf-plugins` with `actions/cache` (pinned by SHA, key on the hash of `infra/.tflint.hcl` and `infra/.tool-versions`), so most runs download nothing.
 
 ### 7.3 checkov and actionlint
 
@@ -967,6 +969,7 @@ Full text in `requirements.md` ("Flags raised in round 3 and the maintainer's de
 | F5 | E1 to E5 approved verbatim; E5 limited to the exact PRD §10.2 profile and foundation-model ARNs, IDs as variables. T9.0 passed. | §5.2.7; §5.2 inputs; V19 |
 | F6 | Recorded as a PRD deviation. | §11 |
 | F7 | Agreed. | §5.2.7 |
+| T24 | Maintainer decision after the first CI run (19 Nov 2026): the `tflint` job passes the workflow `GITHUB_TOKEN` to `tflint --init` only, and caches the plugin directory. This is the single exception to the no-host-environment rule of §0, limited to `CI=true`, to the tflint image and to `--init`. | §0, §7.2; `local-checks.sh`; `test_local_checks.py`; `test_ci_workflow.py` |
 
 ## 14. Verification register
 
