@@ -16,16 +16,23 @@ from typing import Final, NoReturn
 
 REDACTED: Final = "[REDACTED]"
 
-MAX_TOKEN_LENGTH: Final = 255
+# GitHub is moving installation tokens from 40 to about 520 characters, and the format may
+# change again. The limit leaves room for several times that; nothing here may assume a fixed
+# length or a strict alphabet.
+MAX_TOKEN_LENGTH: Final = 4096
 
-# The prototype's ``_SECRET_SHAPES``: classic and fine-grained GitHub token shapes.
-_SECRET_SHAPES: Final = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}")
+# The prototype's ``_SECRET_SHAPES``: classic and fine-grained GitHub token shapes. The body
+# class is wide on purpose (letters, digits and ``_ . + / = -``), so a longer or base64-like
+# token is removed whole and nothing of it is left behind.
+_SECRET_SHAPES: Final = re.compile(
+    r"gh[pousr]_[A-Za-z0-9_.+/=-]{20,}|github_pat_[A-Za-z0-9_.+/=-]{20,}"
+)
 
 _TOKEN_REPR: Final = "SecretToken(***)"
 
 
 def _is_valid_token(value: object) -> bool:
-    """True for a string of 1 to 255 characters with no whitespace or control characters."""
+    """True for 1 to ``MAX_TOKEN_LENGTH`` characters, no whitespace or control characters."""
     if not isinstance(value, str) or not 0 < len(value) <= MAX_TOKEN_LENGTH:
         return False
     # ``isprintable`` is False for control, format, surrogate and non-space separator characters.

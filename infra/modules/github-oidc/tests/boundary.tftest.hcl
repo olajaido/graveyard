@@ -368,3 +368,26 @@ run "log_delivery_exception_and_express_executions_are_exactly_the_approved_ones
     error_message = "logs:PutResourcePolicy is not part of E7."
   }
 }
+run "the_apply_roles_carry_no_boundary_and_the_workload_boundary_does_not_hold_the_apply_only_statements" {
+  command = plan
+  assert {
+    condition     = alltrue([for e in ["dev", "prod"] : aws_iam_role.apply[e].permissions_boundary == null])
+    error_message = "A workload boundary caps the roles Terraform creates; the apply roles are not capped by it, so the apply statements of 20 Nov 2026 are not added to it."
+  }
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : !anytrue([
+        for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement :
+        anytrue([for a in flatten([try(s.Action, [])]) : startswith(a, "apigateway:") || a == "states:ValidateStateMachineDefinition" || a == "kms:Encrypt" || startswith(a, "kms:ReEncrypt")]) if s.Effect == "Allow"
+      ])
+    ])
+    error_message = "No workload role may be allowed to manage API Gateway, validate state machines or encrypt and re-encrypt with the app key."
+  }
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] :
+      [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "KmsUse"][0].Action == ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"]
+    ])
+    error_message = "Workload roles keep kms:Decrypt, GenerateDataKey and DescribeKey on tagged keys (direct calls, which is how the functions reach DynamoDB, Secrets Manager and S3 data)."
+  }
+}

@@ -70,6 +70,9 @@ run "the_star_resource_allow_list_is_exactly_this_and_holds_only_reads_tagged_cr
       "graveyard-prod-apply-edge/CreateDistributions",
       "graveyard-prod-apply-edge/CreateCloudFrontFunctions",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-compute/ExceptionE8",
+      "graveyard-prod-apply-compute/ExceptionE8",
+      "graveyard-plan-read-compute/ExceptionE8",
       "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-apply-edge/AcmRequest",
       "graveyard-prod-apply-edge/ReadStar",
@@ -115,6 +118,11 @@ run "the_exceptions_are_exactly_the_approved_ones" {
       "graveyard-dev-boundary/ExceptionE5ModelRites",
       "graveyard-prod-apply-compute/ExceptionE4",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-compute/ExceptionE8",
+      "graveyard-prod-apply-compute/ExceptionE8",
+      "graveyard-plan-read-compute/ExceptionE8",
+      "graveyard-dev-apply-edge/ExceptionE9",
+      "graveyard-prod-apply-edge/ExceptionE9",
       "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
@@ -128,7 +136,7 @@ run "the_exceptions_are_exactly_the_approved_ones" {
   }
 
   assert {
-    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
     error_message = "The exception statements may contain only the approved actions."
   }
 
@@ -192,6 +200,9 @@ run "bad_sample_an_unscoped_s3_write_on_star" {
       "graveyard-prod-apply-edge/CreateDistributions",
       "graveyard-prod-apply-edge/CreateCloudFrontFunctions",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-compute/ExceptionE8",
+      "graveyard-prod-apply-compute/ExceptionE8",
+      "graveyard-plan-read-compute/ExceptionE8",
       "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-apply-edge/AcmRequest",
       "graveyard-prod-apply-edge/ReadStar",
@@ -301,6 +312,11 @@ run "bad_sample_an_extra_exception" {
       "graveyard-dev-boundary/ExceptionE5ModelRites",
       "graveyard-prod-apply-compute/ExceptionE4",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-compute/ExceptionE8",
+      "graveyard-prod-apply-compute/ExceptionE8",
+      "graveyard-plan-read-compute/ExceptionE8",
+      "graveyard-dev-apply-edge/ExceptionE9",
+      "graveyard-prod-apply-edge/ExceptionE9",
       "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
@@ -314,7 +330,7 @@ run "bad_sample_an_extra_exception" {
   }
 
   assert {
-    condition     = toset(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-dev-boundary" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "ExceptionE9", Effect = "Allow", Action = ["ec2:RunInstances"], Resource = "*" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) != toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    condition     = toset(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-dev-boundary" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "ExceptionE9", Effect = "Allow", Action = ["ec2:RunInstances"], Resource = "*" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) != toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
     error_message = "The approved-actions rule must fail when an action is added."
   }
 }

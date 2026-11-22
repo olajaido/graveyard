@@ -19,7 +19,7 @@ fileMatchPattern: "infra/**"
 
 - Separate bootstrap root for the state bucket, OIDC roles and budget. A maintainer applies it locally once, then migrates its state to the bucket; CI never applies it.
 - Build IAM policies with `jsonencode` in `locals`, not `aws_iam_policy_document`. Modules contain no data sources.
-- The AWS account is shared with other projects: every write is limited to `graveyard-`/`graveyard/` names or `Project=graveyard` tag conditions. Wildcard exceptions are listed in `.kiro/specs/infra-foundation/design.md` (E1 to E7); add to that list before widening anything.
+- The AWS account is shared with other projects: every write is limited to `graveyard-`/`graveyard/` names or `Project=graveyard` tag conditions. Wildcard exceptions are listed in `.kiro/specs/infra-foundation/design.md` (E1 to E9); add to that list before widening anything.
 - Remote state in S3 with `use_lockfile = true` (native lockfile locking; DynamoDB locking is deprecated).
 - State bucket: versioned, encrypted, block public access.
 - No local state committed.
