@@ -1,0 +1,274 @@
+{
+ "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+ "bomFormat": "CycloneDX",
+ "components": [
+  {
+   "bom-ref": "pkg:pypi/appdirs@1.4.4?package-id=c9d4c5d2d8d9644d",
+   "name": "appdirs",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/appdirs@1.4.4",
+   "type": "library",
+   "version": "1.4.4"
+  },
+  {
+   "bom-ref": "pkg:pypi/argparse@1.4.0?package-id=482ad06d69038381",
+   "name": "argparse",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/argparse@1.4.0",
+   "type": "library",
+   "version": "1.4.0"
+  },
+  {
+   "bom-ref": "pkg:pypi/attrs@26.1.0?package-id=9442f6dbd0cd8c3d",
+   "name": "attrs",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/attrs@26.1.0",
+   "type": "library",
+   "version": "26.1.0"
+  },
+  {
+   "bom-ref": "pkg:pypi/eventlet@0.41.3?package-id=5750b44328bc48ed",
+   "name": "eventlet",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/eventlet@0.41.3",
+   "type": "library",
+   "version": "0.41.3"
+  },
+  {
+   "bom-ref": "pkg:pypi/flask@3.1.3?package-id=a2bf46d8f4612abc",
+   "name": "flask",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/flask@3.1.3",
+   "type": "library",
+   "version": "3.1.3"
+  },
+  {
+   "bom-ref": "pkg:pypi/flask-script@2.0.6?package-id=6be3c2c29925e2da",
+   "name": "flask-script",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/flask-script@2.0.6",
+   "type": "library",
+   "version": "2.0.6"
+  },
+  {
+   "bom-ref": "pkg:pypi/requests@2.34.2?package-id=ff223baec0f12bdf",
+   "name": "requests",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/requests@2.34.2",
+   "type": "library",
+   "version": "2.34.2"
+  },
+  {
+   "bom-ref": "pkg:pypi/typed-ast@1.5.5?package-id=d54e8d3913949d8a",
+   "name": "typed-ast",
+   "properties": [
+    {
+     "name": "syft:package:foundBy",
+     "value": "python-package-cataloger"
+    },
+    {
+     "name": "syft:package:language",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:type",
+     "value": "python"
+    },
+    {
+     "name": "syft:package:metadataType",
+     "value": "python-pip-requirements-entry"
+    },
+    {
+     "name": "syft:location:0:path",
+     "value": "/requirements.txt"
+    }
+   ],
+   "purl": "pkg:pypi/typed-ast@1.5.5",
+   "type": "library",
+   "version": "1.5.5"
+  },
+  {
+   "bom-ref": "26ca2b7dc025d550",
+   "hashes": [
+    {
+     "alg": "SHA-1",
+     "content": "955e7a089c5ef5159077a5d7e2a219fbd5d573c7"
+    },
+    {
+     "alg": "SHA-256",
+     "content": "2a0a691ac02e6ad3a87d4df9bbb7640851247267999d46ab83db98cecd9df765"
+    }
+   ],
+   "name": "/requirements.txt",
+   "type": "file"
+  }
+ ],
+ "metadata": {
+  "component": {
+   "bom-ref": "4c873abe8645d809",
+   "name": "/haunted-house/services/worker",
+   "type": "file"
+  },
+  "timestamp": "2026-11-22T21:35:53Z",
+  "tools": {
+   "components": [
+    {
+     "author": "anchore",
+     "name": "syft",
+     "type": "application",
+     "version": "1.56.0"
+    }
+   ]
+  }
+ },
+ "serialNumber": "urn:uuid:d1565746-d220-4ebe-bb1b-72cf75e59003",
+ "specVersion": "1.7",
+ "version": 1
+}

@@ -134,14 +134,23 @@ def test_idempotent(case: Case) -> None:
 
 @given(cases())
 def test_original_edges_and_components_are_preserved(case: Case) -> None:
+    """Every original edge survives except a root edge to an undeclared package that another
+    component also depends on (amendment of CLI-AUG-4, scan-backend design §17)."""
     result = add_direct_edges(case.bom, case.direct)
-    assert _edges(case.bom) <= _edges(dict(result.bom))
+    lost = _edges(case.bom) - _edges(dict(result.bom))
+    parents = {t for s, t in _edges(case.bom) if s != ROOT_REF}
+    for source, target in lost:
+        assert source == ROOT_REF
+        assert target in parents
+        assert _key(target.removeprefix("ref-")) not in case.direct
+    assert {_key(t.removeprefix("ref-")) for _, t in lost} == set(result.root_edges_removed)
     assert result.bom["components"] == case.bom["components"]
     assert result.bom["metadata"] == case.bom["metadata"]
     old = {e["ref"]: e.get("dependsOn", []) for e in case.bom["dependencies"]}
     for entry in result.bom["dependencies"]:
         if entry["ref"] in old:
-            assert entry["dependsOn"][: len(old[entry["ref"]])] == old[entry["ref"]]
+            kept = [t for t in old[entry["ref"]] if (entry["ref"], t) not in lost]
+            assert entry["dependsOn"][: len(kept)] == kept
 
 
 @given(cases())

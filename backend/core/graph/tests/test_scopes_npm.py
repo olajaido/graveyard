@@ -492,3 +492,40 @@ def test_cross_check_ignores_unknown_keys_and_sorts_output() -> None:
     warnings = cross_check(direct, packages)
     assert [w.subjects for w in warnings] == [("npm/m@1",), ("npm/z@1",)]
     assert cross_check({}, {}) == []
+
+
+def test_peer_dependencies_become_edges_resolved_with_node_lookup() -> None:
+    text = json.dumps(
+        {
+            "lockfileVersion": 3,
+            "packages": {
+                "": {"dependencies": {"a": "1.0.0"}, "peerDependencies": {"top": "1.0.0"}},
+                # a's peer p resolves to the top level; one peer is not installed at all.
+                "node_modules/a": {
+                    "version": "1.0.0",
+                    "peerDependencies": {"p": "^1", "gone": "*"},
+                },
+                # b, nested under c, finds the copy of p next to it first (Node's lookup).
+                "node_modules/c": {"version": "3.0.0"},
+                "node_modules/c/node_modules/b": {
+                    "version": "2.0.0",
+                    "peerDependencies": {"p": "^1"},
+                },
+                "node_modules/c/node_modules/p": {"version": "1.5.0", "peer": True},
+                "node_modules/p": {"version": "1.0.0", "peer": True},
+                "node_modules/top": {"version": "1.0.0"},
+            },
+        }
+    )
+    edges = parse_package_lock(text).peer_edges
+    assert edges == (
+        (npm_key("a", "1.0.0"), npm_key("p", "1.0.0")),
+        (npm_key("b", "2.0.0"), npm_key("p", "1.5.0")),
+    )
+
+
+def test_a_lockfile_without_peers_has_no_peer_edges() -> None:
+    text = json.dumps(
+        {"lockfileVersion": 3, "packages": {"": {}, "node_modules/x": {"version": "1.0.0"}}}
+    )
+    assert parse_package_lock(text).peer_edges == ()

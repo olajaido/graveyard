@@ -351,3 +351,13 @@ The smoke run of 11 Nov 2026 against the real Syft 1.56.0 (T11.3) showed that th
 | Wider eligibility | Ailing joins Dead-by-score as a score-based verdict that is not gated when a scored signal was skipped or failed. Cursed stays gated when an advisory meets the age rule on its own; a Cursed that holds only through the Dead/Ailing bypass follows its base state (CLI-EVID-1, CLI-EVID-3, D22). |
 | CLI-AUG-9 | Unchanged: the unreadable-lockfile and undeterminable-root cases remain documented limits, not fixed. |
 
+
+## Amendment A1 (22 Nov 2026, after the first dev scan of olajaido/haunted-house; scan-backend design §17)
+The lockfile is the source of truth for a service's direct dependencies and its single root.
+| ID | Change |
+|----|--------|
+| CLI-AUG-1 | `add_direct_edges(bom, direct_scopes, peer_edges=())`. `AugmentResult` gains `peer_edges_added` and `root_edges_removed` (both sorted, default `()`). |
+| CLI-AUG-2a | **Peers first.** Before the root is chosen, for each `(dependent, peer)` in `peer_edges` whose peer component has no incoming edge and is not `metadata.component`, every component of the dependent gets `dependsOn` the peer's smallest bom-ref. A peer stays transitive unless the lockfile also declares it. |
+| CLI-AUG-3a | **Name collisions.** When `direct_scopes` is not empty and the root is chosen, a root edge to a component whose key is not declared is removed **only if** another component also depends on it (so nothing becomes unreachable). Syft links the root to every installed version of a declared name (`commander@2.20.3` under `tslint` next to the declared `commander@15.1.0`). |
+| CLI-AUG-4 | Amended: the function may remove exactly the root edges of CLI-AUG-3a and nothing else. It still never mutates its input, never removes or changes a component, never reorders the edges it keeps, and is idempotent. |
+| CLI-AUG-8 | Tests added: `cli/tests/test_haunted_house_graph.py` on `demo/haunted-house` (recorded Syft 1.56.0 SBOMs, plus the real binary under the `syft` marker), peer and collision unit tests in `test_augment.py`, the amended property in `test_properties_augment.py`. |

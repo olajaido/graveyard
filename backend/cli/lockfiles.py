@@ -56,12 +56,13 @@ def _warning_key(warning: GraphWarning) -> tuple[str, str, str, tuple[str, ...]]
 
 
 def merge_scopes(results: Sequence[ScopeResult]) -> ScopeResult:
-    """Merge scope results: runtime wins over dev per key; warnings are the sorted union."""
+    """Merge scope results: runtime wins per key; warnings and peer edges are sorted unions."""
     warnings = {w for result in results for w in result.warnings}
     return ScopeResult(
         package_scopes=_merge_maps([r.package_scopes for r in results]),
         direct_scopes=_merge_maps([r.direct_scopes for r in results]),
         warnings=tuple(sorted(warnings, key=_warning_key)),
+        peer_edges=tuple(sorted({edge for r in results for edge in r.peer_edges})),
     )
 
 
