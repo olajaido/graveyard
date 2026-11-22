@@ -40,13 +40,6 @@ override_resource {
   }
 }
 override_resource {
-  target          = module.api.aws_cloudwatch_log_group.access
-  override_during = plan
-  values = {
-    arn = "arn:aws:logs:eu-west-2:123456789012:log-group:/aws/vendedlogs/states/graveyard-dev-api-access"
-  }
-}
-override_resource {
   target          = module.observability.aws_sns_topic.alerts
   override_during = plan
   values          = { arn = "arn:aws:sns:eu-west-2:123456789012:graveyard-dev-alerts" }
@@ -89,5 +82,12 @@ run "the_total_reserved_concurrency_is_about_fifty" {
   assert {
     condition     = sum([for k, f in module.workflow.function_settings : f.reserved_concurrency]) + 8 == 50
     error_message = "42 for the task functions plus 8 for the api: about 50 per env (the review of 19 Nov 2026)."
+  }
+}
+run "the_api_stage_has_no_access_logs_in_this_root" {
+  command = plan
+  assert {
+    condition     = module.api.access_log_group_name == null
+    error_message = "Access logging stays off until the security review (H11); the env roots use the module default."
   }
 }

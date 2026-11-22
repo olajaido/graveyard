@@ -9,13 +9,6 @@ override_resource {
     api_endpoint  = "https://abc123.execute-api.eu-west-2.amazonaws.com"
   }
 }
-override_resource {
-  target          = aws_cloudwatch_log_group.access
-  override_during = plan
-  values = {
-    arn = "arn:aws:logs:eu-west-2:123456789012:log-group:/aws/vendedlogs/states/graveyard-dev-api-access"
-  }
-}
 variables {
   name_prefix               = "graveyard-dev"
   env                       = "dev"
@@ -63,6 +56,9 @@ run "the_post_route_is_throttled_harder_than_the_default" {
 }
 run "access_logs_hold_no_query_string_body_or_header" {
   command = plan
+  variables {
+    access_logs_enabled = true
+  }
   assert {
     condition     = !anytrue([for v in values(jsondecode(one(aws_apigatewayv2_stage.default.access_log_settings).format)) : can(regex("request(Query|Body|Header)|queryString|authorization|headers|body", v))])
     error_message = "No query string, body or header in the access log (SB-API-9)."
@@ -128,8 +124,51 @@ run "the_gateway_may_invoke_only_the_live_alias_of_the_api_function_from_this_ap
 }
 run "the_access_log_group_is_under_the_vended_logs_path_of_this_env" {
   command = plan
+  variables {
+    access_logs_enabled = true
+  }
   assert {
-    condition     = aws_cloudwatch_log_group.access.name == "/aws/vendedlogs/states/graveyard-dev-api-access"
+    condition     = aws_cloudwatch_log_group.access[0].name == "/aws/vendedlogs/states/graveyard-dev-api-access"
     error_message = "The log group name must be one the apply role may create."
+  }
+}
+run "access_logging_is_off_by_default_with_no_stage_setting_and_no_log_group" {
+  command = plan
+  assert {
+    condition     = length(aws_apigatewayv2_stage.default.access_log_settings) == 0
+    error_message = "By default the stage has no access log settings (decision of 20 Nov 2026, H11)."
+  }
+  assert {
+    condition     = length(aws_cloudwatch_log_group.access) == 0 && output.access_log_group_name == null
+    error_message = "By default no access log group exists and the output is null."
+  }
+}
+run "access_logging_when_enabled_writes_the_stage_setting_and_the_group" {
+  command = plan
+  variables {
+    access_logs_enabled = true
+  }
+  assert {
+    condition     = length(aws_apigatewayv2_stage.default.access_log_settings) == 1
+    error_message = "When enabled the stage has one access log setting."
+  }
+  assert {
+    condition     = length(aws_cloudwatch_log_group.access) == 1 && output.access_log_group_name == "/aws/vendedlogs/states/graveyard-dev-api-access"
+    error_message = "When enabled one access log group exists, under the vended-logs path."
+  }
+  assert {
+    condition     = aws_cloudwatch_log_group.access[0].retention_in_days == 30
+    error_message = "The group keeps the retention variable."
+  }
+}
+run "throttling_and_default_route_settings_are_the_same_with_logging_off_or_on" {
+  command = plan
+  assert {
+    condition     = one(aws_apigatewayv2_stage.default.default_route_settings).throttling_rate_limit == 50 && one(aws_apigatewayv2_stage.default.default_route_settings).throttling_burst_limit == 100
+    error_message = "Default throttling is unchanged by the logging switch."
+  }
+  assert {
+    condition     = one(aws_apigatewayv2_stage.default.route_settings).throttling_rate_limit == 2 && one(aws_apigatewayv2_stage.default.route_settings).throttling_burst_limit == 5
+    error_message = "POST throttling is unchanged by the logging switch."
   }
 }

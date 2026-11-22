@@ -11,6 +11,6 @@ output "function_name" {
   value       = module.fn.function_name
 }
 output "access_log_group_name" {
-  description = "Name of the access log group."
-  value       = aws_cloudwatch_log_group.access.name
+  description = "Name of the access log group, or null when access logging is off."
+  value       = one(aws_cloudwatch_log_group.access[*].name)
 }
