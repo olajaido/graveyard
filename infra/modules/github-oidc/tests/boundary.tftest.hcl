@@ -226,8 +226,8 @@ run "the_x_ray_and_metric_exceptions_are_exactly_the_approved_ones" {
         for s in jsondecode(p.policy).Statement : "${k}/${s.Sid}"
         if s.Effect == "Allow" && contains(flatten([try(s.Resource, [])]), "*")
       ]
-    ])) == toset(["graveyard-dev-boundary/ExceptionE1", "graveyard-dev-boundary/ExceptionE2", "graveyard-dev-boundary/ExceptionE3", "graveyard-dev-boundary/ExceptionE7", "graveyard-prod-boundary/ExceptionE1", "graveyard-prod-boundary/ExceptionE2", "graveyard-prod-boundary/ExceptionE3", "graveyard-prod-boundary/ExceptionE7"])
-    error_message = "Only E1, E2, E3 and E7 may allow * as a resource in a boundary."
+    ])) == toset(["graveyard-dev-boundary/ExceptionE1", "graveyard-dev-boundary/ExceptionE2", "graveyard-dev-boundary/ExceptionE3", "graveyard-dev-boundary/ExceptionE10", "graveyard-prod-boundary/ExceptionE1", "graveyard-prod-boundary/ExceptionE2", "graveyard-prod-boundary/ExceptionE3", "graveyard-prod-boundary/ExceptionE10"])
+    error_message = "Only E1, E2, E3 and E10 may allow * as a resource in a boundary."
   }
 }
 
@@ -347,12 +347,7 @@ run "log_delivery_exception_and_express_executions_are_exactly_the_approved_ones
   assert {
     condition = alltrue([
       for e in ["dev", "prod"] : (
-        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE7"][0] == {
-          Sid      = "ExceptionE7"
-          Effect   = "Allow"
-          Action   = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
-          Resource = "*"
-        } &&
+        length([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE7"]) == 0 &&
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "StatesExpressExecutions"][0] == {
           Sid      = "StatesExpressExecutions"
           Effect   = "Allow"
@@ -361,11 +356,11 @@ run "log_delivery_exception_and_express_executions_are_exactly_the_approved_ones
         }
       )
     ])
-    error_message = "E7 and the Express execution statement must be exactly the approved ones, limited to the env's own names."
+    error_message = "E7 is no longer in the boundary (E10 replaces it, for state machine roles only); the Express execution statement is exactly the approved one."
   }
   assert {
-    condition     = !contains(flatten([for s in jsondecode(aws_iam_policy.ci["graveyard-dev-boundary"].policy).Statement : try(s.Action, []) if s.Effect == "Allow"]), "logs:PutResourcePolicy")
-    error_message = "logs:PutResourcePolicy is not part of E7."
+    condition     = alltrue([for e in ["dev", "prod"] : !anytrue([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : anytrue([for a in flatten([try(s.Action, [])]) : startswith(a, "logs:") && endswith(a, "Delivery") || a == "logs:PutResourcePolicy"]) if s.Effect == "Allow" && s.Sid != "ExceptionE10"])])
+    error_message = "In a boundary, log-delivery actions and logs:PutResourcePolicy appear only in E10."
   }
 }
 run "the_apply_roles_carry_no_boundary_and_the_workload_boundary_does_not_hold_the_apply_only_statements" {
@@ -389,5 +384,20 @@ run "the_apply_roles_carry_no_boundary_and_the_workload_boundary_does_not_hold_t
       [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "KmsUse"][0].Action == ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"]
     ])
     error_message = "Workload roles keep kms:Decrypt, GenerateDataKey and DescribeKey on tagged keys (direct calls, which is how the functions reach DynamoDB, Secrets Manager and S3 data)."
+  }
+}
+run "exception_e10_lets_only_state_machine_roles_manage_log_deliveries" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s if s.Sid == "ExceptionE10"][0] == {
+        Sid       = "ExceptionE10"
+        Effect    = "Allow"
+        Action    = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
+        Resource  = "*"
+        Condition = { ArnLike = { "aws:PrincipalArn" = "arn:aws:iam::123456789012:role/graveyard-${e}/graveyard-${e}-*-sfn" } }
+      }
+    ])
+    error_message = "E10 is the eight actions on *, limited to roles named graveyard-<env>-*-sfn on the env's workload path."
   }
 }

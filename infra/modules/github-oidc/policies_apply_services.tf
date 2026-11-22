@@ -64,6 +64,11 @@ locals {
         { Sid = "TagHttpApis", Effect = "Allow", Action = ["apigateway:PUT"], Resource = [local.gen.api_tags], Condition = local.cond_create[e] },
         { Sid = "ManageHttpApis", Effect = "Allow", Action = ["apigateway:GET", "apigateway:POST", "apigateway:PUT", "apigateway:PATCH", "apigateway:DELETE"], Resource = [local.gen.apis_all], Condition = local.cond_use[e] },
         # Exception E9 (20 Nov 2026): tags of HTTP APIs and their stages, written on create. No tag condition exists for POST here.
+        # Tag-on-create of HTTP API children (the $default stage, 20 Nov 2026). AWS authorizes it as apigateway:TagResource (the
+        # name in the error of the failed apply) and, per the Service Authorization Reference, CreateStage and TagResource as
+        # apigateway:PUT and POST; both forms are allowed, only with this env's Project and Env tags in the request.
+        { Sid = "TagHttpApiChildren", Effect = "Allow", Action = ["apigateway:TagResource", "apigateway:PUT", "apigateway:POST"], Resource = [local.gen.apis_all, local.gen.api_tags], Condition = local.cond_create[e] },
+        { Sid = "UntagHttpApiChildren", Effect = "Allow", Action = ["apigateway:UntagResource"], Resource = [local.gen.apis_all, local.gen.api_tags], Condition = local.cond_use[e] },
         { Sid = "ExceptionE9", Effect = "Allow", Action = local.exception_actions.e9_api_tags, Resource = [local.gen.api_tags] },
         { Sid = "ReadHttpApis", Effect = "Allow", Action = local.act.apigw_read, Resource = [local.gen.apis, local.gen.api_tags] },
         # AWS requires * for cloudfront:CreateDistribution and CreateFunction (a new resource has no ARN yet). Only with the tags in the request.

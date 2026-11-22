@@ -62,7 +62,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_holds_only_reads_tagged_cr
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",
       "graveyard-dev-boundary/ExceptionE3",
-      "graveyard-dev-boundary/ExceptionE7",
+      "graveyard-dev-boundary/ExceptionE10",
       "graveyard-prod-apply-compute/ReadStar",
       "graveyard-prod-apply-compute/ExceptionE4",
       "graveyard-prod-apply-data/KmsCreateKey",
@@ -81,7 +81,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_holds_only_reads_tagged_cr
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
       "graveyard-prod-boundary/ExceptionE3",
-      "graveyard-prod-boundary/ExceptionE7",
+      "graveyard-prod-boundary/ExceptionE10",
     ])
     error_message = "The set of statements that allow * must be exactly the approved list."
   }
@@ -96,7 +96,7 @@ run "none_of_the_removed_actions_is_allowed" {
   command = plan
 
   assert {
-    condition     = flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) || startswith(a, "organizations:") || startswith(a, "account:")]]) == []
+    condition     = flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) && !(a == "logs:PutResourcePolicy" && endswith(x.policy, "-boundary") && x.stmt.Sid == "ExceptionE10") || startswith(a, "organizations:") || startswith(a, "account:")]]) == []
     error_message = "An action of INF-SHARED-3 is allowed."
   }
 }
@@ -112,7 +112,7 @@ run "the_exceptions_are_exactly_the_approved_ones" {
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",
       "graveyard-dev-boundary/ExceptionE3",
-      "graveyard-dev-boundary/ExceptionE7",
+      "graveyard-dev-boundary/ExceptionE10",
       "graveyard-dev-boundary/ExceptionE5Profiles",
       "graveyard-dev-boundary/ExceptionE5ModelNarrate",
       "graveyard-dev-boundary/ExceptionE5ModelRites",
@@ -127,16 +127,16 @@ run "the_exceptions_are_exactly_the_approved_ones" {
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
       "graveyard-prod-boundary/ExceptionE3",
-      "graveyard-prod-boundary/ExceptionE7",
+      "graveyard-prod-boundary/ExceptionE10",
       "graveyard-prod-boundary/ExceptionE5Profiles",
       "graveyard-prod-boundary/ExceptionE5ModelNarrate",
       "graveyard-prod-boundary/ExceptionE5ModelRites",
     ])
-    error_message = "The exception statements must be exactly E1 to E7 as approved (INF-SHARED-4)."
+    error_message = "The exception statements must be exactly E1 to E10 as approved: E1 to E10 (INF-SHARED-4)."
   }
 
   assert {
-    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
     error_message = "The exception statements may contain only the approved actions."
   }
 
@@ -192,7 +192,7 @@ run "bad_sample_an_unscoped_s3_write_on_star" {
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",
       "graveyard-dev-boundary/ExceptionE3",
-      "graveyard-dev-boundary/ExceptionE7",
+      "graveyard-dev-boundary/ExceptionE10",
       "graveyard-prod-apply-compute/ReadStar",
       "graveyard-prod-apply-compute/ExceptionE4",
       "graveyard-prod-apply-data/KmsCreateKey",
@@ -211,7 +211,7 @@ run "bad_sample_an_unscoped_s3_write_on_star" {
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
       "graveyard-prod-boundary/ExceptionE3",
-      "graveyard-prod-boundary/ExceptionE7",
+      "graveyard-prod-boundary/ExceptionE10",
     ])
     error_message = "The exact allow-list must fail when a statement is added."
   }
@@ -272,7 +272,7 @@ run "bad_sample_removed_actions_with_an_otherwise_valid_scope" {
   # Removed actions with a valid name scope and tag.
 
   assert {
-    condition     = length(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-prod-apply-ops" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "Bad", Effect = "Allow", Action = ["iam:CreateServiceLinkedRole", "logs:PutResourcePolicy"], Resource = "arn:aws:iam::123456789012:role/graveyard-prod/graveyard-prod-x", Condition = { StringEquals = { "aws:ResourceTag/Project" = "graveyard" } } }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) || startswith(a, "organizations:") || startswith(a, "account:")]])) == 2
+    condition     = length(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-prod-apply-ops" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "Bad", Effect = "Allow", Action = ["iam:CreateServiceLinkedRole", "logs:PutResourcePolicy"], Resource = "arn:aws:iam::123456789012:role/graveyard-prod/graveyard-prod-x", Condition = { StringEquals = { "aws:ResourceTag/Project" = "graveyard" } } }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) && !(a == "logs:PutResourcePolicy" && endswith(x.policy, "-boundary") && x.stmt.Sid == "ExceptionE10") || startswith(a, "organizations:") || startswith(a, "account:")]])) == 2
     error_message = "Both removed actions must be caught."
   }
 }
@@ -283,7 +283,7 @@ run "bad_sample_an_organizations_action" {
   # An account-wide service.
 
   assert {
-    condition     = length(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-prod-apply-ops" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "Bad", Effect = "Allow", Action = ["organizations:DescribeOrganization"], Resource = "arn:aws:iam::123456789012:role/graveyard-prod/graveyard-prod-x" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) || startswith(a, "organizations:") || startswith(a, "account:")]])) == 1
+    condition     = length(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-prod-apply-ops" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "Bad", Effect = "Allow", Action = ["organizations:DescribeOrganization"], Resource = "arn:aws:iam::123456789012:role/graveyard-prod/graveyard-prod-x" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : "${x.policy}/${x.stmt.Sid}/${a}" if contains(["iam:CreateServiceLinkedRole", "iam:UpdateAccountPasswordPolicy", "iam:CreateAccountAlias", "s3:PutAccountPublicAccessBlock", "logs:PutResourcePolicy", "cloudfront:CreateCachePolicy", "cloudfront:CreateResponseHeadersPolicy", "lambda:ListFunctions", "lambda:CreateEventSourceMapping"], a) && !(a == "logs:PutResourcePolicy" && endswith(x.policy, "-boundary") && x.stmt.Sid == "ExceptionE10") || startswith(a, "organizations:") || startswith(a, "account:")]])) == 1
     error_message = "organizations:* must be caught."
   }
 }
@@ -306,7 +306,7 @@ run "bad_sample_an_extra_exception" {
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",
       "graveyard-dev-boundary/ExceptionE3",
-      "graveyard-dev-boundary/ExceptionE7",
+      "graveyard-dev-boundary/ExceptionE10",
       "graveyard-dev-boundary/ExceptionE5Profiles",
       "graveyard-dev-boundary/ExceptionE5ModelNarrate",
       "graveyard-dev-boundary/ExceptionE5ModelRites",
@@ -321,7 +321,7 @@ run "bad_sample_an_extra_exception" {
       "graveyard-prod-boundary/ExceptionE1",
       "graveyard-prod-boundary/ExceptionE2",
       "graveyard-prod-boundary/ExceptionE3",
-      "graveyard-prod-boundary/ExceptionE7",
+      "graveyard-prod-boundary/ExceptionE10",
       "graveyard-prod-boundary/ExceptionE5Profiles",
       "graveyard-prod-boundary/ExceptionE5ModelNarrate",
       "graveyard-prod-boundary/ExceptionE5ModelRites",
@@ -330,7 +330,7 @@ run "bad_sample_an_extra_exception" {
   }
 
   assert {
-    condition     = toset(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-dev-boundary" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "ExceptionE9", Effect = "Allow", Action = ["ec2:RunInstances"], Resource = "*" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) != toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    condition     = toset(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-dev-boundary" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "ExceptionE9", Effect = "Allow", Action = ["ec2:RunInstances"], Resource = "*" }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) != toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
     error_message = "The approved-actions rule must fail when an action is added."
   }
 }
@@ -343,5 +343,19 @@ run "bad_sample_e5_widened_to_all_eu_regions" {
   assert {
     condition     = length(flatten([for x in flatten([for k, p in merge({ for k, p in aws_iam_policy.ci : k => { policy = p.policy } }, { "graveyard-prod-boundary" = { policy = jsonencode({ Version = "2012-10-17", Statement = [{ Sid = "ExceptionE5ModelNarrate", Effect = "Allow", Action = ["bedrock:InvokeModel"], Resource = ["arn:aws:bedrock:eu-*::foundation-model/*"] }] }) } }) : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for r in flatten([try(x.stmt.Resource, [])]) : "${x.policy}/${x.stmt.Sid}/${r}" if strcontains(r, "*")] if startswith(x.stmt.Sid, "ExceptionE5")])) == 1
     error_message = "E5 with eu-* must be caught."
+  }
+}
+run "logs_put_resource_policy_is_for_state_machine_roles_only_never_a_ci_role" {
+  command = plan
+  assert {
+    condition     = [for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : "${x.policy}/${x.stmt.Sid}" if contains(flatten([try(x.stmt.Action, [])]), "logs:PutResourcePolicy")] == ["graveyard-dev-boundary/ExceptionE10", "graveyard-prod-boundary/ExceptionE10"]
+    error_message = "logs:PutResourcePolicy appears only in the boundaries' E10, never in a plan or apply policy."
+  }
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] :
+      [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : s.Condition if s.Sid == "ExceptionE10"][0] == { ArnLike = { "aws:PrincipalArn" = "arn:aws:iam::123456789012:role/graveyard-${e}/graveyard-${e}-*-sfn" } }
+    ])
+    error_message = "E10 in the boundary is limited to the env's state machine roles."
   }
 }

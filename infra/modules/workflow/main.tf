@@ -266,12 +266,16 @@ locals {
     local.st.s3_get,
     local.st.ddb_update,
     local.st.key,
-    # Exceptions E1 and E2 (X-Ray) and E7 (log delivery, approved 19 Nov 2026): none of these supports a resource.
+    # The state machine's own log group, for the log streams and events of execution logging (Step Functions docs).
+    { Sid = "OwnLogGroup", Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents"], Resource = ["arn:${local.p}:logs:${local.region}:${local.account}:log-group:/aws/vendedlogs/states/${local.machine_name}:*"] },
+    # Exceptions E1 and E2 (X-Ray): no resource-level permissions.
     { Sid = "ExceptionE1E2", Effect = "Allow", Action = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"], Resource = "*" },
+    # Exception E10 (approved 20 Nov 2026): log-delivery management that Step Functions requires of the state machine role,
+    # including logs:PutResourcePolicy. None of these actions supports a resource; the boundary allows them to *-sfn roles only.
     {
-      Sid      = "ExceptionE7"
+      Sid      = "ExceptionE10"
       Effect   = "Allow"
-      Action   = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
+      Action   = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
       Resource = "*"
     },
   ]

@@ -34,6 +34,8 @@ locals {
     ]])
   } }
 
+  # Workload roles that may use exception E10: the state machine roles of each env (path /graveyard-<env>/, name ...-sfn).
+  sfn_role_pattern = { for e in local.env_list : e => "arn:${local.p}:iam::${local.a}:role/graveyard-${e}/graveyard-${e}-*-sfn" }
   # Resources whose identifier AWS generates. They are written only with the Project tag condition.
   gen = {
     kms_key      = "arn:${local.p}:kms:${local.r}:${local.a}:key/*"
@@ -164,6 +166,13 @@ locals {
   exception_actions = {
     e8_validate = ["states:ValidateStateMachineDefinition"]
     e9_api_tags = ["apigateway:POST", "apigateway:GET", "apigateway:DELETE"]
+    # Exception E10 (20 Nov 2026): Step Functions checks that the state machine role may manage log deliveries, including
+    # logs:PutResourcePolicy. None of these has a resource. Allowed in the workload boundary only, and only to roles named
+    # graveyard-<env>-*-sfn; never to a CI role.
+    e10_sfn_logging = [
+      "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery",
+      "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups",
+    ]
   }
 
   # Reads that AWS offers only on "*". Metadata only: names, ARNs and summaries, never data.

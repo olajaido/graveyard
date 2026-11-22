@@ -61,8 +61,17 @@ locals {
         { Sid = "ExceptionE2", Effect = "Allow", Action = ["xray:PutTelemetryRecords"], Resource = "*" },
         # Exception E3: PutMetricData has no resource ARN; the namespace condition is the limit.
         { Sid = "ExceptionE3", Effect = "Allow", Action = ["cloudwatch:PutMetricData"], Resource = "*", Condition = { StringEquals = { "cloudwatch:namespace" = "Graveyard/${e}" } } },
-        # Exception E7 (approved 19 Nov 2026): log delivery for the state machine role. No resource-level permissions.
-        { Sid = "ExceptionE7", Effect = "Allow", Action = local.act.logs_delivery, Resource = "*" },
+        # Exception E7 (log delivery) is no longer in the boundary: E10 below holds the same actions plus logs:PutResourcePolicy,
+        # and only for state machine roles (20 Nov 2026). E7 stays in the apply roles.
+        # Exception E10 (approved 20 Nov 2026): log-delivery management for Step Functions execution logging. No resource-level
+        # permissions, so the resource is *; the principal condition limits it to this env's state machine roles.
+        {
+          Sid       = "ExceptionE10"
+          Effect    = "Allow"
+          Action    = local.exception_actions.e10_sfn_logging
+          Resource  = "*"
+          Condition = { ArnLike = { "aws:PrincipalArn" = local.sfn_role_pattern[e] } }
+        },
         # Exception E5 (approved, narrowed 18 Nov 2026): the exact profiles and the exact foundation models behind them.
         # No eu-* and no foundation-model/*. The model statements also require the call to come through its own profile.
         { Sid = "ExceptionE5Profiles", Effect = "Allow", Action = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"], Resource = [local.bedrock_profile_arn.narrate, local.bedrock_profile_arn.rites] },

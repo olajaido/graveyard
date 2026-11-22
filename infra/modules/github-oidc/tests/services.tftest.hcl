@@ -462,3 +462,27 @@ run "api_gateway_tags_and_state_machine_validation_are_the_approved_exceptions_e
     error_message = "E9 sits in the apply edge policies only."
   }
 }
+run "http_api_children_are_tagged_with_this_envs_tags_only" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "TagHttpApiChildren"][0] == {
+          Sid       = "TagHttpApiChildren"
+          Effect    = "Allow"
+          Action    = ["apigateway:TagResource", "apigateway:PUT", "apigateway:POST"]
+          Resource  = ["arn:aws:apigateway:eu-west-2::/apis/*", "arn:aws:apigateway:eu-west-2::/tags/*"]
+          Condition = { StringEquals = { "aws:RequestTag/Env" = e, "aws:RequestTag/Project" = "graveyard" } }
+        } &&
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "UntagHttpApiChildren"][0] == {
+          Sid       = "UntagHttpApiChildren"
+          Effect    = "Allow"
+          Action    = ["apigateway:UntagResource"]
+          Resource  = ["arn:aws:apigateway:eu-west-2::/apis/*", "arn:aws:apigateway:eu-west-2::/tags/*"]
+          Condition = { StringEquals = { "aws:ResourceTag/Env" = e, "aws:ResourceTag/Project" = "graveyard" } }
+        }
+      )
+    ])
+    error_message = "Tagging a stage (or any HTTP API child) needs this env's Project and Env request tags; untagging needs them on the resource."
+  }
+}
