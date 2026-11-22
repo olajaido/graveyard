@@ -1,0 +1,21 @@
+{
+  "name": "haunted-house",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A deliberately haunted demo repository for Graveyard. Dependency manifests only; there is no app code to run.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "1.21.1",
+    "coffee-script": "1.12.7",
+    "command-line-args": "6.0.2",
+    "commander": "15.1.0",
+    "gulp-util": "3.0.8",
+    "material-design-lite": "1.3.0",
+    "querystring": "0.2.1",
+    "request-promise": "4.2.6",
+    "serializr": "3.0.5"
+  },
+  "devDependencies": {
+    "tslint": "6.1.3"
+  }
+}
