@@ -205,7 +205,7 @@ run "autopsy_has_no_s3_and_syft_has_no_secrets_dynamodb_or_ssm" {
 run "the_state_machine_role_uses_star_only_for_x_ray_and_log_delivery" {
   command = plan
   assert {
-    condition     = [for s in jsondecode(aws_iam_role_policy.sfn.policy).Statement : s.Sid if s.Resource == "*"] == ["ExceptionE1E2", "ExceptionE7"]
+    condition     = [for s in jsondecode(aws_iam_role_policy.sfn.policy).Statement : s.Sid if s.Resource == "*"] == ["ExceptionE1E2", "ExceptionE10"]
     error_message = "Only the approved exceptions use *."
   }
   assert {
@@ -245,4 +245,28 @@ run "a_changed_zip_stops_the_apply" {
     syft_layer_sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
   }
   expect_failures = [aws_lambda_layer_version.syft]
+}
+run "the_state_machine_role_has_exception_e10_for_execution_logging" {
+  command = plan
+  assert {
+    condition = [for s in jsondecode(aws_iam_role_policy.sfn.policy).Statement : s if s.Sid == "ExceptionE10"][0] == {
+      Sid      = "ExceptionE10"
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:PutResourcePolicy", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"]
+      Resource = "*"
+    }
+    error_message = "E10: the eight log-delivery actions Step Functions requires, on * (no resource-level permissions)."
+  }
+  assert {
+    condition     = [for s in jsondecode(aws_iam_role_policy.sfn.policy).Statement : s.Resource if s.Sid == "OwnLogGroup"][0] == ["arn:aws:logs:eu-west-2:123456789012:log-group:/aws/vendedlogs/states/graveyard-dev-scan:*"]
+    error_message = "Log streams and events only in the state machine's own log group."
+  }
+  assert {
+    condition     = endswith(aws_iam_role.sfn.name, "-sfn") && startswith(aws_iam_role.sfn.name, "graveyard-dev-")
+    error_message = "The role name must match graveyard-<env>-*-sfn, the pattern the boundary allows E10 to."
+  }
+  assert {
+    condition     = !anytrue([for k, m in module.fn : contains(flatten([for s in jsondecode(m.role_policy_json).Statement : s.Action]), "logs:PutResourcePolicy")])
+    error_message = "No task function gets logs:PutResourcePolicy; E10 is for the state machine role only."
+  }
 }
