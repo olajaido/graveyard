@@ -110,7 +110,7 @@ def augment_service(
     """
     if scopes is None:
         return bom, 0, ()
-    result = add_direct_edges(bom, scopes.direct_scopes)
+    result = add_direct_edges(bom, scopes.direct_scopes, scopes.peer_edges)
     warnings: tuple[CliWarning, ...] = ()
     if result.missing_keys:
         count = len(result.missing_keys)

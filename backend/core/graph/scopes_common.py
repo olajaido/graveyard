@@ -79,10 +79,12 @@ def result(
     package_scopes: Mapping[str, Scope],
     direct_scopes: Mapping[str, Scope],
     warnings: Iterable[GraphWarning],
+    peer_edges: Iterable[tuple[str, str]] = (),
 ) -> ScopeResult:
-    """Assemble a ``ScopeResult``: sorted read-only maps and finalised warnings."""
+    """Assemble a ``ScopeResult``: sorted read-only maps, finalised warnings, sorted peer edges."""
     return ScopeResult(
         package_scopes=scope_map(package_scopes),
         direct_scopes=scope_map(direct_scopes),
         warnings=finalise_warnings(warnings),
+        peer_edges=tuple(sorted(set(peer_edges))),
     )

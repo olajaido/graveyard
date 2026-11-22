@@ -318,3 +318,75 @@ def test_malformed_documents_are_returned_unchanged() -> None:
         result = add_direct_edges(case, scopes(x="dev"))
         assert result.bom is case
         assert (result.added_keys, result.missing_keys) == ((), ())
+
+
+# --------------------------------------------------------- peers and name collisions (§17)
+
+
+def peer_bom() -> dict[str, Any]:
+    """app declares rp and lint (dev). rp's peer req and lint's peer ts are orphans in Syft's
+    graph; req has children of its own, so without the peer edge it is a second root."""
+    return bom(
+        ["app", "rp", "req", "tunnel", "lint", "ts"],
+        {"app": ["rp"], "req": ["tunnel"], "lint": ["ts"]},
+    )
+
+
+PEER_DIRECT: dict[str, Scope] = {key_of("rp"): "runtime", key_of("lint"): "dev"}
+PEER_EDGES = ((key_of("rp"), key_of("req")), (key_of("lint"), key_of("ts")))
+
+
+def test_without_peer_edges_the_orphan_peer_makes_the_root_ambiguous() -> None:
+    result = add_direct_edges(peer_bom(), PEER_DIRECT)
+    assert result.added_keys == ()
+    assert "MULTIPLE_ROOTS" in {w.code for w in graph_of(result.bom, PEER_DIRECT).warnings}
+
+
+def test_peer_edges_give_one_root_and_keep_peers_transitive() -> None:
+    result = add_direct_edges(peer_bom(), PEER_DIRECT, PEER_EDGES)
+    assert result.peer_edges_added == ((key_of("rp"), key_of("req")),)  # ts already has a parent
+    assert result.added_keys == (key_of("lint"),)
+    graph = graph_of(result.bom, PEER_DIRECT)
+    assert "MULTIPLE_ROOTS" not in {w.code for w in graph.warnings}
+    direct = {n.key for n in graph.nodes if any(p.direct for p in n.path_infos)}
+    assert direct == {key_of("rp"), key_of("lint")}
+    assert key_of("req") in {n.key for n in graph.nodes}
+
+
+def test_peer_edges_are_idempotent_and_do_not_mutate_the_input() -> None:
+    original = peer_bom()
+    before = copy.deepcopy(original)
+    once = add_direct_edges(original, PEER_DIRECT, PEER_EDGES)
+    twice = add_direct_edges(once.bom, PEER_DIRECT, PEER_EDGES)
+    assert original == before
+    assert twice.bom == once.bom
+    assert (
+        twice.added_keys == () and twice.peer_edges_added == () and twice.root_edges_removed == ()
+    )
+
+
+def test_a_root_edge_to_an_undeclared_same_name_copy_is_removed_when_it_has_another_parent() -> (
+    None
+):
+    document = bom(
+        ["app", "cmd", "lint", "old-cmd", "orphan"],
+        {"app": ["cmd", "old-cmd", "orphan"], "lint": ["old-cmd"]},
+    )
+    declared: dict[str, Scope] = {key_of("cmd"): "runtime", key_of("lint"): "dev"}
+    result = add_direct_edges(document, declared)
+    assert result.root_edges_removed == (key_of("old-cmd"),)
+    assert root_children(result.bom, ref_of("app")) == [
+        ref_of("cmd"),
+        ref_of("orphan"),
+        ref_of("lint"),
+    ]
+    graph = graph_of(result.bom, declared)
+    direct = {n.key for n in graph.nodes if any(p.direct for p in n.path_infos)}
+    # orphan has no other parent, so its root edge is kept (nothing becomes unreachable).
+    assert direct == {key_of("cmd"), key_of("lint"), key_of("orphan")}
+
+
+def test_no_root_edge_is_removed_when_the_lockfile_declares_nothing() -> None:
+    document = bom(["app", "a", "b"], {"app": ["a", "b"], "a": ["b"]})
+    result = add_direct_edges(document, {})
+    assert result.root_edges_removed == () and result.bom == document

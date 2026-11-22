@@ -1,8 +1,9 @@
 """Scope parser for ``package-lock.json`` (design §6.1, DG-SCP-0…5).
 
 Reads the ``packages`` table of a v2 or v3 lockfile and returns a
-``ScopeResult``: one scope per installed package, plus the scope the root entry
-declares for each direct dependency. ``package.json`` is never read. Pure: no
+``ScopeResult``: one scope per installed package, the scope the root entry
+declares for each direct dependency, and the edges to the peer dependencies npm
+installed (Syft does not record them). ``package.json`` is never read. Pure: no
 I/O, no logging; recoverable anomalies become ``GraphWarning`` values.
 """
 
@@ -53,6 +54,51 @@ def _group_names(root: Mapping[str, Any], group: str) -> list[str]:
     if not isinstance(value, Mapping):
         return []
     return [n for n in value if isinstance(n, str)]
+
+
+def _resolve(packages: Mapping[str, Any], path: str, name: str) -> str | None:
+    """The ``packages`` path that ``name`` resolves to from the package at ``path``.
+
+    Node's lookup: ``<path>/node_modules/<name>``, then the same under each enclosing
+    ``node_modules`` level, ending at the top level. ``None`` when nothing is installed.
+    """
+    base = path
+    while True:
+        candidate = f"{base}/{_NODE_MODULES}{name}" if base else _NODE_MODULES + name
+        if candidate in packages:
+            return candidate
+        if not base:
+            return None
+        cut = base.rfind("/" + _NODE_MODULES)
+        base = base[:cut] if cut >= 0 else ""
+
+
+def _peer_edges(packages: Mapping[str, Any]) -> list[tuple[str, str]]:
+    """(dependent key, peer key) for every peer dependency the lockfile installed.
+
+    Root-level peers are declared direct dependencies and are not edges. Unresolved peers
+    (optional or missing) and entries without a usable key are skipped silently: the
+    package table walk already warns about bad entries.
+    """
+    edges: list[tuple[str, str]] = []
+    for path, entry in packages.items():
+        if path == "" or _NODE_MODULES not in path or not isinstance(entry, Mapping):
+            continue
+        if entry.get("link") is True:
+            continue
+        for peer in _group_names(entry, "peerDependencies"):
+            target = _resolve(packages, path, peer)
+            target_entry = packages.get(target) if target is not None else None
+            if not isinstance(target_entry, Mapping) or target_entry.get("link") is True:
+                continue
+            try:
+                source = _entry_key(entry, path.rsplit(_NODE_MODULES, 1)[1])
+                key = _entry_key(target_entry, peer)
+            except ValueError:
+                continue
+            if source is not None and key is not None and source != key:
+                edges.append((source, key))
+    return edges
 
 
 def parse_package_lock(text: str) -> ScopeResult:
@@ -124,7 +170,7 @@ def parse_package_lock(text: str) -> ScopeResult:
                 direct_scopes[key] = "dev"
 
     warnings.extend(cross_check(direct_scopes, package_scopes))
-    return result(package_scopes, direct_scopes, warnings)
+    return result(package_scopes, direct_scopes, warnings, _peer_edges(packages))
 
 
 def _unresolved(name: str) -> GraphWarning:

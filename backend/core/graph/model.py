@@ -77,6 +77,10 @@ class ScopeResult:
     package_scopes: ScopeMap  # every package in the lockfile
     direct_scopes: ScopeMap  # the project's declared direct dependencies; may be empty
     warnings: tuple[GraphWarning, ...]  # service is None here; build_graph stamps it
+    # (dependent key, peer key) for each peer dependency the lockfile resolved, sorted and unique.
+    # Syft records no edge for a peer, so the peer looks like a second root without these
+    # (scan-backend design §17). Only the npm parser fills it; other lockfiles have no peers.
+    peer_edges: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
