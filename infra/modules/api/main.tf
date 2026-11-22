@@ -1,5 +1,5 @@
 # The HTTP API and its Lambda (SB-API-1 to SB-API-10, SB-INF-7). Four routes, one AWS_PROXY integration with the live
-# alias, throttling per route, JSON access logs without query strings, bodies or headers.
+# alias, throttling per route. Access logs (JSON, no query strings, bodies or headers) are off by default.
 locals {
   function_name = "${var.name_prefix}-api"
   access_log    = "/aws/vendedlogs/states/${var.name_prefix}-api-access"
@@ -66,9 +66,11 @@ resource "aws_apigatewayv2_route" "route" {
   # checkov:skip=CKV_AWS_309:Scans of public repositories are readable by anyone with the link by design (SB-API-10).
 }
 resource "aws_cloudwatch_log_group" "access" {
+  count             = var.access_logs_enabled ? 1 : 0
   name              = local.access_log
   retention_in_days = var.log_retention_days
-  # The name sits under the vended-logs path the apply role may create, which also needs no log resource policy.
+  # The name sits under the vended-logs path the apply role may create. Creating the stage with access logging also needs
+  # logs:PutResourcePolicy, which CI does not have, so the stage has no access logs until the security review (H11).
   # checkov:skip=CKV_AWS_158:Access logs hold no query string, body or header (SB-API-9); a CMK needs a key policy for the logs service.
   # checkov:skip=CKV_AWS_338:Retention is a variable; the default of 30 days is intended.
 }
@@ -85,18 +87,22 @@ resource "aws_apigatewayv2_stage" "default" {
     throttling_burst_limit = var.post_burst_limit
     throttling_rate_limit  = var.post_rate_limit
   }
-  access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.access.arn
-    format = jsonencode({
-      requestId    = "$context.requestId"
-      routeKey     = "$context.routeKey"
-      status       = "$context.status"
-      latencyMs    = "$context.responseLatency"
-      integration  = "$context.integrationErrorMessage"
-      requestTime  = "$context.requestTime"
-      protocol     = "$context.protocol"
-      responseSize = "$context.responseLength"
-    })
+  # Access logging is off by default (variable access_logs_enabled, decision of 20 Nov 2026). The block is written only when on.
+  dynamic "access_log_settings" {
+    for_each = var.access_logs_enabled ? [1] : []
+    content {
+      destination_arn = aws_cloudwatch_log_group.access[0].arn
+      format = jsonencode({
+        requestId    = "$context.requestId"
+        routeKey     = "$context.routeKey"
+        status       = "$context.status"
+        latencyMs    = "$context.responseLatency"
+        integration  = "$context.integrationErrorMessage"
+        requestTime  = "$context.requestTime"
+        protocol     = "$context.protocol"
+        responseSize = "$context.responseLength"
+      })
+    }
   }
   depends_on = [aws_apigatewayv2_route.route]
 }

@@ -135,6 +135,11 @@ variable "cors_allowed_origins" {
     error_message = "List the origins; * is not allowed."
   }
 }
+variable "access_logs_enabled" {
+  type        = bool
+  default     = false
+  description = "Turn on HTTP API access logging for the default stage. Off by default (decision of 20 Nov 2026): CreateStage with access logging needs logs:PutResourcePolicy, which the CI apply roles must not have (INF-SHARED-3). When false the stage has no access log settings and the log group is not created."
+}
 variable "log_retention_days" {
   type        = number
   default     = 30

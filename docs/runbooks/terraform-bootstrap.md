@@ -162,7 +162,7 @@ reviewed change to the bootstrap root.
 
 **Deferred to the ship-week security review (PRD section 16, W4).** This spec is complete without them. Until then the
 denials are asserted by the module tests and by Access Analyzer (section 4). The review runs H1 to H4 on a throwaway
-branch and workflow, and H5 to H10 as described. H7 to H10 need the throwaway branch added to the `dev` environment's
+branch and workflow, H5 to H10 as described, and H11 (decision on API access logging). H7 to H10 need the throwaway branch added to the `dev` environment's
 deployment-branch rule: add it, run the checks, remove it at once. Never edit an IAM trust policy by hand (it would
 drift from Terraform). If a call that should be denied succeeds, stop, delete what it created, and record the number.
 
@@ -178,6 +178,7 @@ drift from Terraform). If a call that should be denied succeeds, stop, delete wh
 | H8 | with `graveyard-dev-apply`: read `envs/prod/terraform.tfstate` | access denied | |
 | H9 | with `graveyard-dev-apply`: create a role `graveyard-dev/graveyard-dev-x` without the boundary | access denied | |
 | H10 | with `graveyard-dev-apply`: `iam:UpdateAssumeRolePolicy` on `graveyard-dev-apply` | access denied | |
+| H11 | scan API stage: decide whether access logging may be enabled. Today `access_logs_enabled = false`, so the stage writes no access logs. To check the alternative in a throwaway branch: set the variable to true; CreateStage then fails with "Insufficient permissions to enable logging" unless the apply roles have `logs:PutResourcePolicy`. Record the decision: keep logging off, or approve the action as a new exception | the stage is created with no access logs, or the maintainer approves the exception (scan-backend amendment A2, design section 16) | |
 
 ## 14. Results to record (no account IDs)
 
