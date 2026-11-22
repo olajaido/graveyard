@@ -36,7 +36,7 @@ def test_a_valid_token_is_wrapped_and_never_shown() -> None:
 
 @pytest.mark.parametrize(
     "bad",
-    ["has space", "tab\there", "new\nline", "x" * 300, "esc\x1bchar", " padded "],
+    ["has space", "tab\there", "new\nline", "x" * 5000, "esc\x1bchar", " padded "],
 )
 def test_an_invalid_token_is_dropped_and_flagged(bad: str) -> None:
     env = _env(GITHUB_TOKEN=bad)

@@ -83,6 +83,9 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
       "graveyard-prod-apply-edge/CreateDistributions",
       "graveyard-prod-apply-edge/CreateCloudFrontFunctions",
       "graveyard-prod-apply-edge/ExceptionE6",
+      "graveyard-dev-apply-compute/ExceptionE8",
+      "graveyard-prod-apply-compute/ExceptionE8",
+      "graveyard-plan-read-compute/ExceptionE8",
       "graveyard-prod-apply-ops/ExceptionE7",
       "graveyard-prod-apply-edge/AcmRequest",
       "graveyard-prod-apply-edge/ReadStar",
@@ -122,7 +125,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
     condition = toset(flatten([
       for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])])
       if startswith(x.stmt.Sid, "Exception")
-    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
+    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
     error_message = "The exception statements in the CI roles must be exactly E4, E6 and E7."
   }
 
@@ -235,10 +238,10 @@ run "the_plan_read_policies_read_configuration_and_never_data" {
   assert {
     condition = alltrue(flatten([
       for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if startswith(k2, "graveyard-plan-read-") } : [
-        for s in jsondecode(p.policy).Statement : [for a in flatten([s.Action]) : can(regex("(?i)^[a-z0-9-]+:(get|list|describe)", a))]
+        for s in jsondecode(p.policy).Statement : [for a in flatten([s.Action]) : can(regex("(?i)^[a-z0-9-]+:(get|list|describe)", a)) || (s.Sid == "ExceptionE8" && a == "states:ValidateStateMachineDefinition")]
       ]
     ]))
-    error_message = "A plan read policy may contain only Get, List and Describe actions (INF-PLAN-1)."
+    error_message = "A plan read policy may contain only Get, List and Describe actions, and the one read-only validation of exception E8 (INF-PLAN-1)."
   }
 
   assert {
@@ -255,10 +258,10 @@ run "the_plan_read_policies_read_configuration_and_never_data" {
   assert {
     condition = alltrue(flatten([
       for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if startswith(k2, "graveyard-plan-read-") } : [
-        for s in jsondecode(p.policy).Statement : [for r in flatten([s.Resource]) : r == "*" ? s.Sid == "ReadStar" : true]
+        for s in jsondecode(p.policy).Statement : [for r in flatten([s.Resource]) : r == "*" ? contains(["ReadStar", "ExceptionE8"], s.Sid) : true]
       ]
     ]))
-    error_message = "Only the ReadStar statements of a plan read policy may use * as a resource."
+    error_message = "Only the ReadStar statements and exception E8 of a plan read policy may use * as a resource."
   }
 
   assert {
@@ -389,5 +392,73 @@ run "kms_grants_are_limited_to_graveyard_keys_and_aws_services" {
   assert {
     condition     = !anytrue([for k, p in aws_iam_policy.ci : contains(flatten([for s in jsondecode(p.policy).Statement : try(s.Action, []) if s.Effect == "Allow" && !endswith(k, "-apply-data")]), "kms:CreateGrant")])
     error_message = "Only the apply data policies may allow kms:CreateGrant."
+  }
+}
+run "kms_calls_made_through_services_are_limited_to_this_envs_keys_and_three_services" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-data"].policy).Statement : s if s.Sid == "KmsUseViaServices"][0] == {
+          Sid      = "KmsUseViaServices"
+          Effect   = "Allow"
+          Action   = ["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:GenerateDataKeyWithoutPlaintext", "kms:ReEncryptFrom", "kms:ReEncryptTo", "kms:DescribeKey"]
+          Resource = ["arn:aws:kms:eu-west-2:123456789012:key/*"]
+          Condition = {
+            StringEquals = {
+              "aws:ResourceTag/Env"     = e
+              "aws:ResourceTag/Project" = "graveyard"
+              "kms:ViaService"          = ["dynamodb.eu-west-2.amazonaws.com", "secretsmanager.eu-west-2.amazonaws.com", "s3.eu-west-2.amazonaws.com"]
+            }
+          }
+        }
+      )
+    ])
+    error_message = "Through-service KMS use needs the Project and Env tags of the key and one of dynamodb, secretsmanager and s3 in eu-west-2 (review of 20 Nov 2026)."
+  }
+  assert {
+    condition     = !anytrue([for k, p in aws_iam_policy.ci : anytrue([for s in jsondecode(p.policy).Statement : s.Sid == "KmsUseViaServices"]) if !endswith(k, "-apply-data")])
+    error_message = "Only the apply data policies carry the through-service KMS statement."
+  }
+  assert {
+    condition     = alltrue([for k, p in aws_iam_policy.ci : !anytrue([for s in jsondecode(p.policy).Statement : anytrue([for a in flatten([s.Action]) : endswith(a, "*")]) if s.Effect == "Allow"])])
+    error_message = "No Allow action is a wildcard: GenerateDataKey and ReEncrypt are spelled out."
+  }
+}
+run "api_gateway_tags_and_state_machine_validation_are_the_approved_exceptions_e9_and_e8" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "ExceptionE9"][0] == {
+          Sid      = "ExceptionE9"
+          Effect   = "Allow"
+          Action   = ["apigateway:POST", "apigateway:GET", "apigateway:DELETE"]
+          Resource = ["arn:aws:apigateway:eu-west-2::/tags/*"]
+        } &&
+        [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-compute"].policy).Statement : s if s.Sid == "ExceptionE8"][0] == {
+          Sid      = "ExceptionE8"
+          Effect   = "Allow"
+          Action   = ["states:ValidateStateMachineDefinition"]
+          Resource = "*"
+        }
+      )
+    ])
+    error_message = "E9 (tags of HTTP APIs, no condition: AWS documents no request tag for POST on the tags resource) and E8 (validation, no resource) must be exactly these."
+  }
+  assert {
+    condition = (
+      [for s in jsondecode(aws_iam_policy.ci["graveyard-plan-read-compute"].policy).Statement : s if s.Sid == "ExceptionE8"][0] == {
+        Sid      = "ExceptionE8"
+        Effect   = "Allow"
+        Action   = ["states:ValidateStateMachineDefinition"]
+        Resource = "*"
+      }
+    )
+    error_message = "The plan role needs E8 too: the provider validates the definition while planning."
+  }
+  assert {
+    condition     = !anytrue([for k, p in aws_iam_policy.ci : anytrue([for s in jsondecode(p.policy).Statement : s.Sid == "ExceptionE9"]) if !endswith(k, "-apply-edge")])
+    error_message = "E9 sits in the apply edge policies only."
   }
 }

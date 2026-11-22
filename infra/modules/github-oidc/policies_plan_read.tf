@@ -20,6 +20,8 @@ locals {
         { Sid = "Scheduler", Effect = "Allow", Action = local.act.scheduler_read, Resource = flatten([for e in local.env_list : [local.res[e].schedule, local.res[e].schedule_group]]) },
         { Sid = "XRay", Effect = "Allow", Action = local.act.xray_read, Resource = flatten([for e in local.env_list : [local.res[e].xray_group, local.res[e].xray_sampling]]) },
         { Sid = "ReadStar", Effect = "Allow", Action = local.star_reads.compute, Resource = "*" },
+        # Exception E8 (20 Nov 2026): the provider validates the state machine definition while planning. No state change.
+        { Sid = "ExceptionE8", Effect = "Allow", Action = local.exception_actions.e8_validate, Resource = "*" },
       ]
     })
 

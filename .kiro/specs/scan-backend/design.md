@@ -229,3 +229,36 @@ Where the build differs from, or adds to, the text above. Requirements still win
 - **Roots.** The env roots have no data source (an existing test says so); the account ID is `var.allowed_account_ids[0]` and the partition is `aws`. Each root has a `tests/root.tftest.hcl` that plans the whole root with a mock provider.
 - **CI.** The new composite action `build-lambda-packages` runs in the plan and apply jobs (setup-uv pinned by SHA, uv 0.11.8). `changed_paths.py` also treats `scripts/build/` and the backend packages that go into `lambda.zip` as a change, so a code change plans and deploys.
 - **Known red test.** `eval/tests/test_real_gate.py::test_gate_passes_on_committed_data` fails; it is the v1 gate that failed by design (journal, 18 Nov). Nothing else is red: ruff, `mypy --strict core`, `mypy` over every package, 8,905 other tests, 844 property tests, `local-checks.sh all`.
+
+## 14. Apply-permission audit (20 Nov 2026, after run 44828393001)
+The calls come from the Terraform AWS provider v6.73.0 source (`internal/service/*`, read offline) for create, read, update and delete. "Apply" is the env apply role's identity policy; the apply roles carry no permissions boundary, so the boundary column is "n/a" for them. The workload boundary is checked only where a workload role makes the call at run time. Changes of amendment A2 (infra-foundation) are marked **A2**.
+
+| Resource | Calls (create / read / update / delete) | Extra calls | Apply | Notes |
+|---|---|---|---|---|
+| `aws_kms_key` | CreateKey; DescribeKey, GetKeyPolicy, GetKeyRotationStatus, ListResourceTags; EnableKeyRotation, PutKeyPolicy, UpdateKeyDescription; ScheduleKeyDeletion | TagResource on create | yes | `KmsCreateKey`, `KmsTagNewKey` (RequestTag), `KmsManageKeys` (ResourceTag) |
+| `aws_kms_alias` | CreateAlias; ListAliases; UpdateAlias; DeleteAlias | permission on the alias **and** the key | yes (**A2**) | `kms:UpdateAlias`, `kms:DeleteAlias` added on the key side |
+| `aws_dynamodb_table` | CreateTable; DescribeTable, DescribeTimeToLive, DescribeContinuousBackups, ListTagsOfResource; UpdateTable, UpdateTimeToLive, UpdateContinuousBackups, TagResource; DeleteTable | kms:CreateGrant, kms:DescribeKey, kms:Decrypt, kms:GenerateDataKey through DynamoDB (forward access session); kms:DescribeKey on `alias/aws/dynamodb` on read | yes (**A2**) | error 2 fixed by `KmsUseViaServices`. The AWS-managed-key lookup is denied but its error is ignored by the provider (`clearSSEDefaultKey`) |
+| `aws_s3_bucket` | CreateBucket; HeadBucket, GetBucket{Policy,Acl,Cors,Website,Versioning,Accelerate,RequestPayment,Logging,Lifecycle,Replication,Encryption,ObjectLock,Tagging}; PutBucketTagging; DeleteBucket | s3:TagResource on create | yes (**A2**) | `s3:TagResource` added; before it the provider fell back to `PutBucketTagging` |
+| `aws_s3_bucket_*` (versioning, SSE, public access block, ownership, policy, lifecycle) | Put/Get/Delete of each setting | none (setting a KMS key on a bucket does not call KMS) | yes | |
+| `aws_ssm_parameter` | PutParameter; GetParameter, DescribeParameters, ListTagsForResource; PutParameter, AddTagsToResource; DeleteParameter | AddTagsToResource on create | yes | |
+| `aws_secretsmanager_secret` | CreateSecret; DescribeSecret, GetResourcePolicy; UpdateSecret, TagResource; DeleteSecret | kms:GenerateDataKey, kms:Decrypt through Secrets Manager; TagResource on create | yes (**A2**) | error 3 fixed by `KmsUseViaServices` |
+| `aws_iam_role` | CreateRole; GetRole, ListRolePolicies, ListAttachedRolePolicies, ListRoleTags; UpdateAssumeRolePolicy, UpdateRoleDescription, TagRole; ListInstanceProfilesForRole, DeleteRole | iam:PermissionsBoundary condition; TagRole on create | yes | path `/graveyard-<env>/`, boundary required |
+| `aws_iam_role_policy` | PutRolePolicy; GetRolePolicy; PutRolePolicy; DeleteRolePolicy | | yes | |
+| `aws_cloudwatch_log_group` | CreateLogGroup; DescribeLogGroups, ListTagsForResource; PutRetentionPolicy, TagResource; DeleteLogGroup | TagResource on create | yes | `/aws/lambda/graveyard-<env>-*`, `/aws/vendedlogs/states/graveyard-<env>-*` |
+| `aws_cloudwatch_log_metric_filter` | PutMetricFilter; DescribeMetricFilters; PutMetricFilter; DeleteMetricFilter | | yes | |
+| `aws_lambda_function` | CreateFunction; GetFunction, GetFunctionCodeSigningConfig, GetFunctionConcurrency, ListVersionsByFunction, ListTags; UpdateFunctionCode, UpdateFunctionConfiguration, PublishVersion, PutFunctionConcurrency; DeleteFunction | iam:PassRole to lambda.amazonaws.com; lambda:GetLayerVersion for `syft`; TagResource on create | yes | |
+| `aws_lambda_alias` | CreateAlias; GetAlias; UpdateAlias; DeleteAlias | | yes | |
+| `aws_lambda_layer_version` | PublishLayerVersion; GetLayerVersion; replace; DeleteLayerVersion | | yes | |
+| `aws_lambda_permission` | AddPermission; GetPolicy; replace; RemovePermission | | yes | |
+| `aws_sfn_state_machine` | CreateStateMachine; DescribeStateMachine, ListStateMachineVersions, ListTagsForResource; UpdateStateMachine, PublishStateMachineVersion; DeleteStateMachine | **states:ValidateStateMachineDefinition on every plan and apply** that changes the definition; iam:PassRole to states; log delivery (E7); TagResource on create | yes (**A2**) | E8 added to the apply roles and the plan role: this would have been the next failure |
+| `aws_sfn_alias` | CreateStateMachineAlias; DescribeStateMachineAlias; UpdateStateMachineAlias; DeleteStateMachineAlias | | yes | |
+| `aws_apigatewayv2_api` | CreateApi (POST `/apis`); GetApi, GetTags (GET); UpdateApi (PATCH), DeleteCorsConfiguration; DeleteApi | **POST `/tags/<arn>`** on create | yes (**A2**) | error 1 fixed by E9 |
+| `aws_apigatewayv2_integration`, `_route` | POST, GET, PATCH, DELETE on `/apis/<id>/...` | | yes | `ManageHttpApis` uses `aws:ResourceTag`; child resources are evaluated with the API's tags (API Gateway tag inheritance). First exercised by the next apply |
+| `aws_apigatewayv2_stage` | POST `/apis/<id>/stages`; GET; PATCH; DELETE | POST `/tags/<stage arn>`; access logs need the log-delivery actions (E7) | yes (**A2**) | see the open risk below |
+| `aws_sns_topic` | CreateTopic; GetTopicAttributes, ListTagsForResource; SetTopicAttributes, TagResource; DeleteTopic | TagResource on create | yes | |
+| `aws_cloudwatch_metric_alarm` | PutMetricAlarm; DescribeAlarms, ListTagsForResource; PutMetricAlarm, TagResource; DeleteAlarms | TagResource on create | yes | |
+| provider | sts:GetCallerIdentity (`allowed_account_ids`) | | yes | always allowed |
+
+Run time (workload roles): DynamoDB, Secrets Manager and S3 call KMS for the functions with the role's credentials. Each role policy has `kms:Decrypt` and `kms:GenerateDataKey` on the app key, the boundary's `KmsUse` allows them on keys tagged with the env, and the key policy's `WorkloadRolesOfThisEnv` allows them. No change needed.
+
+**Open risk, not closed (needs a new exception if it happens).** AWS lists `logs:PutResourcePolicy` among the permissions for Step Functions execution logging and API Gateway access logging. It is forbidden by INF-SHARED-3 and not granted. Both log groups are under `/aws/vendedlogs/`, which CloudWatch Logs documents as not needing a resource policy, so the call should not be made. If the next apply fails on it, it needs a maintainer decision.

@@ -64,3 +64,36 @@ def test_bad_body_is_internal() -> None:
     transport = httpx.MockTransport(lambda r: httpx.Response(201, json={"nope": 1}))
     with pytest.raises(INTERNAL):
         installation_token(_client(transport), "1", "2", PRIVATE, NOW)
+
+
+def test_a_520_character_installation_token_is_accepted() -> None:
+    long_token = "ghs_" + ("aB3-_." * 90)[:516]
+    transport = httpx.MockTransport(lambda r: httpx.Response(201, json={"token": long_token}))
+    token = installation_token(_client(transport), "12345", "678", PRIVATE, NOW)
+    assert token.reveal() == long_token and len(long_token) == 520
+    assert long_token not in repr(token)
+
+
+def test_the_pkcs1_pem_that_github_downloads_signs() -> None:
+    """GitHub's .pem is PKCS#1 ("BEGIN RSA PRIVATE KEY"); the secret holds that text as it is."""
+    from cryptography.hazmat.primitives import serialization
+
+    key = serialization.load_pem_private_key(PRIVATE.encode(), password=None)
+    pkcs1 = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.TraditionalOpenSSL,
+        serialization.NoEncryption(),
+    ).decode()
+    assert pkcs1.startswith("-----BEGIN RSA PRIVATE KEY-----")
+    claims = jwt.decode(
+        make_jwt("12345", pkcs1, NOW),
+        PUBLIC,
+        algorithms=["RS256"],
+        options={"verify_exp": False, "verify_iat": False},
+    )
+    assert claims["iss"] == "12345"
+
+
+def test_a_json_wrapped_key_is_rejected() -> None:
+    with pytest.raises(GITHUB_AUTH_FAILED):
+        make_jwt("12345", '{"private_key": "' + PRIVATE.replace("\n", "\\n") + '"}', NOW)

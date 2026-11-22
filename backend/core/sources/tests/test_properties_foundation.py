@@ -47,7 +47,7 @@ from core.sources.config import (
     Timeouts,
 )
 from core.sources.model import Evidence, JsonValue, SourceWarning
-from core.sources.secret import REDACTED, SecretToken, redact
+from core.sources.secret import MAX_TOKEN_LENGTH, REDACTED, SecretToken, redact
 from core.sources.tests.strategies import embedded_token, json_like, noise
 from core.sources.urls import (
     ALLOWED_HOSTS,
@@ -70,7 +70,7 @@ from core.sources.urls import (
 pytestmark = pytest.mark.property
 
 # An independent copy of the token-shape pattern (secret.py's is private).
-SHAPE = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}")
+SHAPE = re.compile(r"gh[pousr]_[A-Za-z0-9_.+/=-]{20,}|github_pat_[A-Za-z0-9_.+/=-]{20,}")
 
 # ---------------------------------------------------------------------------
 # redact
@@ -105,7 +105,7 @@ _TOKEN_TEXTS = st.one_of(
 def _token_and_text(draw: st.DrawFn) -> tuple[str, str]:
     """A valid token and a text that contains it, surrounded by re-forming material."""
     token = draw(_TOKEN_TEXTS)
-    assume(len(token) <= 255)
+    assume(len(token) <= MAX_TOKEN_LENGTH)
     cut = draw(st.integers(0, len(token)))
     material = st.one_of(
         st.just(token),

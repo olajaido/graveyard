@@ -212,3 +212,24 @@ def test_redact_result_never_contains_the_token(token: str, text: str) -> None:
         out = redact(text, given)
         assert token not in out
         assert not any(shape in out for shape in SHAPED)
+
+
+# GitHub installation tokens are moving to about 520 characters (review of 20 Nov 2026).
+LONG_TOKEN = "ghs_" + ("aB3-_." * 86)[:516]
+
+
+def test_a_520_character_installation_token_is_accepted_and_hidden() -> None:
+    assert len(LONG_TOKEN) == 520
+    token = SecretToken(LONG_TOKEN)
+    assert token.reveal() == LONG_TOKEN
+    assert LONG_TOKEN not in repr(token) and LONG_TOKEN not in f"{token}"
+
+
+def test_a_long_token_with_dashes_dots_and_underscores_is_redacted_whole() -> None:
+    out = redact(f"Authorization failed for {LONG_TOKEN} twice {LONG_TOKEN}.")
+    assert "aB3" not in out and "ghs_" not in out
+    assert out.startswith(f"Authorization failed for {REDACTED} twice {REDACTED}")
+
+
+def test_the_limit_leaves_room_above_the_new_format() -> None:
+    assert MAX_TOKEN_LENGTH >= 4 * 520

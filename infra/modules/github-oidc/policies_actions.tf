@@ -90,6 +90,8 @@ locals {
       "s3:CreateBucket", "s3:DeleteBucket", "s3:PutBucketPolicy", "s3:DeleteBucketPolicy", "s3:PutBucketVersioning", "s3:PutEncryptionConfiguration",
       "s3:PutBucketPublicAccessBlock", "s3:PutBucketOwnershipControls", "s3:PutLifecycleConfiguration", "s3:PutBucketTagging", "s3:PutBucketCORS",
       "s3:PutBucketNotification", "s3:PutBucketLogging",
+      # The provider creates a bucket with its tags in one call; without this it falls back to PutBucketTagging.
+      "s3:TagResource",
     ]
     s3_read = [
       "s3:ListBucket", "s3:ListBucketVersions", "s3:GetBucketLocation", "s3:GetBucketPolicy", "s3:GetBucketPolicyStatus", "s3:GetBucketVersioning",
@@ -101,7 +103,14 @@ locals {
     ddb_read  = ["dynamodb:DescribeTable", "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeTimeToLive", "dynamodb:DescribeKinesisStreamingDestination", "dynamodb:ListTagsOfResource"]
     kms_write = [
       "kms:EnableKeyRotation", "kms:DisableKeyRotation", "kms:PutKeyPolicy", "kms:ScheduleKeyDeletion", "kms:CancelKeyDeletion",
-      "kms:UpdateKeyDescription", "kms:CreateAlias", "kms:TagResource", "kms:UntagResource",
+      "kms:UpdateKeyDescription", "kms:CreateAlias", "kms:UpdateAlias", "kms:DeleteAlias", "kms:TagResource", "kms:UntagResource",
+    ]
+    # Calls that AWS services make with the caller's credentials (forward access sessions) when a resource is encrypted
+    # with the app key: DynamoDB (every call on the table, for example UpdateTimeToLive), Secrets Manager (CreateSecret) and S3
+    # (bucket encryption). Explicit names, no wildcard: GenerateDataKey* and ReEncrypt* are spelled out.
+    kms_via_service = [
+      "kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:ReEncryptFrom", "kms:ReEncryptTo", "kms:DescribeKey",
     ]
     kms_read = ["kms:DescribeKey", "kms:GetKeyPolicy", "kms:GetKeyRotationStatus", "kms:ListResourceTags"]
     # scan-backend, 19 Nov 2026: a DynamoDB table or secret with a customer-managed key makes the service ask for a grant
@@ -146,6 +155,15 @@ locals {
     sns_read  = ["sns:GetTopicAttributes", "sns:ListTagsForResource", "sns:ListSubscriptionsByTopic"]
     br_write  = ["bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource", "bedrock:UntagResource"]
     br_read   = ["bedrock:GetGuardrail", "bedrock:ListTagsForResource"]
+  }
+
+  # Exception E8 (scan-backend, 20 Nov 2026): the Terraform AWS provider calls states:ValidateStateMachineDefinition on every
+  # plan and apply that changes a state machine definition. The action has no resource-level permission and changes nothing.
+  # Exception E9 (20 Nov 2026): API Gateway tags are a resource of their own, /tags/<url-encoded ARN>. CreateApi and CreateStage
+  # with tags call POST on it; AWS documents no aws:RequestTag key for POST on that resource, so no tag condition is possible.
+  exception_actions = {
+    e8_validate = ["states:ValidateStateMachineDefinition"]
+    e9_api_tags = ["apigateway:POST", "apigateway:GET", "apigateway:DELETE"]
   }
 
   # Reads that AWS offers only on "*". Metadata only: names, ARNs and summaries, never data.

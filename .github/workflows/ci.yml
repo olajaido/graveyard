@@ -119,6 +119,12 @@ jobs:
           - infra/modules/state
           - infra/modules/github-oidc
           - infra/modules/cost
+          - infra/modules/api
+          - infra/modules/data
+          - infra/modules/github-app
+          - infra/modules/lambda-function
+          - infra/modules/observability
+          - infra/modules/workflow
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -147,7 +153,15 @@ jobs:
           - infra/modules/state
           - infra/modules/github-oidc
           - infra/modules/cost
+          - infra/modules/api
+          - infra/modules/data
+          - infra/modules/github-app
+          - infra/modules/lambda-function
+          - infra/modules/observability
+          - infra/modules/workflow
           - infra/bootstrap
+          - infra/envs/dev
+          - infra/envs/prod
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
