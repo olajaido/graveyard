@@ -80,6 +80,22 @@ run "cors_origins_are_listed_when_given" {
     condition     = one(aws_apigatewayv2_api.http.cors_configuration).allow_origins == toset(["https://graveyard.example"])
     error_message = "The listed origin only."
   }
+  assert {
+    condition     = one(aws_apigatewayv2_api.http.cors_configuration).allow_methods == toset(["GET", "POST", "OPTIONS"])
+    error_message = "The browser may GET, POST and preflight with OPTIONS, nothing else (ui-core UI-CORS-1)."
+  }
+  assert {
+    condition     = one(aws_apigatewayv2_api.http.cors_configuration).allow_headers == toset(["content-type"])
+    error_message = "Only content-type is allowed as a request header."
+  }
+  assert {
+    condition     = one(aws_apigatewayv2_api.http.cors_configuration).max_age == 600
+    error_message = "Preflight answers are cached for 10 minutes."
+  }
+  assert {
+    condition     = one(aws_apigatewayv2_api.http.cors_configuration).allow_credentials != true && try(length(one(aws_apigatewayv2_api.http.cors_configuration).expose_headers), 0) == 0
+    error_message = "No credentials and no exposed response headers: the API is public and reads need no cookie."
+  }
 }
 run "a_star_origin_is_rejected" {
   command = plan

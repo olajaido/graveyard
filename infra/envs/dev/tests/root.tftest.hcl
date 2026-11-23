@@ -91,3 +91,10 @@ run "the_api_stage_has_no_access_logs_in_this_root" {
     error_message = "Access logging stays off until the security review (H11); the env roots use the module default."
   }
 }
+run "the_dev_api_allows_the_local_web_app_origin_only" {
+  command = plan
+  assert {
+    condition     = module.api.cors_allow_origins == toset(["http://localhost:5173"])
+    error_message = "Dev allows exactly the local web app origin (ui-core UI-CORS-1)."
+  }
+}

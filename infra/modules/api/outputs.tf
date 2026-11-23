@@ -14,3 +14,7 @@ output "access_log_group_name" {
   description = "Name of the access log group, or null when access logging is off."
   value       = one(aws_cloudwatch_log_group.access[*].name)
 }
+output "cors_allow_origins" {
+  description = "Origins the HTTP API allows through CORS (empty when no CORS block is written). The env root tests read it."
+  value       = try(one(aws_apigatewayv2_api.http.cors_configuration).allow_origins, toset([]))
+}

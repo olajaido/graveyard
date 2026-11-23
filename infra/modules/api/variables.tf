@@ -129,7 +129,7 @@ variable "post_burst_limit" {
 variable "cors_allowed_origins" {
   type        = list(string)
   default     = []
-  description = "Browser origins allowed by CORS. Empty by default: no browser origin (SB-API-9)."
+  description = "Browser origins allowed by CORS (methods GET, POST and OPTIONS; header content-type; no credentials). Empty by default: no browser origin (SB-API-9). No wildcard."
   validation {
     condition     = !contains(var.cors_allowed_origins, "*")
     error_message = "List the origins; * is not allowed."

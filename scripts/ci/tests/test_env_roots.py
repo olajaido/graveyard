@@ -18,11 +18,26 @@ class EnvRoots(unittest.TestCase):
         self.assertEqual(sorted(self.files["dev"]), sorted(self.files["prod"]))
         self.assertTrue({"versions.tf", "providers.tf", "locals.tf", "variables.tf", "main.tf", "backend.hcl.example", "terraform.tfvars.example", ".terraform.lock.hcl"} <= set(self.files["dev"]))
 
+    CORS_BLOCK = re.compile(r'variable "cors_allowed_origins" \{.*?\n\}\n', flags=re.S)
+
     def test_the_roots_differ_only_in_the_env_name(self) -> None:
+        # One declared exception (ui-core UI-CORS-1): the default of cors_allowed_origins. It is asserted below.
         for name, text in self.files["dev"].items():
             if name == ".terraform.lock.hcl":
                 continue
-            self.assertEqual(re.sub(r"\bdev\b", "prod", text), self.files["prod"][name], name)
+            self.assertEqual(
+                self.CORS_BLOCK.sub("", re.sub(r"\bdev\b", "prod", text)),
+                self.CORS_BLOCK.sub("", self.files["prod"][name]),
+                name,
+            )
+
+    def test_the_cors_origins_default_is_the_local_web_app_in_dev_and_empty_in_prod(self) -> None:
+        dev = self.CORS_BLOCK.search(self.files["dev"]["variables.tf"])
+        prod = self.CORS_BLOCK.search(self.files["prod"]["variables.tf"])
+        assert dev is not None and prod is not None
+        self.assertIn('default     = ["http://localhost:5173"]', dev.group(0))
+        self.assertIn("default     = []", prod.group(0))
+        self.assertNotIn("*", re.findall(r'default\s*=.*', dev.group(0))[0])
 
     def test_the_roots_declare_no_resource_and_no_data_source(self) -> None:
         for env, files in self.files.items():
