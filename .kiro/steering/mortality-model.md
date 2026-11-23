@@ -79,7 +79,7 @@ Low confidence renders as fog in the UI. Unknown renders as heavy fog.
 
 ## Base state (exactly one, evaluated in order)
 
-1. **Dead**: S1 (`dead_reason = "declared"`), OR mortality ≥ thresholds.dead (`dead_reason = "score"`)
+1. **Dead**: S1 (`dead_reason = "declared"`), OR mortality ≥ thresholds.dead (`dead_reason = "score"`). **Model v1 only.** The product runs model v2 (PRD amendment v1.4, `mortality-model-v2` design 7.5): there Dead is declared-only, and a v1 score-Dead is Ailing
 2. **Unknown**: mortality is None (only when no scored signals AND S1 is not True)
 3. **Resting**: thresholds.ailing ≤ mortality < thresholds.dead AND s7_advisories is not None AND empty AND (r6 ≤ thresholds.resting_r6_max OR r6 missing) AND weekly downloads is known AND ≥ resting_min_weekly_downloads
 4. **Ailing**: thresholds.ailing ≤ mortality < thresholds.dead

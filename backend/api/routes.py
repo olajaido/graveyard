@@ -9,6 +9,7 @@ import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any, Final, Protocol
 from urllib.parse import unquote
 
@@ -17,6 +18,7 @@ from core.purl import parse_purl
 from core.scan import records
 from core.scan.errors import INVALID_INPUT, title_for
 from core.scan.ids import is_scan_id, new_scan_id
+from core.scan.links import evidence_links
 from exhume.validate import parse_ref, parse_repo
 from scan.config import kill_switch_on
 from scan.store import ScanTable
@@ -48,6 +50,7 @@ _SUMMARY: Final = (
     "scope",
     "services",
     "pathCount",
+    "via",
 )
 
 
@@ -151,6 +154,54 @@ def _scan_or_404(
     return str(scan_id), meta
 
 
+def _int(value: object) -> int | None:
+    """A whole number from a stored value (DynamoDB returns ``Decimal``), never a bool."""
+    if isinstance(value, bool) or not isinstance(value, int | float | Decimal):
+        return None
+    return int(value) if value == int(value) else None
+
+
+def _services(meta: Mapping[str, Any]) -> list[dict[str, Any]] | None:
+    """The services stored by FetchManifests (ui-core B3), or ``None``.
+
+    ``None`` means a scan from before B3, or one whose lockfiles are not listed yet.
+    Only well-formed entries are returned."""
+    raw = meta.get("services")
+    if not isinstance(raw, list):
+        return None
+    out: list[dict[str, Any]] = []
+    for entry in raw:
+        manifests = entry.get("manifests") if isinstance(entry, Mapping) else None
+        if (
+            not isinstance(entry, Mapping)
+            or not isinstance(entry.get("id"), str)
+            or not isinstance(manifests, list)
+        ):
+            continue
+        clean = [
+            {"ecosystem": m["ecosystem"], "path": m["path"]}
+            for m in manifests
+            if isinstance(m, Mapping)
+            and m.get("ecosystem") in ("npm", "pypi")
+            and isinstance(m.get("path"), str)
+        ]
+        out.append({"id": entry["id"], "manifests": clean})
+    return out
+
+
+def _progress(meta: Mapping[str, Any], status: str) -> dict[str, int] | None:
+    """``{examined, total}`` only while the stage is AUTOPSY (ui-core B2, N4).
+
+    ``examined`` is a best-effort counter and is never returned above ``total``.
+    """
+    if status != "RUNNING" or meta.get("stage") != "AUTOPSY":
+        return None
+    total, examined = _int(meta.get("progressTotal")), _int(meta.get("progressExamined"))
+    if total is None or examined is None or total < 0:
+        return None
+    return {"examined": max(0, min(examined, total)), "total": total}
+
+
 def get_scan(event: Mapping[str, Any], deps: ApiDeps) -> dict[str, Any]:
     found = _scan_or_404(event, deps)
     if isinstance(found, dict):
@@ -175,6 +226,8 @@ def get_scan(event: Mapping[str, Any], deps: ApiDeps) -> dict[str, Any]:
         "modelVersion": meta.get("modelVersion"),
         "counts": meta.get("counts"),
         "partial": bool(meta.get("partial", False)),
+        "services": _services(meta),
+        "progress": _progress(meta, status),
         "error": None,
     }
     if status == "FAILED":
@@ -270,7 +323,18 @@ def get_grave(event: Mapping[str, Any], deps: ApiDeps) -> dict[str, Any]:
     node = deps.table.get_node(scan_id, text)
     if node is None:
         return problem(404, "No such package in this scan.")
-    return respond(200, {k: v for k, v in node.items() if k != "key"})
+    out = {k: v for k, v in node.items() if k != "key"}
+    out.setdefault("via", None)  # a node stored before ui-core B3
+    signals = out.get("signals")
+    advisories = signals.get("s7_advisories") if isinstance(signals, Mapping) else None
+    out["evidenceLinks"] = evidence_links(
+        text,
+        out.get("repo") if isinstance(out.get("repo"), str) else None,
+        [a["id"] for a in advisories if isinstance(a, Mapping) and isinstance(a.get("id"), str)]
+        if isinstance(advisories, list)
+        else [],
+    )
+    return respond(200, out)
 
 
 HANDLERS: Final[dict[str, Callable[[Mapping[str, Any], ApiDeps], dict[str, Any]]]] = {

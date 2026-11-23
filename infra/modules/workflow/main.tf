@@ -86,7 +86,29 @@ locals {
     ResultPath = null
     Next       = k == "User" ? "ScanEnded" : "ScanFailed"
   } }
-
+  # Progress writes (ui-core B1, B2). DynamoDB service integrations of the state machine, so no Lambda changes and no
+  # role statement changes: the state machine role already has UpdateItem on the table (TableUpdate). The key is the
+  # scan's META item. StageAutopsy also sets the counter that CountBatch (in the Distributed Map) adds to.
+  stage_state = { for k, stage in { Sbom = "SBOM", Autopsy = "AUTOPSY" } : k => {
+    Type     = "Task"
+    Resource = "arn:${local.p}:states:::dynamodb:updateItem"
+    Parameters = {
+      TableName = var.table_name
+      Key = {
+        pk = { "S.$" = "States.Format('SCAN#{}', $.scanId)" }
+        sk = { S = "META" }
+      }
+      UpdateExpression    = k == "Sbom" ? "SET stage = :s, updatedAt = :u" : "SET stage = :s, progressTotal = :t, progressExamined = :z, updatedAt = :u"
+      ConditionExpression = "attribute_exists(pk)"
+      ExpressionAttributeValues = merge(
+        { ":s" = { S = stage }, ":u" = { "S.$" = "$$.State.EnteredTime" } },
+        k == "Sbom" ? {} : { ":t" = { "N.$" = "States.Format('{}', $.graph.total)" }, ":z" = { N = "0" } },
+      )
+    }
+    ResultPath = null
+    Catch      = local.catch_all
+    Next       = k == "Sbom" ? "GenerateSBOM" : "AutopsyMap"
+  } }
   definition = {
     Comment        = "Graveyard scan: validate, fetch, SBOM, graph, autopsy, classify, finalise"
     TimeoutSeconds = var.workflow_timeout_seconds
@@ -122,8 +144,9 @@ locals {
         ResultPath = "$.fetch"
         Retry      = [local.rate_limit_retry, local.lambda_retry]
         Catch      = local.catch_all
-        Next       = "GenerateSBOM"
+        Next       = "StageSbom"
       }
+      StageSbom = local.stage_state["Sbom"]
       GenerateSBOM = {
         Type           = "Map"
         ItemsPath      = "$.fetch.serviceItems"
@@ -165,8 +188,9 @@ locals {
         ResultPath = "$.graph"
         Retry      = [local.lambda_retry]
         Catch      = local.catch_all
-        Next       = "AutopsyMap"
+        Next       = "StageAutopsy"
       }
+      StageAutopsy = local.stage_state["Autopsy"]
       AutopsyMap = {
         Type = "Map"
         ItemReader = {
@@ -195,14 +219,45 @@ locals {
                   "Items.$"  = "$.Items"
                 }
               }
-              # Small on purpose: without a ResultWriter the batch results are collected in memory (256 KB).
+              # Small on purpose: without a ResultWriter the batch results are collected in memory (256 KB). The result
+              # is kept under $.autopsy so that CountBatch still sees BatchInput.scanId; the Counted state then
+              # replaces the whole output with a tiny object, so the Items list is never collected.
               ResultSelector = {
                 "ok.$"          = "$.Payload.ok"
                 "cached.$"      = "$.Payload.cached"
                 "failedCount.$" = "States.ArrayLength($.Payload.failed)"
               }
-              Retry = [local.lambda_retry]
-              End   = true
+              ResultPath = "$.autopsy"
+              Retry      = [local.lambda_retry]
+              Next       = "CountBatch"
+            }
+            # Best-effort progress (ui-core B2): add the number of purls of this batch (ok + cached + failed) to the
+            # scan's counter. A failure here is swallowed and the child carries on, so progress never fails a batch
+            # or a scan. A batch that fails for real never reaches this state, so examined can stay below total.
+            CountBatch = {
+              Type     = "Task"
+              Resource = "arn:${local.p}:states:::dynamodb:updateItem"
+              Parameters = {
+                TableName = var.table_name
+                Key = {
+                  pk = { "S.$" = "States.Format('SCAN#{}', $.BatchInput.scanId)" }
+                  sk = { S = "META" }
+                }
+                UpdateExpression    = "ADD progressExamined :n"
+                ConditionExpression = "attribute_exists(pk)"
+                ExpressionAttributeValues = {
+                  ":n" = { "N.$" = "States.Format('{}', States.MathAdd(States.MathAdd($.autopsy.ok, $.autopsy.cached), $.autopsy.failedCount))" }
+                }
+              }
+              ResultPath = null
+              Catch      = [{ ErrorEquals = ["States.ALL"], ResultPath = null, Next = "Counted" }]
+              Next       = "Counted"
+            }
+            Counted = {
+              Type       = "Pass"
+              Result     = { counted = true }
+              ResultPath = "$"
+              End        = true
             }
           }
         }

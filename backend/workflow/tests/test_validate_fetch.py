@@ -106,6 +106,31 @@ def test_fetch_success() -> None:
     assert TOKEN not in json.dumps(out)
 
 
+def test_fetch_stores_the_services_for_the_ui() -> None:
+    tree = [
+        entry("package-lock.json"),
+        entry("requirements.txt"),
+        entry("services/worker/uv.lock"),
+    ]
+    deps, table, _, _ = make_deps(github(tree, blob=b"{}"))
+    queued_scan(table)
+    fetch.run(EVENT, deps)
+    assert table.scans[SCAN_ID]["services"] == [
+        {
+            "id": ".",
+            "manifests": [
+                {"ecosystem": "npm", "path": "package-lock.json"},
+                {"ecosystem": "pypi", "path": "requirements.txt"},
+            ],
+        },
+        {
+            "id": "services/worker",
+            "manifests": [{"ecosystem": "pypi", "path": "services/worker/uv.lock"}],
+        },
+    ]
+    assert TOKEN not in json.dumps(table.scans[SCAN_ID])
+
+
 def test_fetch_errors() -> None:
     cases: list[tuple[httpx.MockTransport, type[Exception]]] = [
         (github([], tree_status=404), REPO_NOT_FOUND),

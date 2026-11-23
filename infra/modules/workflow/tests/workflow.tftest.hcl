@@ -64,13 +64,13 @@ run "the_workflow_has_the_states_in_order_and_a_five_minute_timeout" {
     error_message = "300 seconds (PRD section 10.6)."
   }
   assert {
-    condition     = [for s in ["Validate", "FetchManifests", "GenerateSBOM", "BuildGraph", "AutopsyMap", "Classify", "Finalise"] : jsondecode(aws_sfn_state_machine.scan.definition).States[s].Type] == ["Task", "Task", "Map", "Task", "Map", "Task", "Task"]
-    error_message = "Seven states, two of them maps."
+    condition     = [for s in ["Validate", "FetchManifests", "StageSbom", "GenerateSBOM", "BuildGraph", "StageAutopsy", "AutopsyMap", "Classify", "Finalise"] : jsondecode(aws_sfn_state_machine.scan.definition).States[s].Type] == ["Task", "Task", "Task", "Map", "Task", "Task", "Map", "Task", "Task"]
+    error_message = "Nine states in the main line: the seven of SB-WF-1 and the two stage writes of ui-core B1 and B2; two of them maps."
   }
   assert {
     condition = [
-      for s in ["Validate", "FetchManifests", "GenerateSBOM", "BuildGraph", "AutopsyMap", "Classify"] : jsondecode(aws_sfn_state_machine.scan.definition).States[s].Next
-    ] == ["FetchManifests", "GenerateSBOM", "BuildGraph", "AutopsyMap", "Classify", "Finalise"]
+      for s in ["Validate", "FetchManifests", "StageSbom", "GenerateSBOM", "BuildGraph", "StageAutopsy", "AutopsyMap", "Classify"] : jsondecode(aws_sfn_state_machine.scan.definition).States[s].Next
+    ] == ["FetchManifests", "StageSbom", "GenerateSBOM", "BuildGraph", "StageAutopsy", "AutopsyMap", "Classify", "Finalise"]
     error_message = "The order is Validate to Finalise."
   }
   assert {
@@ -82,7 +82,7 @@ run "every_state_that_can_fail_catches_to_handle_error" {
   command = plan
   assert {
     condition = alltrue([
-      for s in ["Validate", "FetchManifests", "GenerateSBOM", "BuildGraph", "AutopsyMap", "Classify", "Finalise"] :
+      for s in ["Validate", "FetchManifests", "StageSbom", "GenerateSBOM", "BuildGraph", "StageAutopsy", "AutopsyMap", "Classify", "Finalise"] :
       jsondecode(aws_sfn_state_machine.scan.definition).States[s].Catch[0].ErrorEquals == ["States.ALL"] && jsondecode(aws_sfn_state_machine.scan.definition).States[s].Catch[0].Next == "HandleError"
     ])
     error_message = "A Catch for States.ALL to HandleError on every state (SB-WF-2)."
@@ -268,5 +268,51 @@ run "the_state_machine_role_has_exception_e10_for_execution_logging" {
   assert {
     condition     = !anytrue([for k, m in module.fn : contains(flatten([for s in jsondecode(m.role_policy_json).Statement : s.Action]), "logs:PutResourcePolicy")])
     error_message = "No task function gets logs:PutResourcePolicy; E10 is for the state machine role only."
+  }
+}
+# ui-core B1 and B2: stage values SBOM and AUTOPSY, and the best-effort progress counter.
+run "the_sbom_and_autopsy_stages_are_written_by_the_state_machine_with_dynamodb_integrations" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for s in ["StageSbom", "StageAutopsy"] :
+      jsondecode(aws_sfn_state_machine.scan.definition).States[s].Resource == "arn:aws:states:::dynamodb:updateItem" && jsondecode(aws_sfn_state_machine.scan.definition).States[s].Parameters.TableName == "graveyard-dev-data" && jsondecode(aws_sfn_state_machine.scan.definition).States[s].Parameters.Key.sk == { S = "META" } && jsondecode(aws_sfn_state_machine.scan.definition).States[s].Parameters.ConditionExpression == "attribute_exists(pk)" && jsondecode(aws_sfn_state_machine.scan.definition).States[s].ResultPath == null
+    ])
+    error_message = "Both stage writes are UpdateItem on the scan META item, not a Lambda (ui-core B1)."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.StageSbom.Parameters.ExpressionAttributeValues[":s"] == { S = "SBOM" } && jsondecode(aws_sfn_state_machine.scan.definition).States.StageAutopsy.Parameters.ExpressionAttributeValues[":s"] == { S = "AUTOPSY" }
+    error_message = "The stage values are SBOM and AUTOPSY."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.StageAutopsy.Parameters.UpdateExpression == "SET stage = :s, progressTotal = :t, progressExamined = :z, updatedAt = :u" && jsondecode(aws_sfn_state_machine.scan.definition).States.StageAutopsy.Parameters.ExpressionAttributeValues[":z"] == { N = "0" } && jsondecode(aws_sfn_state_machine.scan.definition).States.StageAutopsy.Parameters.ExpressionAttributeValues[":t"] == { "N.$" = "States.Format('{}', $.graph.total)" }
+    error_message = "StageAutopsy sets the total from the graph and zeroes the counter (ui-core B2)."
+  }
+}
+run "count_batch_adds_the_batch_size_and_can_never_fail_a_batch" {
+  command = plan
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.Autopsy.Next == "CountBatch" && jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.Autopsy.ResultPath == "$.autopsy"
+    error_message = "The autopsy result is kept under $.autopsy so that CountBatch can read BatchInput.scanId."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.CountBatch.Resource == "arn:aws:states:::dynamodb:updateItem" && jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.CountBatch.Parameters.UpdateExpression == "ADD progressExamined :n"
+    error_message = "The counter is an atomic ADD."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.CountBatch.Parameters.ExpressionAttributeValues[":n"] == { "N.$" = "States.Format('{}', States.MathAdd(States.MathAdd($.autopsy.ok, $.autopsy.cached), $.autopsy.failedCount))" }
+    error_message = "The batch size is ok + cached + failed."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.CountBatch.Catch == [{ ErrorEquals = ["States.ALL"], ResultPath = null, Next = "Counted" }] && jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.CountBatch.Next == "Counted"
+    error_message = "Progress is best effort: every error of CountBatch continues to Counted (never to HandleError, never fails the batch)."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.States.Counted == { Type = "Pass", Result = { counted = true }, ResultPath = "$", End = true }
+    error_message = "The child ends with a tiny output, so the Items list is never collected (SB-WF-3)."
+  }
+  assert {
+    condition     = jsondecode(aws_sfn_state_machine.scan.definition).States.AutopsyMap.ItemProcessor.ProcessorConfig == { Mode = "DISTRIBUTED", ExecutionType = "EXPRESS" }
+    error_message = "Still a Distributed Map with Express children."
   }
 }

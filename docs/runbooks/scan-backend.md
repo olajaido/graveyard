@@ -83,3 +83,54 @@ aws ssm put-parameter --name /graveyard/<env>/kill-switch --type String --value 
 ## 6. Alerts
 
 The topic `graveyard-<env>-alerts` has no subscription. Subscribe your address in the SNS console and confirm the email.
+## 7. Test the CountBatch state (optional, before merging the ui-core backend PR)
+`CountBatch` adds the size of an autopsy batch to `progressExamined` on the scan item (ui-core B2). It is the one place the definition uses `States.MathAdd` inside `States.Format`, which the offline tests can only read as text, so check it once in AWS. Run this with your own credentials; the agent does not.
+
+Pick a finished dev scan ID (the update has `ConditionExpression attribute_exists(pk)`, so the scan must exist). The run adds 6 to its `progressExamined` counter, which the API shows only while a scan is in the `AUTOPSY` stage, so a finished scan is not changed for readers.
+1. Save the state (copied from `infra/modules/workflow/main.tf`, state `CountBatch`; the table name is the dev one) as `countbatch.json`:
+```
+{
+  "Type": "Task",
+  "Resource": "arn:aws:states:::dynamodb:updateItem",
+  "Parameters": {
+    "TableName": "graveyard-dev-data",
+    "Key": {
+      "pk": {
+        "S.$": "States.Format('SCAN#{}', $.BatchInput.scanId)"
+      },
+      "sk": {
+        "S": "META"
+      }
+    },
+    "UpdateExpression": "ADD progressExamined :n",
+    "ConditionExpression": "attribute_exists(pk)",
+    "ExpressionAttributeValues": {
+      ":n": {
+        "N.$": "States.Format('{}', States.MathAdd(States.MathAdd($.autopsy.ok, $.autopsy.cached), $.autopsy.failedCount))"
+      }
+    }
+  },
+  "ResultPath": null,
+  "Catch": [
+    {
+      "ErrorEquals": [
+        "States.ALL"
+      ],
+      "ResultPath": null,
+      "Next": "Counted"
+    }
+  ],
+  "Next": "Counted"
+}
+```
+2. Save the input as `input.json`, with a real dev scan ID:
+```
+{"BatchInput": {"scanId": "<scan id>", "asOf": "2026-11-23"}, "Items": ["pkg:npm/a@1.0.0"], "autopsy": {"ok": 3, "cached": 2, "failedCount": 1}}
+```
+3. Run it with the state machine's role (`terraform output` of the env root, or the IAM console) and read the result:
+```
+aws stepfunctions test-state --definition file://countbatch.json --role-arn <state machine role arn> --input file://input.json --inspection-level DEBUG
+```
+Expect `status` `SUCCEEDED`, `nextState` `Counted`, and in the inspection data an `ExpressionAttributeValues` of `{":n": {"N": "6"}}`. The scan item's `progressExamined` rises by 6.
+4. Check the safety net. Remove `autopsy` from the input and run it again. Expect `nextState` `Counted` (the `Catch` continues) and no `FAILED` status. If either step differs, tell the agent: the fallback is to write the counter from the autopsy Lambda with an `UpdateItem` grant (design note N1 of the `ui-core` spec).
+

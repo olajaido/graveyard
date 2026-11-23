@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Graveyard scan API
-  version: 0.1.0
+  version: 0.2.0
   description: >-
     Start a scan of a public GitHub repository and read its results. Source of truth for the
     routes (spec scan-backend, SB-API-7). Errors are RFC 9457 problem+json.
@@ -151,32 +151,130 @@ components:
         cursed: {type: integer}
         wounded: {type: integer}
         unscored: {type: integer}
+    ErrorCode:
+      description: >-
+        Fixed codes of a failed scan (scan-backend SB-ERR-1, `core/scan/errors.py`). A test fails when this list
+        and `CODES` differ.
+      enum:
+        - INVALID_INPUT
+        - REPO_NOT_FOUND
+        - NO_MANIFESTS
+        - TOO_LARGE
+        - TREE_TRUNCATED
+        - TOO_MANY_PACKAGES
+        - GITHUB_RATE_LIMITED
+        - GITHUB_AUTH_FAILED
+        - SBOM_FAILED
+        - SBOM_INVALID
+        - TIMEOUT
+        - INTERNAL
+    Stage:
+      description: >-
+        Where a running scan is. `QUEUED` until the workflow starts, then one value per step, then `DONE`. A failed
+        scan keeps the stage it stopped in.
+      enum: [QUEUED, VALIDATE, FETCH, SBOM, GRAPH, AUTOPSY, CLASSIFY, DONE]
+    Source:
+      type: object
+      additionalProperties: false
+      required: [type, repo]
+      properties:
+        type: {const: github}
+        repo: {type: string}
+        ref: {type: string}
+    Manifest:
+      type: object
+      additionalProperties: false
+      required: [ecosystem, path]
+      properties:
+        ecosystem: {enum: [npm, pypi]}
+        path: {type: string, description: Lockfile path in the repository, for example `services/worker/requirements.txt`.}
+    Service:
+      type: object
+      additionalProperties: false
+      required: [id, manifests]
+      properties:
+        id:
+          type: string
+          description: >-
+            The service: the directory that holds the lockfiles (`.` for the repository root). Equals the values of
+            `GraveSummary.services`. Unique in the list.
+        manifests:
+          type: array
+          items: {$ref: "#/components/schemas/Manifest"}
+    Progress:
+      type: object
+      additionalProperties: false
+      required: [examined, total]
+      properties:
+        examined: {type: integer, minimum: 0, description: Best-effort count of packages examined, never above total.}
+        total: {type: integer, minimum: 0}
+    ScanError:
+      type: object
+      additionalProperties: false
+      required: [code, title]
+      properties:
+        code: {$ref: "#/components/schemas/ErrorCode"}
+        title: {type: string}
     Scan:
       type: object
-      required: [scanId, status, stage, source, createdAt, updatedAt, modelVersion, counts, partial, error]
+      additionalProperties: false
+      required: [scanId, status, stage, source, createdAt, updatedAt, modelVersion, counts, partial, services, progress, error]
       properties:
         scanId: {type: string}
         status: {enum: [QUEUED, RUNNING, COMPLETE, FAILED]}
-        stage: {type: [string, "null"]}
-        source: {type: object}
+        stage:
+          oneOf:
+            - $ref: "#/components/schemas/Stage"
+            - type: "null"
+        source: {$ref: "#/components/schemas/Source"}
         createdAt: {type: string}
         updatedAt: {type: string}
         modelVersion: {type: [string, "null"]}
-        counts: {oneOf: [{$ref: "#/components/schemas/Counts"}, {type: "null"}]}
+        counts:
+          oneOf:
+            - $ref: "#/components/schemas/Counts"
+            - type: "null"
         partial: {type: boolean}
+        services:
+          description: >-
+            The services found by FetchManifests, one entry per service. Null before the lockfiles are listed and for
+            a scan made before this field existed.
+          oneOf:
+            - type: array
+              items: {$ref: "#/components/schemas/Service"}
+            - type: "null"
+        progress:
+          description: Only while the stage is AUTOPSY; null otherwise.
+          oneOf:
+            - $ref: "#/components/schemas/Progress"
+            - type: "null"
         error:
           oneOf:
             - type: "null"
-            - type: object
-              required: [code, title]
-              properties:
-                code: {type: string}
-                title: {type: string}
+            - $ref: "#/components/schemas/ScanError"
     GraveSummary:
       type: object
+      # Not closed with additionalProperties: Certificate extends it with allOf, and a closed member would reject
+      # the extra fields. The contract test checks that every key of a real response is declared.
+      required:
+        - purl
+        - state
+        - deadReason
+        - cursed
+        - wounded
+        - mortality
+        - confidence
+        - priority
+        - direct
+        - scope
+        - services
+        - pathCount
+        - via
       properties:
         purl: {type: string}
-        state: {enum: [alive, resting, ailing, dead, unknown]}
+        state:
+          description: Base state. `unscored` is only seen on a certificate; the graves list never holds it.
+          enum: [alive, resting, ailing, dead, unknown, unscored]
         deadReason: {enum: [declared, score, null]}
         cursed: {type: boolean}
         wounded: {type: boolean}
@@ -187,28 +285,190 @@ components:
         scope: {enum: [runtime, dev]}
         services: {type: array, items: {type: string}}
         pathCount: {type: integer}
+        via:
+          description: >-
+            Purl of the first package that introduced this one (second to last node of its first example path). Null
+            for a direct dependency, when no path was kept, and for a scan made before this field existed.
+          type: [string, "null"]
     GravePage:
       type: object
+      additionalProperties: false
       required: [scanId, total, items, nextCursor]
       properties:
         scanId: {type: string}
         total: {type: integer}
         items: {type: array, items: {$ref: "#/components/schemas/GraveSummary"}}
         nextCursor: {type: [string, "null"]}
+    ExamplePath:
+      type: object
+      additionalProperties: false
+      required: [service, nodes]
+      properties:
+        service: {type: string}
+        nodes:
+          type: array
+          items: {type: string}
+          description: Package keys (a canonical purl without `pkg:`), root excluded, ending at this package.
+    Advisory:
+      type: object
+      additionalProperties: false
+      required: [id, has_fix, published_at]
+      properties:
+        id: {type: string}
+        has_fix: {type: boolean}
+        published_at: {type: [string, "null"]}
+    Signals:
+      type: object
+      additionalProperties: false
+      required:
+        - purl
+        - as_of
+        - s1_declared_death
+        - s1b_version_deprecated
+        - s2_latest_release_at
+        - s3_last_push_at
+        - s4_maintained
+        - s5_committers
+        - s6_open_issues
+        - s6_closed_issues
+        - s7_advisories
+        - s8_overall
+        - s9_weekly_downloads
+        - shared_repo
+      properties:
+        purl: {type: string}
+        as_of: {type: string}
+        s1_declared_death: {type: [boolean, "null"]}
+        s1b_version_deprecated: {type: [boolean, "null"]}
+        s2_latest_release_at: {type: [string, "null"]}
+        s3_last_push_at: {type: [string, "null"]}
+        s4_maintained: {type: [number, "null"]}
+        s5_committers: {type: [integer, "null"]}
+        s6_open_issues: {type: [integer, "null"]}
+        s6_closed_issues: {type: [integer, "null"]}
+        s7_advisories:
+          description: Null when unknown, an empty list when known to be none.
+          oneOf:
+            - type: array
+              items: {$ref: "#/components/schemas/Advisory"}
+            - type: "null"
+        s8_overall: {type: [number, "null"]}
+        s9_weekly_downloads: {type: [integer, "null"]}
+        shared_repo: {type: boolean}
+    EvidenceItem:
+      type: object
+      additionalProperties: false
+      required: [value, source_url, fetched_at, extra_source_urls, note]
+      properties:
+        value:
+          description: The raw value of the signal (any JSON value, null when missing).
+        source_url: {type: [string, "null"], description: The API endpoint the value was read from, not a readable page.}
+        fetched_at: {type: [string, "null"]}
+        extra_source_urls: {type: array, items: {type: string}}
+        note: {type: [string, "null"], description: Fixed template text from Graveyard, never text from a source.}
+    Evidence:
+      type: object
+      additionalProperties: false
+      required:
+        - s1_declared_death
+        - s1b_version_deprecated
+        - s2_latest_release_at
+        - s3_last_push_at
+        - s4_maintained
+        - s5_committers
+        - s6_open_issues
+        - s6_closed_issues
+        - s7_advisories
+        - s8_overall
+        - s9_weekly_downloads
+      properties:
+        s1_declared_death: {$ref: "#/components/schemas/EvidenceItem"}
+        s1b_version_deprecated: {$ref: "#/components/schemas/EvidenceItem"}
+        s2_latest_release_at: {$ref: "#/components/schemas/EvidenceItem"}
+        s3_last_push_at: {$ref: "#/components/schemas/EvidenceItem"}
+        s4_maintained: {$ref: "#/components/schemas/EvidenceItem"}
+        s5_committers: {$ref: "#/components/schemas/EvidenceItem"}
+        s6_open_issues: {$ref: "#/components/schemas/EvidenceItem"}
+        s6_closed_issues: {$ref: "#/components/schemas/EvidenceItem"}
+        s7_advisories: {$ref: "#/components/schemas/EvidenceItem"}
+        s8_overall: {$ref: "#/components/schemas/EvidenceItem"}
+        s9_weekly_downloads: {$ref: "#/components/schemas/EvidenceItem"}
+    SignalMap:
+      type: object
+      description: Per risk id (r2, r3, ...), a number or null when the signal is missing.
+      additionalProperties: {type: [number, "null"]}
+    Warning:
+      type: object
+      additionalProperties: false
+      required: [code, source, signals, detail, status]
+      properties:
+        code: {type: string}
+        source: {type: string}
+        signals: {type: array, items: {type: string}}
+        detail: {type: string}
+        status: {type: [integer, "null"]}
+    EvidenceLink:
+      type: object
+      additionalProperties: false
+      required: [kind, url, signals]
+      description: >-
+        A link to a readable page, built by the server from the parsed purl, the stored repo and the advisory IDs on
+        a fixed host (www.npmjs.com, pypi.org, github.com, osv.dev, deps.dev). It carries no text from a source.
+      properties:
+        kind: {enum: [registry, repository, deps_dev, advisory]}
+        url: {type: string, format: uri, pattern: "^https://"}
+        signals:
+          type: array
+          items: {type: string}
+          description: The evidence keys this page supports.
     Certificate:
       allOf:
         - $ref: "#/components/schemas/GraveSummary"
         - type: object
+          required:
+            - servicesAffected
+            - examplePaths
+            - exposure
+            - exposureAssumed
+            - signals
+            - evidence
+            - contributions
+            - normalisedRisks
+            - warnings
+            - repo
+            - evidenceLinks
+            - asOf
+            - modelVersion
           properties:
-            confidence: {type: [number, "null"]}
+            servicesAffected: {type: integer}
+            examplePaths:
+              type: array
+              items: {$ref: "#/components/schemas/ExamplePath"}
             exposure: {type: [number, "null"]}
-            examplePaths: {type: array, items: {type: object}}
-            signals: {type: [object, "null"]}
+            exposureAssumed: {type: [boolean, "null"]}
+            signals:
+              oneOf:
+                - $ref: "#/components/schemas/Signals"
+                - type: "null"
             evidence:
-              type: [object, "null"]
-              description: Per signal, the raw value, source URL and fetch time.
-            contributions: {type: [object, "null"]}
-            normalisedRisks: {type: [object, "null"]}
-            warnings: {type: array, items: {type: object}}
+              description: Per signal, the raw value, source endpoint and fetch time. Null for an unscored node.
+              oneOf:
+                - $ref: "#/components/schemas/Evidence"
+                - type: "null"
+            contributions:
+              oneOf:
+                - $ref: "#/components/schemas/SignalMap"
+                - type: "null"
+            normalisedRisks:
+              oneOf:
+                - $ref: "#/components/schemas/SignalMap"
+                - type: "null"
+            warnings:
+              type: array
+              items: {$ref: "#/components/schemas/Warning"}
+            repo: {type: [string, "null"], description: "github.com/owner/name when known."}
+            evidenceLinks:
+              type: array
+              items: {$ref: "#/components/schemas/EvidenceLink"}
             asOf: {type: string}
             modelVersion: {type: string}

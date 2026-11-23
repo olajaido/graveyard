@@ -35,8 +35,8 @@ inclusion: always
 | Mortality Score | Abandonment risk | 0–100 deterministic score (§7) |
 | Alive | Healthy | Actively maintained |
 | Resting | Dormant, stable | Quiet but no risk indicators; informational only |
-| Ailing | At risk | Declining maintenance signals |
-| Dead | Abandoned | Declared dead, or score ≥ 60 |
+| Ailing | At risk | Declining maintenance signals (includes what v1 called Dead by score) |
+| Dead | Abandoned | Declared dead (deprecated, archived or retired by its maintainer). A score alone never makes a package Dead: model v2 (hosted product), PRD amendment v1.4; the CLI, MCP and Power still run v1 |
 | Cursed | Unfixable vuln | Known vuln affects this version and no fixed version exists |
 | Wounded | Fixable vuln | Vuln with an available fix; upgrade, not resurrect |
 | Haunting | Exposure | Dependency paths through which a package reaches you |

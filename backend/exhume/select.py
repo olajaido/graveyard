@@ -34,6 +34,29 @@ class ServicePlan:
     files: tuple[ManifestFile, ...]
 
 
+def ecosystem_of(name: str) -> str:
+    """``npm`` or ``pypi`` for a supported lockfile name (``is_lockfile_name`` is true for it)."""
+    return "npm" if name == "package-lock.json" else "pypi"
+
+
+def describe_services(plans: Iterable[ServicePlan]) -> list[dict[str, Any]]:
+    """The ``services`` of a scan (ui-core B3): one entry per service, no duplicate ``id``.
+
+    ``id`` is the directory (``.`` for the root) and equals the service names the graves carry. The
+    lockfiles of a service are in name order.
+    """
+    return [
+        {
+            "id": plan.path,
+            "manifests": [
+                {"ecosystem": ecosystem_of(f.name), "path": f.path}
+                for f in sorted(plan.files, key=lambda f: f.name)
+            ],
+        }
+        for plan in sorted(plans, key=lambda plan: plan.path)
+    ]
+
+
 def _skipped(path: str) -> bool:
     return any(part in SKIP_DIRS for part in path.split("/")[:-1])
 
