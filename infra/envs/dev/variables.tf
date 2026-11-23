@@ -51,6 +51,6 @@ variable "sources_contact" {
 }
 variable "cors_allowed_origins" {
   type        = list(string)
-  default     = []
-  description = "Browser origins the API allows. Empty until the web app exists (SB-API-9)."
+  default     = ["http://localhost:5173"]
+  description = "Browser origins the API allows. Dev only: the local web app (npm run dev serves on port 5173), see ui-core UI-CORS-1. Methods GET, POST and OPTIONS; header content-type."
 }

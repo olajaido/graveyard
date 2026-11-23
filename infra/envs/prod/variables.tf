@@ -52,5 +52,5 @@ variable "sources_contact" {
 variable "cors_allowed_origins" {
   type        = list(string)
   default     = []
-  description = "Browser origins the API allows. Empty until the web app exists (SB-API-9)."
+  description = "Browser origins the API allows. Empty until the real domain exists (infra-edge, SB-API-9)."
 }

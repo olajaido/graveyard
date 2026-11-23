@@ -91,3 +91,10 @@ run "the_api_stage_has_no_access_logs_in_this_root" {
     error_message = "Access logging stays off until the security review (H11); the env roots use the module default."
   }
 }
+run "the_prod_api_allows_no_browser_origin_yet" {
+  command = plan
+  assert {
+    condition     = length(module.api.cors_allow_origins) == 0
+    error_message = "Prod lists no origin until infra-edge gives the real domain (ui-core UI-CORS-1)."
+  }
+}
