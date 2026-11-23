@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graveyard — certificate of death, lodash.template</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0F1011}
+a{color:#5B2A22}a:hover{color:#3A1712}
+.gy-btn:focus-visible,.gy-link:focus-visible{outline:2px solid #ECE6D8;outline-offset:3px}
+.gy-doc a:focus-visible{outline:2px solid #1B1A17;outline-offset:3px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0F1011; color: #ECE6D8; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.6">
+
+  <header style="border-bottom: 1px solid #22262A">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Graveyard.dc.html" class="gy-link" style="display: inline-flex; align-items: center; gap: 8px; color: #C9C3B6; text-decoration: none; font-size: 15px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9C3B6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to olajaido/haunted-house
+      </a>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <button type="button" class="gy-btn" style="height: 44px; padding: 0 18px; background: transparent; border: 1px solid #3A3F45; color: #ECE6D8; border-radius: 10px; font: inherit; font-size: 15px; cursor: pointer">Copy certificate link</button>
+        <button type="button" class="gy-btn" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; background: #ECE6D8; color: #121314; border: 0; border-radius: 10px; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#121314" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          Perform the rites
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+
+    <article class="gy-doc" aria-label="Certificate of death" style="flex: 1 1 640px; min-width: 0; background: #EDE6D6; color: #1B1A17; border-radius: 6px; padding: 56px clamp(24px, 5vw, 64px); box-shadow: 0 30px 80px rgba(0,0,0,0.45); border: 1px solid #CFC6B2; display: flex; flex-direction: column; gap: 32px">
+      <div style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; border-bottom: 1px double #8C8371; padding-bottom: 28px">
+        <svg width="34" height="40" viewBox="0 0 28 32" fill="none" stroke="#1B1A17" stroke-width="1.5" aria-hidden="true"><path d="M3 31V13a11 11 0 0 1 22 0v18"/><path d="M1 31h26"/><path d="M14 8v12M9.5 12.5h9"/></svg>
+        <p style="margin: 0; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #5E5848">Registry of the Graveyard</p>
+        <h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: clamp(40px, 5vw, 58px); line-height: 1.05">Certificate of Death</h1>
+        <p style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 20px; color: #4A4538">issued on the evidence, 22 November 2026</p>
+      </div>
+
+      <dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 40px">
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px; grid-column: 1 / -1">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Name of the deceased</dt>
+          <dd style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 500">lodash.template <span style="color: #5E5848">@3.6.2</span></dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Pronounced</dt>
+          <dd style="margin: 0; font-size: 18px; font-weight: 600; color: #8A2B1F">Dead · declared</dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Complications</dt>
+          <dd style="margin: 0; font-size: 18px; font-weight: 600; color: #4E3A86">Cursed · known vulnerability</dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px; grid-column: 1 / -1">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Cause of death</dt>
+          <dd style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; line-height: 1.35">Deprecated by its publisher on the npm registry.</dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Ecosystem</dt>
+          <dd style="margin: 0; font-size: 17px">npm</dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Place of rest</dt>
+          <dd style="margin: 0; font-size: 17px">service <span style="font-family: 'JetBrains Mono', monospace">"."</span>, runtime scope</dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Mortality</dt>
+          <dd style="margin: 0; font-size: 17px">90 <span style="color: #5E5848">/ 100</span></dd>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #C9BFA9; padding-bottom: 10px">
+          <dt style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5E5848">Confidence</dt>
+          <dd style="margin: 0; font-size: 17px">1.0 <span style="color: #5E5848">· priority 108</span></dd>
+        </div>
+      </dl>
+
+      <section aria-label="How it entered the repo" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600">Line of descent</h2>
+        <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px">
+          <li style="padding: 6px 12px; border: 1px solid #A99F88; border-radius: 6px">haunted-house</li>
+          <li aria-hidden="true" style="color: #5E5848">→</li>
+          <li style="padding: 6px 12px; border: 1px solid #8A2B1F; border-radius: 6px">gulp-util@3.0.8 <span style="font-family: Inter, sans-serif; color: #8A2B1F">(dead)</span></li>
+          <li aria-hidden="true" style="color: #5E5848">→</li>
+          <li style="padding: 6px 12px; border: 1px solid #4E3A86; border-radius: 6px; background: #E3DACA">lodash.template@3.6.2</li>
+        </ol>
+        <p style="margin: 0; font-size: 15px; color: #3D3A31">You never chose this package. It arrived with <span style="font-family: 'JetBrains Mono', monospace">gulp-util</span>, which is itself dead. One path leads here, so removing <span style="font-family: 'JetBrains Mono', monospace">gulp-util</span> buries both.</p>
+      </section>
+
+      <section aria-label="Evidence" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600">Evidence on file</h2>
+        <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #2A2822">
+          <li>Registry deprecation notice: <span style="background: #E3DACA; padding: 1px 6px; border-radius: 4px">[notice text from npm]</span> — <a href="#">view on npmjs.com</a></li>
+          <li>Security advisory: <span style="background: #E3DACA; padding: 1px 6px; border-radius: 4px">[advisory ID and title]</span> — <a href="#">view advisory</a></li>
+        </ul>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; border-top: 1px double #8C8371; padding-top: 20px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5E5848">scan 01M82PBZE6AWAYGK3E37ZNXSNC · model v2</span>
+        <div style="display: flex; align-items: center; gap: 18px">
+          <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 22px; color: #3D3A31">— the Coroner</span>
+          <svg role="img" aria-label="Wax seal: deceased" width="96" height="96" viewBox="0 0 96 96" style="transform: rotate(-12deg)">
+            <path d="M48 4 C58 6 62 2 70 8 C78 14 84 12 88 22 C92 30 96 34 92 44 C90 52 94 58 88 66 C82 74 82 80 72 84 C64 88 60 94 50 92 C40 92 36 96 28 90 C20 84 14 86 10 76 C6 68 2 64 4 54 C6 46 0 40 6 32 C10 24 10 18 20 12 C28 6 36 4 48 4 Z" fill="#8A2B1F"/>
+            <circle cx="48" cy="48" r="32" fill="none" stroke="#B8463A" stroke-width="2"/>
+            <circle cx="48" cy="48" r="27" fill="none" stroke="#6E2118" stroke-width="1"/>
+            <text x="48" y="45" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="700" font-size="13" fill="#F2D6CF" letter-spacing="1">DECEASED</text>
+            <text x="48" y="60" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-style="italic" font-size="11" fill="#F2D6CF">22·XI·2026</text>
+          </svg>
+        </div>
+      </div>
+    </article>
+
+    <aside aria-label="Last rites" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <section style="background: #17191B; border: 1px solid #2C3035; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 600">Last rites</h2>
+        <p style="margin: 0; color: #C9C3B6; font-size: 15px">Graveyard can open a draft pull request that removes <span style="font-family: 'JetBrains Mono', monospace">gulp-util</span> and updates the lockfile. You review it; nothing merges on its own.</p>
+        <button type="button" class="gy-btn" style="height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ECE6D8; color: #121314; border: 0; border-radius: 10px; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">Open a draft PR</button>
+        <p style="margin: 0; font-size: 13px; color: #A39E92">Uses the Graveyard Rites app. It can only open draft PRs on repos you install it on.</p>
+      </section>
+      <section style="background: #17191B; border: 1px solid #2C3035; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Buried alongside</h2>
+        <p style="margin: 0; font-size: 14px; color: #B8B2A5">Removing gulp-util also clears these from the same plot:</p>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #C9C3B6">
+          <li>[transitive packages only reachable through gulp-util]</li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
