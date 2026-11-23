@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graveyard — the graveyard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0F13}
+a{color:#ECE6D8}a:hover{color:#FFFFFF}
+.gy-btn:focus-visible,.gy-link:focus-visible,.gy-stone:focus-visible{outline:2px solid #ECE6D8;outline-offset:4px}
+.gy-stone{transition:transform .25s ease}
+.gy-stone:hover{transform:translateY(-6px)}
+@media (prefers-reduced-motion: no-preference){
+.gy-glow{animation:gyglow 4s ease-in-out infinite}
+.gy-fog1{animation:gyfog 40s linear infinite alternate}
+}
+@media (prefers-reduced-motion: reduce){.gy-stone{transition:none}.gy-stone:hover{transform:none}}
+@keyframes gyglow{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes gyfog{from{transform:translateX(-100px)}to{transform:translateX(100px)}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0D0F13; color: #ECE6D8; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.6">
+
+  <section aria-label="Scan summary" style="position: relative; background: #121620; overflow: hidden">
+    <svg aria-hidden="true" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" style="position: absolute; inset: 0; width: 100%; height: 100%">
+      <g fill="#E8E1CF"><circle cx="120" cy="50" r="1.3"/><circle cx="380" cy="30" r="1"/><circle cx="620" cy="70" r="1.2"/><circle cx="880" cy="40" r="1"/><circle cx="1010" cy="110" r="1.3"/><circle cx="1360" cy="50" r="1.1"/></g>
+      <circle cx="1220" cy="90" r="110" fill="#E8E1CF" opacity="0.04"/>
+      <circle cx="1220" cy="90" r="44" fill="#E8E1CF"/>
+      <circle cx="1206" cy="80" r="7" fill="#D7CFBB"/><circle cx="1232" cy="104" r="9" fill="#D7CFBB"/>
+      <path d="M0 250 C260 214 520 236 760 240 C1000 244 1200 210 1440 222 V300 H0 Z" fill="#171B23"/>
+      <path d="M0 280 C360 262 720 276 1080 268 C1260 264 1360 270 1440 272 V300 H0 Z" fill="#0D0F13"/>
+    </svg>
+    <header style="position: relative; max-width: 1240px; margin: 0 auto; padding: 20px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Main.dc.html" class="gy-link" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ECE6D8">
+        <svg width="22" height="26" viewBox="0 0 28 32" fill="none" stroke="#ECE6D8" stroke-width="1.8" aria-hidden="true"><path d="M3 31V13a11 11 0 0 1 22 0v18"/><path d="M1 31h26"/><path d="M14 8v12M9.5 12.5h9"/></svg>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 700">Graveyard</span>
+      </a>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <button type="button" class="gy-btn" style="height: 44px; padding: 0 18px; background: #0D0F13; border: 1px solid #3A3F45; color: #ECE6D8; border-radius: 10px; font: inherit; font-size: 15px; cursor: pointer">Share results</button>
+        <a href="Main.dc.html" class="gy-btn" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; background: #ECE6D8; color: #121314; border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none">Exhume another</a>
+      </div>
+    </header>
+    <div style="position: relative; max-width: 1240px; margin: 0 auto; padding: 32px 32px 110px; display: flex; flex-direction: column; gap: 8px">
+      <p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: #93CBA6">Exhumation complete · 22 Nov 2026</p>
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 60px; line-height: 1.05">olajaido/haunted-house</h1>
+      <p style="margin: 0; color: #D3CDC0; max-width: 620px">208 dependencies dug up across two plots. 17 lie dead, and 2 of those are cursed. Start with the stone that glows.</p>
+    </div>
+  </section>
+
+  <main style="max-width: 1240px; margin: 0 auto; padding: 8px 32px 80px; display: flex; flex-direction: column; gap: 28px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+      <div role="group" aria-label="Filter by state" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="6">
+          <button type="button" class="gy-btn" aria-pressed="{{ chip.selected }}" onClick="{{ chip.pick }}" style="{{ chip.style }}">
+            <span style="{{ chip.dot }}"></span>{{ chip.label }}<span style="{{ chip.countStyle }}">{{ chip.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div role="group" aria-label="View" style="display: inline-flex; background: #161A21; border: 1px solid #262C35; border-radius: 12px; padding: 4px; gap: 4px">
+        <button type="button" class="gy-btn" aria-pressed="{{ isScene }}" onClick="{{ showScene }}" style="{{ sceneBtn }}">
+          <svg width="16" height="18" viewBox="0 0 28 32" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 31V13a11 11 0 0 1 22 0v18"/><path d="M1 31h26"/></svg>
+          Graveyard
+        </button>
+        <button type="button" class="gy-btn" aria-pressed="{{ isTable }}" onClick="{{ showTable }}" style="{{ tableBtn }}">
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 2h6M8 2v2"/><path d="M3 6h10l-1 9H4z"/><path d="M8 8v4"/></svg>
+          Lights on
+        </button>
+      </div>
+    </div>
+
+    <sc-if value="{{ isScene }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 36px">
+        <sc-for list="{{ plots }}" as="plot" hint-placeholder-count="2">
+          <section aria-label="{{ plot.aria }}" style="position: relative; border-radius: 18px; overflow: hidden; background: #121620; border: 1px solid #1E232B">
+            <svg aria-hidden="true" viewBox="0 0 1200 260" preserveAspectRatio="none" style="position: absolute; left: 0; right: 0; top: 0; width: 100%; height: 260px">
+              <path d="M0 150 C200 120 420 136 640 140 C860 144 1000 116 1200 126 V260 H0 Z" fill="#171B23"/>
+              <defs><pattern id="{{ plot.patId }}" width="18" height="50" patternUnits="userSpaceOnUse"><path d="M9 2 L12.5 10 L9 8 L5.5 10 Z" fill="#0B0D11"/><rect x="7.8" y="8" width="2.4" height="42" fill="#0B0D11"/></pattern></defs>
+              <rect x="0" y="150" width="1200" height="50" fill="{{ plot.patFill }}"/>
+              <rect x="0" y="165" width="1200" height="3" fill="#0B0D11"/><rect x="0" y="188" width="1200" height="3" fill="#0B0D11"/>
+              <path d="M0 210 C300 196 600 206 900 200 C1040 198 1120 202 1200 204 V260 H0 Z" fill="#0F1217"/>
+            </svg>
+            <div style="position: relative; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; padding: 22px 26px 0">
+              <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600">{{ plot.title }}</h2>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A9A396">{{ plot.sub }}</span>
+            </div>
+            <div style="position: relative; margin-top: 60px; background: #0F1217; padding: 0 26px 34px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 30px 26px; min-height: 120px">
+              <sc-for list="{{ plot.stones }}" as="s" hint-placeholder-count="10">
+                <a href="Certificate.dc.html" class="gy-stone" aria-label="{{ s.aria }}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; color: #ECE6D8; width: {{ s.colW }}">
+                  <svg aria-hidden="true" width="{{ s.w }}" height="{{ s.h }}" viewBox="0 0 120 160">
+                    <sc-if value="{{ s.isCursed }}" hint-placeholder-val="{{ false }}">
+                      <ellipse class="gy-glow" cx="60" cy="86" rx="58" ry="74" fill="#C4AEF5" opacity="0.16"/>
+                      <ellipse cx="60" cy="152" rx="50" ry="7" fill="#2A2233"/>
+                      <path d="M40 152 L48 34 L60 8 L72 34 L80 152 Z" fill="#2B2838" stroke="#C4AEF5" stroke-width="1.6"/>
+                      <path d="M60 70 l5 12 12 4 -12 4 -5 12 -5 -12 -12 -4 12 -4 z" fill="#C4AEF5"/>
+                    </sc-if>
+                    <sc-if value="{{ s.isDead }}" hint-placeholder-val="{{ true }}">
+                      <ellipse cx="60" cy="150" rx="58" ry="10" fill="#3A2E22"/>
+                      <path d="M16 148 V62 A44 44 0 0 1 104 62 V148 Z" fill="#2A2F37" stroke="#E8887B" stroke-width="1.4"/>
+                      <path d="M60 38 V92 M42 56 H78" stroke="#E8887B" stroke-width="5"/>
+                    </sc-if>
+                    <sc-if value="{{ s.isAiling }}" hint-placeholder-val="{{ false }}">
+                      <ellipse cx="60" cy="152" rx="54" ry="8" fill="#2C2A22"/>
+                      <g transform="rotate(-7 60 150)">
+                        <path d="M18 150 V58 Q18 42 34 42 H86 Q102 42 102 58 V150 Z" fill="#2A2F37" stroke="#E9B266" stroke-width="1.4"/>
+                        <path d="M82 42 L70 70 L82 88 L66 118" fill="none" stroke="#E9B266" stroke-width="2"/>
+                      </g>
+                    </sc-if>
+                    <sc-if value="{{ s.isResting }}" hint-placeholder-val="{{ false }}">
+                      <ellipse cx="60" cy="152" rx="54" ry="8" fill="#1F2A21"/>
+                      <path d="M18 150 V64 A42 42 0 0 1 102 64 V150 Z" fill="#2A2F37" stroke="#8FB2E0" stroke-width="1.4"/>
+                      <path d="M70 66 A14 14 0 1 1 56 52 A11 11 0 0 0 70 66 Z" fill="#8FB2E0"/>
+                      <circle cx="26" cy="148" r="4" fill="#93CBA6"/><circle cx="35" cy="150" r="3.4" fill="#E8E1CF"/><circle cx="92" cy="148" r="4" fill="#8FB2E0"/><circle cx="84" cy="150" r="3" fill="#93CBA6"/>
+                    </sc-if>
+                    <sc-if value="{{ s.isWounded }}" hint-placeholder-val="{{ false }}">
+                      <ellipse cx="60" cy="152" rx="50" ry="7" fill="#1F2A21"/>
+                      <path d="M60 152 V70" stroke="#93CBA6" stroke-width="4"/>
+                      <path d="M60 104 C38 100 26 84 26 64 C48 64 60 82 60 104 Z" fill="#93CBA6"/>
+                      <path d="M60 90 C80 84 92 64 94 48 C72 48 60 68 60 90 Z" fill="#6FA982"/>
+                      <rect x="46" y="112" width="28" height="10" rx="3" fill="#F0A39A" transform="rotate(-20 60 117)"/>
+                    </sc-if>
+                  </svg>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.3; text-align: center; word-break: break-all">{{ s.name }}</span>
+                  <span style="{{ s.metaStyle }}">{{ s.meta }}</span>
+                </a>
+              </sc-for>
+              <sc-if value="{{ plot.empty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin: 0; padding-top: 24px; color: #A9A396">No graves in this plot match the filter.</p>
+              </sc-if>
+            </div>
+          </section>
+        </sc-for>
+        <p style="margin: 0; font-size: 14px; color: #A9A396">Taller stones need you sooner: the cursed first, then dead packages you chose yourself, then the ones that came along with them. The healthy majority is in Lights on.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTable }}" hint-placeholder-val="{{ false }}">
+      <div style="overflow-x: auto; background: #EDE6D6; color: #1B1A17; border-radius: 14px">
+        <table style="width: 100%; min-width: 860px; border-collapse: collapse; font-size: 14px">
+          <caption style="text-align: left; padding: 18px 20px 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; color: #1B1A17">The register, with the lights on</caption>
+          <thead>
+            <tr style="text-align: left; border-bottom: 2px solid #A99F88">
+              <th scope="col" style="padding: 12px 20px; font-weight: 600"><button type="button" class="gy-btn" style="background: none; border: 0; color: inherit; font: inherit; font-weight: 600; padding: 0; cursor: pointer">Package ↓</button></th>
+              <th scope="col" style="padding: 12px 20px; font-weight: 600">State</th>
+              <th scope="col" style="padding: 12px 20px; font-weight: 600">Cause</th>
+              <th scope="col" style="padding: 12px 20px; font-weight: 600">Relationship</th>
+              <th scope="col" style="padding: 12px 20px; font-weight: 600">Scope</th>
+              <th scope="col" style="padding: 12px 20px; font-weight: 600">Service</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+              <tr style="border-top: 1px solid #CFC6B2">
+                <th scope="row" style="padding: 12px 20px; text-align: left; font-weight: 400"><a href="Certificate.dc.html" class="gy-link" style="font-family: 'JetBrains Mono', monospace; color: #1B1A17">{{ r.purl }}</a></th>
+                <td style="padding: 12px 20px"><span style="{{ r.pillStyle }}">{{ r.stateLabel }}</span></td>
+                <td style="padding: 12px 20px; color: #3D3A31">{{ r.cause }}</td>
+                <td style="padding: 12px 20px; color: #3D3A31">{{ r.relText }}</td>
+                <td style="padding: 12px 20px; color: #3D3A31">{{ r.scope }}</td>
+                <td style="padding: 12px 20px; font-family: 'JetBrains Mono', monospace; color: #5E5848">{{ r.svc }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.state || {};
+    var view = st.view || 'scene';
+    var filter = st.filter || 'all';
+    var self = this;
+    var C = { dead: '#E8887B', cursed: '#C4AEF5', ailing: '#E9B266', resting: '#8FB2E0', alive: '#93CBA6', wounded: '#F0A39A' };
+    var INK = { dead: '#8A2B1F', cursed: '#4E3A86', ailing: '#7A4A0E', resting: '#2D4B78', alive: '#2F6B44', wounded: '#8A3A30' };
+    var PILL = { dead: '#F3D4CE', cursed: '#E2D9F7', ailing: '#F4E1C2', resting: '#D6E2F2', alive: '#D5EBDC', wounded: '#F5D9D4' };
+    var raw = [
+      ['lodash.template','3.6.2','dead',true,false,'transitive','runtime','.','Deprecated on the registry','gulp-util'],
+      ['request-promise','4.2.6','dead',false,false,'direct','runtime','.','Deprecated on the registry',''],
+      ['gulp-util','3.0.8','dead',false,false,'direct','runtime','.','Deprecated on the registry',''],
+      ['coffee-script','1.12.7','dead',false,false,'direct','runtime','.','Deprecated on the registry',''],
+      ['querystring','0.2.1','dead',false,false,'direct','runtime','.','Deprecated on the registry',''],
+      ['tslint','6.1.3','dead',false,false,'direct','dev','.','Deprecated on the registry',''],
+      ['request','2.88.2','dead',false,false,'transitive','runtime','.','Deprecated on the registry','request-promise'],
+      ['har-validator','5.1.5','dead',false,false,'transitive','runtime','.','Deprecated on the registry','request'],
+      ['inflight','1.0.6','dead',false,false,'transitive','runtime','.','Deprecated on the registry','glob'],
+      ['path-is-absolute','1.0.1','dead',false,false,'transitive','runtime','.','Deprecated on the registry','glob'],
+      ['material-design-lite','1.3.0','ailing',false,false,'direct','runtime','.','Signs of neglect',''],
+      ['performance-now','2.1.0','ailing',false,false,'transitive','runtime','.','Signs of neglect','request'],
+      ['tunnel-agent','0.6.0','ailing',false,false,'transitive','runtime','.','Signs of neglect','request'],
+      ['serializr','3.0.5','resting',false,false,'direct','runtime','.','Finished and stable',''],
+      ['command-line-args','6.0.2','resting',false,false,'direct','runtime','.','Finished and stable',''],
+      ['form-data','2.3.3','alive',false,true,'transitive','runtime','.','Known vulnerability in this version','request'],
+      ['qs','6.5.5','alive',false,true,'transitive','runtime','.','Known vulnerability in this version','request'],
+      ['argparse','1.4.0','dead',false,false,'direct','runtime','services/worker','Repository archived',''],
+      ['typed-ast','1.5.5','dead',false,false,'direct','runtime','services/worker','Maintainer statement',''],
+      ['flask-script','2.0.6','dead',false,false,'direct','runtime','services/worker','Declared on evidence',''],
+      ['appdirs','1.4.4','ailing',false,false,'direct','runtime','services/worker','Signs of neglect','']
+    ];
+    var all = raw.map(function (r) {
+      var key = r[3] ? 'cursed' : (r[4] ? 'wounded' : r[2]);
+      var w = r[3] ? 150 : (r[2] === 'dead' && r[5] === 'direct' ? 124 : (r[2] === 'dead' ? 104 : (r[5] === 'direct' ? 100 : 86)));
+      var stateLabel = r[3] ? 'dead · cursed' : (r[4] ? 'alive · wounded' : r[2]);
+      var rel = r[5] === 'direct' ? 'direct' : ('via ' + r[9]);
+      return {
+        name: r[0], ver: r[1], purl: r[0] + '@' + r[1], state: r[2], cursed: r[3], wounded: r[4],
+        scope: r[6], svc: r[7], cause: r[8], relText: rel, stateLabel: stateLabel,
+        isCursed: key === 'cursed', isDead: key === 'dead', isAiling: key === 'ailing', isResting: key === 'resting', isWounded: key === 'wounded',
+        w: w, h: Math.round(w * 160 / 120), colW: (w + 16) + 'px',
+        meta: r[1] + (r[6] === 'dev' ? ' · dev' : '') + (r[5] === 'direct' ? '' : ' · ' + rel),
+        metaStyle: { fontSize: '11px', color: C[key], textAlign: 'center', lineHeight: '1.3' },
+        aria: r[0] + ' ' + r[1] + ', ' + stateLabel + ', ' + (r[5] === 'direct' ? 'direct dependency' : rel),
+        pillStyle: { display: 'inline-block', padding: '2px 10px', borderRadius: '999px', fontSize: '13px', fontWeight: 600, background: PILL[key], color: INK[key] }
+      };
+    });
+    var match = function (x) {
+      if (filter === 'all') return true;
+      if (filter === 'cursed') return x.cursed;
+      if (filter === 'wounded') return x.wounded;
+      return x.state === filter && !x.cursed;
+    };
+    var shown = all.filter(match);
+    var npm = shown.filter(function (x) { return x.svc === '.'; });
+    var py = shown.filter(function (x) { return x.svc !== '.'; });
+    var plots = [
+      { title: 'The root plot', sub: 'service "." · npm · package-lock.json', aria: 'Service . (npm)', stones: npm, empty: npm.length === 0, patId: 'gyPk1', patFill: 'url(#gyPk1)' },
+      { title: 'The worker plot', sub: 'service "services/worker" · PyPI · requirements.txt', aria: 'Service services/worker (PyPI)', stones: py, empty: py.length === 0, patId: 'gyPk2', patFill: 'url(#gyPk2)' }
+    ];
+    var chipDefs = [['all','All','208',''],['dead','Dead','17','dead'],['cursed','Cursed','2','cursed'],['ailing','Ailing','84','ailing'],['resting','Resting','31','resting'],['wounded','Wounded','5','wounded']];
+    var chips = chipDefs.map(function (d) {
+      var sel = filter === d[0];
+      return {
+        label: d[1], count: d[2], selected: sel,
+        pick: function () { self.setState({ filter: d[0] }); },
+        dot: d[3] ? { width: '8px', height: '8px', borderRadius: '50%', background: C[d[3]], display: 'inline-block' } : { display: 'none' },
+        countStyle: { color: sel ? '#4A4538' : '#A9A396', fontWeight: 400 },
+        style: { height: '44px', padding: '0 16px', display: 'inline-flex', alignItems: 'center', gap: '8px', borderRadius: '999px', cursor: 'pointer', font: 'inherit', fontSize: '14px', fontWeight: 500, background: sel ? '#ECE6D8' : '#161A21', color: sel ? '#121314' : '#ECE6D8', border: sel ? '1px solid #ECE6D8' : '1px solid #262C35' }
+      };
+    });
+    var btn = function (on) {
+      return { height: '40px', padding: '0 16px', display: 'inline-flex', alignItems: 'center', gap: '8px', borderRadius: '9px', border: '0', cursor: 'pointer', font: 'inherit', fontSize: '15px', fontWeight: 600, background: on ? '#ECE6D8' : 'transparent', color: on ? '#121314' : '#C9C3B6' };
+    };
+    return {
+      isScene: view === 'scene', isTable: view === 'table',
+      showScene: function () { self.setState({ view: 'scene' }); },
+      showTable: function () { self.setState({ view: 'table' }); },
+      sceneBtn: btn(view === 'scene'), tableBtn: btn(view === 'table'),
+      chips: chips, plots: plots, rows: shown
+    };
+  }
+}
+</script>
+</body>
+</html>

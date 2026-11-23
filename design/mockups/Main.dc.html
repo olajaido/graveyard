@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graveyard — landing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0F13}
+a{color:#ECE6D8}a:hover{color:#FFFFFF}
+.gy-btn:focus-visible,.gy-input:focus-visible,.gy-link:focus-visible{outline:2px solid #ECE6D8;outline-offset:3px}
+@media (prefers-reduced-motion: no-preference){
+.gy-fog1{animation:gyfog 38s linear infinite alternate}
+.gy-fog2{animation:gyfog 52s linear infinite alternate-reverse}
+.gy-glow{animation:gyglow 4s ease-in-out infinite}
+.gy-star{animation:gytw 5s ease-in-out infinite}
+}
+@keyframes gyfog{from{transform:translateX(-120px)}to{transform:translateX(120px)}}
+@keyframes gyglow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes gytw{0%,100%{opacity:.9}50%{opacity:.35}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0D0F13; color: #ECE6D8; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.6">
+
+  <section aria-label="Introduction" style="position: relative; min-height: 760px; background: #121620; overflow: hidden; display: flex; flex-direction: column">
+    <svg aria-hidden="true" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice" style="position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 640px">
+      <g fill="#E8E1CF">
+        <circle class="gy-star" cx="80" cy="60" r="1.4"/><circle cx="190" cy="140" r="1"/><circle cx="310" cy="40" r="1.2"/><circle class="gy-star" cx="420" cy="110" r="1.6"/><circle cx="560" cy="50" r="1"/><circle cx="640" cy="160" r="1.3"/><circle class="gy-star" cx="760" cy="70" r="1.1"/><circle cx="880" cy="30" r="1.5"/><circle cx="960" cy="130" r="1"/><circle cx="1290" cy="60" r="1.2"/><circle class="gy-star" cx="1380" cy="150" r="1.4"/><circle cx="1240" cy="250" r="1"/><circle cx="1020" cy="220" r="1.1"/><circle cx="700" cy="250" r="1"/>
+      </g>
+      <circle cx="1130" cy="150" r="150" fill="#E8E1CF" opacity="0.035"/>
+      <circle cx="1130" cy="150" r="96" fill="#E8E1CF" opacity="0.06"/>
+      <circle cx="1130" cy="150" r="58" fill="#E8E1CF"/>
+      <circle cx="1112" cy="136" r="9" fill="#D7CFBB"/><circle cx="1146" cy="168" r="12" fill="#D7CFBB"/><circle cx="1150" cy="128" r="5" fill="#D7CFBB"/>
+      <path d="M0 430 C200 380 380 400 560 420 C760 440 900 360 1100 380 C1250 395 1350 370 1440 360 V640 H0 Z" fill="#1A1F29"/>
+      <path d="M1220 384 V330 H1236 V306 L1252 280 L1268 306 V330 H1284 V384 Z M1252 262 V280 M1246 268 H1258" fill="#161A22" stroke="#161A22" stroke-width="3"/>
+      <path d="M0 500 C240 450 520 470 760 485 C980 500 1180 440 1440 455 V640 H0 Z" fill="#141820"/>
+      <defs>
+        <pattern id="gyPicket" width="20" height="56" patternUnits="userSpaceOnUse">
+          <path d="M10 2 L14 11 L10 9 L6 11 Z" fill="#0B0D11"/>
+          <rect x="8.6" y="9" width="2.8" height="47" fill="#0B0D11"/>
+        </pattern>
+      </defs>
+      <rect x="560" y="430" width="420" height="56" fill="url(#gyPicket)"/>
+      <rect x="560" y="446" width="420" height="3" fill="#0B0D11"/><rect x="560" y="472" width="420" height="3" fill="#0B0D11"/>
+      <g fill="#1F242C" stroke="#2A3039" stroke-width="1">
+        <path d="M690 492 V470 A12 12 0 0 1 714 470 V492 Z"/><path d="M790 496 V474 A11 11 0 0 1 812 474 V496 Z"/><path d="M1050 486 V462 A13 13 0 0 1 1076 462 V486 Z"/><path d="M1180 478 V458 A11 11 0 0 1 1202 458 V478 Z"/><path d="M1316 472 V452 A10 10 0 0 1 1336 452 V472 Z"/>
+      </g>
+      <g stroke="#0A0C0F" stroke-linecap="round" fill="none">
+        <path d="M150 600 C146 520 152 470 140 420" stroke-width="14"/>
+        <path d="M142 470 C110 440 96 420 70 410" stroke-width="7"/>
+        <path d="M144 440 C176 410 196 380 230 366" stroke-width="7"/>
+        <path d="M140 420 C130 380 120 360 128 320" stroke-width="6"/>
+        <path d="M86 416 C70 396 60 390 44 392" stroke-width="3"/>
+        <path d="M200 382 C214 360 222 350 240 344" stroke-width="3"/>
+        <path d="M128 340 C108 320 100 306 98 290" stroke-width="3"/>
+        <path d="M130 330 C150 312 158 300 166 284" stroke-width="3"/>
+      </g>
+      <path d="M0 560 C300 528 600 546 900 540 C1150 536 1300 518 1440 528 V640 H0 Z" fill="#0D0F13"/>
+      <g class="gy-glow">
+        <ellipse cx="960" cy="420" rx="90" ry="140" fill="#C4AEF5" opacity="0.07"/>
+        <ellipse cx="960" cy="440" rx="54" ry="100" fill="#C4AEF5" opacity="0.09"/>
+      </g>
+      <g font-family="JetBrains Mono, monospace" font-size="11" fill="#9AA0AA" text-anchor="middle">
+        <ellipse cx="680" cy="560" rx="62" ry="9" fill="#1A150F"/>
+        <path d="M630 556 V482 A50 50 0 0 1 730 482 V556 Z" fill="#2A2F37" stroke="#3E444E"/>
+        <path d="M680 456 V498 M664 470 H696" stroke="#1D2127" stroke-width="4"/>
+        <text x="680" y="526">gulp-util</text><text x="680" y="541" font-size="9" fill="#7E848E">3.0.8</text>
+        <ellipse cx="820" cy="556" rx="52" ry="8" fill="#1A150F"/>
+        <path d="M806 552 V478 H784 V458 H806 V434 H834 V458 H856 V478 H834 V552 Z" fill="#2A2F37" stroke="#3E444E"/>
+        <text x="820" y="512" font-size="10">request</text>
+        <path d="M928 556 L940 330 L960 300 L980 330 L992 556 Z" fill="#2B2838" stroke="#C4AEF5" stroke-width="1.4"/>
+        <path d="M960 380 L966 396 L982 400 L966 406 L960 422 L954 406 L938 400 L954 396 Z" fill="none" stroke="#C4AEF5" stroke-width="1.4"/>
+        <text x="960" y="470" font-size="10" fill="#C4AEF5">lodash.</text><text x="960" y="484" font-size="10" fill="#C4AEF5">template</text>
+        <ellipse cx="1090" cy="560" rx="58" ry="9" fill="#1A150F"/>
+        <path d="M1044 556 V494 Q1044 470 1068 470 H1112 Q1136 470 1136 494 V556 Z" fill="#2A2F37" stroke="#3E444E"/>
+        <text x="1090" y="520">tslint</text><text x="1090" y="535" font-size="9" fill="#7E848E">6.1.3</text>
+        <g transform="rotate(-7 1230 556)">
+          <path d="M1186 556 V490 A44 44 0 0 1 1274 490 V556 Z" fill="#2A2F37" stroke="#3E444E"/>
+          <path d="M1246 470 L1238 492 L1248 506 L1236 528" fill="none" stroke="#1A1D22" stroke-width="2"/>
+          <text x="1230" y="530" font-size="10">coffee-script</text>
+        </g>
+        <ellipse cx="1360" cy="556" rx="50" ry="8" fill="#1A150F"/>
+        <path d="M1322 552 V490 A38 38 0 0 1 1398 490 V552 Z" fill="#2A2F37" stroke="#3E444E"/>
+        <text x="1360" y="522">argparse</text>
+      </g>
+      <path class="gy-fog1" d="M-200 560 C100 520 300 580 600 548 C900 520 1100 590 1500 540 C1600 530 1700 560 1700 600 H-200 Z" fill="#CBD2DE" opacity="0.06"/>
+      <path class="gy-fog2" d="M-200 600 C200 570 500 610 800 586 C1100 566 1300 612 1700 584 V640 H-200 Z" fill="#CBD2DE" opacity="0.07"/>
+    </svg>
+
+    <header style="position: relative; max-width: 1240px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 24px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="#" class="gy-link" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #ECE6D8">
+        <svg width="28" height="32" viewBox="0 0 28 32" fill="none" stroke="#ECE6D8" stroke-width="1.6" aria-hidden="true"><path d="M3 31V13a11 11 0 0 1 22 0v18"/><path d="M1 31h26"/><path d="M14 8v12M9.5 12.5h9"/></svg>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 700; letter-spacing: 0.02em">Graveyard</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px">
+        <a href="#how" class="gy-link" style="color: #C9C3B6; text-decoration: none">How it works</a>
+        <a href="#states" class="gy-link" style="color: #C9C3B6; text-decoration: none">The six states</a>
+        <a href="#evidence" class="gy-link" style="color: #C9C3B6; text-decoration: none">Our evidence</a>
+        <a href="https://github.com/olajaido/graveyard" class="gy-link" style="color: #C9C3B6; text-decoration: none">GitHub</a>
+      </nav>
+    </header>
+
+    <div style="position: relative; max-width: 1240px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 48px 32px 300px; display: flex; flex-direction: column; gap: 26px">
+      <p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: #C9C3B6">Dependency autopsy · npm &amp; PyPI</p>
+      <h1 style="margin: 0; max-width: 680px; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: clamp(48px, 6.4vw, 88px); line-height: 1; letter-spacing: -0.01em">Every codebase has a graveyard. <span style="font-style: italic; color: #C4AEF5">Find yours.</span></h1>
+      <p style="margin: 0; font-size: 19px; line-height: 1.6; color: #D3CDC0; max-width: 540px">We read your lockfiles, dig through every transitive dependency, and name the dead, the dying and the cursed — with the evidence to prove it.</p>
+      <form style="display: flex; flex-direction: column; gap: 10px; max-width: 560px" onSubmit="{{ submit }}">
+        <label for="repo" style="font-size: 14px; font-weight: 500">Public GitHub repository</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px">
+          <div style="flex: 1 1 280px; display: flex; align-items: center; gap: 8px; background: #0D0F13; border: 1px solid #3A3F45; border-radius: 10px; padding: 0 14px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #8F8A7F">github.com/</span>
+            <input id="repo" class="gy-input" type="text" value="olajaido/haunted-house" placeholder="owner/repo" autocomplete="off" spellcheck="false" style="flex: 1; min-width: 0; height: 52px; background: transparent; border: 0; color: #ECE6D8; font-family: 'JetBrains Mono', monospace; font-size: 15px; outline: none">
+          </div>
+          <a href="Exhumation.dc.html" class="gy-btn" style="height: 54px; padding: 0 26px; display: inline-flex; align-items: center; gap: 10px; background: #ECE6D8; color: #121314; border-radius: 10px; font-weight: 600; font-size: 16px; text-decoration: none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121314" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3l7 7"/><path d="M17.5 6.5L8 16"/><path d="M8 16l-3 1 -2 4 4-2 1-3"/></svg>
+            Exhume
+          </a>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #A9A396">Reads <span style="font-family: 'JetBrains Mono', monospace">package-lock.json</span>, <span style="font-family: 'JetBrains Mono', monospace">uv.lock</span>, <span style="font-family: 'JetBrains Mono', monospace">poetry.lock</span>, <span style="font-family: 'JetBrains Mono', monospace">requirements*.txt</span>. Nothing is installed or run.</p>
+      </form>
+    </div>
+  </section>
+
+  <section aria-label="Example result" style="background: #0D0F13">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 96px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 28px">
+      <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding-bottom: 16px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #A9A396">olajaido/haunted-house, exhumed in about a minute</span>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 96px; font-weight: 600; line-height: 1">208</span>
+        <span style="color: #C9C3B6">dependencies dug up. This is what we found buried.</span>
+      </div>
+      <div style="width: 170px; height: 220px; box-sizing: border-box; border-radius: 85px 85px 8px 8px; background: #2A2F37; border: 1px solid #E8887B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 18px 0 -6px #1A150F">
+        <svg width="22" height="30" viewBox="0 0 22 30" fill="none" stroke="#E8887B" stroke-width="2.5" aria-hidden="true"><path d="M11 2v26M3 10h16"/></svg>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; font-weight: 600; line-height: 1">17</span>
+        <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #E8887B">Dead</span>
+      </div>
+      <div style="width: 130px; height: 250px; box-sizing: border-box; clip-path: polygon(50% 0, 72% 12%, 86% 100%, 14% 100%, 28% 12%); background: #2B2838; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; padding-bottom: 28px; filter: drop-shadow(0 0 22px rgba(196,174,245,0.45))">
+        <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="#C4AEF5" stroke-width="1.6" aria-hidden="true"><path d="M8 1l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 56px; font-weight: 600; line-height: 1">2</span>
+        <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #C4AEF5">Cursed</span>
+      </div>
+      <div style="width: 170px; height: 200px; box-sizing: border-box; border-radius: 16px 16px 8px 8px; background: #2A2F37; border: 1px solid #E9B266; transform: rotate(-4deg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative">
+        <svg aria-hidden="true" width="40" height="70" viewBox="0 0 40 70" style="position: absolute; top: 0; right: 26px"><path d="M30 0 L18 22 L28 36 L14 66" fill="none" stroke="#E9B266" stroke-width="1.6"/></svg>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; font-weight: 600; line-height: 1">84</span>
+        <span style="font-size: 14px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #E9B266">Ailing</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="border-top: 1px solid #1E232B; background: #11141A">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 88px 32px; display: flex; flex-direction: column; gap: 48px">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 52px; line-height: 1.1">The autopsy, in four acts</h2>
+      <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px">
+        <li style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+          <svg aria-hidden="true" width="140" height="100" viewBox="0 0 140 100">
+            <ellipse cx="70" cy="88" rx="64" ry="9" fill="#1A150F"/>
+            <path d="M18 88 C30 62 54 56 70 58 C88 60 110 70 122 88 Z" fill="#3A2E22"/>
+            <path d="M92 10 L78 66" stroke="#B8B2A5" stroke-width="4" stroke-linecap="round"/>
+            <path d="M70 62 L86 66 L80 84 L64 80 Z" fill="#8F96A0"/>
+            <path d="M86 6 H100" stroke="#B8B2A5" stroke-width="4" stroke-linecap="round"/>
+            <rect x="36" y="44" width="16" height="20" rx="2" fill="#ECE6D8" transform="rotate(-14 44 54)"/>
+            <path d="M40 50 H48 M40 54 H48 M40 58 H46" stroke="#2A2F37" stroke-width="1.4" transform="rotate(-14 44 54)"/>
+          </svg>
+          <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #A9A396">Act I</span>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 600">Exhume</h3>
+          <p style="margin: 0; color: #C9C3B6">A read-only GitHub App digs up only your lockfiles. No clone, no install, no code run.</p>
+        </li>
+        <li style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+          <svg aria-hidden="true" width="140" height="100" viewBox="0 0 140 100">
+            <rect x="14" y="70" width="112" height="18" rx="4" fill="#2A2F37"/>
+            <path d="M30 79 h20 M58 79 h28 M94 79 h18" stroke="#ECE6D8" stroke-width="3" stroke-linecap="round"/>
+            <path d="M40 30 l16 8 -6 12 -16 -8 z" fill="#ECE6D8"/><circle cx="38" cy="34" r="3" fill="#2A2F37"/>
+            <path d="M56 38 L72 52" stroke="#ECE6D8" stroke-width="1.6" stroke-dasharray="3 3"/>
+            <circle cx="92" cy="34" r="22" fill="#161A21" stroke="#B8B2A5" stroke-width="4"/>
+            <circle cx="92" cy="34" r="14" fill="#E8E1CF" opacity="0.12"/>
+            <path d="M108 50 L124 66" stroke="#B8B2A5" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+          <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #A9A396">Act II</span>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 600">Identify</h3>
+          <p style="margin: 0; color: #C9C3B6">Every body gets a toe tag. Syft names each package and version exactly.</p>
+        </li>
+        <li style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+          <svg aria-hidden="true" width="140" height="100" viewBox="0 0 140 100">
+            <path d="M0 40 H140" stroke="#3A3F45" stroke-width="2"/>
+            <rect x="58" y="12" width="24" height="28" rx="10" fill="#2A2F37" stroke="#8F96A0"/>
+            <g stroke="#8F96A0" stroke-width="2" fill="none" stroke-linecap="round">
+              <path d="M70 40 V58"/><path d="M70 58 C56 64 40 66 28 80"/><path d="M70 58 C84 64 100 66 112 80"/><path d="M70 58 V86"/>
+              <path d="M40 70 C34 74 30 80 30 92"/><path d="M102 70 C108 76 110 82 108 92"/>
+            </g>
+            <circle cx="28" cy="80" r="6" fill="#E8887B"/><circle cx="112" cy="80" r="6" fill="#93CBA6"/><circle cx="70" cy="86" r="6" fill="#E9B266"/><circle cx="30" cy="92" r="4" fill="#C4AEF5"/>
+          </svg>
+          <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #A9A396">Act III</span>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 600">Trace the roots</h3>
+          <p style="margin: 0; color: #C9C3B6">We follow every root underground: what you chose, and what came along with it.</p>
+        </li>
+        <li style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+          <svg aria-hidden="true" width="140" height="100" viewBox="0 0 140 100">
+            <rect x="22" y="10" width="72" height="84" rx="3" fill="#EDE6D6"/>
+            <path d="M32 26 H84 M32 36 H76 M32 46 H80 M32 56 H64" stroke="#B4AA94" stroke-width="2"/>
+            <circle cx="96" cy="68" r="26" fill="#8A2B1F"/>
+            <circle cx="96" cy="68" r="19" fill="none" stroke="#B8463A" stroke-width="2"/>
+            <text x="96" y="73" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="700" font-size="14" fill="#F2D6CF">DEAD</text>
+          </svg>
+          <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #A9A396">Act IV</span>
+          <h3 style="margin: 0; font-size: 21px; font-weight: 600">Pronounce</h3>
+          <p style="margin: 0; color: #C9C3B6">Dead is only ever sealed on evidence: a deprecation, an archive, the maintainer's own word.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="states" style="border-top: 1px solid #1E232B">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 88px 32px; display: flex; flex-direction: column; gap: 40px">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 52px; line-height: 1.1">Six states of being</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px">
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><ellipse cx="40" cy="84" rx="34" ry="5" fill="#1F2A21"/><path d="M40 84 V40" stroke="#93CBA6" stroke-width="3"/><path d="M40 54 C26 52 18 42 18 30 C32 30 40 40 40 54 Z" fill="#93CBA6"/><path d="M40 46 C52 42 60 30 62 20 C48 20 40 32 40 46 Z" fill="#6FA982"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #93CBA6">Alive</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Maintained and growing. Nothing to do.</p></div>
+        </div>
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><path d="M14 86 V36 A26 26 0 0 1 66 36 V86 Z" fill="#2A2F37" stroke="#8FB2E0"/><path d="M46 30 A10 10 0 1 1 36 20 A8 8 0 0 0 46 30 Z" fill="#8FB2E0"/><circle cx="20" cy="84" r="3" fill="#93CBA6"/><circle cx="27" cy="85" r="2.5" fill="#E8E1CF"/><circle cx="60" cy="84" r="3" fill="#8FB2E0"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #8FB2E0">Resting</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Finished, not abandoned. Quiet because it is done.</p></div>
+        </div>
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><g transform="rotate(-8 40 86)"><path d="M14 86 V32 Q14 22 24 22 H56 Q66 22 66 32 V86 Z" fill="#2A2F37" stroke="#E9B266"/><path d="M50 22 L42 40 L50 52 L40 72" fill="none" stroke="#E9B266" stroke-width="1.6"/></g></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #E9B266">Ailing</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Cracks are showing. Worth watching.</p></div>
+        </div>
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><ellipse cx="40" cy="84" rx="36" ry="6" fill="#3A2E22"/><path d="M14 84 V36 A26 26 0 0 1 66 36 V84 Z" fill="#2A2F37" stroke="#E8887B"/><path d="M40 24 V58 M28 36 H52" stroke="#E8887B" stroke-width="3"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #E8887B">Dead</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Declared dead on evidence: deprecated, archived or retired by its maintainer.</p></div>
+        </div>
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><ellipse cx="40" cy="50" rx="34" ry="40" fill="#C4AEF5" opacity="0.12"/><path d="M28 88 L34 20 L40 8 L46 20 L52 88 Z" fill="#2B2838" stroke="#C4AEF5"/><path d="M40 40 l4 9 9 3 -9 3 -4 9 -4 -9 -9 -3 9 -3 z" fill="#C4AEF5"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #C4AEF5">Cursed</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Dead and carrying a known vulnerability. Dig these up first.</p></div>
+        </div>
+        <div style="background: #161A21; border: 1px solid #262C35; border-radius: 16px; padding: 22px; display: flex; gap: 20px; align-items: flex-end">
+          <svg aria-hidden="true" width="80" height="90" viewBox="0 0 80 90"><ellipse cx="40" cy="84" rx="34" ry="5" fill="#1F2A21"/><path d="M40 84 V40" stroke="#93CBA6" stroke-width="3"/><path d="M40 54 C26 52 18 42 18 30 C32 30 40 40 40 54 Z" fill="#93CBA6"/><path d="M40 46 C52 42 60 30 62 20 C48 20 40 32 40 46 Z" fill="#6FA982"/><rect x="31" y="58" width="18" height="7" rx="2" fill="#F0A39A" transform="rotate(-20 40 61)"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; color: #F0A39A">Wounded</span><p style="margin: 0; color: #C9C3B6; font-size: 15px">Still alive, but this version has a known vulnerability.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="evidence" style="border-top: 1px solid #1E232B; background: #11141A">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 88px 32px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+      <div style="flex: 0 0 auto; margin: 0 auto; width: 300px; height: 380px; box-sizing: border-box; border-radius: 150px 150px 10px 10px; background: #2A2F37; border: 1px solid #3E444E; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 26px 0 -8px #1A150F">
+        <span style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #9AA0AA">Here lie</span>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 104px; font-weight: 600; line-height: 1; color: #ECE6D8">10/10</span>
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 20px; color: #C9C3B6; text-align: center; padding: 0 24px">correctly pronounced dead</span>
+        <span style="font-size: 12px; color: #9AA0AA">95% interval 0.72 – 1.00</span>
+      </div>
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 52px; line-height: 1.1">We don't guess at death</h2>
+        <p style="margin: 0; color: #D3CDC0; font-size: 18px">The mortality model was frozen before we drew a fresh, held-out set to test it. On that set, every package it pronounced dead really was dead.</p>
+        <p style="margin: 0; color: #A9A396; font-size: 15px">The sample was small, so the formal verdict was inconclusive — and we say so on the stone.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="position: relative; border-top: 1px solid #1E232B; overflow: hidden">
+    <svg aria-hidden="true" viewBox="0 0 1440 60" preserveAspectRatio="none" style="display: block; width: 100%; height: 60px">
+      <defs><pattern id="gyPicket2" width="20" height="56" patternUnits="userSpaceOnUse"><path d="M10 2 L14 11 L10 9 L6 11 Z" fill="#20252D"/><rect x="8.6" y="9" width="2.8" height="47" fill="#20252D"/></pattern></defs>
+      <rect x="0" y="4" width="1440" height="56" fill="url(#gyPicket2)"/>
+      <rect x="0" y="22" width="1440" height="3" fill="#20252D"/><rect x="0" y="44" width="1440" height="3" fill="#20252D"/>
+    </svg>
+    <div style="max-width: 1240px; margin: 0 auto; padding: 24px 32px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 14px; color: #A9A396">
+      <span>Built for Kiroween 2026 with Kiro.</span>
+      <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 17px">Rest in peace, left-pad.</span>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { submit: function (e) { if (e && e.preventDefault) e.preventDefault(); } };
+  }
+}
+</script>
+</body>
+</html>

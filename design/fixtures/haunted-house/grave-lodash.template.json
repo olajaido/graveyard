@@ -1,0 +1,162 @@
+{
+    "purl": "pkg:npm/lodash.template@3.6.2",
+    "direct": false,
+    "scope": "runtime",
+    "services": [
+        "."
+    ],
+    "pathCount": 1,
+    "servicesAffected": 1,
+    "examplePaths": [
+        {
+            "service": ".",
+            "nodes": [
+                "npm/gulp-util@3.0.8",
+                "npm/lodash.template@3.6.2"
+            ]
+        }
+    ],
+    "asOf": "2026-11-22",
+    "modelVersion": "v2",
+    "state": "dead",
+    "deadReason": "declared",
+    "cursed": true,
+    "wounded": false,
+    "mortality": 90.0,
+    "confidence": 1.0,
+    "priority": 108.0,
+    "exposure": 0.6,
+    "exposureAssumed": false,
+    "signals": {
+        "purl": "pkg:npm/lodash.template@3.6.2",
+        "as_of": "2026-11-22",
+        "s1_declared_death": true,
+        "s1b_version_deprecated": false,
+        "s2_latest_release_at": "2026-04-01",
+        "s3_last_push_at": "2026-10-01",
+        "s4_maintained": 10.0,
+        "s5_committers": 9,
+        "s6_open_issues": 56,
+        "s6_closed_issues": 4308,
+        "s7_advisories": [
+            {
+                "id": "GHSA-35jh-r3h4-6jhm",
+                "has_fix": false,
+                "published_at": "2021-05-06"
+            }
+        ],
+        "s8_overall": 7.5,
+        "s9_weekly_downloads": 3987430,
+        "shared_repo": false
+    },
+    "evidence": {
+        "s1_declared_death": {
+            "value": true,
+            "source_url": "https://api.deps.dev/v3/systems/npm/packages/lodash.template/versions/4.18.1",
+            "fetched_at": "2026-11-22T21:04:06.345440+00:00",
+            "extra_source_urls": [
+                "https://api.github.com/graphql"
+            ],
+            "note": "npm: latest version deprecated OR repo archived; PyPI: repo archived only"
+        },
+        "s1b_version_deprecated": {
+            "value": false,
+            "source_url": "https://api.deps.dev/v3/systems/npm/packages/lodash.template/versions/3.6.2",
+            "fetched_at": "2026-11-22T21:04:05.878609+00:00",
+            "extra_source_urls": [
+                "https://api.deps.dev/v3/systems/npm/packages/lodash.template/versions/4.18.1"
+            ],
+            "note": "npm: resolved version deprecated AND latest version not deprecated"
+        },
+        "s2_latest_release_at": {
+            "value": "2026-04-01",
+            "source_url": "https://api.deps.dev/v3/systems/npm/packages/lodash.template/versions/4.18.1",
+            "fetched_at": "2026-11-22T21:04:06.345440+00:00",
+            "extra_source_urls": [],
+            "note": null
+        },
+        "s3_last_push_at": {
+            "value": "2026-10-01",
+            "source_url": "https://api.github.com/graphql",
+            "fetched_at": "2026-11-22T21:04:10.884326+00:00",
+            "extra_source_urls": [],
+            "note": "GitHub pushedAt of the repository"
+        },
+        "s4_maintained": {
+            "value": 10.0,
+            "source_url": "https://api.deps.dev/v3/projects/github.com%2Flodash%2Flodash",
+            "fetched_at": "2026-11-22T21:04:06.981751+00:00",
+            "extra_source_urls": [],
+            "note": null
+        },
+        "s5_committers": {
+            "value": 9,
+            "source_url": "https://api.github.com/graphql",
+            "fetched_at": "2026-11-22T21:04:10.884326+00:00",
+            "extra_source_urls": [],
+            "note": "distinct commit authors in the 12 months to as_of"
+        },
+        "s6_open_issues": {
+            "value": 56,
+            "source_url": "https://api.github.com/graphql",
+            "fetched_at": "2026-11-22T21:04:10.884326+00:00",
+            "extra_source_urls": [],
+            "note": "all-time open issues"
+        },
+        "s6_closed_issues": {
+            "value": 4308,
+            "source_url": "https://api.github.com/graphql",
+            "fetched_at": "2026-11-22T21:04:10.884326+00:00",
+            "extra_source_urls": [],
+            "note": "all-time closed issues"
+        },
+        "s7_advisories": {
+            "value": [
+                {
+                    "id": "GHSA-35jh-r3h4-6jhm",
+                    "has_fix": false,
+                    "published_at": "2021-05-06",
+                    "fixed_versions": []
+                }
+            ],
+            "source_url": "https://api.osv.dev/v1/querybatch",
+            "fetched_at": "2026-11-22T21:04:05.238743+00:00",
+            "extra_source_urls": [
+                "https://api.osv.dev/v1/vulns/GHSA-35jh-r3h4-6jhm"
+            ],
+            "note": "advisories listed by OSV"
+        },
+        "s8_overall": {
+            "value": 7.5,
+            "source_url": "https://api.deps.dev/v3/projects/github.com%2Flodash%2Flodash",
+            "fetched_at": "2026-11-22T21:04:06.981751+00:00",
+            "extra_source_urls": [],
+            "note": null
+        },
+        "s9_weekly_downloads": {
+            "value": 3987430,
+            "source_url": "https://api.npmjs.org/downloads/point/last-week/lodash.template",
+            "fetched_at": "2026-11-22T21:04:05.557790+00:00",
+            "extra_source_urls": [],
+            "note": null
+        }
+    },
+    "contributions": {
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0,
+        "r6": 0.0,
+        "r8": 2.5
+    },
+    "normalisedRisks": {
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0,
+        "r6": 0.0,
+        "r8": 0.25
+    },
+    "warnings": [],
+    "repo": "github.com/lodash/lodash"
+}
