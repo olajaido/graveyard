@@ -7,11 +7,11 @@ import json
 from typing import Any
 
 from core.scan.errors import INVALID_INPUT, TOO_LARGE
-from exhume.select import Limits, select_services
+from exhume.select import Limits, describe_services, select_services
 from exhume.trees import GithubReader
 from exhume.validate import parse_repo
 from scan import store
-from workflow.common import Deps, reader_token, scan_id_of, set_stage, task
+from workflow.common import Deps, iso, reader_token, scan_id_of, set_stage, task
 from workflow.validate import parse_source
 
 
@@ -38,6 +38,10 @@ def run(event: dict[str, Any], deps: Deps) -> dict[str, Any]:
     try:
         reader = GithubReader(client, reader_token(deps))
         plans = select_services(reader.tree(repo, ref), limits)
+        # The service list is known now; the UI shows it (plots, lockfile count) from this stage on.
+        deps.table.update_scan(
+            scan_id, services=describe_services(plans), updatedAt=iso(deps.now())
+        )
         services: list[dict[str, Any]] = []
         total_bytes = 0
         file_count = 0

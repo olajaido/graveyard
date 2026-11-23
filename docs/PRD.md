@@ -11,7 +11,7 @@
 | **Category** | Resurrection |
 | **Bonus targets** | Best Startup Project (TBC, see §19), Best Demo, Bonus Blog, Social Blitz, Best Kiro Crew App (stretch) |
 | **Author / Entrant** | Olajide Adeluwoye (`olajaido`) |
-| **Status** | Draft v1.3, 3 Nov 2026 (changelog: Appendix D) |
+| **Status** | Draft v1.4, 23 Nov 2026 (changelog: Appendix D) |
 | **Submission deadline** | **Fri 4 Dec 2026, 14:00 PT = 22:00 GMT**. Internal target: **Thu 3 Dec, 20:00 GMT** |
 
 ---
@@ -168,8 +168,8 @@ The UI always shows both, e.g. **"Dead** (abandoned)".
 | Mortality Score | Abandonment risk | 0–100 deterministic risk score (§7) |
 | Alive | Healthy | Actively maintained |
 | Resting | Dormant, stable | Quiet but no risk indicators. Informational only |
-| Ailing | At risk | Declining maintenance signals |
-| Dead | Abandoned | Declared dead, or score ≥ 60 |
+| Ailing | At risk | Declining maintenance signals, including a mortality at or above the old Dead threshold with no declaration (v1.4, model v2) |
+| Dead | Abandoned | Declared dead: S1 true (deprecated on its registry, archived or retired by its maintainer). A score alone never makes a package Dead (v1.4, model v2) |
 | Cursed | Unfixable vulnerability | Overlay: a known vuln affects this version, **no fixed version exists**, and it isn't a fresh disclosure on a healthy package (§7.4) |
 | Wounded | Fixable vulnerability | Overlay: an advisory with a fix, a fix pending, or an older version deprecated. Upgrade, not resurrect |
 | Unknown | No data | No scored signals are available, so no verdict is given |
@@ -237,10 +237,10 @@ contributions = { i: (wᵢ·rᵢ / Σw_present) × 100 }     # per present signa
 
 | State | Rule (base states evaluated in order; exactly one applies) |
 |---|---|
-| **Dead** | S1 true (`dead_reason = "declared"`), OR mortality ≥ thresholds.dead (`dead_reason = "score"`) |
+| **Dead** | S1 true (`dead_reason = "declared"`). *Amended v1.4: model v2 supersedes the v1 rule "OR mortality ≥ thresholds.dead (`dead_reason = "score"`)". Under v2 no package is Dead by score, and `dead_reason` is `"declared"` or null.* |
 | **Unknown** | mortality is null (no scored signals and S1 is not true) |
-| **Resting** | thresholds.ailing ≤ mortality < thresholds.dead AND s7_advisories is not None and empty (known + no advisories) AND (r6 ≤ thresholds.resting_r6_max OR r6 missing) AND weekly downloads is known AND ≥ `resting_min_weekly_downloads` |
-| **Ailing** | thresholds.ailing ≤ mortality < thresholds.dead |
+| **Resting** | thresholds.ailing ≤ mortality < thresholds.dead (S1 not true) AND s7_advisories is not None and empty (known + no advisories) AND (r6 ≤ thresholds.resting_r6_max OR r6 missing) AND weekly downloads is known AND ≥ `resting_min_weekly_downloads` |
+| **Ailing** | thresholds.ailing ≤ mortality (and S1 not true). *Amended v1.4: this includes mortality ≥ thresholds.dead, which v1 classed Dead by score (`mortality-model-v2` design 7.5.1).* |
 | **Alive** | mortality < thresholds.ailing |
 | **Cursed** (overlay) | ≥ 1 advisory affecting the resolved version with **no fixed version in any range**, AND (the advisory's `published_at` is not None and was published ≥ `cursed_min_age_days` before `as_of`, OR the base state is Dead or Ailing). An advisory with `published_at = None` never satisfies the age condition. This stops healthy packages with a fresh CVE being labelled cursed |
 | **Wounded** (overlay) | Any advisory with a fix available; OR a no-fix advisory that doesn't meet the Cursed rule ("fix pending"); OR S1b ("upgrade advised"). If both overlays apply, the UI shows Cursed |
@@ -637,7 +637,7 @@ Use several inclusion modes deliberately:
 | `structure.md` | always | Repo layout (§14), naming |
 | `security.md` | always | Untrusted-input rules, no secrets, least privilege, prompt-injection handling |
 | `mortality-model.md` | fileMatch `backend/core/scoring/**` | §7 verbatim plus invariants |
-| `ui-theme.md` | fileMatch `web/**` | Tokens, component rules, accessibility checklist, copy tone |
+| `frontend-design.md` | fileMatch `web/**` | Tokens, component rules, accessibility checklist, copy tone (replaces `ui-theme.md`, v1.4) |
 | `terraform.md` | fileMatch `infra/**` | Module conventions, tagging, `default_tags`, alarms required for every resource |
 | `testing.md` | fileMatch `**/test*/**` | PBT-first for pure functions, fixture strategy |
 | `pr-voice.md` | manual (`#pr-voice`) | Sober PR body template, used by the rites code |
@@ -656,10 +656,10 @@ Use several inclusion modes deliberately:
 | H4 | `openapi-sync` | File save `backend/api/openapi.yaml` | command: regenerate TS types (`openapi-typescript`) | Contract drift eliminated |
 | H5 | `kiro-journal` | Post spec task execution | agent prompt: "Append to docs/KIRO_JOURNAL.md: task, Kiro feature used, what you'd have done manually, surprises" | Write-up evidence, generated automatically |
 | H6 | `dogfood-autopsy` | File save `**/package-lock.json`, `**/uv.lock` | command: `graveyard autopsy . --fail-on dead,cursed` (scans the `web/` and `backend/` services) | Graveyard guards its own dependencies |
-| H7 | `a11y-review` | File save `web/components/**/*.tsx` | agent prompt: review against `ui-theme.md` accessibility checklist | Design-score insurance |
+| H7 | `a11y-review` | File save `web/components/**/*.tsx` | agent prompt: review against `frontend-design.md` accessibility checklist | Design-score insurance |
 | H8 | `stop-lint` | Stop (agent turn complete) | command: `ruff check && mypy backend && pnpm -C web lint && pnpm -C web typecheck` | No broken turns left behind |
 | H9 | `dead-install-blocker` | PreToolUse shell **blocking** | command: `graveyard check-install` (reads the hook payload JSON from stdin, `tool_input.command` and the envelope `cwd`, per spike KP-S1; no `"$COMMAND"`; parses the install command, then checks each package as `graveyard autopsy --purl <purl> --fail-on dead,cursed` does). The exit-code mapping lives in the hook's guarded shell snippet and in `check-install`: it blocks with exit 2 only when `check-install` exits exactly 2, and every other status or error allows with a notice | **The demo moment**; implemented (`.kiro/hooks/dead-install-blocker.json`, spec `kiro-power`); also shipped inside the Power as a template in a skill |
-| H10 | `component-scaffold` | File create `web/components/**/*.tsx` | agent prompt: scaffold a typed component, a Vitest test and an a11y checklist per `ui-theme.md` | Consistency from the first line |
+| H10 | `component-scaffold` | File create `web/components/**/*.tsx` | agent prompt: scaffold a typed component, a Vitest test and an a11y checklist per `frontend-design.md` | Consistency from the first line |
 | H11 | `stale-import-sweep` | File delete `backend/**/*.py`, `web/**/*.ts*` | agent prompt: find and remove imports of the deleted module, then run typecheck | Prevents broken builds after refactors |
 | H12 | `post-write-format` | PostToolUse (file write) | command: `ruff format` / `prettier --write` on the written path | Agent output is always formatted |
 | H13 | `prompt-ledger` | Prompt Submit | command: append timestamp + spec context (not the prompt text) to `docs/.kiro-ledger.csv` | Hard numbers for the write-up (prompts per spec) |
@@ -680,7 +680,7 @@ Use **JSON format**. Kiro Crew only discovers `.json` agents, not `.md`.
 |---|---|---|
 | `coroner` | read-only access to three eval files, append to one staging file, web fetch; no Graveyard MCP, CLI, Powers or shell | Proposes eval-set labels from independent evidence (maintainer statements, deprecation notices, archived repos, EOL announcements) |
 | `necromancer` | write within `backend/rites/**`, test runner | Implements codemod rules and rite generators |
-| `stylist` | write within `web/**`, Playwright MCP | UI implementation against `ui-theme.md` |
+| `stylist` | write within `web/**`, Playwright MCP | UI implementation against `frontend-design.md` |
 | `warden` | read-only, Terraform MCP, AWS docs MCP | Reviews IaC for least privilege, tagging and alarms |
 
 ### 11.6 Property-based testing
@@ -1102,6 +1102,12 @@ _Draft opened by Graveyard (mortality model v1). Review before merging._
 | Version | Date | Changes |
 |---|---|---|
 | v1.0 | 2 Nov 2026 | Initial PRD |
+| v1.4 | 23 Nov 2026 | **Amendment: model v2 supersedes the "or score ≥ 60" rule of §7.4.** The hosted product (the scan backend and the web app) runs mortality model v2 (`.kiro/specs/mortality-model-v2`, design 7.5; held-out result in `docs/heldout-result.md`). The CLI, the MCP server and the Power still call model v1 until a later change wires v2 into them (`mortality-model-v2` design 4.1), so `graveyard check-install` can still treat a v1 score-Dead as Dead.
+- Dead means S1 is true (declared dead) and nothing else. `dead_reason` is `"declared"` or null; the value `"score"` is not produced by v2.
+- A package that v1 classed Dead by score (mortality ≥ `thresholds.dead`, S1 not true) is Ailing. The set of flagged packages (Dead or Ailing) is the same as under v1.
+- Cursed and Wounded are unchanged (overlays on any base state; both true shows Cursed). The Cursed rule's "Dead or Ailing" condition keeps its meaning.
+- Edited in place: §6 (Dead and Ailing rows), §7.4 (Dead, Ailing and Resting rows), the status line. The §11 steering table and hooks H7 and H10 now name `frontend-design.md`, which replaces `ui-theme.md`.
+- The glossary of `.kiro/steering/product.md` carries the same change; `.kiro/steering/mortality-model.md` notes it. The scoring code and weights files are not changed by this amendment. |
 | v1.3 | 3 Nov 2026 | Spike results (ADR 0001):
 - Syft v1.56.0 adopted; CycloneDX 1.7 accepted.
 - New EX-8 (lockfile scope) and EX-9 (repo resolution and normalisation).
@@ -1124,4 +1130,4 @@ IAM changes: split into Reader and Rites GitHub Apps, a baseline per-role policy
 
 ---
 
-*End of PRD v1.3*
+*End of PRD v1.4*

@@ -197,6 +197,24 @@ def node_info_from_json(d: Mapping[str, Any]) -> NodeInfo:
     )
 
 
+def via_of(direct: bool, example_paths: Sequence[Mapping[str, Any]]) -> str | None:
+    """The first introducer of a transitive package, as a purl (ui-core B3, UI-B-3).
+
+    ``None`` for a direct dependency, and when no example path was kept (a path longer than the
+    limit is omitted, DG-PATH-6). Otherwise the second to last node of the first example path (the
+    shortest one): path nodes are package keys, which are canonical purls without ``pkg:``.
+    """
+    if direct:
+        return None
+    for path in example_paths:
+        nodes = path.get("nodes") if isinstance(path, Mapping) else None
+        if isinstance(nodes, list | tuple) and len(nodes) >= 2 and isinstance(nodes[-2], str):
+            return "pkg:" + nodes[-2]
+        if isinstance(nodes, list | tuple):
+            return None  # the first path is the one that counts
+    return None
+
+
 def state_of(scoring: ScoringResult) -> str:
     """The API state of a scored node (SB-CLS-3). ``Unknown`` is reported as ``unknown``."""
     return scoring.base_state.value.lower()
@@ -220,6 +238,7 @@ def build_node_record(
         "pathCount": len(info.path_infos),
         "servicesAffected": info.services_affected,
         "examplePaths": list(info.example_paths),
+        "via": via_of(info.direct, info.example_paths),
         "asOf": as_of,
         "modelVersion": model_version,
     }

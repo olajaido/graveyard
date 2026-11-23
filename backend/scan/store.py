@@ -16,7 +16,7 @@ from core.purl import package_key, parse_purl
 SCAN_TTL_SECONDS: Final = 30 * 24 * 3600
 AUTOPSY_TTL_SECONDS: Final = 24 * 3600
 UPDATABLE_META: Final = frozenset(
-    {"status", "stage", "counts", "partial", "modelVersion", "errorCode", "updatedAt"}
+    {"status", "stage", "counts", "partial", "modelVersion", "errorCode", "updatedAt", "services"}
 )
 _BATCH_GET: Final = 100
 _MAX_UNPROCESSED_ROUNDS: Final = 5

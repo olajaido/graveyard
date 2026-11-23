@@ -1,7 +1,7 @@
 import pytest
 
 from core.scan.errors import NO_MANIFESTS, TOO_LARGE
-from exhume.select import Limits, select_services
+from exhume.select import Limits, describe_services, ecosystem_of, select_services
 
 LIMITS = Limits(max_services=3, max_manifest_bytes=1000, max_file_bytes=500)
 SHA = "a" * 40
@@ -56,3 +56,47 @@ def test_limits() -> None:
         select_services([blob(f"d{i}/uv.lock", size=300) for i in range(4)], LIMITS)
     with pytest.raises(TOO_LARGE):
         select_services([blob(f"d{i}/uv.lock", size=10) for i in range(4)], LIMITS)
+
+
+@pytest.mark.parametrize(
+    ("name", "ecosystem"),
+    [
+        ("package-lock.json", "npm"),
+        ("uv.lock", "pypi"),
+        ("poetry.lock", "pypi"),
+        ("requirements.txt", "pypi"),
+        ("requirements-dev.txt", "pypi"),
+    ],
+)
+def test_ecosystem_of_every_lockfile_name(name: str, ecosystem: str) -> None:
+    assert ecosystem_of(name) == ecosystem
+
+
+def test_describe_services_one_entry_per_service_with_manifests_in_name_order() -> None:
+    plans = select_services(
+        [
+            blob("services/worker/requirements.txt"),
+            blob("services/worker/uv.lock"),
+            blob("package-lock.json"),
+            blob("requirements.txt"),
+        ],
+        LIMITS,
+    )
+    assert describe_services(plans) == [
+        {
+            "id": ".",
+            "manifests": [
+                {"ecosystem": "npm", "path": "package-lock.json"},
+                {"ecosystem": "pypi", "path": "requirements.txt"},
+            ],
+        },
+        {
+            "id": "services/worker",
+            "manifests": [
+                {"ecosystem": "pypi", "path": "services/worker/requirements.txt"},
+                {"ecosystem": "pypi", "path": "services/worker/uv.lock"},
+            ],
+        },
+    ]
+    ids = [entry["id"] for entry in describe_services(plans)]
+    assert len(ids) == len(set(ids))
