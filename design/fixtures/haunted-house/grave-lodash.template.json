@@ -16,6 +16,7 @@
             ]
         }
     ],
+    "via": "pkg:npm/gulp-util@3.0.8",
     "asOf": "2026-11-22",
     "modelVersion": "v2",
     "state": "dead",
@@ -158,5 +159,43 @@
         "r8": 0.25
     },
     "warnings": [],
-    "repo": "github.com/lodash/lodash"
+    "repo": "github.com/lodash/lodash",
+    "evidenceLinks": [
+        {
+            "kind": "registry",
+            "url": "https://www.npmjs.com/package/lodash.template/v/3.6.2",
+            "signals": [
+                "s1_declared_death",
+                "s1b_version_deprecated",
+                "s2_latest_release_at",
+                "s9_weekly_downloads"
+            ]
+        },
+        {
+            "kind": "repository",
+            "url": "https://github.com/lodash/lodash",
+            "signals": [
+                "s1_declared_death",
+                "s3_last_push_at",
+                "s5_committers",
+                "s6_open_issues",
+                "s6_closed_issues"
+            ]
+        },
+        {
+            "kind": "deps_dev",
+            "url": "https://deps.dev/npm/lodash.template/3.6.2",
+            "signals": [
+                "s4_maintained",
+                "s8_overall"
+            ]
+        },
+        {
+            "kind": "advisory",
+            "url": "https://osv.dev/vulnerability/GHSA-35jh-r3h4-6jhm",
+            "signals": [
+                "s7_advisories"
+            ]
+        }
+    ]
 }

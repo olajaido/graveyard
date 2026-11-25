@@ -78,12 +78,33 @@ class ChangedPaths(RepoCase):
         out = io.StringIO()
         with redirect_stdout(out):
             code = changed_paths.main(["--base", base, "--head", self.head()], root=self.repo)
-        self.assertEqual((code, out.getvalue()), (0, "infra=true\n"))
+        self.assertEqual((code, out.getvalue()), (0, "infra=true\nweb=false\n"))
         out = io.StringIO()
         with redirect_stdout(out):
             changed_paths.main(["--base", self.head(), "--head", self.head()], root=self.repo)
-        self.assertEqual(out.getvalue(), "infra=false\n")
+        self.assertEqual(out.getvalue(), "infra=false\nweb=false\n")
 
+    def test_web_patterns(self) -> None:
+        base = self.base_commit()
+        for path in ("web/app/page.tsx", "backend/api/openapi.yaml", "eval/heldout/results.v2.json", "design/fixtures/haunted-house/scan.json", ".github/workflows/ci.yml"):
+            with self.subTest(path=path):
+                self.write(path, "changed\n")
+                self.commit("change")
+                self.assertTrue(changed_paths.changed(self.repo, base, self.head(), patterns=changed_paths.WEB_PATTERNS))
+                base = self.head()
+        self.write("backend/b.py", "x\n")
+        self.write("docs/PRD.md", "x\n")
+        self.write("website/x.ts", "x\n")
+        self.commit("unrelated")
+        self.assertFalse(changed_paths.changed(self.repo, base, self.head(), patterns=changed_paths.WEB_PATTERNS))
+    def test_web_output_line(self) -> None:
+        base = self.base_commit()
+        self.write("web/a.ts", "x\n")
+        self.commit("web")
+        out = io.StringIO()
+        with redirect_stdout(out):
+            changed_paths.main(["--base", base, "--head", self.head()], root=self.repo)
+        self.assertEqual(out.getvalue(), "infra=false\nweb=true\n")
     def test_rename_out_of_infra_counts(self) -> None:
         self.write("infra/a.tf", "x\n")
         self.commit("add")

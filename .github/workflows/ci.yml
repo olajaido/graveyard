@@ -39,13 +39,14 @@ jobs:
       contents: read
     outputs:
       infra: ${{ steps.filter.outputs.infra }}
+      web: ${{ steps.filter.outputs.web }}
     steps:
       - name: Check out with history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Did infra, workflows, CI scripts or runbooks change
+      - name: Did infra, workflows, CI scripts, runbooks or the web app change
         id: filter
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -234,6 +235,71 @@ jobs:
       - name: actionlint
         run: scripts/ci/local-checks.sh actionlint
 
+  # ui-core T17: the web app (web/). Offline: every API call in the tests and the end-to-end run goes to the mock
+  # service worker, and the production build is checked to contain none of it. Nothing here reaches AWS.
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: web/.node-version
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install the pinned dependencies
+        working-directory: web
+        run: npm ci
+      - name: Lint
+        working-directory: web
+        run: npm run lint
+      - name: Format check
+        working-directory: web
+        run: npm run format:check
+      - name: Type check
+        working-directory: web
+        run: npm run typecheck
+      - name: API types match backend/api/openapi.yaml
+        run: |
+          set -euo pipefail
+          npm --prefix web run gen:api
+          git diff --exit-code -- web/lib/api/schema.d.ts
+      - name: Unit and component tests
+        working-directory: web
+        run: npm test
+      - name: Production build
+        working-directory: web
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.invalid
+        run: npm run build
+      - name: The build has no mock code and no Google Fonts request
+        working-directory: web
+        run: npm run check:build
+      - name: Lighthouse
+        working-directory: web
+        run: npm run lhci
+      - name: Build with the mock API for the browser tests
+        working-directory: web
+        run: npm run build:e2e
+      - name: Restore the Playwright browser cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('web/package-lock.json') }}
+      - name: Install Chromium
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke test
+        working-directory: web
+        run: npm run e2e
   # Plans use the read-only plan role. A plan job has no environment: its OIDC subject is pull_request or the main
   # branch, which is what the plan role trusts (decision C2). They are two named jobs, not a matrix, because the
   # outputs of a matrix job overwrite each other and deploy.yml needs both envs' version IDs.

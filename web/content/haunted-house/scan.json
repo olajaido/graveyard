@@ -1,0 +1,45 @@
+{
+    "scanId": "01M84GKAYX7D2JGJ1PYN5JGSS7-e066cd4c1ba726a8",
+    "status": "COMPLETE",
+    "stage": "DONE",
+    "source": {
+        "repo": "olajaido/haunted-house",
+        "type": "github"
+    },
+    "createdAt": "2026-11-23T15:32:38Z",
+    "updatedAt": "2026-11-23T15:33:09Z",
+    "modelVersion": "v2",
+    "counts": {
+        "ailing": 84,
+        "alive": 76,
+        "cursed": 2,
+        "dead": 17,
+        "resting": 31,
+        "total": 208,
+        "unscored": 0,
+        "wounded": 5
+    },
+    "partial": false,
+    "services": [
+        {
+            "id": ".",
+            "manifests": [
+                {
+                    "ecosystem": "npm",
+                    "path": "package-lock.json"
+                }
+            ]
+        },
+        {
+            "id": "services/worker",
+            "manifests": [
+                {
+                    "ecosystem": "pypi",
+                    "path": "services/worker/requirements.txt"
+                }
+            ]
+        }
+    ],
+    "progress": null,
+    "error": null
+}

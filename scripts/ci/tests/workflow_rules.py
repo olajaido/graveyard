@@ -10,7 +10,7 @@ import actions_text as a
 import guards
 
 STATIC = ["guards", "tf-fmt", "tf-validate", "tf-test", "tflint", "checkov", "actionlint"]
-CI_JOBS = ["kiro-not-ignored", "changes", *STATIC, "plan-dev", "plan-prod", "deploy"]
+CI_JOBS = ["kiro-not-ignored", "changes", *STATIC, "web", "plan-dev", "plan-prod", "deploy"]
 OIDC_JOBS = {"plan-dev", "plan-prod", "deploy"}
 DEPLOY_INPUTS = ["dev_has_changes", "dev_version_id", "dev_sha256", "prod_has_changes", "prod_version_id", "prod_sha256"]
 
@@ -92,6 +92,17 @@ def ci_problems(text: str) -> List[str]:
         p.append("changes needs fetch-depth: 0")
     if c["keys"].get("outputs") is None or "infra" not in c.get("outputs", {}):
         p.append("changes must output infra")
+    if "web" not in c.get("outputs", {}):
+        p.append("changes must output web")
+    w = jobs["web"]
+    if w["needs"] != ["changes"] or w["keys"].get("if") != "needs.changes.outputs.web == 'true'":
+        p.append("web: must need changes only and run only when the web app changed")
+    web_body = "\n".join(s.get("run", "") for s in w["steps"])
+    for needle in ("npm ci", "npm run lint", "npm run format:check", "npm run typecheck", "git diff --exit-code -- web/lib/api/schema.d.ts", "npm test", "npm run build", "npm run check:build", "npm run lhci", "npm run build:e2e", "npm run e2e"):
+        if needle not in web_body:
+            p.append(f"web: must run {needle}")
+    if any(re.search(r"aws|terraform|secrets\.", s.get("run", "") + str(s.get("env", ""))) for s in w["steps"]):
+        p.append("web: must not touch AWS, Terraform or secrets")
     for name in STATIC:
         job = jobs[name]
         if job["needs"] != ["changes"]:
