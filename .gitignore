@@ -37,3 +37,10 @@ backend.hcl
 # NEVER add .kiro/ here — disqualification risk
 # Build output of scripts/build (lambda.zip, syft-layer.zip)
 /build/
+# Web app (ui-core)
+web/test-results/
+web/playwright-report/
+web/.lighthouseci/
+web/content/evidence.generated.json
+web/next-env.d.ts
+*.tsbuildinfo

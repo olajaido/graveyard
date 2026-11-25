@@ -12,7 +12,7 @@ Resolved by the maintainer on 23 Nov 2026 (the original D1 to D14, with the chan
 | D5 | Dead | The product runs model v2, so Dead is declared-only and Ailing absorbs what v1 called Dead by score. A PRD amendment records it (UI-DOC-1, task T2), and the landing copy is written for v2. |
 | D6 | Landing example | Committed fixtures (scans expire by TTL): `design/fixtures/haunted-house/{scan,graves,grave-lodash.template}.json`, copied verbatim to `web/content/haunted-house/`. |
 | D7 | Dropped from the Exhumation mockup | Per-state tally, "Fresh toe tags", "68% deep". Kept and now real: lantern path, "N of M examined" (B2), "N lockfiles dug up" and "N plots found" (B3), elapsed time, dig depth. |
-| D8 | Certificate aside | "Last rites" and "Perform the rites" omitted. "Buried alongside" shows "Not recorded". |
+| D8 | Certificate aside | "Last rites" and "Perform the rites" omitted. "Buried alongside" is not drawn (the API has no data for it). |
 | D9 | Evidence links | Built by the server (B6), not the UI. |
 | D10 | Wax seal for other states | State word and state ink (proposal, approved). |
 | D11 | 360 px deviations | Fluid gutter and h1 sizes (approved). |
@@ -172,7 +172,7 @@ Windowing (`use-window-rows`) starts at 501 rows: fixed row height 49 px, visibl
 | Evidence on file | `evidence` (11 signal keys), `signals.s7_advisories`, `evidenceLinks` |
 | Notes on the evidence | `warnings` |
 | Footer | `scanId` from the query, `modelVersion`, "— the Coroner", `WaxSeal` |
-| Aside | "Buried alongside": "Not recorded", with one sentence on why (reverse dependencies are not in the API yet) |
+| Aside | None. "Buried alongside" is not drawn until the API returns reverse dependencies; the certificate is a single centred column (max 880 px). |
 **Evidence rows.** One row per signal key in the order S1, S1b, S2, S3, S4, S5, S6 open, S6 closed, S7, S8, S9. A row shows the plain name and the evidence kind (fixed copy in `model/signals.ts`: S1 "Declared dead", S1b "This version deprecated", S2 "Latest release", S3 "Last push", S4 "Maintenance activity (Scorecard)", S5 "Committers, 12 months", S6 "Issues", S7 "Known vulnerabilities", S8 "Scorecard overall", S9 "Weekly downloads"), the value from `formatEvidenceValue`, the fetch time, the `note`, and the links whose `signals` include the key. Link text is built from `kind`, the host and whether the covered signal is true: `registry` with S1 or S1b true gives "Read the notice on npmjs.com" (or "…on pypi.org"); otherwise "View on npmjs.com". `repository` gives "See the repository on github.com", `advisory` "Read the advisory on osv.dev", `deps_dev` "See the scores on deps.dev". `safeLink(url)` renders a link only for `https:` on `www.npmjs.com`, `pypi.org`, `github.com`, `osv.dev` or `deps.dev`, as defence in depth. No text from a source is shown, and a signal without a value shows "not recorded" and its `note`.
 **Descent.** Root node is the `service` (shown as the repo name when the service is "."). Nodes are package keys, displayed as `name@version`. The last node is highlighted (`paper-tint`). Each node found in the graves list (`useResource` on `listGraves`, cached when the user came from the results page, fetched in the background otherwise) gets a state pill (`dead`, `dead · cursed`, …); a node not in the list gets none, and the page makes no request for it. Until the list loads there are no badges. Sentence: direct gives "You chose this package yourself."; otherwise "It arrived with `<via>`." plus "{pathCount} paths lead here, showing {k}." when they differ.
 
@@ -234,25 +234,30 @@ The backend's own titles for `REPO_NOT_FOUND` and `NO_MANIFESTS` mention SBOM up
 - `content/haunted-house/scan.json` is the capture of scan `01M82PBZE6AWAYGK3E37ZNXSNC-7ea402ccd4cd776b` (208 packages: 17 dead, 2 cursed, 84 ailing, 31 resting, 5 wounded, model v2, 22 Nov 2026, 32 s). A test compares `content/haunted-house/*` byte for byte with `design/fixtures/haunted-house/*`.
 - `scripts/gen-evidence.mjs` runs before `dev` and `build` (`predev`, `prebuild`), reads `eval/heldout/results.v2.json` and writes `content/evidence.generated.json` with `heldout.headline.dead_precision.proportion` (`num`, `den`, `value`), `views.reviewed.dead_precision_wilson`, `gate.passed`, `heldout.floors` and `as_of`. It exits non-zero if a field is missing. The stone shows "N/D correctly pronounced dead", "95% interval a – b" and, when `gate.passed` is false, "The sample was small, so the formal verdict is inconclusive". Today: 10/10, 0.722 to 1.000, `passed: false`.
 
-## 10. Dependencies (exact pins at T3)
-Versions are the latest at spec time (`npm view`, 23 Nov 2026). T3 re-checks each with `autopsy_package`, pins exactly (`--save-exact`), records the result here, and verifies peer ranges. `typescript@7.0.2` may not satisfy `eslint-config-next` or typescript-eslint peers; if not, use the newest release they accept.
-| Package | At spec time | Use | Autopsy (23 Nov, unverified: no `GITHUB_TOKEN`, lower confidence) |
+## 10. Dependencies (exact pins, recorded at T3)
+All 32 direct dependencies are pinned exactly (this table was checked at T3; eslint was re-checked when it moved to 9.39.5) (`.npmrc` `save-exact`, `package-lock.json` committed). Each was checked with the Graveyard CLI (`uv run python -m cli autopsy --all --purl pkg:npm/<name>@<version>` from `backend/`, the same engine as `autopsy_package`). Result: Dead 0, Ailing 0, Cursed 0, Wounded 1 (eslint, see below), Resting 4, Alive 27. The check ran without `GITHUB_TOKEN`, so GitHub signals are missing and confidence is lower (unverified).
+| Package | Pin | Use | Autopsy |
 |---|---|---|---|
-| next | 16.4.6 | framework | Alive |
-| react, react-dom | 19.3.1 | UI | to check |
-| typescript | 7.0.2 (see peers) | types | to check |
-| tailwindcss, @tailwindcss/postcss | 4.3.5 | styling | to check |
+| next, eslint-config-next | 16.4.6 | framework, lint (dev) | Alive |
+| react, react-dom | 19.3.1 | UI | Alive |
+| typescript | **5.9.3** | types (dev) | Alive. `typescript@7.0.2` was rejected: typescript-eslint peers `<6.1` and openapi-typescript peers `^5.x`. |
+| tailwindcss, @tailwindcss/postcss, postcss | 4.3.5, 4.3.5, 8.5.33 | styling | Alive |
 | framer-motion | 14.14.0 | entrances | Alive |
-| @fontsource/cormorant-garamond, /inter, /jetbrains-mono | 5.3.0 | fonts | cormorant Alive; others to check |
+| @fontsource/cormorant-garamond, /inter, /jetbrains-mono | 5.3.0 | fonts (SIL OFL 1.1) | Alive |
 | openapi-typescript | 7.13.0 | types from OpenAPI (dev) | Alive |
-| vitest, @vitejs/plugin-react, jsdom | 5.1.1, 6.3.0, 31.0.1 | unit tests (dev) | to check |
-| @testing-library/react, /jest-dom, /user-event | 16.3.3, 8.0.0, 14.6.13 | component tests (dev) | to check |
+| vitest, vite, @vitejs/plugin-react, jsdom | 5.1.1, 8.3.8, 6.3.0, 31.0.1 | unit tests (dev) | Alive |
+| @testing-library/react, /dom | 16.3.3, 10.4.2 | component tests (dev) | Resting |
+| @testing-library/jest-dom, /user-event | 8.0.0, 14.6.13 | component tests (dev) | Alive |
 | msw | 3.0.7 | API mocks (dev) | Alive |
-| axe-core | 4.14.1 | a11y in Vitest (dev) | to check |
-| @playwright/test, @axe-core/playwright | 1.65.1, 4.14.0 | smoke (dev) | to check |
+| axe-core | 4.14.1 | a11y in Vitest (dev) | Alive |
+| @playwright/test, @axe-core/playwright | 1.65.1, 4.14.0 | smoke (dev) | Alive |
 | @lhci/cli | 0.16.1 | Lighthouse (dev) | Resting |
 | serve | 14.2.8 | static server for tests (dev) | Resting |
-| eslint, eslint-config-next, prettier | 10.15.0, 16.4.6, 3.10.1 | lint, format (dev) | to check |
+| eslint | **9.39.5** | lint (dev) | Wounded (model v1: the registry marks every 9.x release deprecated, "no longer supported"; no advisory in OSV or deps.dev). `eslint@10.15.0` was rejected: the plugins of `eslint-config-next@16.4.6` (import, jsx-a11y, react) accept eslint up to 9, so 10 gave invalid peers and ERESOLVE. 9.39.5 is the `maintenance` tag. Revisit when `eslint-config-next` accepts 10. |
+| prettier | 3.10.1 | format (dev) | Alive |
+| @types/node, @types/react, @types/react-dom | 22.20.5, 19.3.0, 19.3.0 | types (dev) | Alive |
+**Dev-only findings:** `eslint@9.39.5` is deprecated by the registry (above), so `npm ci` prints one `npm warn deprecated` line for it. It is not a peer or ERESOLVE problem, and `npm ls --all` reports none.
+**Transitive finding:** `inflight@1.0.6` (declared Dead) is a dev-only transitive of `@lhci/cli` through `chrome-launcher`, `rimraf@3` and `glob@7`. It never reaches `out/`. Accepted; revisit when `@lhci/cli` drops `rimraf@3`.
 **Not used:** `vitest-axe` (autopsy: Dead, last release 2022-10; axe-core is called through a 10-line helper), `@tanstack/react-virtual` (windowing is a small own hook), a YAML parser (the enum test uses a regular expression), any UI kit, state library, data-fetching library or schema validator.
 
 ## 11. Backend support, group B (one PR)
@@ -324,7 +329,7 @@ Already in place: variable `cors_allowed_origins` (empty default, `*` rejected),
 | Human links for evidence | **Closed** by B6. Notice text and advisory titles are never recorded (SB-DATA-2). |
 | State of each node on a dependency path | **Closed in the UI (N6):** badges come from the graves list; nodes not in it get none. No backend change. |
 | Cause-of-death narrative | Deferred to `narrate` (Thu). The certificate uses the fixed template. |
-| "Born" (first release), "Buried alongside" | Deferred to `rite-reincarnate` (Fri). Shown "Not recorded". Only the latest release date exists, shown as "Last released". |
+| "Born" (first release), "Buried alongside" | Deferred to `rite-reincarnate` (Fri). Not drawn, not mentioned. Only the latest release date exists, shown as "Last released". |
 
 ## 14. Notes on the mockups
 - The Graveyard mockup's table links take the bone focus ring on parchment (invisible); the UI uses the ink ring.
@@ -371,3 +376,22 @@ Already in place: variable `cors_allowed_origins` (empty default, `*` rejected),
 | `typescript@7`, `eslint@10` or `vitest@5` peers not satisfied | T3 resolves and records the versions |
 | jsdom has no layout, so contrast and overflow are not testable there | Contrast: token unit test and Playwright axe. Overflow and reduced motion: Playwright |
 | Fixtures predate group B | Typed overlay (N5); optional recapture (M1) |
+
+## 18. Deviations from this design, recorded at the end of T17
+- The scenes are ported whole from the mockups (one component per scene), not as separate Moon, Fog and similar components. A fidelity test checks that every static path of the four mockups appears in the components. The art keeps the mockup hex values inside the SVG; tokens are used for the UI.
+- `MockBoot` loads the mock service worker only when `NEXT_PUBLIC_API_MOCKING=enabled`. `next.config.ts` aliases `@/mocks/browser` to a stub in every other build, and `scripts/check-build.mjs` fails the build if mock code or a Google Fonts request reaches `out/`.
+- The certificate title is "Certificate of Death" for dead and cursed packages and "Certificate of Condition" otherwise.
+- Each signal on the certificate repeats its evidence link, with screen-reader-only context in the link text.
+- `Chip` has `aria-label="Label, count"`.
+- `useResource` derives "loading" from its key, and `useQueryString` uses `useSyncExternalStore`, because the lint rule `react-hooks/set-state-in-effect` is on.
+- `app/icon.svg` provides the favicon, so the browser test can treat any unexpected 404 as a failure.
+
+### Changes after the first live run (scan 01M8573XE1C7JZBBTKVZC23QHV-ba842f6efe73db6f)
+- Cascade: `globals.css` had an unlayered `a { color: inherit }`, which beat every `text-*` utility on an anchor (blank "Exhume another" button, invisible toe-tag names). The rule is gone (preflight already does it, in a layer). `lib/css.test.ts` fails if an unlayered colour rule on an element selector comes back, and the browser test measures the contrast of both texts.
+- Focus: a heading or region with `tabindex="-1"` that is not a control draws no ring; real controls, including the roving stones, keep it.
+- Glow: an animation on an element replaces its `opacity`, so the cursed glow, the working lantern glow and the open-grave lantern glow animate a wrapping `<g>`. The art test fails if an element with an animation class has its own `opacity`.
+- Results header: the hills are one layer, the moon and stars (`SkyObjects`) another, to the right of a 620 px text column (`left: max(680px, 52%)`), hidden under 768 px. Art is `z-0`, text `z-10`, the section is `isolate`.
+- Evidence text: `plainText` writes `as_of` as the date of the evidence, a signal key as the signal's name, any other snake_case word with spaces. It runs over notes and warnings.
+- Plots: stones in attention classes (`attentionClass`), cap 24, the rest counted by state (`restSentence`).
+- Plot backdrop: the hill is `hairline`; the pickets keep the mockup silhouette with a `stone-line` edge on the moon side. The backdrop hangs from the top edge of the stones panel (its y = 200 is that edge), so the fence stands on the panel.
+

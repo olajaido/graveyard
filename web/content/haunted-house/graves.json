@@ -1,0 +1,2336 @@
+{
+    "scanId": "01M84GKAYX7D2JGJ1PYN5JGSS7-e066cd4c1ba726a8",
+    "total": 137,
+    "items": [
+        {
+            "purl": "pkg:npm/lodash.template@3.6.2",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": true,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 108.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/request@2.88.2",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": true,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 108.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request-promise@4.2.6"
+        },
+        {
+            "purl": "pkg:npm/coffee-script@1.12.7",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/gulp-util@3.0.8",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/querystring@0.2.1",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/request-promise@4.2.6",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:pypi/argparse@1.4.0",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "services/worker"
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:pypi/flask-script@2.0.6",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "services/worker"
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:pypi/typed-ast@1.5.5",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 90.0,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "services/worker"
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:pypi/appdirs@1.4.4",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 86.4,
+            "confidence": 1.0,
+            "priority": 86.4,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "services/worker"
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/performance-now@2.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 98.5,
+            "confidence": 1.0,
+            "priority": 78.80000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/ansi-gray@0.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 98.0,
+            "confidence": 1.0,
+            "priority": 78.4,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/fancy-log@1.3.3"
+        },
+        {
+            "purl": "pkg:npm/fast-json-stable-stringify@2.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 94.72307692307693,
+            "confidence": 1.0,
+            "priority": 75.77846153846154,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/ajv@6.15.0"
+        },
+        {
+            "purl": "pkg:npm/tunnel-agent@0.6.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 93.85384615384615,
+            "confidence": 1.0,
+            "priority": 75.08307692307692,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/ansi-wrap@0.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 93.14887063655031,
+            "confidence": 1.0,
+            "priority": 74.51909650924026,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/ansi-gray@0.1.1"
+        },
+        {
+            "purl": "pkg:npm/getpass@0.1.7",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 91.33333333333333,
+            "confidence": 1.0,
+            "priority": 73.06666666666666,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/forever-agent@0.6.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 91.03333333333333,
+            "confidence": 1.0,
+            "priority": 72.82666666666667,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/is-typedarray@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.68672142368241,
+            "confidence": 1.0,
+            "priority": 72.54937713894593,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/safer-buffer@2.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.4,
+            "confidence": 1.0,
+            "priority": 72.32000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/agent-base@6.0.2",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 72.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/https-proxy-agent@5.0.1"
+        },
+        {
+            "purl": "pkg:npm/har-validator@5.1.5",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 72.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/lodash.isarray@3.0.4",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 72.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/lodash.keys@3.1.2"
+        },
+        {
+            "purl": "pkg:npm/string_decoder@0.10.31",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 72.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/xtend@4.0.2",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 72.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/through2@2.0.5"
+        },
+        {
+            "purl": "pkg:npm/json-schema-traverse@0.4.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 89.85714285714286,
+            "confidence": 1.0,
+            "priority": 71.88571428571429,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/ajv@6.15.0"
+        },
+        {
+            "purl": "pkg:npm/duplexer2@0.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 88.1,
+            "confidence": 1.0,
+            "priority": 70.48,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/multipipe@0.1.2"
+        },
+        {
+            "purl": "pkg:npm/delayed-stream@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 88.0,
+            "confidence": 1.0,
+            "priority": 70.4,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/combined-stream@1.0.8"
+        },
+        {
+            "purl": "pkg:npm/request-promise-core@1.1.4",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 88.0,
+            "confidence": 1.0,
+            "priority": 70.4,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request-promise@4.2.6"
+        },
+        {
+            "purl": "pkg:npm/stealthy-require@1.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 88.0,
+            "confidence": 1.0,
+            "priority": 70.4,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request-promise@4.2.6"
+        },
+        {
+            "purl": "pkg:npm/combined-stream@1.0.8",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.9,
+            "confidence": 1.0,
+            "priority": 70.32000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/form-data@2.3.3"
+        },
+        {
+            "purl": "pkg:npm/ecc-jsbn@0.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.9,
+            "confidence": 1.0,
+            "priority": 70.32000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/isstream@0.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.9,
+            "confidence": 1.0,
+            "priority": 70.32000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/time-stamp@1.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.9,
+            "confidence": 1.0,
+            "priority": 70.32000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/fancy-log@1.3.3"
+        },
+        {
+            "purl": "pkg:npm/aws-sign2@0.7.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.7,
+            "confidence": 1.0,
+            "priority": 70.16000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/caseless@0.12.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.7,
+            "confidence": 1.0,
+            "priority": 70.16000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/fast-deep-equal@3.1.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.7,
+            "confidence": 1.0,
+            "priority": 70.16000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/ajv@6.15.0"
+        },
+        {
+            "purl": "pkg:npm/process-nextick-args@2.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.7,
+            "confidence": 1.0,
+            "priority": 70.16000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@2.3.8"
+        },
+        {
+            "purl": "pkg:npm/util-deprecate@1.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.7,
+            "confidence": 1.0,
+            "priority": 70.16000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@2.3.8"
+        },
+        {
+            "purl": "pkg:npm/har-schema@2.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.6,
+            "confidence": 1.0,
+            "priority": 70.08,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/har-validator@5.1.5"
+        },
+        {
+            "purl": "pkg:npm/oauth-sign@0.9.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.5,
+            "confidence": 1.0,
+            "priority": 70.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/safe-buffer@5.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.5,
+            "confidence": 1.0,
+            "priority": 70.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/safe-buffer@5.2.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.5,
+            "confidence": 1.0,
+            "priority": 70.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/bcrypt-pbkdf@1.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.4,
+            "confidence": 1.0,
+            "priority": 69.92,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/jsprim@1.4.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.3,
+            "confidence": 1.0,
+            "priority": 69.84,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/http-signature@1.2.0"
+        },
+        {
+            "purl": "pkg:npm/uri-js@4.4.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.12943189596167,
+            "confidence": 1.0,
+            "priority": 69.70354551676934,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/ajv@6.15.0"
+        },
+        {
+            "purl": "pkg:npm/asn1@0.2.6",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.1,
+            "confidence": 1.0,
+            "priority": 69.67999999999999,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/assert-plus@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.1,
+            "confidence": 1.0,
+            "priority": 69.67999999999999,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/http-signature@1.2.0"
+        },
+        {
+            "purl": "pkg:npm/extsprintf@1.3.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.1,
+            "confidence": 1.0,
+            "priority": 69.67999999999999,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/jsprim@1.4.2"
+        },
+        {
+            "purl": "pkg:npm/json-schema@0.4.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.01666666666667,
+            "confidence": 1.0,
+            "priority": 69.61333333333333,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/jsprim@1.4.2"
+        },
+        {
+            "purl": "pkg:npm/color-support@1.1.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 87.0,
+            "confidence": 1.0,
+            "priority": 69.60000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/fancy-log@1.3.3"
+        },
+        {
+            "purl": "pkg:npm/dashdash@1.14.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 86.8,
+            "confidence": 1.0,
+            "priority": 69.44,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/http-signature@1.2.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 86.6,
+            "confidence": 1.0,
+            "priority": 69.28,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/function-bind@1.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 85.5,
+            "confidence": 1.0,
+            "priority": 68.4,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/hasown@2.0.4"
+        },
+        {
+            "purl": "pkg:npm/multipipe@0.1.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 83.16488706365503,
+            "confidence": 1.0,
+            "priority": 66.53190965092402,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/punycode@2.3.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 81.7435318275154,
+            "confidence": 1.0,
+            "priority": 65.39482546201232,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tough-cookie@2.5.0"
+        },
+        {
+            "purl": "pkg:npm/clone-stats@0.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 81.23237508555783,
+            "confidence": 1.0,
+            "priority": 64.98590006844627,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/vinyl@0.5.3"
+        },
+        {
+            "purl": "pkg:npm/json-stringify-safe@5.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 79.18966461327858,
+            "confidence": 1.0,
+            "priority": 63.35173169062287,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/es-errors@1.3.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 76.79182555979271,
+            "confidence": 0.7,
+            "priority": 61.43346044783417,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/resolve@1.22.14"
+        },
+        {
+            "purl": "pkg:npm/bluebird@3.7.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 75.99623545516769,
+            "confidence": 1.0,
+            "priority": 60.79698836413416,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request-promise@4.2.6"
+        },
+        {
+            "purl": "pkg:npm/material-design-lite@1.3.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 60.4,
+            "confidence": 1.0,
+            "priority": 60.4,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/extend@3.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 70.4236824093087,
+            "confidence": 1.0,
+            "priority": 56.33894592744696,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/sshpk@1.18.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 70.26543463381246,
+            "confidence": 1.0,
+            "priority": 56.21234770704997,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/http-signature@1.2.0"
+        },
+        {
+            "purl": "pkg:npm/tslint@6.1.3",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 54.0,
+            "direct": true,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/supports-preserve-symlinks-flag@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 96.2,
+            "confidence": 1.0,
+            "priority": 53.87200000000001,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/resolve@1.22.14"
+        },
+        {
+            "purl": "pkg:npm/find-replace@5.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 66.68323066392881,
+            "confidence": 1.0,
+            "priority": 53.34658453114305,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/command-line-args@6.0.2"
+        },
+        {
+            "purl": "pkg:npm/tweetnacl@0.14.5",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 66.07953456536619,
+            "confidence": 1.0,
+            "priority": 52.863627652292955,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/aws4@1.13.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 65.86187542778919,
+            "confidence": 1.0,
+            "priority": 52.689500342231355,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/wrappy@1.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 93.57070499657769,
+            "confidence": 1.0,
+            "priority": 52.39959479808351,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/inflight@1.0.6"
+        },
+        {
+            "purl": "pkg:npm/jsbn@0.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 65.49310344827587,
+            "confidence": 1.0,
+            "priority": 52.394482758620704,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/sshpk@1.18.0"
+        },
+        {
+            "purl": "pkg:npm/serializr@3.0.5",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 51.356605065023956,
+            "confidence": 1.0,
+            "priority": 51.356605065023956,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/concat-map@0.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 91.63636363636363,
+            "confidence": 0.55,
+            "priority": 51.31636363636363,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/brace-expansion@1.1.22"
+        },
+        {
+            "purl": "pkg:npm/mkdirp@0.5.6",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 91.63636363636363,
+            "confidence": 0.55,
+            "priority": 51.31636363636363,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tslint@6.1.3"
+        },
+        {
+            "purl": "pkg:npm/string_decoder@1.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 63.02857142857143,
+            "confidence": 1.0,
+            "priority": 50.42285714285715,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/inflight@1.0.6",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 50.400000000000006,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/glob@7.2.3"
+        },
+        {
+            "purl": "pkg:npm/path-is-absolute@1.0.1",
+            "state": "dead",
+            "deadReason": "declared",
+            "cursed": false,
+            "wounded": false,
+            "mortality": 90.0,
+            "confidence": 1.0,
+            "priority": 50.400000000000006,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/glob@7.2.3"
+        },
+        {
+            "purl": "pkg:npm/es-define-property@1.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.867898699520886,
+            "confidence": 0.7,
+            "priority": 50.29431895961671,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/verror@1.10.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.5,
+            "confidence": 1.0,
+            "priority": 50.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/jsprim@1.4.2"
+        },
+        {
+            "purl": "pkg:npm/inherits@2.0.4",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.34969199178645,
+            "confidence": 1.0,
+            "priority": 49.879753593429164,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/glob@7.2.3"
+        },
+        {
+            "purl": "pkg:npm/core-util-is@1.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.0,
+            "confidence": 1.0,
+            "priority": 49.6,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/core-util-is@1.0.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.0,
+            "confidence": 1.0,
+            "priority": 49.6,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/path-parse@1.0.7",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 88.40909090909092,
+            "confidence": 1.0,
+            "priority": 49.50909090909092,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/resolve@1.22.14"
+        },
+        {
+            "purl": "pkg:npm/fancy-log@1.3.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.6,
+            "confidence": 1.0,
+            "priority": 49.28,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/has-gulplog@0.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.6,
+            "confidence": 1.0,
+            "priority": 49.28,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/math-intrinsics@1.1.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.59675369120955,
+            "confidence": 0.7,
+            "priority": 49.27740295296764,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/array-differ@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.4,
+            "confidence": 1.0,
+            "priority": 49.120000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/array-uniq@1.0.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.4,
+            "confidence": 1.0,
+            "priority": 49.120000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/has-flag@3.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.4,
+            "confidence": 1.0,
+            "priority": 49.120000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/supports-color@5.5.0"
+        },
+        {
+            "purl": "pkg:npm/parse-node-version@1.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.4,
+            "confidence": 1.0,
+            "priority": 49.120000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/fancy-log@1.3.3"
+        },
+        {
+            "purl": "pkg:npm/replace-ext@0.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.4,
+            "confidence": 1.0,
+            "priority": 49.120000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/beeper@1.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.3,
+            "confidence": 1.0,
+            "priority": 49.04,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/escape-string-regexp@1.0.5",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.3,
+            "confidence": 1.0,
+            "priority": 49.04,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/chalk@1.1.3"
+        },
+        {
+            "purl": "pkg:npm/object-assign@3.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 61.3,
+            "confidence": 1.0,
+            "priority": 49.04,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/esprima@4.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 86.1,
+            "confidence": 1.0,
+            "priority": 48.216,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/js-yaml@3.15.2"
+        },
+        {
+            "purl": "pkg:npm/ms@2.1.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 60.0,
+            "confidence": 1.0,
+            "priority": 48.0,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/debug@4.4.3"
+        },
+        {
+            "purl": "pkg:npm/minimist@1.2.8",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 59.699999999999996,
+            "confidence": 1.0,
+            "priority": 47.76,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/has-tostringtag@1.0.2",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 58.77871321013004,
+            "confidence": 1.0,
+            "priority": 47.022970568104036,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/es-set-tostringtag@2.1.0"
+        },
+        {
+            "purl": "pkg:npm/es-set-tostringtag@2.1.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 58.75947980835045,
+            "confidence": 1.0,
+            "priority": 47.00758384668036,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/form-data@4.0.6"
+        },
+        {
+            "purl": "pkg:npm/tsutils@2.29.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 83.8782340862423,
+            "confidence": 1.0,
+            "priority": 46.971811088295695,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tslint@6.1.3"
+        },
+        {
+            "purl": "pkg:npm/gopd@1.2.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 58.272210814510615,
+            "confidence": 1.0,
+            "priority": 46.61776865160849,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/sprintf-js@1.0.3",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 82.88843258042438,
+            "confidence": 1.0,
+            "priority": 46.41752224503766,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/argparse@1.0.10"
+        },
+        {
+            "purl": "pkg:npm/glogg@1.0.2",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 57.43333333333334,
+            "confidence": 1.0,
+            "priority": 45.94666666666667,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulplog@1.0.0"
+        },
+        {
+            "purl": "pkg:npm/sparkles@1.0.1",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 57.233333333333334,
+            "confidence": 1.0,
+            "priority": 45.78666666666667,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/has-gulplog@0.1.0"
+        },
+        {
+            "purl": "pkg:npm/gulplog@1.0.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 57.13333333333333,
+            "confidence": 1.0,
+            "priority": 45.70666666666667,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/psl@1.15.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 55.83230663928816,
+            "confidence": 1.0,
+            "priority": 44.66584531143053,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tough-cookie@2.5.0"
+        },
+        {
+            "purl": "pkg:npm/clone@1.0.4",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 55.60000000000001,
+            "confidence": 1.0,
+            "priority": 44.48000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/vinyl@0.5.3"
+        },
+        {
+            "purl": "pkg:npm/fs.realpath@1.0.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 72.54969199178645,
+            "confidence": 1.0,
+            "priority": 40.62782751540041,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/glob@7.2.3"
+        },
+        {
+            "purl": "pkg:npm/call-bind-apply-helpers@1.0.2",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 49.07597535934292,
+            "confidence": 0.7,
+            "priority": 39.26078028747434,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/has-symbols@1.1.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 48.34065708418891,
+            "confidence": 1.0,
+            "priority": 38.67252566735113,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/dunder-proto@1.0.1",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 47.5066001760047,
+            "confidence": 0.7,
+            "priority": 38.00528014080376,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-proto@1.0.1"
+        },
+        {
+            "purl": "pkg:npm/get-intrinsic@1.3.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 45.534360027378504,
+            "confidence": 1.0,
+            "priority": 36.4274880219028,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/es-set-tostringtag@2.1.0"
+        },
+        {
+            "purl": "pkg:npm/command-line-args@6.0.2",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 36.1,
+            "confidence": 1.0,
+            "priority": 36.1,
+            "direct": true,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": null
+        },
+        {
+            "purl": "pkg:npm/get-proto@1.0.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 44.399628434536034,
+            "confidence": 0.7,
+            "priority": 35.51970274762883,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/get-intrinsic@1.3.0"
+        },
+        {
+            "purl": "pkg:npm/picocolors@1.1.1",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 63.168925393566056,
+            "confidence": 1.0,
+            "priority": 35.374598220397,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/%40babel/code-frame@7.29.7"
+        },
+        {
+            "purl": "pkg:npm/isarray@0.0.1",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 43.8,
+            "confidence": 1.0,
+            "priority": 35.04,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/isarray@1.0.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 43.8,
+            "confidence": 1.0,
+            "priority": 35.04,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/readable-stream@1.1.14"
+        },
+        {
+            "purl": "pkg:npm/once@1.4.0",
+            "state": "ailing",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 62.34969199178645,
+            "confidence": 1.0,
+            "priority": 34.915827515400416,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/glob@7.2.3"
+        },
+        {
+            "purl": "pkg:npm/vinyl@0.5.3",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 42.280492813141684,
+            "confidence": 1.0,
+            "priority": 33.82439425051335,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/has-ansi@2.0.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 38.95817932922656,
+            "confidence": 1.0,
+            "priority": 31.16654346338125,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/chalk@1.1.3"
+        },
+        {
+            "purl": "pkg:npm/color-convert@1.9.3",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 37.23045859000684,
+            "confidence": 1.0,
+            "priority": 29.784366872005474,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/ansi-styles@3.2.1"
+        },
+        {
+            "purl": "pkg:npm/typical@7.3.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 37.2,
+            "confidence": 1.0,
+            "priority": 29.760000000000005,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/command-line-args@6.0.2"
+        },
+        {
+            "purl": "pkg:npm/ansi-regex@2.1.1",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 34.2,
+            "confidence": 1.0,
+            "priority": 27.360000000000003,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/has-ansi@2.0.0"
+        },
+        {
+            "purl": "pkg:npm/asynckit@0.4.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 34.0,
+            "confidence": 1.0,
+            "priority": 27.200000000000003,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/form-data@2.3.3"
+        },
+        {
+            "purl": "pkg:npm/proxy-from-env@2.1.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 33.1,
+            "confidence": 1.0,
+            "priority": 26.480000000000004,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/axios@1.21.1"
+        },
+        {
+            "purl": "pkg:npm/debug@4.4.3",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 32.7870636550308,
+            "confidence": 1.0,
+            "priority": 26.22965092402464,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/https-proxy-agent@5.0.1"
+        },
+        {
+            "purl": "pkg:npm/strip-ansi@3.0.1",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 32.300000000000004,
+            "confidence": 1.0,
+            "priority": 25.840000000000003,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 2,
+            "via": "pkg:npm/chalk@1.1.3"
+        },
+        {
+            "purl": "pkg:npm/array-back@6.2.3",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 32.10000000000001,
+            "confidence": 1.0,
+            "priority": 25.680000000000007,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/command-line-args@6.0.2"
+        },
+        {
+            "purl": "pkg:npm/follow-redirects@1.16.3",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 31.4,
+            "confidence": 1.0,
+            "priority": 25.12,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/axios@1.21.1"
+        },
+        {
+            "purl": "pkg:npm/mime-db@1.52.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 30.71300479123888,
+            "confidence": 1.0,
+            "priority": 24.570403832991104,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/mime-types@2.1.35"
+        },
+        {
+            "purl": "pkg:npm/dateformat@2.2.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 30.2,
+            "confidence": 1.0,
+            "priority": 24.16,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/gulp-util@3.0.8"
+        },
+        {
+            "purl": "pkg:npm/is-core-module@2.18.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 36.199999999999996,
+            "confidence": 1.0,
+            "priority": 20.272,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/resolve@1.22.14"
+        },
+        {
+            "purl": "pkg:npm/resolve@1.22.14",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 34.0,
+            "confidence": 1.0,
+            "priority": 19.040000000000003,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tslint@6.1.3"
+        },
+        {
+            "purl": "pkg:npm/js-tokens@4.0.0",
+            "state": "resting",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": false,
+            "mortality": 30.099999999999998,
+            "confidence": 1.0,
+            "priority": 16.856,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/%40babel/code-frame@7.29.7"
+        },
+        {
+            "purl": "pkg:npm/form-data@2.3.3",
+            "state": "alive",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": true,
+            "mortality": 14.600000000000001,
+            "confidence": 1.0,
+            "priority": 11.680000000000001,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/axios@1.21.1"
+        },
+        {
+            "purl": "pkg:npm/glob@7.2.3",
+            "state": "alive",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": true,
+            "mortality": 18.0,
+            "confidence": 1.0,
+            "priority": 10.080000000000002,
+            "direct": false,
+            "scope": "dev",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/tslint@6.1.3"
+        },
+        {
+            "purl": "pkg:npm/uuid@3.4.0",
+            "state": "alive",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": true,
+            "mortality": 7.599999999999999,
+            "confidence": 1.0,
+            "priority": 6.079999999999999,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/qs@6.5.5",
+            "state": "alive",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": true,
+            "mortality": 4.6,
+            "confidence": 1.0,
+            "priority": 3.6799999999999997,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request@2.88.2"
+        },
+        {
+            "purl": "pkg:npm/tough-cookie@2.5.0",
+            "state": "alive",
+            "deadReason": null,
+            "cursed": false,
+            "wounded": true,
+            "mortality": 3.400000000000001,
+            "confidence": 1.0,
+            "priority": 2.7200000000000006,
+            "direct": false,
+            "scope": "runtime",
+            "services": [
+                "."
+            ],
+            "pathCount": 1,
+            "via": "pkg:npm/request-promise@4.2.6"
+        }
+    ],
+    "nextCursor": null
+}

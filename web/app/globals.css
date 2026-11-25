@@ -1,0 +1,278 @@
+@import 'tailwindcss';
+
+/*
+  Design tokens of .kiro/steering/frontend-design.md. Components use these names, never a hex value.
+  `@theme static` writes every variable to :root, so plain CSS and the contrast test (lib/contrast.test.ts) can read them.
+*/
+@theme static {
+  /* surfaces and text, dark */
+  --color-ground: #0d0f13;
+  --color-night: #121620;
+  --color-night-alt: #11141a;
+  --color-ground-cert: #0f1011;
+  --color-surface: #161a21;
+  --color-surface-line: #262c35;
+  --color-hairline: #1e232b;
+  --color-stone: #2a2f37;
+  --color-stone-line: #3e444e;
+  --color-control-line: #3a3f45;
+  --color-plot: #0f1217;
+  --color-earth: #1a150f;
+  --color-bone: #ece6d8;
+  --color-bone-soft: #d3cdc0;
+  --color-bone-muted: #c9c3b6;
+  --color-bone-quiet: #a9a396;
+  --color-bone-dim: #8f8a7f;
+  --color-stone-text: #9aa0aa;
+  --color-on-bone: #121314;
+
+  /* parchment */
+  --color-parchment: #ede6d6;
+  --color-paper-tint: #e3daca;
+  --color-ink: #1b1a17;
+  --color-ink-soft: #3d3a31;
+  --color-ink-muted: #5e5848;
+  --color-paper-rule-strong: #8c8371;
+  --color-paper-rule: #a99f88;
+  --color-paper-line: #c9bfa9;
+  --color-paper-hair: #cfc6b2;
+  --color-paper-link: #5b2a22;
+
+  /* states: bright (dark surfaces), ink and pill (parchment) */
+  --color-dead: #e8887b;
+  --color-dead-ink: #8a2b1f;
+  --color-dead-pill: #f3d4ce;
+  --color-cursed: #c4aef5;
+  --color-cursed-ink: #4e3a86;
+  --color-cursed-pill: #e2d9f7;
+  --color-cursed-body: #2b2838;
+  --color-ailing: #e9b266;
+  --color-ailing-ink: #7a4a0e;
+  --color-ailing-pill: #f4e1c2;
+  --color-resting: #8fb2e0;
+  --color-resting-ink: #2d4b78;
+  --color-resting-pill: #d6e2f2;
+  --color-alive: #93cba6;
+  --color-alive-ink: #2f6b44;
+  --color-alive-pill: #d5ebdc;
+  --color-wounded: #f0a39a;
+  --color-wounded-ink: #8a3a30;
+  --color-wounded-pill: #f5d9d4;
+  --color-flame: #f3c77c;
+
+  /* wax seal */
+  --color-seal: #8a2b1f;
+  --color-seal-ring: #b8463a;
+  --color-seal-inner: #6e2118;
+  --color-seal-text: #f2d6cf;
+
+  /* type */
+  --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+
+  /* radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 18px;
+  --radius-pill: 999px;
+
+  /* layout */
+  --container: 1240px;
+}
+
+:root {
+  --focus: var(--color-bone);
+  --gutter: clamp(16px, 5vw, 32px);
+  color-scheme: dark;
+}
+
+/* Parchment surfaces use the ink focus ring: bone on parchment is invisible (frontend-design.md section 7). */
+.surface-paper {
+  --focus: var(--color-ink);
+}
+
+html {
+  background: var(--color-ground);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-ground);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  There is no plain `a { color }` rule here on purpose. Tailwind's preflight already makes links inherit, in a layer.
+  An unlayered rule would beat every text-* utility on an anchor (a button-link would lose its text colour).
+*/
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+/*
+  A heading or region that script focuses (tabindex="-1") takes focus so a screen reader starts there, and draws no ring:
+  nobody can tab to it. Real controls with tabindex="-1" (the roving stones) keep their ring.
+*/
+[tabindex='-1']:not(a, button, input, select, textarea, summary):focus {
+  outline: none;
+}
+.container-page {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  box-sizing: border-box;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -80px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-bone);
+  color: var(--color-on-bone);
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+/* Below-the-fold sections are not laid out until they are near the viewport (landing performance). */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ---- motion ------------------------------------------------------------------------------------------------ */
+@keyframes gyfog {
+  from {
+    transform: translateX(-100px);
+  }
+  to {
+    transform: translateX(100px);
+  }
+}
+@keyframes gyglow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes gytw {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes gyflame {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  35% {
+    opacity: 0.6;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.7;
+  }
+}
+@keyframes gydirt {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-70px, -40px);
+    opacity: 0;
+  }
+}
+
+.gy-stone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gy-fog1 {
+    animation: gyfog 38s linear infinite alternate;
+  }
+  .gy-fog2 {
+    animation: gyfog 52s linear infinite alternate-reverse;
+  }
+  .gy-fog3 {
+    animation: gyfog 36s linear infinite alternate;
+  }
+  .gy-glow {
+    animation: gyglow 4s ease-in-out infinite;
+  }
+  .gy-star {
+    animation: gytw 5s ease-in-out infinite;
+  }
+  .gy-flame {
+    animation: gyflame 1.4s ease-in-out infinite;
+  }
+  .gy-dirt {
+    animation: gydirt 2.2s ease-out infinite;
+  }
+  .gy-dirt2 {
+    animation: gydirt 2.2s ease-out 0.7s infinite;
+  }
+  .gy-stone {
+    transition: transform 0.25s ease;
+  }
+  .gy-stone:hover,
+  .gy-stone:focus-visible {
+    transform: translateY(-6px);
+  }
+  .gy-backfill {
+    transition:
+      height 0.6s ease,
+      y 0.6s ease;
+  }
+}
+
+/* Belt and braces: whatever a component forgets, nothing moves under reduced motion (ui-core UI-Q-3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -165,6 +165,12 @@ class BrokenCi(unittest.TestCase):
     def test_a_missing_job(self) -> None:
         self.assertCaught(self.broken("  actionlint:\n", "  actionlint-renamed:\n"), "jobs are")
 
+    def test_a_web_job_that_always_runs(self) -> None:
+        self.assertCaught(self.broken("if: needs.changes.outputs.web == 'true'", "if: needs.changes.outputs.infra == 'true'"), "web: must need changes only")
+    def test_a_web_job_without_the_browser_test(self) -> None:
+        self.assertCaught(self.broken("run: npm run e2e", "run: echo skipped"), "web: must run npm run e2e")
+    def test_a_web_job_that_does_not_compare_the_api_types(self) -> None:
+        self.assertCaught(self.broken("git diff --exit-code -- web/lib/api/schema.d.ts", "true"), "schema.d.ts")
     def test_a_pull_request_run_that_would_cancel_main(self) -> None:
         self.assertCaught(self.broken("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", "cancel-in-progress: true"), "cancel only pull request runs")
 
