@@ -60,9 +60,20 @@ locals {
   )
   # The region deny of the plan guard and the apply guards: region_deny plus E11. region_deny itself stays as it is, because the
   # workload boundaries are built from it and sit 60 characters under the 6,144 limit (infra-edge R9).
+  # Both statements apply to direct calls only (aws:ViaAWSService = false). When CloudFront creates a distribution it validates the
+  # certificate with a forward access session, a call that AWS makes in the caller's name from another region (E11 amendment,
+  # 26 Nov 2026): the same CreateDistribution succeeded for an admin principal and failed with InvalidViewerCertificate for
+  # graveyard-dev-apply, which had only this deny and no CloudTrail denial to show for it. A direct call outside the allowed
+  # regions is still denied. The boundaries use region_deny and are unchanged.
   region_deny_ci = [
-    merge(local.region_deny[0], { NotAction = concat(local.region_deny[0].NotAction, local.region_us_east_1_actions) }),
-    merge(local.region_deny[1], { Action = concat(local.region_deny[1].Action, local.region_us_east_1_actions) }),
+    merge(local.region_deny[0], {
+      NotAction = concat(local.region_deny[0].NotAction, local.region_us_east_1_actions)
+      Condition = merge(local.region_deny[0].Condition, { Bool = { "aws:ViaAWSService" = "false" } })
+    }),
+    merge(local.region_deny[1], {
+      Action    = concat(local.region_deny[1].Action, local.region_us_east_1_actions)
+      Condition = merge(local.region_deny[1].Condition, { Bool = { "aws:ViaAWSService" = "false" } })
+    }),
   ]
   # Host names of the edge, by env (infra-edge design 6): the site host is the domain in prod and <env>.<domain> otherwise.
   edge_site_host = { for e in local.env_list : e => e == "prod" ? var.edge_domain_name : "${e}.${var.edge_domain_name}" }

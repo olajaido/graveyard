@@ -46,9 +46,13 @@ Replace the host for prod. `-sI` shows headers only.
 7. Cache: a hashed asset has `cache-control: public,max-age=31536000,immutable` and the second request shows `x-cache: Hit from cloudfront`; `/` has `cache-control: no-cache`.
 8. CloudWatch, us-east-1, Alarms: the two alarms are `OK` or `Insufficient data`, not in an error state.
 
+## 4b. First-deploy findings
+- **`InvalidViewerCertificate` on both distributions (26 Nov 2026, first dev apply).** The certificate was ISSUED, RSA-2048, in us-east-1, tagged, with the right ARN and aliases, and CloudTrail showed no denial. The same CreateDistribution with the same certificate succeeded with an admin principal and failed with `graveyard-dev-apply`. Cause: the region deny in the apply guard blocked the call that CloudFront makes to ACM in the caller's name (a forward access session) while it validates the certificate. Fix: amendment A6 of `infra-foundation`: both region denies of the plan guard and both apply guards apply to direct calls only (`aws:ViaAWSService` = `false`). It is a bootstrap change: apply it first (`terraform-bootstrap.md`, section 16), then re-run the failed deploy jobs. Lesson: a permission failure with no CloudTrail denial and no `AccessDenied` text can be a deny on a call that AWS makes for you; compare with an admin principal before changing the resource.
+
 ## 5. If a deploy fails
 | Where | Likely cause | What to do |
 |---|---|---|
+| apply job, a CloudFront error about a certificate or another resource, with no `AccessDenied` and nothing in CloudTrail | a guard deny hit a call AWS makes in your name (see 4b) | Compare with the same call under an admin principal, then report it. Do not retry in a loop. |
 | plan job, `AccessDenied` on a Route 53, CloudFront, WAF or ACM read | a plan-role permission is missing | Copy the action and the resource (no account ID). It is a new request to the bootstrap root; do not widen anything by hand. |
 | apply job, `AccessDenied` | an apply-role permission is missing, or the unverified items of design 2.3 | Same. Design section 13 lists every call that was checked; a failure outside that list is new. |
 | apply job, certificate stays `PENDING_VALIDATION` | a validation record is missing or wrong | Console, Route 53, the zone: there must be one `CNAME` per hostname, name and value as ACM shows them. Terraform fails after about 75 minutes; re-run the failed jobs. |
