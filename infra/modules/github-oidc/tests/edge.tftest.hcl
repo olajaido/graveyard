@@ -21,7 +21,7 @@ run "e11_is_in_the_three_guards_and_in_no_boundary" {
           ["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"],
           ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"],
         ) &&
-        [for s in jsondecode(aws_iam_policy.ci[k].policy).Statement : s if s.Sid == "DenyGlobalOutsideUsEast1"][0].Condition == { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] } }
+        [for s in jsondecode(aws_iam_policy.ci[k].policy).Statement : s if s.Sid == "DenyGlobalOutsideUsEast1"][0].Condition == { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] }, Bool = { "aws:ViaAWSService" = "false" } }
       )
     ])
     error_message = "E11 must add exactly these actions to the region exemption of the plan guard and both apply guards, still limited to eu-west-2 and us-east-1."
@@ -35,6 +35,60 @@ run "e11_is_in_the_three_guards_and_in_no_boundary" {
       ]
     ]))
     error_message = "A workload boundary must not contain any E11 action (infra-edge R9)."
+  }
+}
+# E11 amendment (26 Nov 2026): the region denies of the CI roles apply to direct calls only. CloudFront validates a certificate with a
+# forward access session, a call AWS makes in the caller's name from another region; the same CreateDistribution succeeded for an
+# admin principal and failed with InvalidViewerCertificate for graveyard-dev-apply. Nothing else may gain the condition.
+run "the_region_denies_of_the_ci_roles_apply_to_direct_calls_only" {
+  command = plan
+  assert {
+    condition = alltrue(flatten([
+      for k in ["graveyard-plan-guard", "graveyard-dev-apply-guard", "graveyard-prod-apply-guard"] : [
+        for s in jsondecode(aws_iam_policy.ci[k].policy).Statement : (
+          s.Effect == "Deny" && try(s.Condition.Bool["aws:ViaAWSService"], "") == "false" && try(s.Condition.StringNotEquals["aws:RequestedRegion"], null) != null
+        ) if contains(["DenyOutsideRegion", "DenyGlobalOutsideUsEast1"], s.Sid)
+      ]
+    ]))
+    error_message = "Every region deny of the plan guard and both apply guards must carry aws:ViaAWSService = false next to aws:RequestedRegion."
+  }
+  assert {
+    condition = alltrue([
+      for k in ["graveyard-plan-guard", "graveyard-dev-apply-guard", "graveyard-prod-apply-guard"] :
+      length([for s in jsondecode(aws_iam_policy.ci[k].policy).Statement : s.Sid if contains(["DenyOutsideRegion", "DenyGlobalOutsideUsEast1"], s.Sid)]) == 2
+    ])
+    error_message = "Each guard has exactly the two region denies, so the check above cannot pass on an empty list."
+  }
+  # The set of statements that mention aws:ViaAWSService, over every policy, is exactly these six. No other Deny, no Allow and no
+  # boundary statement gained it.
+  assert {
+    condition = toset(flatten([
+      for k, p in aws_iam_policy.ci : [
+        for s in jsondecode(p.policy).Statement : "${k}/${s.Sid}" if strcontains(jsonencode(s), "ViaAWSService")
+      ]
+      ])) == toset([
+      "graveyard-plan-guard/DenyOutsideRegion", "graveyard-plan-guard/DenyGlobalOutsideUsEast1",
+      "graveyard-dev-apply-guard/DenyOutsideRegion", "graveyard-dev-apply-guard/DenyGlobalOutsideUsEast1",
+      "graveyard-prod-apply-guard/DenyOutsideRegion", "graveyard-prod-apply-guard/DenyGlobalOutsideUsEast1",
+    ])
+    error_message = "aws:ViaAWSService may appear only in the six region denies of the CI guards."
+  }
+  assert {
+    condition = alltrue(flatten([
+      for k, p in aws_iam_policy.ci : [
+        for s in jsondecode(p.policy).Statement : !strcontains(jsonencode(s), "ViaAWSService")
+        if s.Effect == "Deny" && !contains(["DenyOutsideRegion", "DenyGlobalOutsideUsEast1"], s.Sid)
+      ]
+    ]))
+    error_message = "No other Deny statement (secret values, state, the prod record deny, IAM) may gain aws:ViaAWSService."
+  }
+  assert {
+    condition = alltrue(flatten([
+      for e in ["dev", "prod"] : [
+        for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-boundary"].policy).Statement : !strcontains(jsonencode(s), "ViaAWSService")
+      ]
+    ]))
+    error_message = "The workload boundaries are not changed: no aws:ViaAWSService in either."
   }
 }
 # R9: the boundaries are 60 characters under the 6,144 limit, so they must not change. 6,066 and 6,084 are the sizes before infra-edge.

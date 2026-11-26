@@ -238,7 +238,7 @@ region_us_east_1_actions = [
   <sns_write>, <sns_read>,
 ]
 ```
-Justification: Route 53 and the CloudFront alarm and topic live in us-east-1 (global endpoint, CloudFront metrics). Each action is still allowed only on the ARNs of §12.2 to §12.3. ACM, WAFv2 and CloudFront need no change. **Boundary size:** the boundary text is the same bytes as today (6,066 and 6,084), and a test asserts that none of these actions appears in a boundary and that its length is unchanged.
+**Amendment A6 (26 Nov 2026): direct calls only.** Both region-deny statements also carry `"Bool": {"aws:ViaAWSService": "false"}`. The first dev apply failed with `InvalidViewerCertificate` on both distributions although the certificate was valid and CloudTrail showed no denial; the same CreateDistribution succeeded for an admin principal and failed for `graveyard-dev-apply`. CloudFront validates the certificate with a forward access session (a call AWS makes in the caller's name), which the region deny blocked. No other Deny changed and the boundaries are untouched; a test lists the six statements that may carry the condition. Justification: Route 53 and the CloudFront alarm and topic live in us-east-1 (global endpoint, CloudFront metrics). Each action is still allowed only on the ARNs of §12.2 to §12.3. ACM, WAFv2 and CloudFront need no change. **Boundary size:** the boundary text is the same bytes as today (6,066 and 6,084), and a test asserts that none of these actions appears in a boundary and that its length is unchanged.
 ### 12.2 `graveyard-<env>-apply-edge-extra` (new managed policy)
 | Sid | Actions | Resource | Condition |
 |-----|---------|----------|-----------|
@@ -270,11 +270,11 @@ Measured after T1 (`terraform test` in a scratch copy, mocked provider, no crede
 | Policy | Dev before | Dev after | Prod before | Prod after | Limit |
 |--------|-----------|-----------|-------------|------------|-------|
 | `apply-edge` | 5,645 | 5,720 | 5,664 | 5,739 | 6,144 (405 spare; only the two `star_reads` names were added) |
-| `apply-guard` | 2,184 | 3,042 | 2,181 | 3,273 | 6,144 (E11; prod also holds the R4 deny) |
-| `plan-guard` | 1,117 | 1,975 | same | same | 6,144 (E11) |
+| `apply-guard` | 2,184 | 3,116 | 2,181 | 3,347 | 6,144 (E11 with the A6 condition; prod also holds the R4 deny) |
+| `plan-guard` | 1,117 | 2,049 | same | same | 6,144 (E11 with the A6 condition) |
 | `plan-read-edge` | 2,715 | 2,790 | same | same | 6,144 |
 | boundary | 6,066 | 6,066 | 6,084 | 6,084 | 6,144, **unchanged** (a test pins both sizes) |
-| new `apply-edge-extra` | | 1,503 | | 1,514 | 6,144 |
+| new `apply-edge-extra` | | 1,680 | | 1,691 | 6,144 (includes the `Null` checks of E12) |
 | new `plan-read-edge-extra` | | 658 | | same | 6,144 |
 The largest policy is a boundary at 6,084 (60 spare); the largest CI-role policy is `apply-edge` at 5,739. Managed policies per role: each apply role 7 + 1 = **8** (compute, data, edge, guard, iam, ops, state, edge-extra), the plan role 7 + 1 = **8**; the quota is 10 (R9). `tests/edge.tftest.hcl` asserts 8, 8, 8 and every policy at most 6,144. Expected bootstrap plan: 6 to add (3 policies, 3 attachments), 6 to change (`apply-edge` and `apply-guard` in both envs, `plan-guard`, `plan-read-edge`), 0 to destroy.
 

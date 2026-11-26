@@ -336,18 +336,18 @@ run "the_region_deny_is_in_both_apply_guards" {
           Effect    = "Deny"
           NotAction = concat(["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
           Resource  = "*"
-          Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" } }
+          Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" }, Bool = { "aws:ViaAWSService" = "false" } }
         } &&
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-guard"].policy).Statement : s if s.Sid == "DenyGlobalOutsideUsEast1"][0] == {
           Sid       = "DenyGlobalOutsideUsEast1"
           Effect    = "Deny"
           Action    = concat(["cloudfront:*", "wafv2:*", "acm:*"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
           Resource  = "*"
-          Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] } }
+          Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] }, Bool = { "aws:ViaAWSService" = "false" } }
         }
       )
     ])
-    error_message = "Both region denies, with the E11 actions of infra-edge added, must be in both apply guards."
+    error_message = "Both region denies, with the E11 actions of infra-edge added and limited to direct calls (aws:ViaAWSService false), must be in both apply guards."
   }
 }
 

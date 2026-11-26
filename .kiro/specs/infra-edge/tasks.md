@@ -85,6 +85,10 @@ T3 to T7 need only T2's apply for the CI plan, not for local tests, so they can 
     7. Cache: a hashed asset answers with `cache-control: public, max-age=31536000, immutable` and a second request shows `x-cache: Hit from cloudfront`; `/` shows `cache-control: no-cache`.
     8. The CloudWatch alarms in us-east-1 are in state OK or Insufficient data, not in an error state.
 
+- [ ] T15 — Region guards apply to direct calls only (amendment A6 of `infra-foundation`; E11 amendment; found by the maintainer after the first dev apply)
+  - [x] T15.1 — `github-oidc`: `region_deny_ci` adds `Bool aws:ViaAWSService = false` to both region denies (plan guard and both apply guards); the boundaries and every other Deny are untouched. `tests/edge.tftest.hcl` asserts the condition on the six region denies, that exactly those six statements mention `ViaAWSService` over every policy, that no other Deny gained it, and that the boundaries are unchanged; the guard tests of `apply_core` and `plan_role` carry the new condition. Amendment A6 in `infra-foundation/requirements.md`; note in `docs/runbooks/edge.md` 4b; bootstrap steps in `terraform-bootstrap.md` section 16.
+  - [ ] T15.2 — **MANUAL (maintainer).** Apply the bootstrap change (`terraform-bootstrap.md`, section 16: expect 0 add, 3 change, 0 destroy; V9 on the three guards), then re-run the failed dev deploy jobs.
+
 ## Report of T1 (25 Nov 2026)
 - `github-oidc`: 99 tests pass (89 before plus `edge.tftest.hcl`, 10 runs); `scripts/ci/local-checks.sh all` green (fmt, validate, test, tflint, checkov 190 passed 0 failed, actionlint, guards); python tests 240 OK.
 - Sizes (design §12.5): `apply-edge` 5,720 and 5,739 of 6,144; `apply-guard` 3,042 and 3,273; `plan-guard` 1,975; new `apply-edge-extra` 1,503 and 1,514; new `plan-read-edge-extra` 658; boundaries unchanged at 6,066 and 6,084 (pinned by a test). Managed policies per role: apply 8, plan 8 (limit 10).

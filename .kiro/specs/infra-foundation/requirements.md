@@ -344,3 +344,12 @@ Permissions for the edge (CloudFront, WAF, ACM, Route 53, site deploy). The boot
 | A5-5 | **Other additions.** `graveyard-<env>-apply-edge-extra` also holds `s3:PutObject`, `DeleteObject`, `AbortMultipartUpload` on `arn:<p>:s3:::graveyard-<env>-site-*/*` (the deploy workflow's site upload) and the alarm and topic statements of A5-2. `graveyard-plan-read-edge-extra` holds the matching reads. `cloudfront:ListOriginRequestPolicies` and `GetOriginRequestPolicy` join `star_reads.edge` (metadata reads). New inputs `edge_domain_name` and `route53_zone_id` (not committed). |
 | A5-6 | **INF-SHARED-3 is unchanged.** CloudFront cache and response-headers policies are still never created by a CI role: `infra-edge` sets security headers from CloudFront Functions (decision R2; the earlier proposal of an exception E13 was dropped). |
 The approved exceptions are now E1 to E12.
+
+## Amendment A6 (26 Nov 2026, maintainer-found after the first dev apply of infra-edge; made by spec `infra-edge` task T15)
+Amends E11 (A5-2) and INF-REG-2.
+| ID | Change |
+|----|--------|
+| A6-1 | **Evidence.** The first dev apply failed: CreateDistribution returned `InvalidViewerCertificate` on both distributions. The certificate was ISSUED, RSA-2048, in us-east-1, tagged, with the right ARN and aliases, and CloudTrail showed no denial. The same CreateDistribution with the same certificate **succeeded with an admin principal** (which has no guard policies) and **failed with `graveyard-dev-apply`**. Cause: when CloudFront validates the certificate it calls ACM with a forward access session, a call AWS makes in the caller's name, and the region deny of the apply guard blocked it. |
+| A6-2 | **Change.** In the plan guard and both apply guards, both region-deny statements (`DenyOutsideRegion`, `DenyGlobalOutsideUsEast1`) gain `"Bool": {"aws:ViaAWSService": "false"}` next to the `aws:RequestedRegion` condition, so the denies apply to direct calls only. A direct call outside the allowed regions is still denied. No other Deny statement changes (`DenySecretValues`, `DenyProdChangingDevRecords`, the state and IAM denies). |
+| A6-3 | **Unchanged.** The workload boundaries (`region_deny` is not touched; a test pins their text and size, 6,066 and 6,084). The E11 action list. |
+| A6-4 | **Residual risk.** A call that an AWS service makes on the role's behalf in another region is no longer stopped by the region deny. The Allow statements still limit what the role can do, and by resource, so a service call needs an Allow of its own. |

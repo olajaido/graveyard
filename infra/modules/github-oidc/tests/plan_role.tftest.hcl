@@ -255,7 +255,7 @@ run "the_region_deny_is_in_the_guard" {
       Effect    = "Deny"
       NotAction = concat(["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
       Resource  = "*"
-      Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" } }
+      Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" }, Bool = { "aws:ViaAWSService" = "false" } }
     }
     error_message = "The guard must deny every action outside eu-west-2 except the global services."
   }
@@ -269,7 +269,7 @@ run "the_region_deny_is_in_the_guard" {
       Effect    = "Deny"
       Action    = concat(["cloudfront:*", "wafv2:*", "acm:*"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
       Resource  = "*"
-      Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] } }
+      Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] }, Bool = { "aws:ViaAWSService" = "false" } }
     }
     error_message = "CloudFront, WAF and ACM may use only eu-west-2 and us-east-1."
   }

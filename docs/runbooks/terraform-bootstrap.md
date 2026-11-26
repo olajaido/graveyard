@@ -222,3 +222,10 @@ Apply this before CI plans the edge modules; without it the plan role cannot rea
 5. `terraform apply bootstrap.tfplan`, then delete `bootstrap.tfplan`.
 6. `terraform plan` shows **no changes** (INF-BOOT-5).
 7. Tell the agent: the plan counts (add, change, destroy), the V9 counts, and any finding. No account ID.
+## 16. Region guards: direct calls only (amendment A6, infra-edge task T15)
+Apply this before re-running the failed dev deploy. From your workstation, in `infra/bootstrap`, with Terraform 1.17.2:
+1. `terraform init -backend-config=backend.hcl`, then `terraform plan -out=bootstrap.tfplan`. **Expected: 0 to add, 3 to change, 0 to destroy.** The three changes are the policies `graveyard-dev-apply-guard`, `graveyard-prod-apply-guard` and `graveyard-plan-guard`, text only. The two boundaries, every role and every other policy show no change. If the plan shows anything else, stop and do not apply.
+2. Policy check (V9) on those three policies, as in section 15 step 4 with the filter `^graveyard-(dev|prod)-apply-guard$|^graveyard-plan-guard$`. Any `ERROR` or `SECURITY_WARNING`: stop and tell the agent. Expect no new finding type; the only change is one `Bool` condition per region deny.
+3. `terraform apply bootstrap.tfplan`, delete the plan file, `terraform plan` shows no changes.
+4. In GitHub Actions re-run the failed jobs of the dev deploy (or push a trivial change). The distributions should now create.
+5. Tell the agent the plan counts, the V9 counts and the result of the re-run.
