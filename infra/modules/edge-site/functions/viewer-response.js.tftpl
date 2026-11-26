@@ -1,0 +1,10 @@
+// Security headers (spec infra-edge, EDGE-HDR-1 and EDGE-HDR-3). CloudFront Functions, JavaScript 2.0, viewer-response.
+// Each header is set whatever the origin sent. CloudFront does not run this for origin responses of 400 or higher (EDGE-HDR-4).
+var HEADERS = ${headers_json};
+function handler(event) {
+  var response = event.response;
+  Object.keys(HEADERS).forEach(function (name) {
+    response.headers[name] = { value: HEADERS[name] };
+  });
+  return response;
+}

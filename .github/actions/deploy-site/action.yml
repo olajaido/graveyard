@@ -1,0 +1,167 @@
+name: deploy-site
+description: >-
+  Publish the finished web build (artifact site-<env>, made by a job with no credentials) to the site bucket of one env,
+  invalidate the pages that changed, and check the result. The calling job must check out the repository first and run in
+  the env's GitHub environment. Hashed assets go up first with a one-year immutable header, then every other file with
+  no-cache, and the assets that the new build no longer has are deleted last, so a page that is still cached never points
+  at a missing file. (infra-edge design 11.3, EDGE-DEP-2 to EDGE-DEP-4, EDGE-CACHE-1)
+inputs:
+  env:
+    description: dev or prod.
+    required: true
+  account-id:
+    description: AWS account ID, from the repository secret AWS_ACCOUNT_ID.
+    required: true
+  aws-region:
+    description: Region of the state bucket.
+    required: false
+    default: eu-west-2
+  state-bucket:
+    description: Name of the state bucket, from the repository variable TF_STATE_BUCKET.
+    required: true
+  state-kms-key-id:
+    description: ID (UUID) of the state KMS key, from the repository variable TF_STATE_KMS_KEY_ID.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Check the env name
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+      run: |
+        set -euo pipefail
+        case "$ENV_NAME" in
+          dev | prod) ;;
+          *) echo "env must be dev or prod" >&2; exit 1 ;;
+        esac
+    - name: Initialise with the apply role of this env
+      uses: ./.github/actions/terraform-init
+      with:
+        root: infra/envs/${{ inputs.env }}
+        with-backend: "true"
+        role: graveyard-ci/graveyard-${{ inputs.env }}-apply
+        account-id: ${{ inputs.account-id }}
+        aws-region: ${{ inputs.aws-region }}
+        state-bucket: ${{ inputs.state-bucket }}
+        state-kms-key-id: ${{ inputs.state-kms-key-id }}
+    - name: Read the bucket and the distribution from the state
+      id: target
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+      run: |
+        set -euo pipefail
+        bucket="$(terraform -chdir="infra/envs/$ENV_NAME" output -raw site_bucket_name)"
+        distribution="$(terraform -chdir="infra/envs/$ENV_NAME" output -raw site_distribution_id)"
+        site_url="$(terraform -chdir="infra/envs/$ENV_NAME" output -raw site_url)"
+        # The values come from the env's own state, but they are checked before they reach a command: the bucket must be
+        # this env's site bucket and nothing else.
+        printf '%s' "$bucket" | grep -Eq "^graveyard-${ENV_NAME}-site-[a-z0-9]+$" || { echo "unexpected bucket name" >&2; exit 1; }
+        printf '%s' "$distribution" | grep -Eq '^E[A-Z0-9]+$' || { echo "unexpected distribution ID" >&2; exit 1; }
+        printf '%s' "$site_url" | grep -Eq '^https://[a-z0-9.-]+$' || { echo "unexpected site URL" >&2; exit 1; }
+        {
+          echo "bucket=$bucket"
+          echo "distribution=$distribution"
+          echo "site-url=$site_url"
+        } >> "$GITHUB_OUTPUT"
+    - name: Download the build
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: site-${{ inputs.env }}
+        path: ${{ runner.temp }}/site
+    - name: Check that the download is a finished site
+      shell: bash
+      env:
+        SITE_DIR: ${{ runner.temp }}/site
+      run: |
+        set -euo pipefail
+        for f in index.html 404.html scan.html grave.html; do
+          [ -f "$SITE_DIR/$f" ] || { echo "the build has no $f" >&2; exit 1; }
+        done
+        [ -d "$SITE_DIR/_next/static" ] || { echo "the build has no _next/static" >&2; exit 1; }
+        [ ! -e "$SITE_DIR/mockServiceWorker.js" ] || { echo "the build holds the mock service worker" >&2; exit 1; }
+    - name: Upload the hashed assets (immutable, nothing deleted yet)
+      shell: bash
+      env:
+        SITE_DIR: ${{ runner.temp }}/site
+        BUCKET: ${{ steps.target.outputs.bucket }}
+      run: |
+        set -euo pipefail
+        aws s3 sync "$SITE_DIR/_next/static" "s3://$BUCKET/_next/static" \
+          --cache-control "public,max-age=31536000,immutable" --only-show-errors
+    - name: Upload every other file (no-cache) and delete the removed ones
+      shell: bash
+      env:
+        SITE_DIR: ${{ runner.temp }}/site
+        BUCKET: ${{ steps.target.outputs.bucket }}
+      run: |
+        set -euo pipefail
+        # The excluded prefix is also left alone by --delete, so the old hashed assets stay until the last step.
+        aws s3 sync "$SITE_DIR" "s3://$BUCKET" \
+          --exclude "_next/static/*" --cache-control "no-cache" --delete --only-show-errors
+    - name: Invalidate the pages
+      shell: bash
+      env:
+        SITE_DIR: ${{ runner.temp }}/site
+        DISTRIBUTION: ${{ steps.target.outputs.distribution }}
+      run: |
+        set -euo pipefail
+        # Every file outside the hashed assets, as a path, plus the clean URL of each html file. A hashed asset has a new name
+        # whenever it changes, so it never needs invalidating. With more than 50 paths the whole site is invalidated instead.
+        paths=("/")
+        while IFS= read -r file; do
+          rel="${file#"$SITE_DIR"/}"
+          case "$rel" in
+            _next/static/*) continue ;;
+          esac
+          paths+=("/$rel")
+          case "$rel" in
+            index.html) ;;
+            *.html) paths+=("/${rel%.html}") ;;
+          esac
+        done < <(find "$SITE_DIR" -type f | sort)
+        if [ "${#paths[@]}" -gt 50 ]; then
+          paths=("/*")
+        fi
+        aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION" --paths "${paths[@]}" --query 'Invalidation.Id' --output text
+    - name: Delete the hashed assets that the new build no longer has
+      shell: bash
+      env:
+        SITE_DIR: ${{ runner.temp }}/site
+        BUCKET: ${{ steps.target.outputs.bucket }}
+      run: |
+        set -euo pipefail
+        aws s3 sync "$SITE_DIR/_next/static" "s3://$BUCKET/_next/static" --delete --only-show-errors
+    - name: Check the live site
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.env }}
+        SITE_URL: ${{ steps.target.outputs.site-url }}
+        SITE_DIR: ${{ runner.temp }}/site
+        WORK_DIR: ${{ runner.temp }}
+      run: |
+        set -euo pipefail
+        # Successful responses only: CloudFront does not run the headers function for an origin error (EDGE-HDR-4).
+        fetch() { curl --silent --show-error --retry 6 --retry-delay 10 --retry-all-errors "$@"; }
+        headers="$WORK_DIR/site-headers.txt"
+        fetch --fail --dump-header "$headers" --output /dev/null "$SITE_URL/"
+        grep -iq '^strict-transport-security: max-age=63072000; includeSubDomains' "$headers" || { echo "HSTS header missing on /" >&2; exit 1; }
+        grep -iq '^content-security-policy: ' "$headers" || { echo "CSP header missing on /" >&2; exit 1; }
+        grep -iq '^x-content-type-options: nosniff' "$headers" || { echo "nosniff header missing on /" >&2; exit 1; }
+        grep -iq '^cache-control: no-cache' "$headers" || { echo "/ is not served with Cache-Control: no-cache" >&2; exit 1; }
+        fetch --fail --output /dev/null "$SITE_URL/scan"
+        fetch --fail --output /dev/null "$SITE_URL/grave"
+        asset="$(cd "$SITE_DIR" && find _next/static -type f -name '*.js' | sort | head -n 1)"
+        [ -n "$asset" ] || { echo "the build has no script to check" >&2; exit 1; }
+        fetch --fail --dump-header "$headers" --output /dev/null "$SITE_URL/$asset"
+        grep -iq '^cache-control: public,max-age=31536000,immutable' "$headers" || { echo "a hashed asset is not immutable" >&2; exit 1; }
+        status="$(fetch --output "$WORK_DIR/site-404.html" --write-out '%{http_code}' "$SITE_URL/graveyard-smoke-missing-page")"
+        [ "$status" = "404" ] || { echo "an unknown path answered $status, not 404" >&2; exit 1; }
+        grep -iq '<html' "$WORK_DIR/site-404.html" || { echo "the 404 answer is not the 404 page" >&2; exit 1; }
+        if [ "$ENV_NAME" = "prod" ]; then
+          host="${SITE_URL#https://}"
+          status="$(fetch --output /dev/null --write-out '%{http_code}' "https://www.$host/scan")"
+          [ "$status" = "301" ] || { echo "www answered $status, not 301" >&2; exit 1; }
+        fi
+        rm -f "$headers" "$WORK_DIR/site-404.html"

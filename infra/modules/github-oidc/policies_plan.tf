@@ -100,7 +100,7 @@ locals {
             Resource = ["${local.arn.state_bucket}/bootstrap/*"]
           },
         ],
-        local.region_deny,
+        local.region_deny_ci,
       )
     })
   }

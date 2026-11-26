@@ -8,6 +8,8 @@ Checks (each one is a subcommand; `all` is the default):
   workflow-triggers no workflow uses the pull_request_target trigger
   action-pins       every third-party action is pinned by a full commit SHA
   module-policies   no data source in a module and no aws_iam_policy_document in infra/
+  route53-zone      no aws_route53_zone resource or data source in infra/: the hosted zone is made by hand (infra-edge EDGE-DNS-1)
+  distribution-acl  every aws_cloudfront_distribution sets web_acl_id (null is allowed, omitting it is not; infra-edge EDGE-WAF-1)
 
 The file list is `git ls-files --cached --others --exclude-standard`: tracked files plus new
 files that are not git-ignored, which is what a commit would contain. On a CI checkout that
@@ -230,6 +232,37 @@ def check_arn_segments(files: Files) -> List[Finding]:
                     if re.search(r"[*?]", INTERPOLATION.sub("", segment)):
                         found.append(Finding("arn-segments", path, number, f"the {label} segment of an ARN must not contain * or ?: {match.group(0)[1:]}"))
     return found
+ROUTE53_ZONE = re.compile(r'^\s*(?:resource|data)\s+"aws_route53_zone"')
+def check_route53_zone(files: Files) -> List[Finding]:
+    """The hosted zone is made by hand and only its records are managed; Terraform must not create, import or read it."""
+    found: List[Finding] = []
+    for path, text in sorted(files.items()):
+        if not path.startswith("infra/") or not path.endswith(".tf"):
+            continue
+        for number, line in enumerate(_strip_block_comments(text).splitlines(), 1):
+            if ROUTE53_ZONE.match(strip_comment(line)):
+                found.append(Finding("route53-zone", path, number, "the hosted zone is not managed here: no aws_route53_zone resource or data source"))
+    return found
+DISTRIBUTION = re.compile(r'^\s*resource\s+"aws_cloudfront_distribution"\s+"[^"]+"\s*\{')
+WEB_ACL_ID = re.compile(r"^\s*web_acl_id\s*=")
+def check_distribution_acl(files: Files) -> List[Finding]:
+    """A distribution that does not mention web_acl_id could silently go without the Edge ACL. null is a decision; absence is not."""
+    found: List[Finding] = []
+    for path, text in sorted(files.items()):
+        if not path.startswith("infra/") or not path.endswith(".tf"):
+            continue
+        lines = [strip_comment(line) for line in _strip_block_comments(text).splitlines()]
+        for start, line in enumerate(lines):
+            if not DISTRIBUTION.match(line):
+                continue
+            depth, end = 0, start
+            for end in range(start, len(lines)):
+                depth += lines[end].count("{") - lines[end].count("}")
+                if depth <= 0:
+                    break
+            if not any(WEB_ACL_ID.match(body) for body in lines[start : end + 1]):
+                found.append(Finding("distribution-acl", path, start + 1, "an aws_cloudfront_distribution must set web_acl_id (to the Edge ACL or to null)"))
+    return found
 SYFT_PIN = "scripts/build/syft-pin.json"
 ROUTE_KEY = re.compile(r'"((?:GET|POST|PUT|PATCH|DELETE) /v1/[^"]*)"')
 
@@ -283,6 +316,8 @@ CHECKS: Dict[str, Callable[[Files], List[Finding]]] = {
     "workflow-triggers": check_workflow_triggers,
     "action-pins": check_action_pins,
     "module-policies": check_module_policies,
+    "route53-zone": check_route53_zone,
+    "distribution-acl": check_distribution_acl,
     "arn-segments": check_arn_segments,
     "build-pins": check_build_pins,
     "api-routes": check_api_routes,

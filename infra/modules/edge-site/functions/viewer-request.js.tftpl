@@ -1,0 +1,37 @@
+// Viewer request of the site distribution (spec infra-edge, EDGE-SITE-3). CloudFront Functions, JavaScript 2.0.
+// Clean URLs: /scan serves /scan.html. In prod, www.<apex> answers 301 to the apex with the same path and query string.
+var APEX = "${apex_host}";
+var REDIRECT_WWW = ${redirect_www};
+function query(qs) {
+  var parts = [];
+  Object.keys(qs).forEach(function (k) {
+    var item = qs[k];
+    if (item.multiValue) {
+      item.multiValue.forEach(function (m) { parts.push(k + "=" + m.value); });
+    } else {
+      parts.push(k + "=" + item.value);
+    }
+  });
+  return parts.length ? "?" + parts.join("&") : "";
+}
+function handler(event) {
+  var request = event.request;
+  var host = request.headers.host ? request.headers.host.value.toLowerCase() : "";
+  if (REDIRECT_WWW && host === "www." + APEX) {
+    return {
+      statusCode: 301,
+      statusDescription: "Moved Permanently",
+      headers: { location: { value: "https://" + APEX + request.uri + query(request.querystring) } }
+    };
+  }
+  var uri = request.uri;
+  if (uri === "/") {
+    uri = "/index.html";
+  } else if (uri.charAt(uri.length - 1) === "/") {
+    uri = uri.slice(0, -1) + ".html";
+  } else if (uri.lastIndexOf(".") < uri.lastIndexOf("/")) {
+    uri = uri + ".html";
+  }
+  request.uri = uri;
+  return request;
+}

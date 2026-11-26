@@ -16,7 +16,7 @@ locals {
   }) }
 
   # Policy documents per env and short name. Policy names are graveyard-<env>-apply-<short name>.
-  apply_policy_docs = { for e in local.env_list : e => merge(local.apply_core_docs[e], local.apply_service_docs[e]) }
+  apply_policy_docs = { for e in local.env_list : e => merge(local.apply_core_docs[e], local.apply_service_docs[e], { "edge-extra" = local.apply_edge_extra_docs[e] }) }
 
   apply_policies = merge([
     for e in local.env_list : { for n, doc in local.apply_policy_docs[e] : "graveyard-${e}-apply-${n}" => doc }

@@ -25,6 +25,9 @@ inputs:
   state-kms-key-id:
     description: ID (UUID) of the state KMS key, from the repository variable TF_STATE_KMS_KEY_ID.
     required: true
+  route53-zone-id:
+    description: ID of the existing hosted zone for the site domain, from the repository variable ROUTE53_ZONE_ID. Not a secret; the env roots read it as TF_VAR_route53_zone_id (infra-edge EDGE-DNS-1).
+    required: true
 
 outputs:
   has_changes:
@@ -70,6 +73,7 @@ runs:
       env:
         ENV_NAME: ${{ inputs.env }}
         PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
+        TF_VAR_route53_zone_id: ${{ inputs.route53-zone-id }}
       run: |
         # GitHub starts bash with errexit on, so a bare `terraform plan -detailed-exitcode` that exits 2 (changes) would
         # end the step before the code is read. `|| code=$?` keeps the exit code and lets errexit stay on for every
@@ -89,6 +93,7 @@ runs:
       env:
         ENV_NAME: ${{ inputs.env }}
         ACCOUNT_ID: ${{ inputs.account-id }}
+        ZONE_ID: ${{ inputs.route53-zone-id }}
         PLANFILE: ${{ runner.temp }}/${{ inputs.env }}.tfplan
         RAW_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.txt
         MASKED_TEXT: ${{ runner.temp }}/${{ inputs.env }}.plan.masked.txt
@@ -98,7 +103,7 @@ runs:
         # text is cut at 900 KB (the limit is 1 MiB per step). Terraform has already redacted sensitive values.
         # Files, not a pipe: head closing a pipe early would make pipefail fail the step on a large plan.
         terraform -chdir="infra/envs/$ENV_NAME" show -no-color "$PLANFILE" > "$RAW_TEXT"
-        sed "s/$ACCOUNT_ID/<account>/g" "$RAW_TEXT" > "$MASKED_TEXT"
+        sed -e "s/$ACCOUNT_ID/<account>/g" -e "s/$ZONE_ID/<zone>/g" "$RAW_TEXT" > "$MASKED_TEXT"
         {
           echo "### Terraform plan: $ENV_NAME"
           echo '```'

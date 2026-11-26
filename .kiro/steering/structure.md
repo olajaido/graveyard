@@ -40,7 +40,7 @@ graveyard/
 ├── infra/
 │   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
 │   ├── .tflint.hcl
-│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,web,ai}
+│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,edge-cert,edge-waf,edge-site,edge-api,edge-alarms,web,ai}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
 │   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action
@@ -50,7 +50,7 @@ graveyard/
 ├── scripts/build/               # deterministic lambda.zip and syft-layer.zip builders, syft-pin.json (SHA-256 pin); stdlib tests
 ├── scripts/ci/                  # local-checks.sh (pinned images), guards, changed_paths, tests/
 ├── .github/workflows/{ci.yml,deploy.yml,vigil.yml}
-├── .github/actions/{terraform-init,terraform-plan,terraform-apply}/
+├── .github/actions/{terraform-init,terraform-plan,terraform-apply,deploy-site}/
 ├── LICENSE (Apache-2.0)  NOTICE  README.md  SECURITY.md
 ```
 

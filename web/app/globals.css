@@ -156,6 +156,12 @@ body {
   contain-intrinsic-size: auto 640px;
 }
 
+/* The cursed tombstone of the landing page. A class and not a style attribute: the host's CSP allows no inline style
+   (infra-edge EDGE-HDR-2), and npm run check:build fails on any style attribute in the export. */
+.gy-cursed-shape {
+  clip-path: polygon(50% 0, 72% 12%, 86% 100%, 14% 100%, 28% 12%);
+  filter: drop-shadow(0 0 22px rgba(196, 174, 245, 0.45));
+}
 .eyebrow {
   font-size: 13px;
   font-weight: 600;

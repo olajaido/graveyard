@@ -41,6 +41,9 @@ module "github_oidc" {
   bedrock_narrate_profile_id       = var.bedrock_narrate_profile_id
   bedrock_rites_profile_id         = var.bedrock_rites_profile_id
   bedrock_foundation_model_regions = var.bedrock_foundation_model_regions
+
+  edge_domain_name = var.edge_domain_name
+  route53_zone_id  = var.route53_zone_id
 }
 
 module "cost" {

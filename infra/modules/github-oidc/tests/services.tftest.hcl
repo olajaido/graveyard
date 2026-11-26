@@ -13,6 +13,7 @@ variables {
   repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
+  route53_zone_id   = "Z0123456789ABCDEFGHIJ"
 }
 
 run "every_role_has_its_policies_and_stays_under_the_limits" {
@@ -21,7 +22,7 @@ run "every_role_has_its_policies_and_stays_under_the_limits" {
   assert {
     condition = toset([for k, p in aws_iam_policy.ci : k if startswith(k, "graveyard-plan-")]) == toset([
       "graveyard-plan-state", "graveyard-plan-read-iam", "graveyard-plan-read-compute", "graveyard-plan-read-data",
-      "graveyard-plan-read-edge", "graveyard-plan-read-ops", "graveyard-plan-guard",
+      "graveyard-plan-read-edge", "graveyard-plan-read-edge-extra", "graveyard-plan-read-ops", "graveyard-plan-guard",
     ])
     error_message = "Unexpected plan policies."
   }
@@ -29,7 +30,7 @@ run "every_role_has_its_policies_and_stays_under_the_limits" {
   assert {
     condition = alltrue([
       for e in ["dev", "prod"] : toset([for k, p in aws_iam_policy.ci : k if startswith(k, "graveyard-${e}-apply-")]) == toset([
-        for n in ["state", "iam", "compute", "data", "edge", "ops", "guard"] : "graveyard-${e}-apply-${n}"
+        for n in ["state", "iam", "compute", "data", "edge", "edge-extra", "ops", "guard"] : "graveyard-${e}-apply-${n}"
       ])
     ])
     error_message = "Unexpected apply policies."
@@ -115,7 +116,7 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
 
   assert {
     condition = alltrue([
-      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : alltrue([for a in flatten([try(x.stmt.Action, [])]) : contains(["xray:GetSamplingRules", "kms:ListAliases", "ssm:DescribeParameters", "cloudfront:ListDistributions", "cloudfront:ListFunctions", "cloudfront:ListCachePolicies", "cloudfront:GetCachePolicy", "cloudfront:ListResponseHeadersPolicies", "cloudfront:GetResponseHeadersPolicy", "cloudfront:ListOriginAccessControls", "cloudfront:GetOriginAccessControl", "wafv2:ListWebACLs", "wafv2:ListIPSets", "wafv2:ListRuleGroups", "wafv2:ListAvailableManagedRuleGroups", "wafv2:DescribeManagedRuleGroup", "acm:ListCertificates", "logs:DescribeLogGroups", "cloudwatch:DescribeAlarms", "synthetics:DescribeCanaries", "bedrock:ListGuardrails", "bedrock:ListFoundationModels", "bedrock:ListInferenceProfiles"], a)])
+      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : alltrue([for a in flatten([try(x.stmt.Action, [])]) : contains(["xray:GetSamplingRules", "kms:ListAliases", "ssm:DescribeParameters", "cloudfront:ListDistributions", "cloudfront:ListFunctions", "cloudfront:ListCachePolicies", "cloudfront:GetCachePolicy", "cloudfront:ListResponseHeadersPolicies", "cloudfront:GetResponseHeadersPolicy", "cloudfront:ListOriginAccessControls", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginRequestPolicies", "cloudfront:GetOriginRequestPolicy", "wafv2:ListWebACLs", "wafv2:ListIPSets", "wafv2:ListRuleGroups", "wafv2:ListAvailableManagedRuleGroups", "wafv2:DescribeManagedRuleGroup", "acm:ListCertificates", "logs:DescribeLogGroups", "cloudwatch:DescribeAlarms", "synthetics:DescribeCanaries", "bedrock:ListGuardrails", "bedrock:ListFoundationModels", "bedrock:ListInferenceProfiles"], a)])
       if x.stmt.Sid == "ReadStar"
     ])
     error_message = "ReadStar statements may hold only the named metadata reads and list calls."
@@ -125,8 +126,8 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
     condition = toset(flatten([
       for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])])
       if startswith(x.stmt.Sid, "Exception")
-    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups"])
-    error_message = "The exception statements in the CI roles must be exactly E4, E6 and E7."
+    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups", "route53:ChangeResourceRecordSets"])
+    error_message = "The exception statements in the CI roles must be exactly E4, E6, E7, E8, E9 and E12."
   }
 
   assert {
@@ -226,7 +227,7 @@ run "only_the_services_of_the_architecture_are_used" {
 
   assert {
     condition = alltrue(flatten([
-      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["s3", "cloudfront", "wafv2", "acm", "apigateway", "lambda", "ecr", "states", "dynamodb", "bedrock", "secretsmanager", "ssm", "kms", "iam", "logs", "cloudwatch", "synthetics", "sns", "xray", "scheduler"], split(":", a)[0])]
+      for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : [for a in flatten([try(x.stmt.Action, [])]) : contains(["s3", "cloudfront", "wafv2", "acm", "apigateway", "lambda", "ecr", "states", "dynamodb", "bedrock", "secretsmanager", "ssm", "kms", "iam", "logs", "cloudwatch", "synthetics", "sns", "xray", "scheduler", "route53"], split(":", a)[0])]
     ]))
     error_message = "An action is outside the services of INF-APPLY-2."
   }

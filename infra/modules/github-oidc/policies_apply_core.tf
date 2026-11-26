@@ -183,7 +183,21 @@ locals {
             Resource = "*"
           },
         ],
-        local.region_deny,
+        local.region_deny_ci,
+        # infra-edge R4 (EDGE-IAM-3): prod never changes a dev record, including dev's ACM validation CNAMEs, whatever its Allow
+        # says. ForAnyValue: one dev name anywhere in the request denies the whole request. The pattern cannot match a prod
+        # name: prod's are the apex, www, api and _<hex hash>.<prod host>, and a hex hash never ends in "dev".
+        e == "prod" ? [
+          {
+            Sid      = "DenyProdChangingDevRecords"
+            Effect   = "Deny"
+            Action   = ["route53:ChangeResourceRecordSets"]
+            Resource = "*"
+            Condition = {
+              "ForAnyValue:StringLike" = { "route53:ChangeResourceRecordSetsNormalizedRecordNames" = ["*dev.${var.edge_domain_name}"] }
+            }
+          },
+        ] : [],
       )
     })
   } }

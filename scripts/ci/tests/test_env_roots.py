@@ -21,24 +21,42 @@ class EnvRoots(unittest.TestCase):
     CORS_BLOCK = re.compile(r'variable "cors_allowed_origins" \{.*?\n\}\n', flags=re.S)
 
     def test_the_roots_differ_only_in_the_env_name(self) -> None:
-        # One declared exception (ui-core UI-CORS-1): the default of cors_allowed_origins. It is asserted below.
+        # One declared exception (ui-core UI-CORS-1, infra-edge EDGE-CORS-1): the default of cors_allowed_origins. It is asserted
+        # below. The domain lastrites.dev is not the env name, so a "dev" that follows a dot is left alone.
         for name, text in self.files["dev"].items():
             if name == ".terraform.lock.hcl":
                 continue
             self.assertEqual(
-                self.CORS_BLOCK.sub("", re.sub(r"\bdev\b", "prod", text)),
+                self.CORS_BLOCK.sub("", re.sub(r"(?<!\.)\bdev\b", "prod", text)),
                 self.CORS_BLOCK.sub("", self.files["prod"][name]),
                 name,
             )
 
-    def test_the_cors_origins_default_is_the_local_web_app_in_dev_and_empty_in_prod(self) -> None:
+    def test_the_cors_origins_default_is_the_env_site_and_in_dev_also_the_local_web_app(self) -> None:
         dev = self.CORS_BLOCK.search(self.files["dev"]["variables.tf"])
         prod = self.CORS_BLOCK.search(self.files["prod"]["variables.tf"])
         assert dev is not None and prod is not None
-        self.assertIn('default     = ["http://localhost:5173"]', dev.group(0))
-        self.assertIn("default     = []", prod.group(0))
-        self.assertNotIn("*", re.findall(r'default\s*=.*', dev.group(0))[0])
-
+        self.assertIn('default     = ["https://dev.lastrites.dev", "http://localhost:5173"]', dev.group(0))
+        self.assertIn('default     = ["https://lastrites.dev"]', prod.group(0))
+        for block in (dev.group(0), prod.group(0)):
+            self.assertNotIn("*", re.findall(r'default\s*=.*', block)[0])
+    def test_the_edge_has_the_same_variables_locals_and_provider_alias_in_both_roots(self) -> None:
+        for env, files in self.files.items():
+            self.assertIn('default     = "lastrites.dev"', files["variables.tf"], env)
+            self.assertRegex(files["variables.tf"], r'variable "route53_zone_id" \{\n  type        = string\n  description')
+            self.assertNotRegex(re.search(r'variable "route53_zone_id" \{.*?\n\}\n', files["variables.tf"], flags=re.S).group(0), r"default\s*=")
+            self.assertRegex(files["variables.tf"], r'variable "enable_waf" \{\n  type        = bool\n  default     = null')
+            self.assertIn('site_host    = local.env == "prod" ? var.domain_name : "${local.env}.${var.domain_name}"', files["locals.tf"], env)
+            self.assertIn('enable_waf = coalesce(var.enable_waf, local.env == "prod")', files["locals.tf"], env)
+            providers = files["providers.tf"]
+            self.assertIn('alias               = "us_east_1"', providers, env)
+            self.assertIn('region              = "us-east-1"', providers, env)
+            self.assertEqual(providers.count("allowed_account_ids = var.allowed_account_ids"), 2, env)
+            self.assertEqual(providers.count("tags = local.tags"), 2, env)
+            main = files["main.tf"]
+            self.assertEqual(main.count("aws = aws.us_east_1"), 3, env)
+            self.assertIn("count  = local.enable_waf ? 1 : 0", main, env)
+            self.assertEqual(main.count("web_acl_arn     = one(module.edge_waf[*].web_acl_arn)"), 2, env)
     def test_the_roots_declare_no_resource_and_no_data_source(self) -> None:
         for env, files in self.files.items():
             for name, text in files.items():
