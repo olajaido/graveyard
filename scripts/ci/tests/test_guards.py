@@ -269,6 +269,7 @@ class Runner(GuardCase):
         self.write("scripts/build/x.py", "x = 1\n")  # no pin file next to it
         self.write("backend/api/routes.py", 'ROUTES = ("GET /v1/a",)\n')
         self.write("infra/modules/api/variables.tf", 'default = ["GET /v1/b"]\n')
+        self.write("infra/modules/edge/main.tf", 'resource "aws_route53_zone" "z" {}\nresource "aws_cloudfront_distribution" "d" {\n  enabled = true\n}\n')
         names = {f.check for f in self.findings()}
         self.assertEqual(names, set(guards.CHECKS))
 
@@ -354,5 +355,35 @@ class ApiRoutes(GuardCase):
         self.assertEqual(self.findings("api-routes"), [])
 
 
+class Route53Zone(GuardCase):
+    def test_a_zone_resource_fails(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_route53_zone" "this" {\n  name = "x"\n}\n')
+        self.assertEqual(len(self.findings("route53-zone")), 1)
+    def test_a_zone_data_source_fails(self) -> None:
+        self.write("infra/envs/dev/main.tf", 'data "aws_route53_zone" "this" {\n  name = "x"\n}\n')
+        self.assertEqual(len(self.findings("route53-zone")), 1)
+    def test_records_and_a_comment_pass(self) -> None:
+        self.write("infra/modules/m/main.tf", '# no resource "aws_route53_zone" here\nresource "aws_route53_record" "a" {\n  zone_id = var.zone_id\n}\n')
+        self.assertEqual(self.findings("route53-zone"), [])
+    def test_files_outside_infra_pass(self) -> None:
+        self.write("docs/x.tf", 'resource "aws_route53_zone" "this" {}\n')
+        self.assertEqual(self.findings("route53-zone"), [])
+class DistributionAcl(GuardCase):
+    def test_a_distribution_without_web_acl_id_fails(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_cloudfront_distribution" "site" {\n  enabled = true\n  origin {\n    origin_id = "a"\n  }\n}\n')
+        self.assertEqual(len(self.findings("distribution-acl")), 1)
+    def test_a_web_acl_id_in_a_comment_does_not_count(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_cloudfront_distribution" "site" {\n  # web_acl_id = var.x\n  enabled = true\n}\n')
+        self.assertEqual(len(self.findings("distribution-acl")), 1)
+    def test_a_distribution_with_web_acl_id_passes_even_when_it_is_null(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_cloudfront_distribution" "site" {\n  web_acl_id = var.web_acl_arn\n  origin {\n    origin_id = "a"\n  }\n}\nresource "aws_cloudfront_distribution" "api" {\n  web_acl_id = null\n}\n')
+        self.assertEqual(self.findings("distribution-acl"), [])
+    def test_only_the_distribution_without_it_is_reported(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_cloudfront_distribution" "a" {\n  web_acl_id = null\n}\nresource "aws_cloudfront_distribution" "b" {\n  enabled = true\n}\n')
+        found = self.findings("distribution-acl")
+        self.assertEqual([f.line for f in found], [4])
+    def test_other_cloudfront_resources_are_ignored(self) -> None:
+        self.write("infra/modules/m/main.tf", 'resource "aws_cloudfront_function" "f" {\n  name = "x"\n}\n')
+        self.assertEqual(self.findings("distribution-acl"), [])
 if __name__ == "__main__":
     unittest.main()

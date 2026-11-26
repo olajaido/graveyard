@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { check } from './check-build.mjs';
+import { check, cspProblems } from './check-build.mjs';
 
 function site(files: Record<string, string>): string {
   const dir = mkdtempSync(join(tmpdir(), 'gy-build-'));
@@ -52,5 +52,29 @@ describe('check-build', () => {
     expect(execFileSync('node', ['scripts/check-build.mjs', good]).toString()).toContain(
       'no mock code',
     );
+  });
+});
+describe('the CSP drift check (infra-edge EDGE-HDR-2)', () => {
+  const page = (body: string, scripts = '') =>
+    `<html><head><script src="/_next/static/a.js" async=""></script>${scripts}</head><body>${body}</body></html>`;
+  const known =
+    '<script id="_R_">(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push({})</script>' +
+    '<script>(self.__next_f=self.__next_f||[]).push([0])</script>' +
+    '<script>self.__next_f.push([1,"<style> and style=\"x\" inside flight data are text"])</script>';
+  it('accepts the three inline scripts of the Next.js export and markup without inline style', () => {
+    expect(cspProblems(page('<main class="a"><a href="/scan">x</a></main>', known))).toEqual([]);
+  });
+  it.each([
+    ['another inline script', page('', '<script>alert(1)</script>')],
+    ['a style tag', page('<style>a{color:red}</style>', known)],
+    ['a style attribute', page('<div style="clip-path:polygon(0 0)">x</div>', known)],
+    ['an event handler attribute', page('<img src="/a.png" onerror="x()">', known)],
+    ['a javascript: URL', page('<a href="javascript:x()">x</a>', known)],
+  ])('flags %s', (_name, html) => {
+    expect(cspProblems(html).length).toBeGreaterThan(0);
+  });
+  it('makes check() fail on a page with a stray inline script', () => {
+    const dir = site({ 'index.html': page('', '<script>alert(1)</script>') });
+    expect(check(dir).some((p) => p.includes('inline script'))).toBe(true);
   });
 });

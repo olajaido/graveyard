@@ -12,13 +12,14 @@ variables {
   repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
+  route53_zone_id   = "Z0123456789ABCDEFGHIJ"
 }
 
 run "the_plan_role_has_exactly_its_policies_attached" {
   command = plan
 
   assert {
-    condition     = toset(keys({ for k2, p2 in aws_iam_policy.ci : k2 => p2 if startswith(k2, "graveyard-plan-") })) == toset(["graveyard-plan-state", "graveyard-plan-read-iam", "graveyard-plan-read-compute", "graveyard-plan-read-data", "graveyard-plan-read-edge", "graveyard-plan-read-ops", "graveyard-plan-guard"])
+    condition     = toset(keys({ for k2, p2 in aws_iam_policy.ci : k2 => p2 if startswith(k2, "graveyard-plan-") })) == toset(["graveyard-plan-state", "graveyard-plan-read-iam", "graveyard-plan-read-compute", "graveyard-plan-read-data", "graveyard-plan-read-edge", "graveyard-plan-read-edge-extra", "graveyard-plan-read-ops", "graveyard-plan-guard"])
     error_message = "Unexpected set of plan policies."
   }
 
@@ -252,7 +253,7 @@ run "the_region_deny_is_in_the_guard" {
       ][0] == {
       Sid       = "DenyOutsideRegion"
       Effect    = "Deny"
-      NotAction = ["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"]
+      NotAction = concat(["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
       Resource  = "*"
       Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" } }
     }
@@ -266,7 +267,7 @@ run "the_region_deny_is_in_the_guard" {
       ][0] == {
       Sid       = "DenyGlobalOutsideUsEast1"
       Effect    = "Deny"
-      Action    = ["cloudfront:*", "wafv2:*", "acm:*"]
+      Action    = concat(["cloudfront:*", "wafv2:*", "acm:*"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
       Resource  = "*"
       Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] } }
     }
@@ -299,6 +300,7 @@ run "the_partition_comes_from_the_input" {
   variables {
     partition         = "aws-us-gov"
     state_kms_key_arn = "arn:aws-us-gov:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
+    route53_zone_id   = "Z0123456789ABCDEFGHIJ"
   }
 
   assert {

@@ -17,3 +17,7 @@ create_oidc_provider = false
 # NOT already active. Graveyard never manages an active key. In the shared account `Project` was listed but
 # Inactive on 19 Nov 2026, so the first apply activates it. `Env` is not needed (runbook section 8).
 activate_cost_allocation_tag_keys = ["Project"]
+# ID of the existing public hosted zone for lastrites.dev (spec infra-edge). Console: Route 53, Hosted zones. The zone is made
+# by hand; Graveyard only changes records in it. 'Z0123456789ABCDEFGHIJ' is a placeholder.
+route53_zone_id = "Z0123456789ABCDEFGHIJ"
+# edge_domain_name = "lastrites.dev"

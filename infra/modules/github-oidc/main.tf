@@ -49,6 +49,29 @@ locals {
     },
   ]
 
+  # Exception E11 (infra-edge, INF-REG-2): the only actions the CI roles may use in us-east-1 besides the global services above.
+  # Route 53 is a global service whose calls are reported as us-east-1. CloudFront publishes its metrics in us-east-1 only, so the
+  # CloudFront 5xx alarms and their SNS topic live there. Each action is still allowed only on the ARNs of
+  # policies_apply_edge_extra.tf (the zone, and graveyard-<env>-* alarms and topics). The boundaries do not use this list.
+  region_us_east_1_actions = concat(
+    ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets"],
+    local.act.edge_alarm_write, local.act.edge_alarm_read, ["cloudwatch:DescribeAlarms"],
+    local.act.edge_topic_write, local.act.edge_topic_read,
+  )
+  # The region deny of the plan guard and the apply guards: region_deny plus E11. region_deny itself stays as it is, because the
+  # workload boundaries are built from it and sit 60 characters under the 6,144 limit (infra-edge R9).
+  region_deny_ci = [
+    merge(local.region_deny[0], { NotAction = concat(local.region_deny[0].NotAction, local.region_us_east_1_actions) }),
+    merge(local.region_deny[1], { Action = concat(local.region_deny[1].Action, local.region_us_east_1_actions) }),
+  ]
+  # Host names of the edge, by env (infra-edge design 6): the site host is the domain in prod and <env>.<domain> otherwise.
+  edge_site_host = { for e in local.env_list : e => e == "prod" ? var.edge_domain_name : "${e}.${var.edge_domain_name}" }
+  # Record names as Route 53 normalises them (lower-case, no trailing dot). "_*.<site host>" is for the ACM validation CNAMEs.
+  edge_record_names = { for e in local.env_list : e => concat(
+    [local.edge_site_host[e], "api.${local.edge_site_host[e]}", "_*.${local.edge_site_host[e]}"],
+    e == "prod" ? ["www.${var.edge_domain_name}"] : [],
+  ) }
+  arn_zone = "arn:${local.p}:route53:::hostedzone/${var.route53_zone_id}"
   # All managed policies of the CI roles, by name. Later parts of this module add to the merge.
   managed_policies = merge(local.plan_policies, local.plan_read_policies, local.apply_policies, local.boundary_policies)
 }

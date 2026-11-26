@@ -65,10 +65,10 @@ class Static(unittest.TestCase):
                     self.assertTrue(var in s["env"] or var in builtin or var in local, f"{name}: {s.get('name')}: ${var} is not declared in env")
 
     def test_no_plan_or_artifact_upload_anywhere(self) -> None:
+        # Plans never go to an artifact. The one exception is the public web build of infra-edge (a.artifact_problems).
         for p in (REPO_ROOT / ".github").rglob("*.yml"):
-            text = p.read_text(encoding="utf-8")
-            self.assertNotIn("upload-artifact", text, str(p))
-            self.assertNotIn("download-artifact", text, str(p))
+            rel = p.relative_to(REPO_ROOT).as_posix()
+            self.assertEqual(a.artifact_problems(rel, p.read_text(encoding="utf-8")), [], rel)
 
     def test_init_rules(self) -> None:
         text = self.texts["terraform-init"]
@@ -83,6 +83,9 @@ class Static(unittest.TestCase):
         self.assertIn("role-to-assume: arn:aws:iam::${{ inputs.account-id }}:role/${{ inputs.role }}", text)
         self.assertNotIn("backend-config=bucket", text)
 
+    def test_the_plan_gets_the_zone_id_as_a_terraform_variable(self) -> None:
+        plan = a.step_named(self.steps["terraform-plan"], "Plan")
+        self.assertEqual(plan["env"]["TF_VAR_route53_zone_id"], "${{ inputs.route53-zone-id }}")
     def test_plan_rules(self) -> None:
         plan = a.step_named(self.steps["terraform-plan"], "Plan")
         self.assertIn("-detailed-exitcode", plan["run"])
@@ -94,7 +97,7 @@ class Static(unittest.TestCase):
         cleanup = a.step_named(self.steps["terraform-plan"], "Delete the local plan file")
         self.assertEqual(cleanup["if"], "always()")
         summary = a.step_named(self.steps["terraform-plan"], "job summary")
-        self.assertIn('sed "s/$ACCOUNT_ID/<account>/g"', summary["run"])
+        self.assertIn('sed -e "s/$ACCOUNT_ID/<account>/g" -e "s/$ZONE_ID/<zone>/g"', summary["run"])
         self.assertIn("head -c 900000", summary["run"])
 
     def test_apply_rules(self) -> None:
@@ -310,7 +313,7 @@ class Execution(unittest.TestCase):
     # ---- summary
     def test_summary_masks_the_account_and_is_cut_at_900_kb(self) -> None:
         self.shims.make("terraform", f'echo "arn:aws:iam::{PLACEHOLDER}:role/x and {PLACEHOLDER}"\nhead -c 1200000 /dev/zero | tr "\\0" "a"\n')
-        done = self.run_step("terraform-plan", "job summary", {"ENV_NAME": "dev", "ACCOUNT_ID": PLACEHOLDER, "PLANFILE": str(self.tmp / "dev.tfplan"), "RAW_TEXT": str(self.tmp / "raw.txt"), "MASKED_TEXT": str(self.tmp / "masked.txt")})
+        done = self.run_step("terraform-plan", "job summary", {"ENV_NAME": "dev", "ACCOUNT_ID": PLACEHOLDER, "ZONE_ID": "Z0123456789ABCDEFGHIJ", "PLANFILE": str(self.tmp / "dev.tfplan"), "RAW_TEXT": str(self.tmp / "raw.txt"), "MASKED_TEXT": str(self.tmp / "masked.txt")})
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertFalse((self.tmp / "raw.txt").exists() or (self.tmp / "masked.txt").exists())
         text = self.summary.read_text()

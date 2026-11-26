@@ -43,13 +43,7 @@ export function ExampleStrip() {
           <span className="eyebrow text-sm tracking-[0.14em] text-dead">Dead</span>
         </div>
 
-        <div
-          className="flex h-[250px] w-[130px] flex-col items-center justify-end gap-1 bg-cursed-body pb-7"
-          style={{
-            clipPath: 'polygon(50% 0, 72% 12%, 86% 100%, 14% 100%, 28% 12%)',
-            filter: 'drop-shadow(0 0 22px rgba(196,174,245,0.45))',
-          }}
-        >
+        <div className="gy-cursed-shape flex h-[250px] w-[130px] flex-col items-center justify-end gap-1 bg-cursed-body pb-7">
           <svg
             width="22"
             height="22"

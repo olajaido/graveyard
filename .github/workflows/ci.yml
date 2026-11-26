@@ -126,6 +126,11 @@ jobs:
           - infra/modules/lambda-function
           - infra/modules/observability
           - infra/modules/workflow
+          - infra/modules/edge-cert
+          - infra/modules/edge-waf
+          - infra/modules/edge-site
+          - infra/modules/edge-api
+          - infra/modules/edge-alarms
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -160,6 +165,11 @@ jobs:
           - infra/modules/lambda-function
           - infra/modules/observability
           - infra/modules/workflow
+          - infra/modules/edge-cert
+          - infra/modules/edge-waf
+          - infra/modules/edge-site
+          - infra/modules/edge-api
+          - infra/modules/edge-alarms
           - infra/bootstrap
           - infra/envs/dev
           - infra/envs/prod
@@ -235,6 +245,26 @@ jobs:
       - name: actionlint
         run: scripts/ci/local-checks.sh actionlint
 
+  # infra-edge EDGE-TEST-3: the CloudFront Functions (clean URLs, www redirect, security headers) run in Node against the real
+  # template files. Offline, no credentials. Node is the version the web app uses.
+  edge-function:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: web/.node-version
+      - name: Test the CloudFront Functions
+        run: node --test 'infra/modules/edge-site/functions/*.test.mjs'
   # ui-core T17: the web app (web/). Offline: every API call in the tests and the end-to-end run goes to the mock
   # service worker, and the production build is checked to contain none of it. Nothing here reaches AWS.
   web:
@@ -304,7 +334,7 @@ jobs:
   # branch, which is what the plan role trusts (decision C2). They are two named jobs, not a matrix, because the
   # outputs of a matrix job overwrite each other and deploy.yml needs both envs' version IDs.
   plan-dev:
-    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint]
+    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint, edge-function]
     if: >-
       needs.changes.outputs.infra == 'true' &&
       (github.event_name == 'push' ||
@@ -333,9 +363,10 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           state-bucket: ${{ vars.TF_STATE_BUCKET }}
           state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+          route53-zone-id: ${{ vars.ROUTE53_ZONE_ID }}
 
   plan-prod:
-    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint]
+    needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint, edge-function]
     if: >-
       needs.changes.outputs.infra == 'true' &&
       (github.event_name == 'push' ||
@@ -364,24 +395,31 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           state-bucket: ${{ vars.TF_STATE_BUCKET }}
           state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+          route53-zone-id: ${{ vars.ROUTE53_ZONE_ID }}
 
-  # Apply happens only from main, in deploy.yml, and only when a plan has changes. Nothing is inherited: the one
-  # secret is passed by name.
+  # Apply happens only from main, in deploy.yml. It runs when an env's plan has changes or when the web app changed (a change under
+  # web/ alone runs no plan, so the plan jobs are skipped and count as passed), and not when a job it depends on failed or was
+  # cancelled (infra-edge EDGE-DEP-3, design 11.1). When infra changed, both plans must have succeeded: a failed static check
+  # skips the plan jobs, and a skipped plan must not read as "nothing to apply". Nothing is inherited: the one secret is passed by name.
   deploy:
-    needs: [plan-dev, plan-prod]
+    needs: [changes, web, plan-dev, plan-prod]
     if: >-
+      !cancelled() &&
       github.event_name == 'push' && github.ref == 'refs/heads/main' &&
-      (needs.plan-dev.outputs.has_changes == 'true' || needs.plan-prod.outputs.has_changes == 'true')
+      (needs.plan-dev.outputs.has_changes == 'true' || needs.plan-prod.outputs.has_changes == 'true' || needs.changes.outputs.web == 'true') &&
+      (needs.changes.outputs.infra != 'true' || (needs.plan-dev.result == 'success' && needs.plan-prod.result == 'success')) &&
+      (needs.web.result == 'success' || needs.web.result == 'skipped')
     permissions:
       contents: read
       id-token: write
     uses: ./.github/workflows/deploy.yml
     with:
-      dev_has_changes: ${{ needs.plan-dev.outputs.has_changes }}
-      dev_version_id: ${{ needs.plan-dev.outputs.version_id }}
-      dev_sha256: ${{ needs.plan-dev.outputs.sha256 }}
-      prod_has_changes: ${{ needs.plan-prod.outputs.has_changes }}
-      prod_version_id: ${{ needs.plan-prod.outputs.version_id }}
-      prod_sha256: ${{ needs.plan-prod.outputs.sha256 }}
+      dev_has_changes: ${{ needs.plan-dev.outputs.has_changes || 'false' }}
+      dev_version_id: ${{ needs.plan-dev.outputs.version_id || '' }}
+      dev_sha256: ${{ needs.plan-dev.outputs.sha256 || '' }}
+      prod_has_changes: ${{ needs.plan-prod.outputs.has_changes || 'false' }}
+      prod_version_id: ${{ needs.plan-prod.outputs.version_id || '' }}
+      prod_sha256: ${{ needs.plan-prod.outputs.sha256 || '' }}
+      web_changed: ${{ needs.changes.outputs.web }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

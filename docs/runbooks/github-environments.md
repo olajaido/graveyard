@@ -6,7 +6,7 @@ not Terraform: managing them from Terraform would need a long-lived repository-a
 
 ## 1. Repository variables and secret
 
-Settings, Secrets and variables, Actions. All four are **repository level**, because the plan jobs have no
+Settings, Secrets and variables, Actions. All five are **repository level**, because the plan jobs have no
 environment and must read them too (no environment-level secrets or variables).
 
 | Name | Kind | Where the value comes from | Why this kind |
@@ -14,9 +14,10 @@ environment and must read them too (no environment-level secrets or variables).
 | `TF_STATE_BUCKET` | variable | output `state_bucket_name` of `infra/bootstrap` | A name with a random suffix and no account ID: not a secret (decision C7). |
 | `TF_STATE_KMS_KEY_ID` | variable | output `state_kms_key_id` (the key's UUID) | Contains no account ID. The workflows build the ARN from it and the secret below. |
 | `AWS_REGION` | variable | `eu-west-2` | The only allowed region. |
+| `ROUTE53_ZONE_ID` | variable | Route 53 console, Hosted zones, `lastrites.dev`, "Hosted zone ID" (starts with `Z`) | Not a secret and not an account ID. The plan jobs pass it to Terraform as `TF_VAR_route53_zone_id`; the plan summary shows `<zone>` in its place (infra-edge EDGE-DNS-1, EDGE-MAN-3). |
 | `AWS_ACCOUNT_ID` | **secret** | your 12-digit account ID | A secret only so that GitHub masks it in every log line, and every ARN built from it. It is not a credential (decision O3). Never make it a variable. |
 
-The workflows read exactly these four names and no other secret. There is no AWS access key anywhere: CI assumes roles
+The workflows read exactly these five names and no other secret. There is no AWS access key anywhere: CI assumes roles
 through OIDC (INF-OIDC-7).
 
 ## 2. Environments
@@ -43,7 +44,7 @@ gh api repos/olajaido/graveyard/actions/oidc/customization/sub
 ## 3. Check it
 
 1. Settings, Environments: both exist, `main` is the only deployment branch, `prod` lists you as required reviewer.
-2. Settings, Secrets and variables, Actions: the three variables and the one secret, and nothing else that looks like a
+2. Settings, Secrets and variables, Actions: the four variables and the one secret, and nothing else that looks like a
    credential.
 3. The first pull request (`docs/runbooks/terraform-bootstrap.md`, results): the plan jobs are green and show "No
    changes" for both envs, and the summary and logs show `***` or `<account>` where the account ID would be.

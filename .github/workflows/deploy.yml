@@ -1,12 +1,15 @@
 name: deploy
-
-# Applies the plans that ci.yml saved for this run (infra-foundation, design 8.2). It is called by ci.yml only:
-# there is no workflow_dispatch, because a manual run would have no saved plan to apply.
+# Applies the plans that ci.yml saved for this run (infra-foundation, design 8.2) and publishes the web app to the site bucket
+# (infra-edge, design 11). It is called by ci.yml only: there is no workflow_dispatch, because a manual run would have no saved
+# plan to apply.
 #
 # Each apply job runs in the GitHub environment of the same name. That is what the apply role trusts (decision
 # C2, C3), and the environment's own rules decide the rest: deployment from main only, and for prod a required
-# reviewer (INF-CI-9, docs/runbooks/github-environments.md).
-
+# reviewer (INF-CI-9, docs/runbooks/github-environments.md). One approval covers the apply and the site of that env.
+#
+# The web app is built in its own job with no AWS credentials, because `npm ci` and `npm run build` run code from the
+# dependencies and a step can change the environment of the later steps of its job (infra-edge EDGE-DEP-5). The credentialed
+# job only downloads the finished static files (artifact site-<env>, the public build and nothing else) and uploads them.
 on:
   workflow_call:
     inputs:
@@ -15,23 +18,31 @@ on:
         type: string
         required: true
       dev_version_id:
-        description: S3 version ID of the saved dev plan.
+        description: S3 version ID of the saved dev plan. Empty when the dev plan has no changes.
         type: string
-        required: true
+        required: false
+        default: ""
       dev_sha256:
-        description: SHA-256 of the saved dev plan file.
+        description: SHA-256 of the saved dev plan file. Empty when the dev plan has no changes.
         type: string
-        required: true
+        required: false
+        default: ""
       prod_has_changes:
         description: "'true' when the prod plan has changes."
         type: string
         required: true
       prod_version_id:
-        description: S3 version ID of the saved prod plan.
+        description: S3 version ID of the saved prod plan. Empty when the prod plan has no changes.
         type: string
-        required: true
+        required: false
+        default: ""
       prod_sha256:
-        description: SHA-256 of the saved prod plan file.
+        description: SHA-256 of the saved prod plan file. Empty when the prod plan has no changes.
+        type: string
+        required: false
+        default: ""
+      web_changed:
+        description: "'true' when the web app (or what it is built from) changed in this push."
         type: string
         required: true
     secrets:
@@ -42,8 +53,47 @@ on:
 permissions: {}
 
 jobs:
+  build-web-dev:
+    if: inputs.dev_has_changes == 'true' || inputs.web_changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: web/.node-version
+      - name: Install the pinned dependencies
+        working-directory: web
+        run: npm ci
+      - name: Build for dev
+        working-directory: web
+        env:
+          NEXT_PUBLIC_API_URL: https://api.dev.lastrites.dev
+        run: npm run build
+      - name: The build has no mock code and nothing the CSP would block
+        working-directory: web
+        run: npm run check:build
+      - name: Keep the build for the deploy job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site-dev
+          path: web/out
+          if-no-files-found: error
+          retention-days: 7
+
   apply-dev:
-    if: inputs.dev_has_changes == 'true'
+    needs: build-web-dev
+    # A failed web build must not stop an infrastructure apply (EDGE-DEP-3): the last step fails the job afterwards instead.
+    if: >-
+      !cancelled() &&
+      (inputs.dev_has_changes == 'true' || inputs.web_changed == 'true')
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     environment: dev
@@ -61,6 +111,7 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Apply the saved dev plan
+        if: inputs.dev_has_changes == 'true'
         uses: ./.github/actions/terraform-apply
         with:
           env: dev
@@ -70,14 +121,65 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           state-bucket: ${{ vars.TF_STATE_BUCKET }}
           state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+      - name: Publish the dev site
+        if: needs.build-web-dev.result == 'success'
+        uses: ./.github/actions/deploy-site
+        with:
+          env: dev
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+      - name: Fail when the web build did not succeed
+        if: needs.build-web-dev.result != 'success'
+        env:
+          BUILD_RESULT: ${{ needs.build-web-dev.result }}
+        run: |
+          echo "The dev web build ended as '$BUILD_RESULT', so the site was not published." >&2
+          exit 1
+
+  build-web-prod:
+    if: inputs.prod_has_changes == 'true' || inputs.web_changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: web/.node-version
+      - name: Install the pinned dependencies
+        working-directory: web
+        run: npm ci
+      - name: Build for prod
+        working-directory: web
+        env:
+          NEXT_PUBLIC_API_URL: https://api.lastrites.dev
+        run: npm run build
+      - name: The build has no mock code and nothing the CSP would block
+        working-directory: web
+        run: npm run check:build
+      - name: Keep the build for the deploy job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site-prod
+          path: web/out
+          if-no-files-found: error
+          retention-days: 7
 
   # Prod waits for dev, and runs when dev succeeded or had nothing to apply. A failed or cancelled dev stops it
   # (INF-CI-8). The job then waits for the required reviewer of the prod environment.
   apply-prod:
-    needs: apply-dev
+    needs: [apply-dev, build-web-prod]
     if: >-
       !cancelled() &&
-      inputs.prod_has_changes == 'true' &&
+      (inputs.prod_has_changes == 'true' || inputs.web_changed == 'true') &&
       (needs.apply-dev.result == 'success' || needs.apply-dev.result == 'skipped')
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -95,6 +197,7 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Apply the saved prod plan
+        if: inputs.prod_has_changes == 'true'
         uses: ./.github/actions/terraform-apply
         with:
           env: prod
@@ -104,3 +207,19 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           state-bucket: ${{ vars.TF_STATE_BUCKET }}
           state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+      - name: Publish the prod site
+        if: needs.build-web-prod.result == 'success'
+        uses: ./.github/actions/deploy-site
+        with:
+          env: prod
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: ${{ vars.AWS_REGION }}
+          state-bucket: ${{ vars.TF_STATE_BUCKET }}
+          state-kms-key-id: ${{ vars.TF_STATE_KMS_KEY_ID }}
+      - name: Fail when the web build did not succeed
+        if: needs.build-web-prod.result != 'success'
+        env:
+          BUILD_RESULT: ${{ needs.build-web-prod.result }}
+        run: |
+          echo "The prod web build ended as '$BUILD_RESULT', so the site was not published." >&2
+          exit 1

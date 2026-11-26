@@ -49,6 +49,15 @@ locals {
       ]
     })
 
+    # infra-edge: the read halves of policies_apply_edge_extra.tf, for both envs. The record reads are on the one zone.
+    "graveyard-plan-read-edge-extra" = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        { Sid = "Route53Read", Effect = "Allow", Action = local.act.edge_route53_read, Resource = [local.arn_zone] },
+        { Sid = "EdgeAlarms", Effect = "Allow", Action = local.act.edge_alarm_read, Resource = [for e in local.env_list : local.res[e].alarm_us_east_1] },
+        { Sid = "EdgeTopic", Effect = "Allow", Action = local.act.edge_topic_read, Resource = [for e in local.env_list : local.res[e].topic_us_east_1] },
+      ]
+    })
     "graveyard-plan-read-ops" = jsonencode({
       Version = "2012-10-17"
       Statement = [

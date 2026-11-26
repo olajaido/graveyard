@@ -179,6 +179,15 @@ drift from Terraform). If a call that should be denied succeeds, stop, delete wh
 | H9 | with `graveyard-dev-apply`: create a role `graveyard-dev/graveyard-dev-x` without the boundary | access denied | |
 | H10 | with `graveyard-dev-apply`: `iam:UpdateAssumeRolePolicy` on `graveyard-dev-apply` | access denied | |
 | H11 | scan API stage: decide whether access logging may be enabled. Today `access_logs_enabled = false`, so the stage writes no access logs. To check the alternative in a throwaway branch: set the variable to true; CreateStage then fails with "Insufficient permissions to enable logging" unless the apply roles have `logs:PutResourcePolicy`. Record the decision: keep logging off, or approve the action as a new exception | the stage is created with no access logs, or the maintainer approves the exception (scan-backend amendment A2, design section 16) | |
+| H12 | WAF logging (infra-edge). Needs log delivery and `logs:PutResourcePolicy`, or an S3 or Firehose destination: a new exception. Today the web ACL has metrics and sampled requests only | decide, and approve or keep off | |
+| H13 | The direct `execute-api` URL of the HTTP API bypasses CloudFront and the WAF (prod). Decide whether to close it (custom origin header checked by the API; the secret would live in state) or accept it | decide | |
+| H14 | Remove `'unsafe-inline'` from `script-src`: compute per-page hashes after the web build and feed them to the site headers function (for example through a CloudFront KeyValueStore, which needs its own permissions) | decide | |
+| H15 | Review exceptions E11 and E12 after the first month; check that prod's `_*.lastrites.dev` pattern is still needed (the prod apply guard denies dev names) | review | |
+| H16 | CloudFront standard logs (need an S3 bucket with ACL logging and a log-delivery grant) | decide | |
+| H17 | WAF rule review from sampled requests after a week of prod traffic; pin managed rule group versions; consider Count mode for new rules | review | |
+| H18 | Move the site upload to a dedicated `graveyard-<env>-site-deploy` role instead of the apply role | decide | |
+| H19 | CAA records for `lastrites.dev` (allow only `amazon.com`) and DNSSEC, by hand; the CI roles cannot change those record types | do by hand | |
+| H20 | Security headers on error responses: CloudFront does not run viewer-response functions for origin errors, so the 404 page and API 4xx and 5xx get none. For the API, have the API send `nosniff`; for the 404 page, accept or fix | decide | |
 
 ## 14. Results to record (no account IDs)
 
@@ -191,3 +200,25 @@ drift from Terraform). If a call that should be denied succeeds, stop, delete wh
 | V15: second plan shows no diff on the anomaly monitor's specification | |
 | V16: which of `Project` and `Env` were already active | Neither. `Project` listed, Inactive (activated by the first apply); `Env` not active, not managed (19 Nov 2026) |
 | V17: the shared OIDC provider was present with the audience `sts.amazonaws.com` | Present with the audience (19 Nov 2026) |
+## 15. Edge permissions (spec infra-edge, task T1 and T2)
+Apply this before CI plans the edge modules; without it the plan role cannot read the zone and the apply roles cannot write records. Amendment A5 of `infra-foundation` lists what changes. From your workstation, in `infra/bootstrap`, with Terraform 1.17.2:
+1. **Tag the zone.** Console, Route 53, Hosted zones, `lastrites.dev`, Edit hosted zone tags: `Project=graveyard`. No policy relies on it (Route 53 supports no tag conditions); it is for cost allocation.
+2. **Zone ID.** In the same console page copy "Hosted zone ID" (starts with `Z`). Add to `infra/bootstrap/terraform.tfvars` (git-ignored): `route53_zone_id = "<the ID>"`. Check `git status` does not list the file.
+3. `terraform init -backend-config=backend.hcl`, then `terraform plan -out=bootstrap.tfplan`. **Expected: 6 to add, 6 to change, 0 to destroy.**
+   - Add: the policies `graveyard-dev-apply-edge-extra`, `graveyard-prod-apply-edge-extra`, `graveyard-plan-read-edge-extra` and their three attachments.
+   - Change (in place, policy text only): `graveyard-dev-apply-edge`, `graveyard-prod-apply-edge`, `graveyard-dev-apply-guard`, `graveyard-prod-apply-guard`, `graveyard-plan-guard`, `graveyard-plan-read-edge`.
+   - **No change** to either boundary, to a role, to the state bucket or KMS key, or to the cost resources. If the plan shows anything else, stop and do not apply.
+4. **Policy check (V9)** on the new and changed policies only:
+   ```sh
+   terraform show -json bootstrap.tfplan > /tmp/bootstrap-plan.json
+   jq -r '.. | objects | select(.type? == "aws_iam_policy") | select((.values.name? // "") | test("^graveyard-(dev|prod)-apply-(edge|edge-extra|guard)$|^graveyard-plan-(guard|read-edge|read-edge-extra)$")) | .values.policy? // empty' /tmp/bootstrap-plan.json |
+   while IFS= read -r doc; do
+     aws accessanalyzer validate-policy --policy-type IDENTITY_POLICY --policy-document "$doc" \
+       --query 'findings[].[findingType,issueCode,locations[0].span.start.line]' --output text
+   done
+   rm /tmp/bootstrap-plan.json
+   ```
+   Any `ERROR` or `SECURITY_WARNING`: stop and tell the agent the finding. Record the counts of `WARNING` and `SUGGESTION` (section 14). Expect suggestions about the Route 53 condition keys, which Access Analyzer may not know.
+5. `terraform apply bootstrap.tfplan`, then delete `bootstrap.tfplan`.
+6. `terraform plan` shows **no changes** (INF-BOOT-5).
+7. Tell the agent: the plan counts (add, change, destroy), the V9 counts, and any finding. No account ID.

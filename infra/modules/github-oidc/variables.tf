@@ -145,3 +145,20 @@ variable "bedrock_foundation_model_regions" {
     error_message = "Give at least one EU region such as eu-west-2, with no wildcard."
   }
 }
+variable "edge_domain_name" {
+  type        = string
+  default     = "lastrites.dev"
+  description = "Public domain of the site and API (spec infra-edge). Builds the record names that the apply roles may change in the hosted zone (exception E12): site host = the domain in prod and <env>.<domain> in dev, API host = api.<site host>, www.<domain> in prod."
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$", var.edge_domain_name))
+    error_message = "Give a lower-case domain name such as lastrites.dev, with no scheme, no trailing dot and no wildcard."
+  }
+}
+variable "route53_zone_id" {
+  type        = string
+  description = "ID of the existing public hosted zone for edge_domain_name (made by hand; this stack manages records only). Not a secret and not an account ID, but kept out of the repo like the other run-time values: git-ignored tfvars locally."
+  validation {
+    condition     = can(regex("^Z[A-Z0-9]{3,40}$", var.route53_zone_id))
+    error_message = "A hosted zone ID starts with Z and holds only capital letters and digits."
+  }
+}

@@ -9,10 +9,15 @@ from typing import List
 import actions_text as a
 import guards
 
-STATIC = ["guards", "tf-fmt", "tf-validate", "tf-test", "tflint", "checkov", "actionlint"]
+STATIC = ["guards", "tf-fmt", "tf-validate", "tf-test", "tflint", "checkov", "actionlint", "edge-function"]
 CI_JOBS = ["kiro-not-ignored", "changes", *STATIC, "web", "plan-dev", "plan-prod", "deploy"]
 OIDC_JOBS = {"plan-dev", "plan-prod", "deploy"}
-DEPLOY_INPUTS = ["dev_has_changes", "dev_version_id", "dev_sha256", "prod_has_changes", "prod_version_id", "prod_sha256"]
+PLAN_INPUTS = ["dev_has_changes", "dev_version_id", "dev_sha256", "prod_has_changes", "prod_version_id", "prod_sha256"]
+DEPLOY_INPUTS = [*PLAN_INPUTS, "web_changed"]
+DEPLOY_JOBS = ["build-web-dev", "apply-dev", "build-web-prod", "apply-prod"]
+# What ci.yml passes for each plan input: the output of the plan job, or its empty value when the plan job did not run (a push that
+# changed only web/ runs no plan, infra-edge design 11.1).
+PLAN_INPUT_DEFAULTS = {"has_changes": "false", "version_id": "", "sha256": ""}
 
 
 def common_problems(text: str, path: str) -> List[str]:
@@ -109,7 +114,7 @@ def ci_problems(text: str) -> List[str]:
             p.append(f"{name}: must need changes only")
         if job["keys"].get("if") != "needs.changes.outputs.infra == 'true'":
             p.append(f"{name}: must run only when infra changed")
-    wanted = {"guards": ["unittest discover -s scripts/ci/tests", "scripts/ci/guards.py"], "tflint": ["local-checks.sh tflint"], "checkov": ["local-checks.sh checkov"], "actionlint": ["local-checks.sh actionlint"], "tf-fmt": ["terraform fmt -check -recursive -diff infra"]}
+    wanted = {"guards": ["unittest discover -s scripts/ci/tests", "scripts/ci/guards.py"], "tflint": ["local-checks.sh tflint"], "checkov": ["local-checks.sh checkov"], "actionlint": ["local-checks.sh actionlint"], "edge-function": ["node --test 'infra/modules/edge-site/functions/*.test.mjs'"], "tf-fmt": ["terraform fmt -check -recursive -diff infra"]}
     for name, needles in wanted.items():
         body = "\n".join(s.get("run", "") for s in jobs[name]["steps"])
         for needle in needles:
@@ -136,7 +141,7 @@ def ci_problems(text: str) -> List[str]:
             p.append(f"plan-{env}: a plan is stored only on a push to main")
         if step["with"].get("account-id") != "${{ secrets.AWS_ACCOUNT_ID }}":
             p.append(f"plan-{env}: the account ID must come from the secret")
-        for key, var in (("aws-region", "AWS_REGION"), ("state-bucket", "TF_STATE_BUCKET"), ("state-kms-key-id", "TF_STATE_KMS_KEY_ID")):
+        for key, var in (("aws-region", "AWS_REGION"), ("state-bucket", "TF_STATE_BUCKET"), ("state-kms-key-id", "TF_STATE_KMS_KEY_ID"), ("route53-zone-id", "ROUTE53_ZONE_ID")):
             if step["with"].get(key) != "${{ vars." + var + " }}":
                 p.append(f"plan-{env}: {key} must come from the variable {var}")
         want_out = {n: "${{ steps.plan.outputs." + n + " }}" for n in ("has_changes", "version_id", "sha256")}
@@ -146,22 +151,32 @@ def ci_problems(text: str) -> List[str]:
     if d["keys"].get("uses") != "./.github/workflows/deploy.yml":
         p.append("deploy must call ./.github/workflows/deploy.yml")
     cond = d["keys"].get("if", "")
-    for needle in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'", "needs.plan-dev.outputs.has_changes == 'true'", "needs.plan-prod.outputs.has_changes == 'true'"):
+    for needle in (
+        "!cancelled()",
+        "github.event_name == 'push'",
+        "github.ref == 'refs/heads/main'",
+        "needs.plan-dev.outputs.has_changes == 'true'",
+        "needs.plan-prod.outputs.has_changes == 'true'",
+        "needs.changes.outputs.web == 'true'",
+        "needs.changes.outputs.infra != 'true' || (needs.plan-dev.result == 'success' && needs.plan-prod.result == 'success')",
+        "needs.web.result == 'success' || needs.web.result == 'skipped'",
+    ):
         if needle not in cond:
             p.append(f"deploy: the if must include {needle}")
-    if sorted(d["needs"]) != ["plan-dev", "plan-prod"]:
-        p.append("deploy must need plan-dev and plan-prod")
+    if sorted(d["needs"]) != ["changes", "plan-dev", "plan-prod", "web"]:
+        p.append("deploy must need changes, web, plan-dev and plan-prod")
     if d["secrets"] != {"AWS_ACCOUNT_ID": "${{ secrets.AWS_ACCOUNT_ID }}"}:
         p.append("deploy must pass exactly the secret AWS_ACCOUNT_ID, by name (never inherit)")
     if sorted(d["with"]) != sorted(DEPLOY_INPUTS):
-        p.append("deploy must pass exactly the six plan inputs")
-    for key in DEPLOY_INPUTS:
+        p.append("deploy must pass exactly the six plan inputs and web_changed")
+    for key in PLAN_INPUTS:
         env, name = key.split("_", 1)
-        if d["with"].get(key) != "${{ needs.plan-" + env + ".outputs." + name + " }}":
+        want = "${{ needs.plan-" + env + ".outputs." + name + " || '" + PLAN_INPUT_DEFAULTS[name] + "' }}"
+        if d["with"].get(key) != want:
             p.append(f"deploy: {key} must come from plan-{env}")
+    if d["with"].get("web_changed") != "${{ needs.changes.outputs.web }}":
+        p.append("deploy: web_changed must come from the changes job")
     return p
-
-
 def deploy_problems(text: str) -> List[str]:
     p = common_problems(text, ".github/workflows/deploy.yml")
     head = text.split("\njobs:")[0]
@@ -176,10 +191,32 @@ def deploy_problems(text: str) -> List[str]:
     if "secrets:\n      AWS_ACCOUNT_ID:" not in head or "required: true" not in head.split("secrets:")[1]:
         p.append("deploy.yml must require the secret AWS_ACCOUNT_ID")
     jobs = a.jobs_of(text)
-    if list(jobs) != ["apply-dev", "apply-prod"]:
+    if list(jobs) != DEPLOY_JOBS:
         p.append(f"jobs are {list(jobs)}")
         return p
     for env in ("dev", "prod"):
+        b = jobs[f"build-web-{env}"]
+        if b["permissions"] != {"contents": "read"} or "environment" in b["keys"]:
+            p.append(f"build-web-{env}: no credentials: contents read only, no id-token, no environment (EDGE-DEP-5)")
+        if b["needs"]:
+            p.append(f"build-web-{env}: must need nothing")
+        if f"inputs.{env}_has_changes == 'true' || inputs.web_changed == 'true'" != b["keys"].get("if"):
+            p.append(f"build-web-{env}: runs when the {env} plan has changes or the web app changed")
+        body = "\n".join(s.get("run", "") for s in b["steps"])
+        for needle in ("npm ci", "npm run build", "npm run check:build"):
+            if needle not in body:
+                p.append(f"build-web-{env}: must run {needle}")
+        if any("configure-aws-credentials" in str(s.get("uses", "")) or "./.github/actions/" in str(s.get("uses", "")) for s in b["steps"]):
+            p.append(f"build-web-{env}: must not assume a role or use a repository action that does")
+        if any("secrets." in line or "vars." in line for line in b["lines"]):
+            p.append(f"build-web-{env}: must not read secrets or variables")
+        url = "https://api.lastrites.dev" if env == "prod" else "https://api.dev.lastrites.dev"
+        build = next((s for s in b["steps"] if s.get("run") == "npm run build"), None)
+        if build is None or build["env"].get("NEXT_PUBLIC_API_URL") != url:
+            p.append(f"build-web-{env}: NEXT_PUBLIC_API_URL must be {url}")
+        up = next((s for s in b["steps"] if str(s.get("uses", "")).startswith("actions/upload-artifact@")), None)
+        if up is None or up["with"].get("name") != f"site-{env}" or up["with"].get("path") != "web/out":
+            p.append(f"build-web-{env}: must upload web/out as site-{env} and nothing else")
         j = jobs[f"apply-{env}"]
         if j["keys"].get("environment") != env:
             p.append(f"apply-{env}: environment must be {env}")
@@ -190,21 +227,40 @@ def deploy_problems(text: str) -> List[str]:
         co = j["steps"][0]
         if not str(co.get("uses", "")).startswith("actions/checkout@") or co["with"].get("ref") != "${{ github.sha }}":
             p.append(f"apply-{env}: must check out github.sha first")
-        step = j["steps"][1]
-        if step.get("uses") != "./.github/actions/terraform-apply" or step["with"].get("env") != env:
+        step = next((s for s in j["steps"] if s.get("uses") == "./.github/actions/terraform-apply"), None)
+        if step is None or step["with"].get("env") != env:
             p.append(f"apply-{env}: must call terraform-apply for {env}")
-        for key, source in (("version-id", f"version_id"), ("sha256", "sha256")):
-            if step["with"].get(key) != "${{ inputs." + env + "_" + source + " }}":
-                p.append(f"apply-{env}: {key} must come from the {env} plan only")
-        if step["with"].get("account-id") != "${{ secrets.AWS_ACCOUNT_ID }}":
-            p.append(f"apply-{env}: account-id must come from the secret")
-    if jobs["apply-dev"]["needs"] or "inputs.dev_has_changes == 'true'" != jobs["apply-dev"]["keys"].get("if"):
-        p.append("apply-dev: runs when the dev plan has changes, and needs nothing")
+        else:
+            if step.get("if") != f"inputs.{env}_has_changes == 'true'":
+                p.append(f"apply-{env}: the apply runs only when the {env} plan has changes")
+            for key, source in (("version-id", "version_id"), ("sha256", "sha256")):
+                if step["with"].get(key) != "${{ inputs." + env + "_" + source + " }}":
+                    p.append(f"apply-{env}: {key} must come from the {env} plan only")
+            if step["with"].get("account-id") != "${{ secrets.AWS_ACCOUNT_ID }}":
+                p.append(f"apply-{env}: account-id must come from the secret")
+        site = next((s for s in j["steps"] if s.get("uses") == "./.github/actions/deploy-site"), None)
+        if site is None or site["with"].get("env") != env or site.get("if") != f"needs.build-web-{env}.result == 'success'":
+            p.append(f"apply-{env}: must publish the {env} site only when build-web-{env} succeeded")
+        elif site["with"].get("account-id") != "${{ secrets.AWS_ACCOUNT_ID }}":
+            p.append(f"apply-{env}: the site step's account-id must come from the secret")
+        last = j["steps"][-1]
+        if last.get("if") != f"needs.build-web-{env}.result != 'success'" or "exit 1" not in last.get("run", ""):
+            p.append(f"apply-{env}: the last step must fail the job when build-web-{env} did not succeed")
+        if not any(f"needs.build-web-{env}" in line for line in j["lines"]) or f"build-web-{env}" not in j["needs"]:
+            p.append(f"apply-{env}: must need build-web-{env}")
+    dev_if = jobs["apply-dev"]["keys"].get("if", "")
+    for needle in ("!cancelled()", "inputs.dev_has_changes == 'true'", "inputs.web_changed == 'true'"):
+        if needle not in dev_if:
+            p.append(f"apply-dev: the if must include {needle}")
+    if "needs.build-web-dev.result" in dev_if:
+        p.append("apply-dev: a failed web build must not stop the apply")
+    if jobs["apply-dev"]["needs"] != ["build-web-dev"]:
+        p.append("apply-dev: needs build-web-dev only")
     prod = jobs["apply-prod"]
     cond = prod["keys"].get("if", "")
-    if prod["needs"] != ["apply-dev"]:
-        p.append("apply-prod must need apply-dev only")
-    for needle in ("!cancelled()", "inputs.prod_has_changes == 'true'", "needs.apply-dev.result == 'success'", "needs.apply-dev.result == 'skipped'"):
+    if sorted(prod["needs"]) != ["apply-dev", "build-web-prod"]:
+        p.append("apply-prod must need apply-dev and build-web-prod only")
+    for needle in ("!cancelled()", "inputs.prod_has_changes == 'true'", "inputs.web_changed == 'true'", "needs.apply-dev.result == 'success'", "needs.apply-dev.result == 'skipped'"):
         if needle not in cond:
             p.append(f"apply-prod: the if must include {needle}")
     return p

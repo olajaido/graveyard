@@ -12,6 +12,7 @@ variables {
   repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
+  route53_zone_id   = "Z0123456789ABCDEFGHIJ"
 }
 run "no_policy_has_a_wildcard_in_the_partition_or_service_segment" {
   command = plan

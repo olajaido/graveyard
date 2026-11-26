@@ -19,7 +19,7 @@ fileMatchPattern: "infra/**"
 
 - Separate bootstrap root for the state bucket, OIDC roles and budget. A maintainer applies it locally once, then migrates its state to the bucket; CI never applies it.
 - Build IAM policies with `jsonencode` in `locals`, not `aws_iam_policy_document`. Modules contain no data sources.
-- The AWS account is shared with other projects: every write is limited to `graveyard-`/`graveyard/` names or `Project=graveyard` tag conditions. Wildcard exceptions are listed in `.kiro/specs/infra-foundation/design.md` (E1 to E10); add to that list before widening anything.
+- The AWS account is shared with other projects: every write is limited to `graveyard-`/`graveyard/` names or `Project=graveyard` tag conditions. Wildcard exceptions are listed in `.kiro/specs/infra-foundation/design.md` (E1 to E12); add to that list before widening anything.
 - Remote state in S3 with `use_lockfile = true` (native lockfile locking; DynamoDB locking is deprecated).
 - State bucket: versioned, encrypted, block public access.
 - No local state committed.
@@ -35,7 +35,7 @@ fileMatchPattern: "infra/**"
 
 - Block public access on all buckets.
 - OAC (origin access control) for CloudFront; no public bucket.
-- SSE-KMS encryption.
+- SSE-KMS encryption. Exception: the CloudFront-fronted site bucket (`graveyard-<env>-site-*`) uses SSE-S3, because it holds only public files (infra-edge R6).
 - Versioning on state and artefact buckets.
 - TLS-only bucket policy.
 - Lifecycle: 7-day expiry for uploads, 30-day for reports.

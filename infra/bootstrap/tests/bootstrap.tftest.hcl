@@ -28,6 +28,7 @@ override_resource {
 variables {
   allowed_account_ids = ["123456789012"]
   alert_emails        = ["alerts@example.com"]
+  route53_zone_id     = "Z0123456789ABCDEFGHIJ"
 }
 
 run "the_root_plans_with_all_three_modules_and_names_the_ci_roles" {

@@ -23,6 +23,11 @@ locals {
     dashboard      = "arn:${local.p}:cloudwatch::${local.a}:dashboard/graveyard-${e}-*"
     canary         = "arn:${local.p}:synthetics:${local.r}:${local.a}:canary:graveyard-${e}-*"
     cf_function    = "arn:${local.p}:cloudfront::${local.a}:function/graveyard-${e}-*"
+    # infra-edge: the CloudFront 5xx alarms and their topic are in us-east-1, where CloudFront publishes its metrics (E11).
+    alarm_us_east_1 = "arn:${local.p}:cloudwatch:${local.global_region}:${local.a}:alarm:graveyard-${e}-*"
+    topic_us_east_1 = "arn:${local.p}:sns:${local.global_region}:${local.a}:graveyard-${e}-*"
+    # Objects of the site bucket, written by the deploy workflow. Bucket-level actions are already covered by `bucket`.
+    site_objects = "arn:${local.p}:s3:::graveyard-${e}-site-*/*"
     log_groups = [
       "arn:${local.p}:logs:${local.r}:${local.a}:log-group:/aws/lambda/graveyard-${e}-*",
       "arn:${local.p}:logs:${local.r}:${local.a}:log-group:/aws/vendedlogs/states/graveyard-${e}-*",
@@ -155,8 +160,16 @@ locals {
     syn_read  = ["synthetics:GetCanary", "synthetics:ListTagsForResource"]
     sns_write = ["sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:Subscribe", "sns:Unsubscribe", "sns:TagResource", "sns:UntagResource"]
     sns_read  = ["sns:GetTopicAttributes", "sns:ListTagsForResource", "sns:ListSubscriptionsByTopic"]
-    br_write  = ["bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource", "bedrock:UntagResource"]
-    br_read   = ["bedrock:GetGuardrail", "bedrock:ListTagsForResource"]
+    # infra-edge: exactly what aws_cloudwatch_metric_alarm and aws_sns_topic call (provider 6.73.0), in us-east-1. No dashboards, no
+    # subscriptions (the maintainer subscribes by hand).
+    edge_alarm_write       = ["cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource"]
+    edge_alarm_read        = ["cloudwatch:ListTagsForResource"]
+    edge_topic_write       = ["sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource"]
+    edge_topic_read        = ["sns:GetTopicAttributes", "sns:ListTagsForResource"]
+    edge_route53_read      = ["route53:GetHostedZone", "route53:ListResourceRecordSets"]
+    edge_site_object_write = ["s3:PutObject", "s3:DeleteObject", "s3:AbortMultipartUpload"]
+    br_write               = ["bedrock:UpdateGuardrail", "bedrock:DeleteGuardrail", "bedrock:CreateGuardrailVersion", "bedrock:TagResource", "bedrock:UntagResource"]
+    br_read                = ["bedrock:GetGuardrail", "bedrock:ListTagsForResource"]
   }
 
   # Exception E8 (scan-backend, 20 Nov 2026): the Terraform AWS provider calls states:ValidateStateMachineDefinition on every
@@ -166,6 +179,8 @@ locals {
   exception_actions = {
     e8_validate = ["states:ValidateStateMachineDefinition"]
     e9_api_tags = ["apigateway:POST", "apigateway:GET", "apigateway:DELETE"]
+    # Exception E12 (infra-edge): Route 53 supports no tag condition and the hosted zone has no Graveyard name.
+    e12_route53_change = ["route53:ChangeResourceRecordSets"]
     # Exception E10 (20 Nov 2026): Step Functions checks that the state machine role may manage log deliveries, including
     # logs:PutResourcePolicy. None of these has a resource. Allowed in the workload boundary only, and only to roles named
     # graveyard-<env>-*-sfn; never to a CI role.
@@ -182,6 +197,8 @@ locals {
     edge = [
       "cloudfront:ListDistributions", "cloudfront:ListFunctions", "cloudfront:ListCachePolicies", "cloudfront:GetCachePolicy",
       "cloudfront:ListResponseHeadersPolicies", "cloudfront:GetResponseHeadersPolicy", "cloudfront:ListOriginAccessControls", "cloudfront:GetOriginAccessControl",
+      # infra-edge: both distributions use AWS-managed cache and origin-request policies by ID; reads only, in case CloudFront checks them.
+      "cloudfront:ListOriginRequestPolicies", "cloudfront:GetOriginRequestPolicy",
       "wafv2:ListWebACLs", "wafv2:ListIPSets", "wafv2:ListRuleGroups", "wafv2:ListAvailableManagedRuleGroups", "wafv2:DescribeManagedRuleGroup",
       "acm:ListCertificates",
     ]

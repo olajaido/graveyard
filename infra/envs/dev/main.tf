@@ -1,15 +1,7 @@
 # The scan backend (spec scan-backend): data, the GitHub App secret container, the workflow, the API and the alarms.
 # The roots call the same modules and differ only in the env name (INF-LAY-4). This root declares no resource and no
 # data source (INF-LAY-2): the account ID is the one allowed account (INF-CFG-2), and the partition is aws.
-#
-# infra-edge will also add the us-east-1 provider alias that CloudFront certificates need (INF-REG-3):
-#
-#   provider "aws" {
-#     alias               = "us_east_1"
-#     region              = "us-east-1"
-#     allowed_account_ids = var.allowed_account_ids
-#     default_tags { tags = local.tags }
-#   }
+# The edge (spec infra-edge) is at the end: certificate, Edge ACL (prod only by default), site, API distribution, alarms.
 module "data" {
   source = "../../modules/data"
 
@@ -81,4 +73,54 @@ module "observability" {
   state_machine_name = module.workflow.state_machine_name
   api_id             = module.api.api_id
   table_name         = module.data.table_name
+}
+# ACM for CloudFront must be in us-east-1, and Route 53 is global, so the one provider of this module is the us-east-1 one.
+module "edge_cert" {
+  source = "../../modules/edge-cert"
+  providers = {
+    aws = aws.us_east_1
+  }
+  domain_names = local.hostnames
+  zone_id      = var.route53_zone_id
+}
+# The Edge ACL exists in prod only by default (decision R7). It is a CLOUDFRONT-scope ACL, so it is made in us-east-1.
+module "edge_waf" {
+  source = "../../modules/edge-waf"
+  count  = local.enable_waf ? 1 : 0
+  providers = {
+    aws = aws.us_east_1
+  }
+  name_prefix     = local.name_prefix
+  scan_rate_limit = var.scan_rate_limit
+}
+module "edge_site" {
+  source          = "../../modules/edge-site"
+  name_prefix     = local.name_prefix
+  site_host       = local.site_host
+  redirect_www    = local.redirect_www
+  api_host        = local.api_host
+  certificate_arn = module.edge_cert.certificate_arn
+  web_acl_arn     = one(module.edge_waf[*].web_acl_arn)
+  zone_id         = var.route53_zone_id
+  price_class     = var.price_class
+}
+module "edge_api" {
+  source          = "../../modules/edge-api"
+  name_prefix     = local.name_prefix
+  api_host        = local.api_host
+  api_endpoint    = module.api.api_url
+  certificate_arn = module.edge_cert.certificate_arn
+  web_acl_arn     = one(module.edge_waf[*].web_acl_arn)
+  zone_id         = var.route53_zone_id
+  price_class     = var.price_class
+}
+# CloudFront publishes its metrics in us-east-1 only, so the alarms and their topic are made there (R1).
+module "edge_alarms" {
+  source = "../../modules/edge-alarms"
+  providers = {
+    aws = aws.us_east_1
+  }
+  name_prefix          = local.name_prefix
+  site_distribution_id = module.edge_site.distribution_id
+  api_distribution_id  = module.edge_api.distribution_id
 }

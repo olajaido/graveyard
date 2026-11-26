@@ -856,7 +856,7 @@ graveyard/
 ├── infra/
 │   ├── .tool-versions           # pinned Terraform, tflint, checkov, actionlint versions
 │   ├── .tflint.hcl
-│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,web,ai}
+│   ├── modules/{state,github-oidc,cost,data,github-app,lambda-function,workflow,api,observability,edge-cert,edge-waf,edge-site,edge-api,edge-alarms,web,ai}
 │   ├── envs/{dev,prod}/         # thin roots: backend config, tfvars, module calls
 │   └── bootstrap/               # state bucket, OIDC roles, budget; applied locally by a maintainer once
 ├── actions/vigil/               # GitHub Action

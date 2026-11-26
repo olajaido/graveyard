@@ -127,7 +127,7 @@ class BrokenCi(unittest.TestCase):
         self.assertCaught(self.broken("  tf-fmt:\n    needs: changes\n    if: needs.changes.outputs.infra == 'true'\n", "  tf-fmt:\n    needs: changes\n"), "must run only when infra changed")
 
     def test_a_plan_job_that_does_not_wait_for_the_checks(self) -> None:
-        self.assertCaught(self.broken("needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint]", "needs: [changes]"), "must need every static job")
+        self.assertCaught(self.broken("needs: [changes, kiro-not-ignored, guards, tf-fmt, tf-validate, tf-test, tflint, checkov, actionlint, edge-function]", "needs: [changes]"), "must need every static job")
 
     def test_a_plan_job_for_forks(self) -> None:
         self.assertCaught(self.broken(" && github.actor != 'dependabot[bot]'", ""), "dependabot")
@@ -139,13 +139,13 @@ class BrokenCi(unittest.TestCase):
         self.assertCaught(self.broken("account-id: ${{ secrets.AWS_ACCOUNT_ID }}", "account-id: ${{ vars.AWS_ACCOUNT_ID }}"), "from the secret")
 
     def test_deploy_without_the_push_condition(self) -> None:
-        self.assertCaught(self.broken("github.event_name == 'push' && github.ref == 'refs/heads/main' &&\n      (needs", "(needs"), "deploy: the if must include")
+        self.assertCaught(self.broken("github.event_name == 'push' && github.ref == 'refs/heads/main' &&\n      (needs.plan-dev", "(needs.plan-dev"), "deploy: the if must include")
 
     def test_deploy_inheriting_secrets(self) -> None:
         self.assertCaught(self.broken("    secrets:\n      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}\n", "    secrets: inherit\n"), "never inherit")
 
     def test_deploy_crossing_the_envs(self) -> None:
-        self.assertCaught(self.broken("dev_sha256: ${{ needs.plan-dev.outputs.sha256 }}", "dev_sha256: ${{ needs.plan-prod.outputs.sha256 }}"), "dev_sha256 must come from plan-dev")
+        self.assertCaught(self.broken("dev_sha256: ${{ needs.plan-dev.outputs.sha256 || '' }}", "dev_sha256: ${{ needs.plan-prod.outputs.sha256 || '' }}"), "dev_sha256 must come from plan-dev")
 
     def test_an_expression_inside_a_run_block(self) -> None:
         self.assertCaught(self.broken('run: terraform -chdir="$ROOT" validate', 'run: terraform -chdir="${{ matrix.root }}" validate'), "script injection")
@@ -175,6 +175,21 @@ class BrokenCi(unittest.TestCase):
         self.assertCaught(self.broken("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", "cancel-in-progress: true"), "cancel only pull request runs")
 
 
+    def test_deploy_that_ignores_a_web_only_change(self) -> None:
+        self.assertCaught(self.broken(" || needs.changes.outputs.web == 'true')", ")"), "needs.changes.outputs.web == 'true'")
+    def test_deploy_that_runs_after_a_failed_plan(self) -> None:
+        self.assertCaught(self.broken(" &&\n      (needs.changes.outputs.infra != 'true' || (needs.plan-dev.result == 'success' && needs.plan-prod.result == 'success'))", ""), "needs.plan-prod.result")
+    def test_deploy_that_does_not_wait_for_the_web_job(self) -> None:
+        self.assertCaught(self.broken("needs: [changes, web, plan-dev, plan-prod]", "needs: [changes, plan-dev, plan-prod]"), "deploy must need changes, web")
+    def test_deploy_that_does_not_pass_web_changed(self) -> None:
+        self.assertCaught(self.broken("      web_changed: ${{ needs.changes.outputs.web }}\n", ""), "exactly the six plan inputs")
+    def test_a_plan_without_the_zone_variable(self) -> None:
+        self.assertCaught(self.broken("route53-zone-id: ${{ vars.ROUTE53_ZONE_ID }}", "route53-zone-id: ${{ secrets.AWS_ACCOUNT_ID }}"), "route53-zone-id must come from the variable")
+    def test_the_edge_function_tests_removed(self) -> None:
+        self.assertCaught(self.broken("run: node --test 'infra/modules/edge-site/functions/*.test.mjs'", "run: echo skipped"), "edge-function: must run node --test")
+    def test_the_matrices_name_every_edge_module(self) -> None:
+        for name in ("edge-cert", "edge-waf", "edge-site", "edge-api", "edge-alarms"):
+            self.assertEqual(CI.count(f"          - infra/modules/{name}\n"), 2, name)
 class BrokenDeploy(unittest.TestCase):
     def broken(self, old: str, new: str) -> list:
         self.assertIn(old, DEPLOY, f"the sample's anchor is gone: {old!r}")
@@ -202,10 +217,10 @@ class BrokenDeploy(unittest.TestCase):
         self.assertCaught(self.broken(" &&\n      (needs.apply-dev.result == 'success' || needs.apply-dev.result == 'skipped')", ""), "needs.apply-dev.result == 'success'")
 
     def test_prod_that_runs_when_cancelled(self) -> None:
-        self.assertCaught(self.broken("!cancelled() &&\n      ", ""), "!cancelled()")
+        self.assertCaught(self.broken("!cancelled() &&\n      (inputs.prod_has_changes", "(inputs.prod_has_changes"), "!cancelled()")
 
     def test_prod_that_does_not_wait_for_dev(self) -> None:
-        self.assertCaught(self.broken("    needs: apply-dev\n", ""), "must need apply-dev")
+        self.assertCaught(self.broken("    needs: [apply-dev, build-web-prod]\n", "    needs: [build-web-prod]\n"), "must need apply-dev")
 
     def test_dev_that_uses_the_prod_plan(self) -> None:
         self.assertCaught(self.broken("version-id: ${{ inputs.dev_version_id }}", "version-id: ${{ inputs.prod_version_id }}"), "from the dev plan only")
@@ -214,7 +229,7 @@ class BrokenDeploy(unittest.TestCase):
         self.assertCaught(self.broken("sha256: ${{ inputs.prod_sha256 }}", "sha256: ${{ inputs.dev_sha256 }}"), "from the prod plan only")
 
     def test_a_checkout_that_is_not_the_planned_commit(self) -> None:
-        self.assertCaught(self.broken("          ref: ${{ github.sha }}\n", "          ref: main\n"), "check out github.sha first")
+        self.assertCaught(self.broken("      - name: Check out the planned commit\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.sha }}\n", "      - name: Check out the planned commit\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: main\n"), "check out github.sha first")
 
     def test_the_secret_not_required(self) -> None:
         self.assertCaught(self.broken("        required: true\n\npermissions", "        required: false\n\npermissions"), "require the secret")
@@ -223,5 +238,23 @@ class BrokenDeploy(unittest.TestCase):
         self.assertCaught(self.broken("    permissions:\n      contents: read\n      id-token: write\n    steps:\n      # The commit", "    permissions:\n      contents: read\n      id-token: write\n      pull-requests: write\n    steps:\n      # The commit"), "unexpected permissions")
 
 
+    def test_a_build_job_with_credentials(self) -> None:
+        self.assertCaught(self.broken("  build-web-dev:\n    if: inputs.dev_has_changes == 'true' || inputs.web_changed == 'true'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 20\n    permissions:\n      contents: read\n", "  build-web-dev:\n    if: inputs.dev_has_changes == 'true' || inputs.web_changed == 'true'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 20\n    permissions:\n      contents: read\n      id-token: write\n"), "no credentials")
+    def test_a_build_job_in_an_environment(self) -> None:
+        self.assertCaught(self.broken("  build-web-prod:\n", "  build-web-prod:\n    environment: prod\n"), "no credentials")
+    def test_a_build_job_that_reads_a_secret(self) -> None:
+        self.assertCaught(self.broken("          NEXT_PUBLIC_API_URL: https://api.dev.lastrites.dev\n", "          NEXT_PUBLIC_API_URL: https://api.dev.lastrites.dev\n          X: ${{ secrets.AWS_ACCOUNT_ID }}\n"), "must not read secrets")
+    def test_the_wrong_api_url_in_a_build(self) -> None:
+        self.assertCaught(self.broken("NEXT_PUBLIC_API_URL: https://api.lastrites.dev", "NEXT_PUBLIC_API_URL: https://api.dev.lastrites.dev"), "NEXT_PUBLIC_API_URL must be https://api.lastrites.dev")
+    def test_a_build_that_uploads_something_else(self) -> None:
+        self.assertCaught(self.broken("          path: web/out\n          if-no-files-found: error\n          retention-days: 7\n\n  apply-dev:", "          path: web\n          if-no-files-found: error\n          retention-days: 7\n\n  apply-dev:"), "must upload web/out")
+    def test_an_apply_that_waits_for_the_web_build_to_succeed(self) -> None:
+        self.assertCaught(self.broken("      !cancelled() &&\n      (inputs.dev_has_changes == 'true' || inputs.web_changed == 'true')\n", "      !cancelled() && needs.build-web-dev.result == 'success' &&\n      (inputs.dev_has_changes == 'true' || inputs.web_changed == 'true')\n"), "a failed web build must not stop the apply")
+    def test_a_site_step_that_always_runs(self) -> None:
+        self.assertCaught(self.broken("        if: needs.build-web-dev.result == 'success'\n", ""), "must publish the dev site only when")
+    def test_a_job_that_hides_a_failed_build(self) -> None:
+        self.assertCaught(self.broken("        if: needs.build-web-prod.result != 'success'\n", "        if: always()\n"), "must fail the job when build-web-prod")
+    def test_an_apply_that_runs_without_a_plan_with_changes(self) -> None:
+        self.assertCaught(self.broken("        if: inputs.dev_has_changes == 'true'\n        uses: ./.github/actions/terraform-apply", "        uses: ./.github/actions/terraform-apply"), "runs only when the dev plan has changes")
 if __name__ == "__main__":
     unittest.main()

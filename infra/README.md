@@ -10,7 +10,9 @@ Terraform for Graveyard. Spec: `.kiro/specs/infra-foundation/`.
 | `envs/dev/` | `envs/dev/terraform.tfstate` | CI (`deploy.yml`) |
 | `envs/prod/` | `envs/prod/terraform.tfstate` | CI (`deploy.yml`), after approval |
 
-Modules live in `modules/` (`state`, `github-oidc`, `cost` so far). Module directories are hyphenated, resource labels may be snake_case. Modules contain no data sources. Policies are built with `jsonencode` in `locals`.
+Modules live in `modules/` (`state`, `github-oidc`, `cost`, `data`, `github-app`, `lambda-function`, `workflow`, `api`, `observability`, and the edge: `edge-cert`, `edge-waf`, `edge-site`, `edge-api`, `edge-alarms`). Module directories are hyphenated, resource labels may be snake_case. Modules contain no data sources. Policies are built with `jsonencode` in `locals`.
+
+The hosted zone for `lastrites.dev` is made by hand and is never created, imported or read by Terraform: the edge modules write records into it by its ID (`route53_zone_id`, from the repository variable `ROUTE53_ZONE_ID`; a guard fails on any `aws_route53_zone`). The edge is described in `.kiro/specs/infra-edge/` and operated by `docs/runbooks/edge.md`.
 
 All resource names start with `graveyard-<env>-` (or `graveyard/<env>/` for SSM and Secrets Manager).
 
@@ -20,7 +22,7 @@ The AWS account is shared with other projects. Every write permission in the CI 
 
 - a `graveyard-` or `graveyard/` name prefix;
 - `aws:ResourceTag/Project=graveyard` (and `Env`), or `aws:RequestTag` on create;
-- an approved exception (E1 to E10, listed in the design).
+- an approved exception (E1 to E12, listed in the design).
 
 Never widen a role to `*` without adding an exception to the spec first.
 

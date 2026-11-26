@@ -12,6 +12,7 @@ variables {
   repo_id           = "1443508961"
   state_bucket_name = "graveyard-tfstate-abcd1234"
   state_kms_key_arn = "arn:aws:kms:eu-west-2:123456789012:key/00000000-0000-0000-0000-000000000000"
+  route53_zone_id   = "Z0123456789ABCDEFGHIJ"
 }
 
 run "each_apply_role_trusts_exactly_its_own_environment" {
@@ -66,7 +67,7 @@ run "each_apply_role_has_its_core_policies_and_stays_under_the_attachment_limit"
   assert {
     condition = toset([for k, p in aws_iam_policy.ci : k if startswith(k, "graveyard-dev-apply-")]) == toset([
       "graveyard-dev-apply-state", "graveyard-dev-apply-iam", "graveyard-dev-apply-compute", "graveyard-dev-apply-data",
-      "graveyard-dev-apply-edge", "graveyard-dev-apply-ops", "graveyard-dev-apply-guard",
+      "graveyard-dev-apply-edge", "graveyard-dev-apply-ops", "graveyard-dev-apply-guard", "graveyard-dev-apply-edge-extra",
     ])
     error_message = "Unexpected dev apply policies."
   }
@@ -333,20 +334,20 @@ run "the_region_deny_is_in_both_apply_guards" {
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-guard"].policy).Statement : s if s.Sid == "DenyOutsideRegion"][0] == {
           Sid       = "DenyOutsideRegion"
           Effect    = "Deny"
-          NotAction = ["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"]
+          NotAction = concat(["iam:*", "sts:*", "cloudfront:*", "wafv2:*", "acm:*", "budgets:*", "ce:*", "s3:ListAllMyBuckets", "s3:GetBucketLocation"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
           Resource  = "*"
           Condition = { StringNotEquals = { "aws:RequestedRegion" = "eu-west-2" } }
         } &&
         [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-guard"].policy).Statement : s if s.Sid == "DenyGlobalOutsideUsEast1"][0] == {
           Sid       = "DenyGlobalOutsideUsEast1"
           Effect    = "Deny"
-          Action    = ["cloudfront:*", "wafv2:*", "acm:*"]
+          Action    = concat(["cloudfront:*", "wafv2:*", "acm:*"], ["route53:ChangeResourceRecordSets", "route53:GetChange", "route53:GetHostedZone", "route53:ListResourceRecordSets", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:TagResource", "cloudwatch:UntagResource", "cloudwatch:ListTagsForResource", "cloudwatch:DescribeAlarms", "sns:CreateTopic", "sns:DeleteTopic", "sns:SetTopicAttributes", "sns:TagResource", "sns:UntagResource", "sns:GetTopicAttributes", "sns:ListTagsForResource"])
           Resource  = "*"
           Condition = { StringNotEquals = { "aws:RequestedRegion" = ["eu-west-2", "us-east-1"] } }
         }
       )
     ])
-    error_message = "Both region denies must be in both apply guards."
+    error_message = "Both region denies, with the E11 actions of infra-edge added, must be in both apply guards."
   }
 }
 

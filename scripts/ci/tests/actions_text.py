@@ -156,3 +156,23 @@ def jobs_of(text: str) -> Dict[str, Dict]:
         job["steps"] = steps_of("\n".join(block), item_indent=6) if any(re.match(r"^    steps:", b) for b in block) else []
         jobs[lines[start].strip().rstrip(":")] = job
     return jobs
+# Workflow artifacts of a public repository are readable by anyone, so plans never go there (decision C5). The one exception
+# (infra-edge EDGE-DEP-1, EDGE-DEP-5) is the public web build, which a no-credentials job hands to the credentialed job: artifact
+# site-<env>, path web/out, in deploy.yml and the deploy-site action only.
+ARTIFACT_FILES = {".github/workflows/deploy.yml", ".github/actions/deploy-site/action.yml"}
+def artifact_problems(rel_path: str, text: str) -> List[str]:
+    """Problems with upload-artifact and download-artifact in one workflow or action file."""
+    if "upload-artifact" not in text and "download-artifact" not in text:
+        return []
+    if rel_path not in ARTIFACT_FILES:
+        return [f"{rel_path}: workflow artifacts are allowed only in {sorted(ARTIFACT_FILES)}"]
+    problems: List[str] = []
+    for match in re.finditer(r"uses:\s*actions/(upload|download)-artifact@\S+[^\n]*\n((?:\s+with:\n(?:\s{2,}[^\n]+\n)+)?)", text):
+        kind, block = match.group(1), match.group(2)
+        name = re.search(r"name:[ \t]*([^\n]+)", block)
+        path = re.search(r"path:[ \t]*(\S+)", block)
+        if not name or not re.fullmatch(r"site-(dev|prod|\$\{\{ inputs\.env \}\})", name.group(1).strip()):
+            problems.append(f"{rel_path}: a {kind}-artifact step must name site-dev, site-prod or site-${{{{ inputs.env }}}}")
+        if kind == "upload" and (not path or path.group(1) != "web/out"):
+            problems.append(f"{rel_path}: an upload-artifact step may upload web/out only")
+    return problems
