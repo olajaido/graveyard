@@ -22,7 +22,7 @@ The AWS account is shared with other projects. Every write permission in the CI 
 
 - a `graveyard-` or `graveyard/` name prefix;
 - `aws:ResourceTag/Project=graveyard` (and `Env`), or `aws:RequestTag` on create;
-- an approved exception (E1 to E12, listed in the design).
+- an approved exception (E1 to E12 and E14, listed in the design; E13 was withdrawn).
 
 Never widen a role to `*` without adding an exception to the spec first.
 

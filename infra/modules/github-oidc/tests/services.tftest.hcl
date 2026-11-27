@@ -126,8 +126,8 @@ run "the_star_resource_allow_list_is_exactly_this_and_only_reads_tagged_creates_
     condition = toset(flatten([
       for x in flatten([for k, p in { for k2, p2 in aws_iam_policy.ci : k2 => p2 if !endswith(k2, "-boundary") } : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])])
       if startswith(x.stmt.Sid, "Exception")
-    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups", "route53:ChangeResourceRecordSets"])
-    error_message = "The exception statements in the CI roles must be exactly E4, E6, E7, E8, E9 and E12."
+    ])) == toset(["ecr:GetAuthorizationToken", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups", "route53:ChangeResourceRecordSets", "wafv2:CreateWebACL", "wafv2:UpdateWebACL"])
+    error_message = "The exception statements in the CI roles must be exactly E4, E6, E7, E8, E9, E12 and E14."
   }
 
   assert {

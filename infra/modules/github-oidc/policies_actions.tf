@@ -43,13 +43,16 @@ locals {
   sfn_role_pattern = { for e in local.env_list : e => "arn:${local.p}:iam::${local.a}:role/graveyard-${e}/graveyard-${e}-*-sfn" }
   # Resources whose identifier AWS generates. They are written only with the Project tag condition.
   gen = {
-    kms_key      = "arn:${local.p}:kms:${local.r}:${local.a}:key/*"
-    guardrail    = "arn:${local.p}:bedrock:${local.r}:${local.a}:guardrail/*"
-    apis         = "arn:${local.p}:apigateway:${local.r}::/apis"
-    apis_all     = "arn:${local.p}:apigateway:${local.r}::/apis/*"
-    api_tags     = "arn:${local.p}:apigateway:${local.r}::/tags/*"
-    distribution = "arn:${local.p}:cloudfront::${local.a}:distribution/*"
-    certificates = ["arn:${local.p}:acm:${local.r}:${local.a}:certificate/*", "arn:${local.p}:acm:${local.global_region}:${local.a}:certificate/*"]
+    kms_key   = "arn:${local.p}:kms:${local.r}:${local.a}:key/*"
+    guardrail = "arn:${local.p}:bedrock:${local.r}:${local.a}:guardrail/*"
+    apis      = "arn:${local.p}:apigateway:${local.r}::/apis"
+    apis_all  = "arn:${local.p}:apigateway:${local.r}::/apis/*"
+    api_tags  = "arn:${local.p}:apigateway:${local.r}::/tags/*"
+    # Exception E14 (infra-edge): the AWS managed rule groups that a CloudFront web ACL references. CreateWebACL and UpdateWebACL
+    # are authorised on this resource type as well as on the web ACL (WAFv2 Service Authorization Reference).
+    managed_rule_sets = "arn:${local.p}:wafv2:${local.global_region}:${local.a}:global/managedruleset/*/*"
+    distribution      = "arn:${local.p}:cloudfront::${local.a}:distribution/*"
+    certificates      = ["arn:${local.p}:acm:${local.r}:${local.a}:certificate/*", "arn:${local.p}:acm:${local.global_region}:${local.a}:certificate/*"]
   }
 
   # Tag conditions (INF-APPLY-3, INF-SHARED-1): both Project and Env, written exactly as the PRD tag set.
@@ -181,6 +184,9 @@ locals {
     e9_api_tags = ["apigateway:POST", "apigateway:GET", "apigateway:DELETE"]
     # Exception E12 (infra-edge): Route 53 supports no tag condition and the hosted zone has no Graveyard name.
     e12_route53_change = ["route53:ChangeResourceRecordSets"]
+    # Exception E14 (infra-edge, 27 Nov 2026): found by the first prod apply, which failed with AccessDenied for wafv2:CreateWebACL on
+    # global/managedruleset/*/* while creating graveyard-prod-edge.
+    e14_waf_managed = ["wafv2:CreateWebACL", "wafv2:UpdateWebACL"]
     # Exception E10 (20 Nov 2026): Step Functions checks that the state machine role may manage log deliveries, including
     # logs:PutResourcePolicy. None of these has a resource. Allowed in the workload boundary only, and only to roles named
     # graveyard-<env>-*-sfn; never to a CI role.

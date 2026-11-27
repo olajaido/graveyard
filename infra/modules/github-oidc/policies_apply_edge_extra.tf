@@ -28,6 +28,11 @@ locals {
           }
         }
       },
+      # Exception E14 (infra-edge, maintainer-requested 27 Nov 2026): a web ACL that references an AWS managed rule group needs
+      # CreateWebACL and UpdateWebACL on the managedruleset resource type too. AWS managed rule sets have no Graveyard name and cannot
+      # be tagged, so the resource is the one global pattern in us-east-1 and nothing else. The call is still authorised on the web
+      # ACL itself, which only the Waf statement of the edge policy allows, and only for graveyard-<env>-* names.
+      { Sid = "ExceptionE14", Effect = "Allow", Action = local.exception_actions.e14_waf_managed, Resource = [local.gen.managed_rule_sets] },
       { Sid = "Route53Read", Effect = "Allow", Action = local.act.edge_route53_read, Resource = [local.arn_zone] },
       # Terraform waits for a record change to reach INSYNC with GetChange. A change ID has no name; this is a read.
       { Sid = "Route53Change", Effect = "Allow", Action = ["route53:GetChange"], Resource = ["arn:${local.p}:route53:::change/*"] },
