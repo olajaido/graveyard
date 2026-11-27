@@ -111,6 +111,8 @@ run "the_exceptions_are_exactly_the_approved_ones" {
       "graveyard-dev-apply-edge/ExceptionE6",
       "graveyard-dev-apply-edge-extra/ExceptionE12",
       "graveyard-prod-apply-edge-extra/ExceptionE12",
+      "graveyard-dev-apply-edge-extra/ExceptionE14",
+      "graveyard-prod-apply-edge-extra/ExceptionE14",
       "graveyard-dev-apply-ops/ExceptionE7",
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",
@@ -135,11 +137,11 @@ run "the_exceptions_are_exactly_the_approved_ones" {
       "graveyard-prod-boundary/ExceptionE5ModelNarrate",
       "graveyard-prod-boundary/ExceptionE5ModelRites",
     ])
-    error_message = "The exception statements must be exactly E1 to E10 as approved: E1 to E10 and E12 (INF-SHARED-4). E11 is the region exemption, not a statement; E13 was dropped."
+    error_message = "The exception statements must be exactly E1 to E10 as approved: E1 to E10, E12 and E14 (INF-SHARED-4). E11 is the region exemption, not a statement; E13 was withdrawn and its number is not reused."
   }
 
   assert {
-    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups", "route53:ChangeResourceRecordSets"])
+    condition     = toset(flatten([for x in flatten([for k, p in aws_iam_policy.ci : [for s in jsondecode(p.policy).Statement : { policy = k, stmt = s } if s.Effect == "Allow"]]) : flatten([try(x.stmt.Action, [])]) if startswith(x.stmt.Sid, "Exception")])) == toset(["xray:PutTraceSegments", "xray:PutTelemetryRecords", "cloudwatch:PutMetricData", "ecr:GetAuthorizationToken", "bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "cloudfront:CreateOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:ListOriginAccessControls", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "states:ValidateStateMachineDefinition", "apigateway:POST", "apigateway:GET", "apigateway:DELETE", "logs:PutResourcePolicy", "logs:CreateLogDelivery", "logs:GetLogDelivery", "logs:UpdateLogDelivery", "logs:DeleteLogDelivery", "logs:ListLogDeliveries", "logs:DescribeResourcePolicies", "logs:DescribeLogGroups", "route53:ChangeResourceRecordSets", "wafv2:CreateWebACL", "wafv2:UpdateWebACL"])
     error_message = "The exception statements may contain only the approved actions."
   }
 
@@ -307,6 +309,8 @@ run "bad_sample_an_extra_exception" {
       "graveyard-dev-apply-edge/ExceptionE6",
       "graveyard-dev-apply-edge-extra/ExceptionE12",
       "graveyard-prod-apply-edge-extra/ExceptionE12",
+      "graveyard-dev-apply-edge-extra/ExceptionE14",
+      "graveyard-prod-apply-edge-extra/ExceptionE14",
       "graveyard-dev-apply-ops/ExceptionE7",
       "graveyard-dev-boundary/ExceptionE1",
       "graveyard-dev-boundary/ExceptionE2",

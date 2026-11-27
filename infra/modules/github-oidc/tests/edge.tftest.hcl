@@ -152,6 +152,65 @@ run "e12_is_the_exact_zone_and_this_envs_record_names" {
     error_message = "Only these four Route 53 actions may be allowed, and never on another zone."
   }
 }
+# E14 (27 Nov 2026): the first prod apply failed with AccessDenied for wafv2:CreateWebACL on global/managedruleset/*/*. A web ACL that
+# references an AWS managed rule group is authorised on that resource type as well as on the web ACL. Only the two actions, only the
+# global pattern in us-east-1, both envs (dev can opt in), and nothing for the plan role or the boundaries.
+run "e14_lets_a_web_acl_reference_aws_managed_rule_groups" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] :
+      [for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge-extra"].policy).Statement : s if s.Sid == "ExceptionE14"][0] == {
+        Sid      = "ExceptionE14"
+        Effect   = "Allow"
+        Action   = ["wafv2:CreateWebACL", "wafv2:UpdateWebACL"]
+        Resource = ["arn:aws:wafv2:us-east-1:123456789012:global/managedruleset/*/*"]
+      }
+    ])
+    error_message = "E14 must be exactly CreateWebACL and UpdateWebACL on arn:aws:wafv2:us-east-1:<account>:global/managedruleset/*/* in both apply-edge-extra policies, with no condition."
+  }
+  # The statements for our own web ACL are as they were: names graveyard-<env>-*, global scope, us-east-1.
+  assert {
+    condition = alltrue([
+      for e in ["dev", "prod"] : (
+        contains(flatten([[for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "Waf"][0].Resource]), "arn:aws:wafv2:us-east-1:123456789012:global/webacl/graveyard-${e}-*/*") &&
+        contains([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "Waf"][0].Action, "wafv2:CreateWebACL") &&
+        contains([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "Waf"][0].Action, "wafv2:UpdateWebACL") &&
+        contains([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "Waf"][0].Action, "wafv2:DeleteWebACL") &&
+        contains([for s in jsondecode(aws_iam_policy.ci["graveyard-${e}-apply-edge"].policy).Statement : s if s.Sid == "Waf"][0].Action, "wafv2:GetWebACL")
+      )
+    ])
+    error_message = "The Waf statement (our own web ACL, by name, global scope) must still allow Create, Update, Delete and Get."
+  }
+  # Nothing else in any policy names a managed rule set, and the plan role and the boundaries have no wafv2 write.
+  assert {
+    condition = toset(flatten([
+      for k, p in aws_iam_policy.ci : [
+        for s in jsondecode(p.policy).Statement : "${k}/${s.Sid}" if strcontains(jsonencode(s), "managedruleset")
+      ]
+    ])) == toset(["graveyard-dev-apply-edge-extra/ExceptionE14", "graveyard-prod-apply-edge-extra/ExceptionE14"])
+    error_message = "Only the two E14 statements may name the managedruleset resource type."
+  }
+  assert {
+    condition = !anytrue(flatten([
+      for k, p in aws_iam_policy.ci : [
+        for s in jsondecode(p.policy).Statement : [for a in flatten([try(s.Action, [])]) : startswith(a, "wafv2:") && !can(regex("(?i)^wafv2:(get|list|describe)", a))]
+        if s.Effect == "Allow" && (startswith(k, "graveyard-plan-") || endswith(k, "-boundary"))
+      ]
+    ]))
+    error_message = "The plan role and the boundaries must not have a wafv2 write."
+  }
+  # The managed rule sets pattern is in one place and is a write only through the two web ACL actions: no wildcard action.
+  assert {
+    condition = alltrue(flatten([
+      for k, p in aws_iam_policy.ci : [
+        for s in jsondecode(p.policy).Statement : !strcontains(join(",", flatten([try(s.Action, [])])), "wafv2:*") && !strcontains(join(",", flatten([try(s.Action, [])])), "wafv2:Create*")
+        if s.Effect == "Allow"
+      ]
+    ]))
+    error_message = "No Allow may use a wafv2 wildcard action."
+  }
+}
 # R4 (EDGE-IAM-3): prod can never change a dev record, whatever its Allow says. The dev guard has no such statement.
 run "the_prod_apply_role_is_explicitly_denied_dev_records" {
   command = plan

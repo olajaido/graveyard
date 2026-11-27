@@ -35,7 +35,7 @@ The agent runs only `scripts/ci/local-checks.sh` (fmt, `init -backend=false`, va
 ### 2.2 Verified against the repo
 Roots may not declare resources or data sources, and dev and prod must differ only in the env name (`test_env_roots.py`). Modules declare no data sources (INF-POL-1). Policies are `jsonencode` in `locals`.
 ### 2.3 Unverified (watch at the first apply, listed in the runbook)
-1. Whether CreateWebACL needs rights on `managedruleset` ARNs for AWS-managed rule groups. The Service Authorization Reference lists the type as optional; common use suggests it is not needed.
+1. ~~Whether CreateWebACL needs rights on `managedruleset` ARNs for AWS-managed rule groups.~~ **Resolved by the first prod apply (27 Nov 2026): it does.** Exception E14, §12.6.
 2. Whether CloudFront checks `wafv2:GetWebACL` or ACM permissions with the caller's credentials when a distribution is created. The policies already allow `wafv2:GetWebACL`, `acm:DescribeCertificate` and `acm:ListCertificates`.
 3. The reference maps `CreateDistribution` to `cloudfront:CreateConnectionGroup` and `cloudfront:GetVpcOrigin` as well. They matter only for multi-tenant distributions and VPC origins, which this spec does not use. Not granted.
 4. That `aws:RequestedRegion` for Route 53 is `us-east-1` (the global-endpoint behaviour that CloudFront and ACM already show). If the first plan shows Route 53 denied in eu-west-2, E11 adds eu-west-2 to the list; it already does.
@@ -242,6 +242,7 @@ region_us_east_1_actions = [
 ### 12.2 `graveyard-<env>-apply-edge-extra` (new managed policy)
 | Sid | Actions | Resource | Condition |
 |-----|---------|----------|-----------|
+| `ExceptionE14` | `wafv2:CreateWebACL`, `wafv2:UpdateWebACL` | `arn:<p>:wafv2:us-east-1:<a>:global/managedruleset/*/*` | none (§12.6) |
 | `ExceptionE12` | `route53:ChangeResourceRecordSets` | `arn:<p>:route53:::hostedzone/<zone id>` | `ForAllValues:StringLike` `route53:ChangeResourceRecordSetsNormalizedRecordNames` in the names below; `ForAllValues:StringEquals` `…RecordTypes` in `A`, `AAAA`, `CNAME`; `ForAllValues:StringEquals` `…Actions` in `CREATE`, `UPSERT`, `DELETE`; `Null` `false` on all three keys (a request without them is not allowed) |
 | `Route53Read` | `route53:GetHostedZone`, `route53:ListResourceRecordSets` | the zone ARN | |
 | `Route53Change` | `route53:GetChange` | `arn:<p>:route53:::change/*` | |
@@ -274,9 +275,23 @@ Measured after T1 (`terraform test` in a scratch copy, mocked provider, no crede
 | `plan-guard` | 1,117 | 2,049 | same | same | 6,144 (E11 with the A6 condition) |
 | `plan-read-edge` | 2,715 | 2,790 | same | same | 6,144 |
 | boundary | 6,066 | 6,066 | 6,084 | 6,084 | 6,144, **unchanged** (a test pins both sizes) |
-| new `apply-edge-extra` | | 1,680 | | 1,691 | 6,144 (includes the `Null` checks of E12) |
+| new `apply-edge-extra` | | 1,851 | | 1,862 | 6,144 (includes the `Null` checks of E12 and the E14 statement) |
 | new `plan-read-edge-extra` | | 658 | | same | 6,144 |
 The largest policy is a boundary at 6,084 (60 spare); the largest CI-role policy is `apply-edge` at 5,739. Managed policies per role: each apply role 7 + 1 = **8** (compute, data, edge, guard, iam, ops, state, edge-extra), the plan role 7 + 1 = **8**; the quota is 10 (R9). `tests/edge.tftest.hcl` asserts 8, 8, 8 and every policy at most 6,144. Expected bootstrap plan: 6 to add (3 policies, 3 attachments), 6 to change (`apply-edge` and `apply-guard` in both envs, `plan-guard`, `plan-read-edge`), 0 to destroy.
+
+### 12.6 Exception E14 and the audit of the WAF and the CloudFront link (27 Nov 2026)
+The first prod apply failed creating `graveyard-prod-edge` with AccessDenied for `wafv2:CreateWebACL` on `arn:aws:wafv2:us-east-1:<account>:global/managedruleset/*/*`. Audit of the same pattern, with the sources read on 27 Nov 2026:
+| Question | Finding | Source | Result |
+|---|---|---|---|
+| Which resource types does `CreateWebACL` need? | `webacl` (required) and, when the ACL references them, `ipset`, `managedruleset`, `regexpatternset`, `rulegroup`. Our ACL references AWS managed rule groups only, so `managedruleset` is the missing one | WAFv2 Service Authorization Reference, actions table | **E14** |
+| Same for `UpdateWebACL`? | The same five resource types | same | **E14** (both actions) |
+| `DeleteWebACL`, `GetWebACL`? | `webacl` only | same | covered by `Waf` |
+| Tagging a web ACL on create? | `TagResource` on `webacl` (also `ipset`, `regexpatternset`, `rulegroup`) | same | covered by `Waf` |
+| Other WAF calls the provider makes? | Only CreateWebACL, GetWebACL, UpdateWebACL, DeleteWebACL and the tag calls (provider 6.73.0 `wafv2/web_acl.go`) | provider source | nothing to add |
+| ARN of a managed rule set | `arn:<partition>:wafv2:<region>:<account>:<scope>/managedruleset/<name>/<id>`; scope `global` and Region `us-east-1` for CloudFront; name and id may both be `*` | AWS WAF Developer Guide, "How AWS WAF works with IAM", policy resources; WAFv2 Service Authorization Reference, resource types | the E14 resource |
+| Does CloudFront need a wafv2 permission to attach the ACL on CreateDistribution or UpdateDistribution? | None is documented. The AWS WAF guide says that for CloudFront the action to use instead of `AssociateWebACL` is `cloudfront:UpdateDistribution`, instead of `GetWebACLForResource` is `cloudfront:GetDistributionConfig`, and instead of `ListResourcesForWebACL` is `cloudfront:ListDistributionsByWebACLId`. The CloudFront Service Authorization Reference maps `CreateDistribution`, `CreateDistributionWithTags` and `UpdateDistribution` to `cloudfront:CreateDistribution`, `UpdateDistribution`, `TagResource`, `CreateConnectionGroup` and `GetVpcOrigin`, and no wafv2 action | AWS WAF Developer Guide, "How AWS WAF works with IAM", actions that require additional permissions; CloudFront Service Authorization Reference, operations table | nothing added. `wafv2:GetWebACL` on our ACL is already allowed by `Waf` and the plan role, in case CloudFront checks it |
+| New CloudFront actions `AssociateDistributionWebACL` and `DisassociateDistributionWebACL` | They exist in the reference (resource `distribution`, `aws:ResourceTag`), but the provider calls `UpdateDistribution` with `WebACLId` and never these (checked in `distribution.go`) | CloudFront Service Authorization Reference; provider source | not added; add them only if a later provider version uses them |
+Why E14 does not widen where an ACL can be created: the call is authorised on every resource it touches, and the web ACL itself is still allowed only by the `Waf` statement, for names `graveyard-<env>-*`. E14 only adds the second resource. This reading matches the error message but is not stated in one sentence by AWS. A test pins the E14 statement and that nothing else names `managedruleset`.
 
 ## 13. Apply-permission audit
 Calls come from the provider 6.73.0 source (`internal/service/*`, read 25 Nov 2026) and the Service Authorization Reference. "Apply" is the env apply role's identity policy, "Plan" the plan role's read policy. **New** marks a statement this spec adds. `region` is the `aws:RequestedRegion` of the call.
@@ -291,7 +306,7 @@ Calls come from the provider 6.73.0 source (`internal/service/*`, read 25 Nov 20
 | invalidation (workflow) | CreateInvalidation; GetInvalidation | | us-east-1 | yes (`cf_dist_write`) | n/a |
 | managed cache and origin request policies | referenced by ID | possibly Get on the policy | us-east-1 | **New** `star_reads` Get/List (insurance) | yes |
 | `aws_cloudfront_distribution` (viewer-response association) | the function ARN is part of the distribution config; no extra call | CloudFront may check the function exists (`DescribeFunction`) | us-east-1 | yes (`ManageCloudFrontFunctions` read) | yes |
-| `aws_wafv2_web_acl` (CLOUDFRONT, prod only) | CreateWebACL, TagResource; GetWebACL, ListTagsForResource; UpdateWebACL (lock token from GetWebACL); DeleteWebACL | managed rule groups (§2.3 item 1) | us-east-1 | yes (`Waf`, `global/webacl/graveyard-<env>-*/*`) | yes |
+| `aws_wafv2_web_acl` (CLOUDFRONT, prod only) | CreateWebACL, TagResource; GetWebACL, ListTagsForResource; UpdateWebACL (lock token from GetWebACL); DeleteWebACL | **CreateWebACL and UpdateWebACL on `managedruleset/*/*` (E14, found by the first prod apply)** | us-east-1 | yes (`Waf`, `global/webacl/graveyard-<env>-*/*`) | yes |
 | `aws_acm_certificate` | RequestCertificate (with tags); DescribeCertificate, ListTagsForCertificate; UpdateCertificateOptions, AddTagsToCertificate, RemoveTagsFromCertificate; DeleteCertificate | AddTagsToCertificate on create | us-east-1 | yes (`AcmRequest`, `AcmTagNew`, `AcmManage`; ARN pattern includes us-east-1) | yes |
 | `aws_acm_certificate_validation` | DescribeCertificate (polling) | | us-east-1 | yes | yes |
 | `aws_route53_record` (validation and alias) | GetHostedZone, ChangeResourceRecordSets, GetChange (wait for INSYNC); ListResourceRecordSets; ChangeResourceRecordSets; ChangeResourceRecordSets (DELETE) | | us-east-1 | **New** `ExceptionE12`, `Route53Read`, `Route53Change` | **New** read |

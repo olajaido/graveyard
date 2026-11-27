@@ -229,3 +229,10 @@ Apply this before re-running the failed dev deploy. From your workstation, in `i
 3. `terraform apply bootstrap.tfplan`, delete the plan file, `terraform plan` shows no changes.
 4. In GitHub Actions re-run the failed jobs of the dev deploy (or push a trivial change). The distributions should now create.
 5. Tell the agent the plan counts, the V9 counts and the result of the re-run.
+## 17. Managed rule groups in a web ACL (exception E14, amendment A7, infra-edge task T16)
+Apply this before re-running the failed prod deploy. From your workstation, in `infra/bootstrap`, with Terraform 1.17.2:
+1. `terraform init -backend-config=backend.hcl`, then `terraform plan -out=bootstrap.tfplan`. **Expected: 0 to add, 2 to change, 0 to destroy.** The two changes are the policies `graveyard-dev-apply-edge-extra` and `graveyard-prod-apply-edge-extra`, text only (one new statement, `ExceptionE14`). Nothing else changes: not the guards, not the boundaries, not a role. If the plan shows anything else, stop and do not apply.
+2. Policy check (V9) on those two policies, as in section 15 step 4 with the filter `^graveyard-(dev|prod)-apply-edge-extra$`. Any `ERROR` or `SECURITY_WARNING`: stop and tell the agent. A suggestion about the wildcards in the resource is expected: the resource is `global/managedruleset/*/*` by design.
+3. `terraform apply bootstrap.tfplan`, delete the plan file, `terraform plan` shows no changes.
+4. In GitHub Actions re-run the failed jobs of the prod deploy. The web ACL should now create.
+5. Tell the agent the plan counts, the V9 counts and the result of the re-run.

@@ -101,7 +101,9 @@
 | EDGE-IAM-5 | THE apply roles SHALL get object-level `s3:PutObject`, `s3:DeleteObject` and `s3:AbortMultipartUpload` on `arn:<p>:s3:::graveyard-<env>-site-*/*` only. They SHALL get no cache-policy or origin-request-policy permission (the AWS-managed policies are used by ID, EDGE-SITE-2, EDGE-API-1). |
 | EDGE-IAM-6 | EVERY managed policy of a CI role SHALL stay at most 6,144 characters and every role at most 10 attached managed policies (INF-TEST-2); each apply role has 7 today and 8 after this change. The current sizes and the margin are in design §12.5. |
 | EDGE-IAM-7 | THE statements that carry `Resource = "*"` or a generated ID SHALL stay on the fixed lists of `shared_account.tftest.hcl`, updated by this spec: E12 joins the exception list with its zone ARN; the new `star_reads` entries are metadata `Get` and `List` actions only. No response-headers-policy action is allowed anywhere. |
-| EDGE-IAM-8 | `infra-foundation` SHALL be amended (A5): INF-APPLY-2 adds Route 53; INF-SHARED-4 lists E11 and E12; INF-REG-2 lists the E11 actions; INF-SHARED-3 is unchanged (creating cache and response-headers policies stays forbidden). |
+| EDGE-IAM-8 | `infra-foundation` SHALL be amended (A5): INF-APPLY-2 adds Route 53; INF-SHARED-4 lists E11, E12 and E14; INF-REG-2 lists the E11 actions; INF-SHARED-3 is unchanged (creating cache and response-headers policies stays forbidden). |
+
+| EDGE-IAM-9 | **Exception E14** (amendment A7). `graveyard-<env>-apply-edge-extra` of both envs SHALL allow `wafv2:CreateWebACL` and `wafv2:UpdateWebACL` on `arn:<p>:wafv2:us-east-1:<a>:global/managedruleset/*/*`, because a web ACL that references an AWS managed rule group is authorised on that resource type too. No condition, no other action, nothing for the plan role or the boundaries. The statements for our own web ACL stay as they are. |
 
 ## 10. Tags and names
 
